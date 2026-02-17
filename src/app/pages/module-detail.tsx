@@ -44,6 +44,7 @@ import { BranchListContent } from "../components/branch-list-content";
 import { RolesPermissionsContent } from "../components/roles-permissions-content";
 import { AccessLogsContent } from "../components/access-logs-content";
 import { WorkScheduleContent } from "../components/work-schedule-content";
+import { HolidaysContent } from "../components/holidays-content";
 
 // Componente de Seguridad
 function SecurityContent() {
@@ -882,6 +883,8 @@ export default function ModuleDetailPage() {
                 <AccessLogsContent />
               ) : selectedMenu === "work-schedule" ? (
                 <WorkScheduleContent />
+              ) : selectedMenu === "holidays" ? (
+                <HolidaysContent />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">

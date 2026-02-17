@@ -4,12 +4,34 @@ import {
   FileText,
   AlertCircle,
   Settings,
+  Building2,
 } from "lucide-react";
+
+const SUCURSALES = [
+  { id: "suc-001", name: "Sucursal Principal - Centro" },
+  { id: "suc-002", name: "Sucursal Norte" },
+  { id: "suc-003", name: "Sucursal Guayaquil" },
+  { id: "suc-004", name: "Sucursal Sur" },
+];
+
+interface Printer {
+  id: string;
+  name: string;
+  type: string;
+  ip: string;
+  port: string;
+  status: "connected" | "disconnected";
+  driver: string;
+  isDefault: boolean;
+  sucursales: string[];
+}
 
 export function PrinterConfigContent() {
   const [activeTab, setActiveTab] = useState("documents");
+  const [sucursalFilter, setSucursalFilter] = useState<string>("all");
+
   // Estados para impresoras
-  const [printers, setPrinters] = useState([
+  const [printers, setPrinters] = useState<Printer[]>([
     {
       id: "printer-1",
       name: "Impresora Predeterminada",
@@ -19,16 +41,29 @@ export function PrinterConfigContent() {
       status: "connected",
       driver: "Generic / PCL6",
       isDefault: true,
+      sucursales: ["suc-001", "suc-002", "suc-003", "suc-004"],
     },
     {
       id: "printer-2",
-      name: "Impresora Térmica",
+      name: "Impresora Térmica - Caja",
       type: "Térmica",
       ip: "192.168.1.101",
       port: "9100",
-      status: "disconnected",
+      status: "connected",
       driver: "ESC/POS",
       isDefault: false,
+      sucursales: ["suc-001", "suc-002"],
+    },
+    {
+      id: "printer-3",
+      name: "Impresora Guayaquil",
+      type: "Láser",
+      ip: "192.168.1.102",
+      port: "9100",
+      status: "disconnected",
+      driver: "Generic / PCL6",
+      isDefault: false,
+      sucursales: ["suc-003"],
     },
   ]);
 
@@ -110,13 +145,30 @@ export function PrinterConfigContent() {
     ));
   };
 
-  const handleUpdatePrinter = (field: string, value: string | boolean) => {
-    const updatedPrinter = { ...selectedPrinter, [field]: value } as typeof selectedPrinter;
+  const handleUpdatePrinter = (field: string, value: string | boolean | string[]) => {
+    const updatedPrinter = { ...selectedPrinter, [field]: value } as Printer;
     setSelectedPrinter(updatedPrinter);
     
     setPrinters(printers.map(printer => 
       printer.id === updatedPrinter.id ? updatedPrinter : printer
     ));
+  };
+
+  const toggleSucursal = (sucursalId: string) => {
+    const currentSucursales = selectedPrinter.sucursales;
+    if (currentSucursales.includes(sucursalId)) {
+      handleUpdatePrinter("sucursales", currentSucursales.filter(id => id !== sucursalId));
+    } else {
+      handleUpdatePrinter("sucursales", [...currentSucursales, sucursalId]);
+    }
+  };
+
+  const selectAllSucursales = () => {
+    handleUpdatePrinter("sucursales", SUCURSALES.map(s => s.id));
+  };
+
+  const deselectAllSucursales = () => {
+    handleUpdatePrinter("sucursales", []);
   };
 
   const handleTestConnection = async (printerId: string) => {
@@ -143,15 +195,16 @@ export function PrinterConfigContent() {
   };
 
   const handleAddPrinter = () => {
-    const newPrinter = {
+    const newPrinter: Printer = {
       id: `printer-${Date.now()}`,
       name: "Nueva Impresora",
       type: "Láser",
-      ip: "192.168.1.102",
+      ip: "192.168.1.103",
       port: "9100",
-      status: "disconnected" as const,
+      status: "disconnected",
       driver: "Generic / PCL6",
       isDefault: false,
+      sucursales: [],
     };
     setPrinters([...printers, newPrinter]);
     setSelectedPrinter(newPrinter);
@@ -177,6 +230,16 @@ export function PrinterConfigContent() {
     return printers.find(p => p.id === printerId)?.name || "Sin asignar";
   };
 
+  const getSucursalName = (id: string) => {
+    return SUCURSALES.find(s => s.id === id)?.name || id;
+  };
+
+  // Filtrado de impresoras por sucursal
+  const filteredPrinters = printers.filter(printer => {
+    if (sucursalFilter === "all") return true;
+    return printer.sucursales.includes(sucursalFilter);
+  });
+
   return (
     <div className="space-y-8 max-w-7xl">
       {/* Header con título y botón */}
@@ -187,7 +250,7 @@ export function PrinterConfigContent() {
             Configuración de Impresoras
           </h2>
           <p className="text-gray-400 text-sm">
-            Gestiona impresoras y configuración de documentos
+            Gestiona impresoras por sucursal y configuración de documentos
           </p>
         </div>
         <button
@@ -467,11 +530,32 @@ export function PrinterConfigContent() {
       {/* Tab: Gestión de Impresoras */}
       {activeTab === "printers" && (
         <div className="mt-6">
+          {/* Filtro por sucursal */}
+          <div className="mb-6 flex items-center gap-4">
+            <div className="flex-1 relative">
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <select
+                value={sucursalFilter}
+                onChange={(e) => setSucursalFilter(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+              >
+                <option value="all">Todas las sucursales</option>
+                {SUCURSALES.map((sucursal) => (
+                  <option key={sucursal.id} value={sucursal.id}>
+                    {sucursal.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="grid grid-cols-12 gap-6">
             {/* Lista de impresoras */}
             <div className="col-span-4 space-y-3">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold text-lg">Impresoras</h3>
+                <h3 className="text-white font-bold text-lg">
+                  Impresoras ({filteredPrinters.length})
+                </h3>
                 <button
                   onClick={handleAddPrinter}
                   className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-white text-sm rounded-lg transition-colors"
@@ -479,35 +563,47 @@ export function PrinterConfigContent() {
                   + Agregar
                 </button>
               </div>
-              {printers.map((printer) => (
-                <button
-                  key={printer.id}
-                  onClick={() => setSelectedPrinter(printer)}
-                  className={`w-full text-left p-4 rounded-xl transition-all ${
-                    selectedPrinter.id === printer.id
-                      ? "bg-primary text-white"
-                      : "bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <Printer className="w-5 h-5 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{printer.name}</div>
-                      <div className={`text-xs ${selectedPrinter.id === printer.id ? "text-white/70" : "text-gray-500"}`}>
-                        {printer.type} • {printer.ip}
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        <div className={`w-2 h-2 rounded-full ${
-                          printer.status === "connected" ? "bg-green-500" : "bg-red-500"
-                        }`}></div>
-                        <span className={`text-xs ${selectedPrinter.id === printer.id ? "text-white/70" : "text-gray-500"}`}>
-                          {printer.status === "connected" ? "Conectada" : "Desconectada"}
-                        </span>
+              {filteredPrinters.length === 0 ? (
+                <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
+                  <Printer className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                  <p className="text-gray-400 text-sm">
+                    No hay impresoras en esta sucursal
+                  </p>
+                </div>
+              ) : (
+                filteredPrinters.map((printer) => (
+                  <button
+                    key={printer.id}
+                    onClick={() => setSelectedPrinter(printer)}
+                    className={`w-full text-left p-4 rounded-xl transition-all ${
+                      selectedPrinter.id === printer.id
+                        ? "bg-primary text-white"
+                        : "bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Printer className="w-5 h-5 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{printer.name}</div>
+                        <div className={`text-xs ${selectedPrinter.id === printer.id ? "text-white/70" : "text-gray-500"}`}>
+                          {printer.type} • {printer.ip}
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <div className={`w-2 h-2 rounded-full ${
+                            printer.status === "connected" ? "bg-green-500" : "bg-red-500"
+                          }`}></div>
+                          <span className={`text-xs ${selectedPrinter.id === printer.id ? "text-white/70" : "text-gray-500"}`}>
+                            {printer.status === "connected" ? "Conectada" : "Desconectada"}
+                          </span>
+                        </div>
+                        <div className={`text-xs mt-1 ${selectedPrinter.id === printer.id ? "text-white/70" : "text-gray-500"}`}>
+                          {printer.sucursales.length} sucursal(es)
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))
+              )}
             </div>
 
             {/* Configuración de la impresora seleccionada */}
@@ -581,6 +677,57 @@ export function PrinterConfigContent() {
                   </div>
                 </div>
 
+                {/* Sucursales */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-white font-medium">
+                      Sucursales donde está disponible
+                    </h4>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={selectAllSucursales}
+                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        Seleccionar todas
+                      </button>
+                      <span className="text-gray-600">|</span>
+                      <button
+                        type="button"
+                        onClick={deselectAllSucursales}
+                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        Deseleccionar todas
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#0D1B2A] border border-white/10 rounded-lg p-4 space-y-3">
+                    {SUCURSALES.map((sucursal) => (
+                      <div key={sucursal.id} className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id={`printer-sucursal-${sucursal.id}`}
+                          checked={selectedPrinter.sucursales.includes(sucursal.id)}
+                          onChange={() => toggleSucursal(sucursal.id)}
+                          className="w-5 h-5 bg-[#0f1825] border border-white/10 rounded text-primary focus:ring-2 focus:ring-primary/40 cursor-pointer"
+                        />
+                        <label
+                          htmlFor={`printer-sucursal-${sucursal.id}`}
+                          className="text-white text-sm cursor-pointer flex items-center gap-2"
+                        >
+                          <Building2 className="w-4 h-4 text-blue-400" />
+                          {sucursal.name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-green-400 text-xs mt-2">
+                    {selectedPrinter.sucursales.length} sucursal(es) seleccionada(s)
+                  </p>
+                </div>
+
                 {/* Conexión de red */}
                 <div>
                   <h4 className="text-white font-medium mb-4">Conexión de Red</h4>
@@ -650,32 +797,16 @@ export function PrinterConfigContent() {
                             isDefault: p.id === selectedPrinter.id
                           })));
                           setSelectedPrinter({ ...selectedPrinter, isDefault: true });
+                        } else {
+                          handleUpdatePrinter("isDefault", false);
                         }
                       }}
-                      className="w-5 h-5 bg-[#0f1825] border border-white/10 rounded text-primary focus:ring-primary focus:ring-offset-0"
+                      className="w-5 h-5 bg-[#0f1825] border border-white/10 rounded text-primary focus:ring-2 focus:ring-primary/40 cursor-pointer"
                     />
-                    <span className="text-gray-300">Usar como impresora predeterminada</span>
-                  </label>
-                </div>
-
-                {/* Estado de conexión */}
-                <div className="bg-[#0f1825] border border-white/10 rounded-xl p-6">
-                  <h4 className="text-white font-medium mb-4">Estado de Conexión</h4>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      selectedPrinter.status === "connected" ? "bg-green-500" : "bg-red-500"
-                    }`}></div>
-                    <span className="text-gray-300">
-                      {selectedPrinter.status === "connected" 
-                        ? "✓ Impresora conectada y lista para usar" 
-                        : "✗ Impresora desconectada"}
+                    <span className="text-white text-sm">
+                      Establecer como impresora predeterminada
                     </span>
-                  </div>
-                  <p className="text-gray-500 text-sm mt-3">
-                    {selectedPrinter.status === "connected"
-                      ? "La impresora responde correctamente y está lista para imprimir."
-                      : "No se puede establecer conexión con la impresora. Verifique que esté encendida, conectada a la red y que la IP y puerto sean correctos."}
-                  </p>
+                  </label>
                 </div>
               </div>
             </div>

@@ -64,7 +64,29 @@ const SUCURSALES = [
 ];
 
 export function WorkScheduleContent() {
-  const [shifts, setShifts] = useState<WorkShift[]>([]);
+  const [shifts, setShifts] = useState<WorkShift[]>([
+    {
+      id: "1",
+      name: "Turno Administrativo",
+      color: "blue",
+      sucursal: "suc-001",
+      workingDays: {
+        lunes: true,
+        martes: true,
+        miercoles: true,
+        jueves: true,
+        viernes: true,
+        sabado: false,
+        domingo: false,
+      },
+      morningStart: "08:00",
+      morningEnd: "12:30",
+      lunchStart: "12:30",
+      lunchEnd: "14:00",
+      afternoonStart: "14:00",
+      afternoonEnd: "18:00",
+    },
+  ]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
