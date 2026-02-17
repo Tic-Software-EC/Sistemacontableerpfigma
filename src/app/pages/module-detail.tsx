@@ -1,37 +1,37 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import {
-  Bell,
-  Building2,
-  Calendar,
-  ChevronDown,
-  ChevronLeft,
-  ClipboardList,
-  CreditCard,
-  LogOut,
   Settings,
-  Shield,
   Users,
-  X,
+  Bell,
+  ChevronLeft,
+  ChevronDown,
   Menu as MenuIcon,
+  X,
+  LogOut,
+  CreditCard,
+  Shield,
+  ShoppingCart,
+  Calendar,
+  Package,
+  Wallet,
+  BarChart3,
+  Building2,
   Globe,
   Mail,
   Printer,
   UserCheck,
-  ShoppingCart,
+  ClipboardList,
+  TrendingUp,
+  Receipt,
+  FileText,
+  Clock,
+  Truck,
+  Boxes,
   Calculator,
   DollarSign,
-  Truck,
-  Receipt,
-  Package,
-  Boxes,
-  FileText,
-  TrendingUp,
-  Clock,
   AlertCircle,
-  BarChart3,
   Database,
-  Wallet,
 } from "lucide-react";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
@@ -43,6 +43,7 @@ import { UserListContent } from "../components/user-list-content";
 import { BranchListContent } from "../components/branch-list-content";
 import { RolesPermissionsContent } from "../components/roles-permissions-content";
 import { AccessLogsContent } from "../components/access-logs-content";
+import { WorkScheduleContent } from "../components/work-schedule-content";
 
 // Componente de Seguridad
 function SecurityContent() {
@@ -879,6 +880,8 @@ export default function ModuleDetailPage() {
                 <RolesPermissionsContent />
               ) : selectedMenu === "access-log" ? (
                 <AccessLogsContent />
+              ) : selectedMenu === "work-schedule" ? (
+                <WorkScheduleContent />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">
