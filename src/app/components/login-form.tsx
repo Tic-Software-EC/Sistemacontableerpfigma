@@ -73,9 +73,9 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-2xl px-4">
       {/* Header compacto */}
-      <div className="flex flex-col items-center mb-4">
+      <div className="flex flex-col items-center mb-6">
         <div className="mb-3 relative">
           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-xl backdrop-blur-sm border border-white/30 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
