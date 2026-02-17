@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Eye, EyeOff, Lock, Mail, Shield, Crown, Send, X, CheckCircle2, Building2 } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Shield, Crown, Send, X, CheckCircle2, Building2, User } from "lucide-react";
 
 export function LoginForm() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [ruc, setRuc] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -16,7 +15,7 @@ export function LoginForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, ruc, password, rememberMe, isSuperAdmin });
+    console.log("Login attempt:", { email, password, rememberMe, isSuperAdmin });
     
     if (isSuperAdmin) {
       // Super admin: limpiar datos de empresa
@@ -25,10 +24,7 @@ export function LoginForm() {
       localStorage.setItem("userType", "superadmin");
       navigate("/admin/subscriptions");
     } else {
-      // Admin de empresa: guardar datos de empresa
-      localStorage.setItem("companyRuc", ruc);
-      // En un sistema real, aquí se buscaría el nombre de la empresa por RUC desde la base de datos
-      // Por ahora usamos un nombre simulado basado en el RUC
+      // Admin de empresa: guardar nombre de empresa
       const companyNames = [
         "Comercial del Pacífico S.A.",
         "Distribuidora Andina Cia. Ltda.",
@@ -36,9 +32,8 @@ export function LoginForm() {
         "Importadora TecnoSoft S.A.",
         "Grupo Empresarial del Ecuador"
       ];
-      // Usar el último dígito del RUC para seleccionar un nombre
-      const lastDigit = parseInt(ruc.slice(-1)) || 0;
-      const companyName = companyNames[lastDigit % companyNames.length];
+      // Usar una empresa por defecto
+      const companyName = companyNames[0];
       localStorage.setItem("companyName", companyName);
       localStorage.setItem("userType", "company");
       navigate("/modules");
@@ -73,7 +68,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl px-4">
+    <div className="w-full max-w-md px-4">
       {/* Header compacto */}
       <div className="flex flex-col items-center mb-6">
         <div className="mb-3 relative">
@@ -97,35 +92,24 @@ export function LoginForm() {
         
         <div className="relative p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
+            {/* Username */}
             <div>
               <label htmlFor="email" className="block text-secondary mb-1.5 font-medium text-xs">
-                Correo Electrónico
+                Nombre de Usuario
               </label>
               <div className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
                 <input
                   id="email"
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="usuario@empresa.com"
+                  placeholder="usuario"
                   className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary focus:bg-white text-secondary placeholder:text-gray-400 transition-all text-sm hover:bg-white hover:border-primary/50"
                   required
                 />
               </div>
             </div>
-
-            {/* RUC - Solo para administradores de empresa */}
-            {!isSuperAdmin && (
-              <div>
-                
-                <div className="relative group">
-                  
-                  
-                </div>
-              </div>
-            )}
 
             {/* Contraseña */}
             <div>
