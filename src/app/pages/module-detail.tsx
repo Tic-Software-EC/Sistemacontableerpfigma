@@ -45,6 +45,7 @@ import { RolesPermissionsContent } from "../components/roles-permissions-content
 import { AccessLogsContent } from "../components/access-logs-content";
 import { WorkScheduleContent } from "../components/work-schedule-content";
 import { HolidaysContent } from "../components/holidays-content";
+import { SalesConfigContent } from "../components/sales-config-content";
 
 // Componente de Seguridad
 function SecurityContent() {
@@ -300,7 +301,7 @@ const moduleMenus: Record<string, any> = {
       name: "Ventas",
       icon: ShoppingCart,
       submenus: [
-        { id: "sales-config", name: "Configuración de ventas", icon: Settings },
+        { id: "sales-config", name: "Configurar", icon: Settings },
         { id: "payment-methods", name: "Métodos de pago", icon: CreditCard },
         { id: "taxes", name: "Impuestos", icon: Calculator },
         { id: "discounts", name: "Descuentos", icon: DollarSign },
@@ -884,6 +885,8 @@ export default function ModuleDetailPage() {
                 <WorkScheduleContent />
               ) : selectedMenu === "holidays" ? (
                 <HolidaysContent />
+              ) : selectedMenu === "sales-config" ? (
+                <SalesConfigContent />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">
