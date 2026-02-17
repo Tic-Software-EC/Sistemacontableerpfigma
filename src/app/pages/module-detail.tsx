@@ -39,6 +39,7 @@ import { PrinterConfigContent } from "../components/printer-config-content";
 import { CommunicationsContent } from "../components/communications-content";
 import { CompanyInfoContent } from "../components/company-info-content";
 import { RegionalConfigContent } from "../components/regional-config-content";
+import { UserListContent } from "../components/user-list-content";
 
 // Componente de Seguridad
 function SecurityContent() {
@@ -866,6 +867,8 @@ export default function ModuleDetailPage() {
                 <CommunicationsContent />
               ) : selectedMenu === "printer-config" ? (
                 <PrinterConfigContent />
+              ) : selectedMenu === "user-list" ? (
+                <UserListContent />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">
