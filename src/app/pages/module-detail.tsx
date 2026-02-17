@@ -1,37 +1,37 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import {
-  ChevronLeft,
   Bell,
-  Settings,
-  Menu as MenuIcon,
-  X,
-  LogOut,
-  CreditCard,
-  ChevronDown,
-  Shield,
   Building2,
+  Calendar,
+  ChevronDown,
+  ChevronLeft,
+  ClipboardList,
+  CreditCard,
+  LogOut,
+  Settings,
+  Shield,
+  Users,
+  X,
+  Menu as MenuIcon,
   Globe,
   Mail,
   Printer,
-  Users,
   UserCheck,
-  ClipboardList,
   ShoppingCart,
   Calculator,
   DollarSign,
-  Calendar,
   Truck,
   Receipt,
   Package,
   Boxes,
-  Wallet,
   FileText,
-  BarChart3,
   TrendingUp,
   Clock,
   AlertCircle,
+  BarChart3,
   Database,
+  Wallet,
 } from "lucide-react";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
@@ -41,6 +41,8 @@ import { CompanyInfoContent } from "../components/company-info-content";
 import { RegionalConfigContent } from "../components/regional-config-content";
 import { UserListContent } from "../components/user-list-content";
 import { BranchListContent } from "../components/branch-list-content";
+import { RolesPermissionsContent } from "../components/roles-permissions-content";
+import { AccessLogsContent } from "../components/access-logs-content";
 
 // Componente de Seguridad
 function SecurityContent() {
@@ -873,6 +875,10 @@ export default function ModuleDetailPage() {
                 <UserListContent />
               ) : selectedMenu === "branches" ? (
                 <BranchListContent />
+              ) : selectedMenu === "roles" ? (
+                <RolesPermissionsContent />
+              ) : selectedMenu === "access-log" ? (
+                <AccessLogsContent />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">

@@ -182,7 +182,8 @@ export function PrinterConfigContent() {
       {/* Header con título y botón */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-white font-bold text-3xl mb-2">
+          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+            <Printer className="w-8 h-8 text-primary" />
             Configuración de Impresoras
           </h2>
           <p className="text-gray-400 text-sm">

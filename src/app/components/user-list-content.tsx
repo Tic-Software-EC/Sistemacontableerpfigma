@@ -25,6 +25,7 @@ import {
   IdCard,
   Phone,
   Building,
+  Building2,
   Briefcase,
   Calendar,
 } from "lucide-react";
@@ -35,6 +36,7 @@ interface UserData {
   email: string;
   fullName: string;
   role: "super_admin" | "admin_empresa" | "contador" | "cajero" | "bodeguero" | "vendedor" | "comprador";
+  branch: string; // ID de la sucursal
   status: "active" | "inactive";
   createdAt: string;
   lastLogin: string;
@@ -48,11 +50,20 @@ interface EmployeeData {
   phone: string;
   department: string;
   position: string;
+  branch: string; // ID de la sucursal
   hireDate: string;
   status: "active" | "inactive";
 }
 
 export function UserListContent() {
+  // Lista de sucursales disponibles
+  const branches = [
+    { id: "sucursal1", name: "Sucursal Principal - Centro" },
+    { id: "sucursal2", name: "Sucursal Norte" },
+    { id: "sucursal3", name: "Sucursal Guayaquil" },
+    { id: "sucursal4", name: "Sucursal Sur" },
+  ];
+
   // Maestro de personas
   const [persons] = useState<EmployeeData[]>([
     {
@@ -63,6 +74,7 @@ export function UserListContent() {
       phone: "0987654321",
       department: "Contabilidad",
       position: "Contador",
+      branch: "sucursal1", // ID de la sucursal
       hireDate: "2023-01-15",
       status: "active",
     },
@@ -74,6 +86,7 @@ export function UserListContent() {
       phone: "0912345678",
       department: "Ventas",
       position: "Vendedora",
+      branch: "sucursal1", // ID de la sucursal
       hireDate: "2023-02-20",
       status: "active",
     },
@@ -85,6 +98,7 @@ export function UserListContent() {
       phone: "0998877665",
       department: "Bodega",
       position: "Bodeguero",
+      branch: "sucursal1", // ID de la sucursal
       hireDate: "2023-03-10",
       status: "active",
     },
@@ -96,6 +110,7 @@ export function UserListContent() {
       phone: "0965432109",
       department: "Caja",
       position: "Cajera",
+      branch: "sucursal1", // ID de la sucursal
       hireDate: "2023-04-05",
       status: "active",
     },
@@ -107,6 +122,7 @@ export function UserListContent() {
       phone: "0923456789",
       department: "Compras",
       position: "Comprador",
+      branch: "sucursal1", // ID de la sucursal
       hireDate: "2023-05-15",
       status: "active",
     },
@@ -118,6 +134,7 @@ export function UserListContent() {
       phone: "0934567890",
       department: "Ventas",
       position: "Vendedora",
+      branch: "sucursal1", // ID de la sucursal
       hireDate: "2023-06-20",
       status: "active",
     },
@@ -130,6 +147,7 @@ export function UserListContent() {
       email: "admin@empresa.com",
       fullName: "Administrador Principal",
       role: "admin_empresa",
+      branch: "sucursal1", // ID de la sucursal
       status: "active",
       createdAt: "2024-01-15",
       lastLogin: "2026-02-17 09:30",
@@ -140,6 +158,7 @@ export function UserListContent() {
       email: "jperez@empresa.com",
       fullName: "Juan Pérez García",
       role: "vendedor",
+      branch: "sucursal1", // ID de la sucursal
       status: "active",
       createdAt: "2024-02-20",
       lastLogin: "2026-02-16 15:20",
@@ -150,6 +169,7 @@ export function UserListContent() {
       email: "mrodriguez@empresa.com",
       fullName: "María Rodríguez López",
       role: "contador",
+      branch: "sucursal1", // ID de la sucursal
       status: "active",
       createdAt: "2024-03-10",
       lastLogin: "2026-02-17 08:15",
@@ -160,6 +180,7 @@ export function UserListContent() {
       email: "lmartinez@empresa.com",
       fullName: "Luis Martínez Ruiz",
       role: "bodeguero",
+      branch: "sucursal1", // ID de la sucursal
       status: "inactive",
       createdAt: "2024-04-05",
       lastLogin: "2026-01-30 14:45",
@@ -167,6 +188,7 @@ export function UserListContent() {
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [branchFilter, setBranchFilter] = useState("all"); // Filtro por sucursal
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -175,6 +197,7 @@ export function UserListContent() {
   // Estados para búsqueda de personas
   const [showPersonModal, setShowPersonModal] = useState(false);
   const [personSearchTerm, setPersonSearchTerm] = useState("");
+  const [personBranchFilter, setPersonBranchFilter] = useState("all"); // Filtro por sucursal en modal de personas
   
   // Estados para resetear contraseña
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
@@ -191,6 +214,7 @@ export function UserListContent() {
     password: "",
     confirmPassword: "",
     role: "cajero" as "super_admin" | "admin_empresa" | "contador" | "cajero" | "bodeguero" | "vendedor" | "comprador",
+    branch: "sucursal1", // ID de la sucursal
     status: "active" as "active" | "inactive",
   });
 
@@ -208,6 +232,7 @@ export function UserListContent() {
       password: "",
       confirmPassword: "",
       role: "cajero",
+      branch: person.branch, // ID de la sucursal
       status: "active",
     });
     setShowModal(true);
@@ -223,6 +248,7 @@ export function UserListContent() {
       password: "",
       confirmPassword: "",
       role: user.role,
+      branch: user.branch, // ID de la sucursal
       status: user.status,
     });
     setShowModal(true);
@@ -237,6 +263,7 @@ export function UserListContent() {
   const handleClosePersonModal = () => {
     setShowPersonModal(false);
     setPersonSearchTerm("");
+    setPersonBranchFilter("all");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -261,6 +288,7 @@ export function UserListContent() {
         email: formData.email,
         fullName: formData.fullName,
         role: formData.role,
+        branch: formData.branch, // ID de la sucursal
         status: formData.status,
         createdAt: new Date().toISOString().split("T")[0],
         lastLogin: "Nunca",
@@ -278,6 +306,7 @@ export function UserListContent() {
                 email: formData.email,
                 fullName: formData.fullName,
                 role: formData.role,
+                branch: formData.branch, // ID de la sucursal
                 status: formData.status,
               }
             : user
@@ -351,20 +380,28 @@ export function UserListContent() {
     handleCloseResetPassword();
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      user.fullName.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesBranch = branchFilter === "all" || user.branch === branchFilter;
+    
+    return matchesSearch && matchesBranch;
+  });
 
-  const filteredPersons = persons.filter(
-    (person) =>
+  const filteredPersons = persons.filter((person) => {
+    const matchesSearch =
       person.cedula.includes(personSearchTerm) ||
       person.fullName.toLowerCase().includes(personSearchTerm.toLowerCase()) ||
       person.email.toLowerCase().includes(personSearchTerm.toLowerCase()) ||
-      person.department.toLowerCase().includes(personSearchTerm.toLowerCase())
-  );
+      person.department.toLowerCase().includes(personSearchTerm.toLowerCase());
+    
+    const matchesBranch = personBranchFilter === "all" || person.branch === personBranchFilter;
+    
+    return matchesSearch && matchesBranch;
+  });
 
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -422,6 +459,11 @@ export function UserListContent() {
     }
   };
 
+  const getBranchName = (branchId: string) => {
+    const branch = branches.find((b) => b.id === branchId);
+    return branch ? branch.name : "Sin asignar";
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -447,17 +489,37 @@ export function UserListContent() {
       {/* Separador */}
       <div className="border-t border-white/10"></div>
 
-      {/* Barra de búsqueda */}
+      {/* Barra de búsqueda y filtro */}
       <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por usuario, email o nombre..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Búsqueda */}
+          <div className="relative lg:col-span-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por usuario, email o nombre..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            />
+          </div>
+          
+          {/* Filtro por Sucursal */}
+          <div className="relative">
+            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <select
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            >
+              <option value="all">Todas las sucursales</option>
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -471,19 +533,16 @@ export function UserListContent() {
                   Usuario
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
                   Nombre Completo
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
                   Rol
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Estado
+                  Sucursal
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Último Acceso
+                  Estado
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-gray-300 uppercase tracking-wider">
                   Acciones
@@ -502,14 +561,24 @@ export function UserListContent() {
                         <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                           <User className="w-5 h-5 text-primary" />
                         </div>
-                        <span className="text-white font-medium">
-                          {user.username}
-                        </span>
+                        <div>
+                          <div className="text-white font-medium">
+                            {user.username}
+                          </div>
+                          <div className="text-gray-400 text-xs">
+                            {user.email}
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-300">{user.email}</td>
                     <td className="px-6 py-4 text-gray-300">{user.fullName}</td>
                     <td className="px-6 py-4">{getRoleBadge(user.role)}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-gray-300 text-sm">
+                        <Building2 className="w-4 h-4 text-gray-400" />
+                        {getBranchName(user.branch)}
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleToggleStatus(user.id)}
@@ -531,9 +600,6 @@ export function UserListContent() {
                           </>
                         )}
                       </button>
-                    </td>
-                    <td className="px-6 py-4 text-gray-400 text-sm">
-                      {user.lastLogin}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
@@ -571,7 +637,7 @@ export function UserListContent() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <Users className="w-12 h-12 text-gray-600" />
                       <p className="text-gray-400">
@@ -654,17 +720,40 @@ export function UserListContent() {
               </button>
             </div>
 
-            {/* Búsqueda */}
+            {/* Separador */}
+            <div className="border-t border-white/10"></div>
+
+            {/* Búsqueda y Filtro */}
             <div className="p-6 border-b border-white/10">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar por cédula, nombre, email o departamento..."
-                  value={personSearchTerm}
-                  onChange={(e) => setPersonSearchTerm(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                />
+              <div className="space-y-4">
+                {/* Búsqueda */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar por cédula, nombre, email o departamento..."
+                    value={personSearchTerm}
+                    onChange={(e) => setPersonSearchTerm(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  />
+                </div>
+                
+                {/* Filtro por Sucursal */}
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <select
+                    value={personBranchFilter}
+                    onChange={(e) => setPersonBranchFilter(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="all">Todas las sucursales</option>
+                    {branches.map((branch) => (
+                      <option key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -692,11 +781,13 @@ export function UserListContent() {
                                 <Briefcase className="w-3 h-3" />
                                 {person.position}
                               </span>
-                              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${
-                                person.status === "active"
-                                  ? "bg-green-500/20 text-green-300"
-                                  : "bg-red-500/20 text-red-300"
-                              }`}>
+                              <span
+                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${
+                                  person.status === "active"
+                                    ? "bg-green-500/20 text-green-300"
+                                    : "bg-red-500/20 text-red-300"
+                                }`}
+                              >
                                 {person.status === "active" ? "Activo" : "Inactivo"}
                               </span>
                             </div>
@@ -965,6 +1056,37 @@ export function UserListContent() {
                     <option value="inactive">Inactivo</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Sucursal */}
+              <div>
+                <label className="block text-white mb-2 font-medium text-sm">
+                  Sucursal
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <select
+                    value={formData.branch}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        branch: e.target.value,
+                      })
+                    }
+                    className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    required
+                  >
+                    {branches.map((branch) => (
+                      <option key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-gray-500 text-xs mt-1">
+                  Selecciona la sucursal donde trabajará el usuario
+                </p>
               </div>
 
               {/* Botones */}

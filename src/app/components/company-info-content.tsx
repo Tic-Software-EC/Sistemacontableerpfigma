@@ -34,7 +34,8 @@ export function CompanyInfoContent() {
     <div className="space-y-8 max-w-6xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-white font-bold text-3xl mb-2">
+          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+            <Building2 className="w-8 h-8 text-primary" />
             Información de la Empresa
           </h2>
           <p className="text-gray-400 text-sm">

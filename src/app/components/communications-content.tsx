@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Bell } from "lucide-react";
+import { Mail, Bell, MessageSquare } from "lucide-react";
 
 interface CommunicationsContentProps {}
 
@@ -94,7 +94,8 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
     <div className="space-y-8 max-w-6xl">
       {/* Header con título */}
       <div>
-        <h2 className="text-white font-bold text-3xl mb-2">
+        <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+          <MessageSquare className="w-8 h-8 text-primary" />
           Configuración de Comunicaciones y Notificaciones
         </h2>
         <p className="text-gray-400 text-sm">
