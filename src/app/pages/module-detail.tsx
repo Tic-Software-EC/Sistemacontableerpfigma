@@ -1,16 +1,23 @@
-import { useNavigate, useLocation } from "react-router";
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router";
 import {
+  ChevronLeft,
+  Bell,
   Settings,
-  Users,
+  Menu as MenuIcon,
+  X,
+  LogOut,
+  CreditCard,
+  ChevronDown,
+  Shield,
   Building2,
   Globe,
-  Shield,
-  Bell,
+  Mail,
+  Printer,
+  Users,
   UserCheck,
   ClipboardList,
   ShoppingCart,
-  CreditCard,
   Calculator,
   DollarSign,
   Calendar,
@@ -25,13 +32,6 @@ import {
   Clock,
   AlertCircle,
   Database,
-  ChevronDown,
-  ChevronLeft,
-  Menu as MenuIcon,
-  X,
-  LogOut,
-  Mail,
-  Printer,
 } from "lucide-react";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
@@ -40,6 +40,7 @@ import { CommunicationsContent } from "../components/communications-content";
 import { CompanyInfoContent } from "../components/company-info-content";
 import { RegionalConfigContent } from "../components/regional-config-content";
 import { UserListContent } from "../components/user-list-content";
+import { BranchListContent } from "../components/branch-list-content";
 
 // Componente de Seguridad
 function SecurityContent() {
@@ -273,6 +274,7 @@ const moduleMenus: Record<string, any> = {
       icon: Settings,
       submenus: [
         { id: "company-info", name: "Empresa", icon: Building2 },
+        { id: "branches", name: "Sucursales", icon: Building2 },
         { id: "regional-config", name: "Config. Regional", icon: Globe },
         { id: "security", name: "Seguridad", icon: Shield },
         { id: "communications", name: "Comunicaciones", icon: Mail },
@@ -869,6 +871,8 @@ export default function ModuleDetailPage() {
                 <PrinterConfigContent />
               ) : selectedMenu === "user-list" ? (
                 <UserListContent />
+              ) : selectedMenu === "branches" ? (
+                <BranchListContent />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">
