@@ -313,7 +313,6 @@ const moduleMenus: Record<string, any> = {
       submenus: [
         { id: "work-schedule", name: "Horario laboral", icon: Calendar },
         { id: "holidays", name: "Días festivos", icon: Calendar },
-        { id: "reminders", name: "Recordatorios", icon: Bell },
       ]
     },
     {
