@@ -2,48 +2,36 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import {
   ShoppingCart,
-  Package,
-  BarChart3,
-  Settings,
-  Bell,
-  LogOut,
-  ChevronLeft,
-  X,
-  CreditCard,
-  Plus,
-  Upload,
-  ChevronDown,
-  Search,
-  MoreVertical,
-  Calendar,
-  Filter,
-  Download,
-  Eye,
-  Edit,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  FileText,
-  Printer,
-  Send,
   User,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  Percent,
+  BarChart3,
+  ChevronLeft,
+  Bell,
+  Settings,
+  CreditCard,
+  LogOut,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  FileText,
+  X,
+  Plus,
+  Printer,
+  Download,
+  Edit,
   Mail,
   Phone,
   MapPin,
   Receipt,
+  Package,
+  DollarSign,
+  Calendar,
   CreditCard as CardIcon,
 } from "lucide-react";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { PurchaseOrdersContent } from "../components/purchase-orders-content";
 import { SuppliersContent } from "../components/suppliers-content";
-import { ProductsContent } from "../components/products-content";
 import { ReportsContent } from "../components/reports-content";
 
 // Mock data para las órdenes de compra con productos detallados
@@ -263,7 +251,6 @@ export default function ModuleComprasDetail() {
   const tabs = [
     { id: "orders", name: "Órdenes de Compra", icon: ShoppingCart },
     { id: "suppliers", name: "Proveedores", icon: User },
-    { id: "products", name: "Productos", icon: Package },
     { id: "reports", name: "Reportes", icon: BarChart3 },
   ];
 
@@ -521,10 +508,6 @@ export default function ModuleComprasDetail() {
 
         {activeTab === "suppliers" && (
           <SuppliersContent />
-        )}
-
-        {activeTab === "products" && (
-          <ProductsContent />
         )}
 
         {activeTab === "reports" && (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Truck, Plus, Pencil, Trash2, Search, Eye, Mail, Phone, MapPin, User, Building2, FileText, X, Package, ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Truck, Plus, Pencil, Trash2, Search, Eye, Mail, Phone, MapPin, User, Building2, FileText, X, Package, ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight, Filter, Download } from "lucide-react";
 
 interface Supplier {
   id: string;
@@ -325,7 +325,7 @@ export function SuppliersContent() {
       {/* Header estándar con diseño corporativo */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-white font-bold text-2xl mb-2 flex items-center gap-3">
+          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
             <Truck className="w-8 h-8 text-primary" />
             Gestión de Proveedores
           </h2>
@@ -334,14 +334,18 @@ export function SuppliersContent() {
           </p>
         </div>
         
-        {/* Botón Nuevo Proveedor - Arriba a la derecha */}
-        <button
-          onClick={() => handleOpenModal()}
-          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 justify-center whitespace-nowrap"
-        >
-          <Plus className="w-5 h-5" />
-          Nuevo Proveedor
-        </button>
+        {/* Botones de acción - Arriba a la derecha */}
+        <div className="flex items-center gap-3">
+          
+          
+          <button
+            onClick={() => handleOpenModal()}
+            className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 justify-center whitespace-nowrap"
+          >
+            <Plus className="w-5 h-5" />
+            Nuevo Proveedor
+          </button>
+        </div>
       </div>
 
       {/* Separador */}
@@ -425,9 +429,6 @@ export function SuppliersContent() {
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Contacto
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Productos
-                  </th>
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Estado
                   </th>
@@ -479,14 +480,6 @@ export function SuppliersContent() {
                           {supplier.contactPhone}
                         </span>
                       </div>
-                    </td>
-
-                    {/* Productos */}
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg text-xs font-medium text-primary">
-                        <Package className="w-3 h-3" />
-                        {supplier.productsOffered.length} productos
-                      </span>
                     </td>
 
                     {/* Estado */}
@@ -873,58 +866,6 @@ export function SuppliersContent() {
                     />
                   </div>
                 </div>
-              </div>
-
-              {/* Productos Ofrecidos */}
-              <div>
-                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-primary" />
-                  Productos Ofrecidos ({formData.productsOffered?.length || 0})
-                </h4>
-                <div className="bg-[#0f1825]/50 border border-white/10 rounded-xl p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-                    {AVAILABLE_PRODUCTS.map((product) => {
-                      const isSelected = formData.productsOffered?.includes(product.code);
-                      return (
-                        <label
-                          key={product.code}
-                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                            isSelected
-                              ? "bg-primary/10 border border-primary/20"
-                              : "bg-white/5 border border-white/10 hover:bg-white/10"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleProduct(product.code)}
-                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-primary focus:ring-primary/40"
-                          />
-                          <div className="flex-1">
-                            <p className={`text-sm font-medium ${isSelected ? "text-primary" : "text-white"}`}>
-                              {product.name}
-                            </p>
-                            <p className="text-xs text-gray-500">{product.code}</p>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Notas */}
-              <div>
-                <label className="block text-gray-300 text-sm mb-2 font-medium">
-                  Notas adicionales
-                </label>
-                <textarea
-                  placeholder="Observaciones, condiciones especiales, etc."
-                  value={formData.notes || ""}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
-                />
               </div>
             </div>
 

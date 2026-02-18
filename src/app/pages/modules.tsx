@@ -139,6 +139,14 @@ export default function ModulesPage() {
       description: "Módulo de ventas",
     },
     {
+      id: "pos",
+      name: "Punto de Venta",
+      icon: Receipt,
+      color: "from-primary to-primary/80",
+      route: "/dashboard/pos",
+      description: "Sistema POS",
+    },
+    {
       id: "compras",
       name: "Compras",
       icon: ShoppingBag,
@@ -288,6 +296,12 @@ export default function ModulesPage() {
     // Módulo de Compras tiene su propia página con tabs
     if (module.name === "Compras") {
       navigate("/module-compras-detail");
+      return;
+    }
+
+    // Módulo POS (Punto de Venta)
+    if (module.name === "Punto de Venta") {
+      navigate("/module-pos-detail");
       return;
     }
 

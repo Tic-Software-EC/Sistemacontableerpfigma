@@ -8,7 +8,9 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  ShoppingCart,
+  ShoppingBag
 } from "lucide-react";
 import { useState } from "react";
 
@@ -18,8 +20,10 @@ export function DashboardLayout() {
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+    { icon: ShoppingCart, label: "Punto de Venta", path: "/module-pos-detail" },
     { icon: FileText, label: "Facturas", path: "/dashboard/facturas" },
     { icon: Users, label: "Clientes", path: "/dashboard/clientes" },
+    { icon: ShoppingBag, label: "Compras", path: "/module-compras-detail" },
     { icon: BarChart3, label: "Reportes", path: "/dashboard/reportes" },
     { icon: Package, label: "Inventario", path: "/dashboard/inventory" },
     { icon: Settings, label: "Configuración", path: "/dashboard/configuracion" },

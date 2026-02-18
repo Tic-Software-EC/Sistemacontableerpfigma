@@ -16,6 +16,8 @@ import { Reports } from "./pages/reports";
 import { Inventory } from "./pages/inventory";
 import { Settings } from "./pages/settings";
 import ModuleComprasDetail from "./pages/module-compras-detail";
+import ModulePosDetail from "./pages/module-pos-detail";
+import { POS } from "./pages/pos";
 
 export const router = createBrowserRouter([
   {
@@ -67,6 +69,10 @@ export const router = createBrowserRouter([
     element: <ModuleComprasDetail />,
   },
   {
+    path: "/module-pos-detail",
+    element: <ModulePosDetail />,
+  },
+  {
     path: "/dashboard",
     element: <DashboardLayout />,
     children: [
@@ -97,6 +103,10 @@ export const router = createBrowserRouter([
       {
         path: "compras",
         element: <ModuleComprasDetail />,
+      },
+      {
+        path: "pos",
+        element: <ModulePosDetail />,
       },
     ],
   },
