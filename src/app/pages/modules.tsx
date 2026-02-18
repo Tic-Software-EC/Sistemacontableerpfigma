@@ -285,13 +285,18 @@ export default function ModulesPage() {
   ];
 
   const handleModuleClick = (module: Module) => {
+    // Módulo de Compras tiene su propia página con tabs
+    if (module.name === "Compras") {
+      navigate("/module-compras-detail");
+      return;
+    }
+
     // Módulos que deben usar el nuevo sistema de menús
     const modulesWithMenus = [
       "Configuración",
       "Ventas",
       "Inventario",
       "Contabilidad",
-      "Compras",
     ];
 
     if (modulesWithMenus.includes(module.name)) {

@@ -14,6 +14,7 @@ import { Clients } from "./pages/clients";
 import { Reports } from "./pages/reports";
 import { Inventory } from "./pages/inventory";
 import { Settings } from "./pages/settings";
+import ModuleComprasDetail from "./pages/module-compras-detail";
 
 export const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
     element: <ModuleDetailPage />,
   },
   {
+    path: "/module-compras-detail",
+    element: <ModuleComprasDetail />,
+  },
+  {
     path: "/dashboard",
     element: <DashboardLayout />,
     children: [
@@ -83,6 +88,10 @@ export const router = createBrowserRouter([
       {
         path: "configuracion",
         element: <Settings />,
+      },
+      {
+        path: "compras",
+        element: <ModuleComprasDetail />,
       },
     ],
   },

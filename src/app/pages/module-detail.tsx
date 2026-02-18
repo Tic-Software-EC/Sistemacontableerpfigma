@@ -1,3 +1,13 @@
+import { PurchasesConfigContent } from "../components/purchases-config-content";
+import { SuppliersContent } from "../components/suppliers-content";
+import { PurchaseOrdersContent } from "../components/purchase-orders-content";
+import { WorkScheduleContent } from "../components/work-schedule-content";
+import { HolidaysContent } from "../components/holidays-content";
+import { SalesConfigContent } from "../components/sales-config-content";
+import { PaymentMethodsContent } from "../components/payment-methods-content";
+import { TaxesContent } from "../components/taxes-content";
+import { DiscountsContent } from "../components/discounts-content";
+
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import {
@@ -42,10 +52,6 @@ import { RegionalConfigContent } from "../components/regional-config-content";
 import { UserListContent } from "../components/user-list-content";
 import { BranchListContent } from "../components/branch-list-content";
 import { RolesPermissionsContent } from "../components/roles-permissions-content";
-import { AccessLogsContent } from "../components/access-logs-content";
-import { WorkScheduleContent } from "../components/work-schedule-content";
-import { HolidaysContent } from "../components/holidays-content";
-import { SalesConfigContent } from "../components/sales-config-content";
 
 // Componente de Seguridad
 function SecurityContent() {
@@ -293,7 +299,6 @@ const moduleMenus: Record<string, any> = {
       submenus: [
         { id: "user-list", name: "Lista de usuarios", icon: Users },
         { id: "roles", name: "Roles y permisos", icon: UserCheck },
-        { id: "access-log", name: "Registro de accesos", icon: ClipboardList },
       ]
     },
     {
@@ -321,9 +326,7 @@ const moduleMenus: Record<string, any> = {
       name: "Compras",
       icon: ShoppingCart,
       submenus: [
-        { id: "purchase-config", name: "Configuración de compras", icon: Settings },
-        { id: "suppliers", name: "Proveedores", icon: Truck },
-        { id: "purchase-orders", name: "Órdenes de compra", icon: Receipt },
+        { id: "purchase-config", name: "Configurar", icon: Settings },
       ]
     },
     {
@@ -447,19 +450,13 @@ const moduleMenus: Record<string, any> = {
       id: "purchase-orders",
       name: "Órdenes de compra",
       icon: ShoppingCart,
-      submenus: [
-        { id: "new-order", name: "Nueva orden", icon: FileText },
-        { id: "order-list", name: "Lista de órdenes", icon: ClipboardList },
-      ]
+      submenus: []
     },
     {
       id: "suppliers",
       name: "Proveedores",
       icon: Truck,
-      submenus: [
-        { id: "supplier-list", name: "Lista de proveedores", icon: ClipboardList },
-        { id: "new-supplier", name: "Nuevo proveedor", icon: Truck },
-      ]
+      submenus: []
     },
   ],
 };
@@ -529,6 +526,11 @@ export default function ModuleDetailPage() {
       ...prev,
       [menuId]: !prev[menuId]
     }));
+    
+    // Si el menú es "suppliers" o "purchase-orders", seleccionarlo directamente
+    if (menuId === "suppliers" || menuId === "purchase-orders") {
+      setSelectedMenu(menuId);
+    }
   };
 
   const handleSubmenuClick = (submenu: any) => {
@@ -808,9 +810,9 @@ export default function ModuleDetailPage() {
                 return (
                   <div key={menu.id}>
                     <button
-                      onClick={() => hasSubmenus && toggleMenu(menu.id)}
+                      onClick={() => hasSubmenus ? toggleMenu(menu.id) : setSelectedMenu(menu.id)}
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
-                        isExpanded
+                        selectedMenu === menu.id || isExpanded
                           ? "bg-primary/10 text-white"
                           : "text-gray-300 hover:bg-white/5 hover:text-white"
                       }`}
@@ -887,6 +889,18 @@ export default function ModuleDetailPage() {
                 <HolidaysContent />
               ) : selectedMenu === "sales-config" ? (
                 <SalesConfigContent />
+              ) : selectedMenu === "payment-methods" ? (
+                <PaymentMethodsContent />
+              ) : selectedMenu === "taxes" ? (
+                <TaxesContent />
+              ) : selectedMenu === "discounts" ? (
+                <DiscountsContent />
+              ) : selectedMenu === "purchase-config" ? (
+                <PurchasesConfigContent />
+              ) : selectedMenu === "suppliers" ? (
+                <SuppliersContent />
+              ) : selectedMenu === "purchase-orders" ? (
+                <PurchaseOrdersContent />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">
