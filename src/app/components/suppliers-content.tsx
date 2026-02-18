@@ -1,306 +1,224 @@
 import { useState } from "react";
-import { Truck, Plus, Pencil, Trash2, Search, Phone, Mail, MapPin, Building2, CreditCard, FileText, X, Check, Star, TrendingUp, DollarSign, Package, AlertCircle } from "lucide-react";
+import { Truck, Plus, Pencil, Trash2, Search, Eye, Mail, Phone, MapPin, User, Building2, FileText, X, Package, ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Supplier {
   id: string;
   code: string;
-  businessName: string;
-  commercialName: string;
+  name: string;
   ruc: string;
-  type: "national" | "international";
-  category: string;
-  
-  // Contacto
-  contactPerson: string;
-  phone: string;
-  mobile: string;
   email: string;
-  website: string;
-  
-  // Dirección
+  phone: string;
   address: string;
   city: string;
   country: string;
-  
-  // Información financiera
-  paymentTerm: string;
-  creditLimit: string;
-  currency: string;
-  bankAccount: string;
-  
-  // Estadísticas
-  totalPurchases: string;
-  outstandingBalance: string;
-  lastPurchaseDate: string;
-  
-  // Estado
-  status: "active" | "inactive" | "blocked";
-  isPreferred: boolean;
-  rating: number;
-  
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
+  paymentTerms: string;
+  creditDays: number;
+  category: string;
+  status: "active" | "inactive";
   notes: string;
+  productsOffered: string[];
+  createdDate: string;
+  createdBy: string;
 }
 
-const CATEGORIES = [
-  "Materias Primas",
-  "Productos Terminados",
-  "Suministros de Oficina",
-  "Equipamiento",
-  "Servicios",
+const SUPPLIER_CATEGORIES = [
+  "all",
   "Tecnología",
+  "Papelería",
+  "Muebles",
   "Construcción",
-  "Alimentos y Bebidas",
-  "Textiles",
-  "Otros",
+  "Servicios",
+  "Alimentos",
+  "Otros"
 ];
 
 const PAYMENT_TERMS = [
-  { id: "0", name: "Contado" },
-  { id: "7", name: "7 días" },
-  { id: "15", name: "15 días" },
-  { id: "30", name: "30 días" },
-  { id: "45", name: "45 días" },
-  { id: "60", name: "60 días" },
-  { id: "90", name: "90 días" },
+  "Contado",
+  "Crédito 15 días",
+  "Crédito 30 días",
+  "Crédito 45 días",
+  "Crédito 60 días",
+  "Crédito 90 días"
 ];
 
-const CURRENCIES = [
-  { id: "USD", name: "USD - Dólar" },
-  { id: "EUR", name: "EUR - Euro" },
-  { id: "COP", name: "COP - Peso colombiano" },
-  { id: "PEN", name: "PEN - Sol peruano" },
-];
-
-const COUNTRIES = [
-  "Ecuador",
-  "Colombia",
-  "Perú",
-  "Estados Unidos",
-  "México",
-  "Chile",
-  "Argentina",
-  "España",
-  "China",
-  "Otros",
+const AVAILABLE_PRODUCTS = [
+  { code: "PROD-001", name: "Laptop Dell Latitude 5420" },
+  { code: "PROD-002", name: "Monitor LG 27 pulgadas" },
+  { code: "PROD-003", name: "Teclado mecánico Logitech" },
+  { code: "PROD-004", name: "Mouse inalámbrico" },
+  { code: "PROD-005", name: "Resma papel bond A4" },
+  { code: "PROD-006", name: "Marcadores permanentes x12" },
+  { code: "PROD-007", name: "Archivador de palanca" },
+  { code: "PROD-008", name: "Silla ergonómica oficina" },
+  { code: "PROD-009", name: "Escritorio ejecutivo" },
+  { code: "PROD-010", name: "Lámpara LED escritorio" },
+  { code: "PROD-011", name: "Impresora multifunción" },
+  { code: "PROD-012", name: "Caja de bolígrafos x50" },
+  { code: "PROD-013", name: "Cemento Portland x50kg" },
+  { code: "PROD-014", name: "Varilla de hierro 12mm" },
+  { code: "PROD-015", name: "Cable UTP Cat6 x305m" },
 ];
 
 export function SuppliersContent() {
   const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [viewingSupplier, setViewingSupplier] = useState<Supplier | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([
     {
       id: "sup-001",
-      code: "PROV-001",
-      businessName: "Distribuidora La Favorita C.A.",
-      commercialName: "Supermaxi",
+      code: "SUP-001",
+      name: "Distribuidora La Favorita C.A.",
       ruc: "1790016919001",
-      type: "national",
-      category: "Alimentos y Bebidas",
-      contactPerson: "María Rodríguez",
-      phone: "02-2987654",
-      mobile: "0998765432",
-      email: "compras@supermaxi.com",
-      website: "www.supermaxi.com",
-      address: "Av. 6 de Diciembre N34-120 y Whymper",
+      email: "ventas@lafavorita.com.ec",
+      phone: "+593 2 2987654",
+      address: "Av. América N35-87 y Naciones Unidas",
       city: "Quito",
       country: "Ecuador",
-      paymentTerm: "30",
-      creditLimit: "50000",
-      currency: "USD",
-      bankAccount: "2100543210 - Banco Pichincha",
-      totalPurchases: "245680.50",
-      outstandingBalance: "12500.00",
-      lastPurchaseDate: "2026-02-15",
+      contactName: "María Rodríguez",
+      contactPhone: "+593 99 8765432",
+      contactEmail: "mrodriguez@lafavorita.com.ec",
+      paymentTerms: "Crédito 30 días",
+      creditDays: 30,
+      category: "Muebles",
       status: "active",
-      isPreferred: true,
-      rating: 5,
-      notes: "Proveedor preferencial con descuentos por volumen",
+      notes: "Proveedor principal de mobiliario de oficina",
+      productsOffered: ["PROD-008", "PROD-009", "PROD-010"],
+      createdDate: "2025-01-15",
+      createdBy: "Admin Sistema"
     },
     {
       id: "sup-002",
-      code: "PROV-002",
-      businessName: "Tecnología Avanzada S.A.",
-      commercialName: "TechAdvance",
+      code: "SUP-002",
+      name: "Tecnología Avanzada S.A.",
       ruc: "1792345678001",
-      type: "national",
-      category: "Tecnología",
-      contactPerson: "Carlos Méndez",
-      phone: "02-3456789",
-      mobile: "0987654321",
-      email: "ventas@techadvance.com.ec",
-      website: "www.techadvance.com.ec",
-      address: "Av. Naciones Unidas E10-41 y República",
+      email: "info@tecnoavanzada.com.ec",
+      phone: "+593 2 3456789",
+      address: "Av. 6 de Diciembre N34-451 y Checoslovaquia",
       city: "Quito",
       country: "Ecuador",
-      paymentTerm: "45",
-      creditLimit: "75000",
-      currency: "USD",
-      bankAccount: "3200876543 - Banco Guayaquil",
-      totalPurchases: "156340.00",
-      outstandingBalance: "8900.00",
-      lastPurchaseDate: "2026-02-12",
+      contactName: "Carlos Méndez",
+      contactPhone: "+593 98 7654321",
+      contactEmail: "cmendez@tecnoavanzada.com.ec",
+      paymentTerms: "Crédito 45 días",
+      creditDays: 45,
+      category: "Tecnología",
       status: "active",
-      isPreferred: true,
-      rating: 5,
-      notes: "Excelente servicio post-venta y garantías extendidas",
+      notes: "Distribuidor autorizado de equipos Dell y HP",
+      productsOffered: ["PROD-001", "PROD-002", "PROD-003", "PROD-004"],
+      createdDate: "2025-02-01",
+      createdBy: "Admin Sistema"
     },
     {
       id: "sup-003",
-      code: "PROV-003",
-      businessName: "Papelería Corporativa Ltda.",
-      commercialName: "OfficeMax Ecuador",
+      code: "SUP-003",
+      name: "Papelería Corporativa Ltda.",
       ruc: "1798765432001",
-      type: "national",
-      category: "Suministros de Oficina",
-      contactPerson: "Ana López",
-      phone: "02-2345678",
-      mobile: "0976543210",
-      email: "info@officemax.ec",
-      website: "www.officemax.ec",
-      address: "Av. República del Salvador N36-84",
+      email: "ventas@papelcorp.com.ec",
+      phone: "+593 2 2345678",
+      address: "Av. 10 de Agosto N24-123 y Colón",
       city: "Quito",
       country: "Ecuador",
-      paymentTerm: "15",
-      creditLimit: "15000",
-      currency: "USD",
-      bankAccount: "4100234567 - Banco Pacífico",
-      totalPurchases: "34560.75",
-      outstandingBalance: "2100.50",
-      lastPurchaseDate: "2026-02-10",
+      contactName: "Ana López",
+      contactPhone: "+593 99 1234567",
+      contactEmail: "alopez@papelcorp.com.ec",
+      paymentTerms: "Crédito 15 días",
+      creditDays: 15,
+      category: "Papelería",
       status: "active",
-      isPreferred: false,
-      rating: 4,
-      notes: "Entregas puntuales, buenos precios en pedidos grandes",
+      notes: "Proveedor de suministros de oficina y papelería",
+      productsOffered: ["PROD-005", "PROD-006", "PROD-007", "PROD-012"],
+      createdDate: "2025-01-20",
+      createdBy: "Admin Sistema"
     },
     {
       id: "sup-004",
-      code: "PROV-004",
-      businessName: "Industrial Supplies Corp.",
-      commercialName: "IndusSupply",
+      code: "SUP-004",
+      name: "Industrial Supplies Corp.",
       ruc: "US-987654321",
-      type: "international",
-      category: "Equipamiento",
-      contactPerson: "John Smith",
-      phone: "+1-305-555-0123",
-      mobile: "+1-305-555-0124",
-      email: "sales@indussupply.com",
-      website: "www.indussupply.com",
+      email: "sales@indsupplies.com",
+      phone: "+1 305 555 0123",
       address: "1234 Industrial Blvd, Suite 500",
       city: "Miami",
-      country: "Estados Unidos",
-      paymentTerm: "60",
-      creditLimit: "100000",
-      currency: "USD",
-      bankAccount: "INT-5678901234 - Chase Bank",
-      totalPurchases: "89450.00",
-      outstandingBalance: "15000.00",
-      lastPurchaseDate: "2026-01-28",
+      country: "USA",
+      contactName: "John Smith",
+      contactPhone: "+1 305 555 0124",
+      contactEmail: "jsmith@indsupplies.com",
+      paymentTerms: "Crédito 60 días",
+      creditDays: 60,
+      category: "Tecnología",
       status: "active",
-      isPreferred: false,
-      rating: 4,
-      notes: "Proveedor internacional, requiere tiempo de importación",
+      notes: "Proveedor internacional de equipos industriales",
+      productsOffered: ["PROD-011", "PROD-015"],
+      createdDate: "2025-02-10",
+      createdBy: "Admin Sistema"
     },
     {
       id: "sup-005",
-      code: "PROV-005",
-      businessName: "Construcciones Andinas S.A.",
-      commercialName: "ConAndes",
+      code: "SUP-005",
+      name: "Construcciones Andinas S.A.",
       ruc: "1790123456001",
-      type: "national",
+      email: "ventas@construandinas.com.ec",
+      phone: "+593 2 4567890",
+      address: "Av. Mariscal Sucre Oe-234 y Galo Plaza",
+      city: "Quito",
+      country: "Ecuador",
+      contactName: "Pedro Morales",
+      contactPhone: "+593 98 2345678",
+      contactEmail: "pmorales@construandinas.com.ec",
+      paymentTerms: "Contado",
+      creditDays: 0,
       category: "Construcción",
-      contactPerson: "Pedro Morales",
-      phone: "02-4567890",
-      mobile: "0965432109",
-      email: "ventas@conandes.com",
-      website: "www.conandes.com",
-      address: "Av. Mariscal Sucre y Fernández Salvador",
-      city: "Quito",
-      country: "Ecuador",
-      paymentTerm: "30",
-      creditLimit: "60000",
-      currency: "USD",
-      bankAccount: "5100765432 - Produbanco",
-      totalPurchases: "67890.00",
-      outstandingBalance: "0.00",
-      lastPurchaseDate: "2026-02-08",
-      status: "active",
-      isPreferred: true,
-      rating: 5,
-      notes: "Siempre al día con los pagos, excelente calidad",
-    },
-    {
-      id: "sup-006",
-      code: "PROV-006",
-      businessName: "Textiles del Norte Ltda.",
-      commercialName: "TexNorte",
-      ruc: "1795432109001",
-      type: "national",
-      category: "Textiles",
-      contactPerson: "Laura Jiménez",
-      phone: "02-3210987",
-      mobile: "0954321098",
-      email: "contacto@texnorte.com",
-      website: "",
-      address: "Av. Eloy Alfaro N45-123",
-      city: "Quito",
-      country: "Ecuador",
-      paymentTerm: "45",
-      creditLimit: "25000",
-      currency: "USD",
-      bankAccount: "6100432109 - Banco Internacional",
-      totalPurchases: "23450.00",
-      outstandingBalance: "5600.00",
-      lastPurchaseDate: "2026-01-15",
       status: "inactive",
-      isPreferred: false,
-      rating: 3,
-      notes: "Pausado temporalmente por problemas de calidad",
+      notes: "Temporalmente inactivo por restructuración",
+      productsOffered: ["PROD-013", "PROD-014"],
+      createdDate: "2025-01-05",
+      createdBy: "Admin Sistema"
     },
   ]);
 
   const [formData, setFormData] = useState<Partial<Supplier>>({
     code: "",
-    businessName: "",
-    commercialName: "",
+    name: "",
     ruc: "",
-    type: "national",
-    category: "",
-    contactPerson: "",
-    phone: "",
-    mobile: "",
     email: "",
-    website: "",
+    phone: "",
     address: "",
     city: "",
     country: "Ecuador",
-    paymentTerm: "30",
-    creditLimit: "0",
-    currency: "USD",
-    bankAccount: "",
-    totalPurchases: "0",
-    outstandingBalance: "0",
-    lastPurchaseDate: "",
+    contactName: "",
+    contactPhone: "",
+    contactEmail: "",
+    paymentTerms: "Contado",
+    creditDays: 0,
+    category: "Otros",
     status: "active",
-    isPreferred: false,
-    rating: 3,
     notes: "",
+    productsOffered: [],
+    createdBy: "Usuario Actual"
   });
 
   const filteredSuppliers = suppliers.filter((supplier) => {
     const matchesSearch =
-      supplier.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.commercialName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.ruc.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.code.toLowerCase().includes(searchTerm.toLowerCase());
+      supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      supplier.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      supplier.ruc.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesCategory = filterCategory === "all" || supplier.category === filterCategory;
     const matchesStatus = filterStatus === "all" || supplier.status === filterStatus;
 
     return matchesSearch && matchesCategory && matchesStatus;
+  }).sort((a, b) => {
+    return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime();
   });
 
   const handleOpenModal = (supplier?: Supplier) => {
@@ -309,33 +227,27 @@ export function SuppliersContent() {
       setFormData(supplier);
     } else {
       setEditingSupplier(null);
-      const nextCode = `PROV-${String(suppliers.length + 1).padStart(3, "0")}`;
+      const nextNumber = `SUP-${String(suppliers.length + 1).padStart(3, "0")}`;
       setFormData({
-        code: nextCode,
-        businessName: "",
-        commercialName: "",
+        code: nextNumber,
+        name: "",
         ruc: "",
-        type: "national",
-        category: "",
-        contactPerson: "",
-        phone: "",
-        mobile: "",
         email: "",
-        website: "",
+        phone: "",
         address: "",
         city: "",
         country: "Ecuador",
-        paymentTerm: "30",
-        creditLimit: "0",
-        currency: "USD",
-        bankAccount: "",
-        totalPurchases: "0",
-        outstandingBalance: "0",
-        lastPurchaseDate: "",
+        contactName: "",
+        contactPhone: "",
+        contactEmail: "",
+        paymentTerms: "Contado",
+        creditDays: 0,
+        category: "Otros",
         status: "active",
-        isPreferred: false,
-        rating: 3,
         notes: "",
+        productsOffered: [],
+        createdDate: new Date().toISOString().split("T")[0],
+        createdBy: "Usuario Actual"
       });
     }
     setShowModal(true);
@@ -347,17 +259,15 @@ export function SuppliersContent() {
   };
 
   const handleSave = () => {
-    if (!formData.businessName || !formData.ruc) {
-      alert("Por favor completa los campos obligatorios (Razón Social y RUC)");
+    if (!formData.name || !formData.ruc) {
+      alert("Por favor completa el nombre y RUC del proveedor");
       return;
     }
 
     if (editingSupplier) {
       setSuppliers(
         suppliers.map((supplier) =>
-          supplier.id === editingSupplier.id
-            ? { ...supplier, ...formData }
-            : supplier
+          supplier.id === editingSupplier.id ? { ...supplier, ...formData } : supplier
         )
       );
     } else {
@@ -376,66 +286,58 @@ export function SuppliersContent() {
     }
   };
 
-  const togglePreferred = (id: string) => {
-    setSuppliers(
-      suppliers.map((supplier) =>
-        supplier.id === id
-          ? { ...supplier, isPreferred: !supplier.isPreferred }
-          : supplier
-      )
-    );
+  const handleViewSupplier = (supplier: Supplier) => {
+    setViewingSupplier(supplier);
+    setShowViewModal(true);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-500/10 border-green-500/20 text-green-400";
-      case "inactive":
-        return "bg-gray-500/10 border-gray-500/20 text-gray-400";
-      case "blocked":
-        return "bg-red-500/10 border-red-500/20 text-red-400";
-      default:
-        return "bg-gray-500/10 border-gray-500/20 text-gray-400";
+  const toggleProduct = (productCode: string) => {
+    const currentProducts = formData.productsOffered || [];
+    if (currentProducts.includes(productCode)) {
+      setFormData({
+        ...formData,
+        productsOffered: currentProducts.filter(code => code !== productCode)
+      });
+    } else {
+      setFormData({
+        ...formData,
+        productsOffered: [...currentProducts, productCode]
+      });
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "active":
-        return "Activo";
-      case "inactive":
-        return "Inactivo";
-      case "blocked":
-        return "Bloqueado";
-      default:
-        return status;
-    }
+  // Paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredSuppliers.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
   };
 
-  const totalSuppliers = suppliers.length;
-  const activeSuppliers = suppliers.filter((s) => s.status === "active").length;
-  const preferredSuppliers = suppliers.filter((s) => s.isPreferred).length;
-  const totalPurchasesSum = suppliers.reduce(
-    (sum, s) => sum + parseFloat(s.totalPurchases),
-    0
-  );
+  // Estadísticas
+  const activeSuppliers = suppliers.filter(s => s.status === "active").length;
+  const inactiveSuppliers = suppliers.filter(s => s.status === "inactive").length;
 
   return (
-    <div className="space-y-8 max-w-7xl">
-      {/* Header estándar */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="space-y-6">
+      {/* Header estándar con diseño corporativo */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+          <h2 className="text-white font-bold text-2xl mb-2 flex items-center gap-3">
             <Truck className="w-8 h-8 text-primary" />
-            Proveedores
+            Gestión de Proveedores
           </h2>
           <p className="text-gray-400 text-sm">
-            Gestión de proveedores y contactos comerciales
+            Administra tu catálogo de proveedores y sus productos
           </p>
         </div>
+        
+        {/* Botón Nuevo Proveedor - Arriba a la derecha */}
         <button
           onClick={() => handleOpenModal()}
-          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium flex items-center gap-2"
+          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 justify-center whitespace-nowrap"
         >
           <Plus className="w-5 h-5" />
           Nuevo Proveedor
@@ -445,284 +347,274 @@ export function SuppliersContent() {
       {/* Separador */}
       <div className="border-t border-white/10"></div>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-xl p-5">
-          <div className="flex items-center justify-between mb-2">
-            <Truck className="w-8 h-8 text-primary" />
-          </div>
-          <p className="text-gray-400 text-sm mb-1">Total Proveedores</p>
-          <p className="text-white font-bold text-3xl">{totalSuppliers}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 rounded-xl p-5">
-          <div className="flex items-center justify-between mb-2">
-            <Check className="w-8 h-8 text-green-400" />
-          </div>
-          <p className="text-gray-400 text-sm mb-1">Proveedores Activos</p>
-          <p className="text-green-400 font-bold text-3xl">{activeSuppliers}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20 rounded-xl p-5">
-          <div className="flex items-center justify-between mb-2">
-            <Star className="w-8 h-8 text-yellow-400" />
-          </div>
-          <p className="text-gray-400 text-sm mb-1">Preferidos</p>
-          <p className="text-yellow-400 font-bold text-3xl">{preferredSuppliers}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 rounded-xl p-5">
-          <div className="flex items-center justify-between mb-2">
-            <DollarSign className="w-8 h-8 text-blue-400" />
-          </div>
-          <p className="text-gray-400 text-sm mb-1">Total Compras</p>
-          <p className="text-blue-400 font-bold text-3xl">
-            ${totalPurchasesSum.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-          </p>
-        </div>
-      </div>
-
-      {/* Filtros y búsqueda */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3 flex items-center gap-2">
-            <Search className="w-5 h-5 text-primary" />
-            Buscar proveedor
-          </label>
+      {/* Sección de filtros */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Buscar */}
+        <div className="relative">
+          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Razón social, RUC, código..."
+            placeholder="Buscar proveedor..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           />
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3">Categoría</label>
+        {/* Categoría */}
+        <div className="relative">
+          <Building2 className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
           >
             <option value="all">Todas las categorías</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+            {SUPPLIER_CATEGORIES.filter(cat => cat !== "all").map((category) => (
+              <option key={category} value={category}>
+                {category}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3">Estado</label>
+        {/* Estado */}
+        <div className="relative">
+          <FileText className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
           >
             <option value="all">Todos los estados</option>
             <option value="active">Activos</option>
             <option value="inactive">Inactivos</option>
-            <option value="blocked">Bloqueados</option>
           </select>
         </div>
       </div>
 
-      {/* Lista de proveedores */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Lista de proveedores - Tabla */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
         {filteredSuppliers.length === 0 ? (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
+          <div className="p-12 text-center">
             <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Truck className="w-8 h-8 text-gray-400" />
             </div>
             <p className="text-gray-400 mb-2">No se encontraron proveedores</p>
             <p className="text-gray-500 text-sm">
-              Intenta ajustar los filtros o agrega un nuevo proveedor
+              Intenta ajustar los filtros o crea un nuevo proveedor
             </p>
           </div>
         ) : (
-          filteredSuppliers.map((supplier) => (
-            <div
-              key={supplier.id}
-              className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] transition-all"
-            >
-              <div className="flex items-start justify-between gap-4 mb-5">
-                {/* Información principal */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-white font-bold text-xl">
-                      {supplier.businessName}
-                    </h3>
-                    {supplier.isPreferred && (
-                      <span className="px-2.5 py-1 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 rounded-lg text-xs font-medium flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-yellow-400" />
-                        Preferido
-                      </span>
-                    )}
-                    <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${getStatusColor(supplier.status)}`}>
-                      {getStatusText(supplier.status)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
-                    <span className="font-mono">{supplier.code}</span>
-                    <span>•</span>
-                    <span>{supplier.commercialName}</span>
-                    <span>•</span>
-                    <span className="font-mono">{supplier.ruc}</span>
-                  </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-white/5 border-b border-white/10">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Código
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Proveedor
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    RUC
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Categoría
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Contacto
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Productos
+                  </th>
+                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {currentItems.map((supplier) => (
+                  <tr key={supplier.id} className="hover:bg-white/[0.02] transition-colors">
+                    {/* Código */}
+                    <td className="px-6 py-4">
+                      <span className="text-white font-mono font-bold">{supplier.code}</span>
+                    </td>
 
-                  <div className="flex items-center gap-2 mb-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < supplier.rating
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-600"
-                        }`}
-                      />
-                    ))}
-                    <span className="text-gray-400 text-sm ml-1">
-                      ({supplier.rating}/5)
-                    </span>
-                  </div>
-                </div>
-
-                {/* Acciones */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => togglePreferred(supplier.id)}
-                    className={`p-2 rounded-lg transition-colors ${
-                      supplier.isPreferred
-                        ? "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
-                        : "bg-white/5 text-gray-400 hover:bg-white/10"
-                    }`}
-                    title="Marcar como preferido"
-                  >
-                    <Star className={`w-5 h-5 ${supplier.isPreferred ? "fill-yellow-400" : ""}`} />
-                  </button>
-                  <button
-                    onClick={() => handleOpenModal(supplier)}
-                    className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors"
-                  >
-                    <Pencil className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(supplier.id)}
-                    className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Información detallada en grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                {/* Contacto */}
-                <div className="bg-[#0f1825]/50 rounded-xl p-4">
-                  <h4 className="text-gray-400 text-xs font-medium mb-3 uppercase">Contacto</h4>
-                  <div className="space-y-2">
-                    {supplier.contactPerson && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Building2 className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                        <span className="text-white">{supplier.contactPerson}</span>
+                    {/* Proveedor */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium">{supplier.name}</span>
+                        <span className="text-gray-500 text-xs flex items-center gap-1 mt-1">
+                          <MapPin className="w-3 h-3" />
+                          {supplier.city}, {supplier.country}
+                        </span>
                       </div>
-                    )}
-                    {supplier.phone && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                        <span className="text-white">{supplier.phone}</span>
-                      </div>
-                    )}
-                    {supplier.email && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                        <a href={`mailto:${supplier.email}`} className="text-primary hover:underline">
-                          {supplier.email}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                    </td>
 
-                {/* Ubicación */}
-                <div className="bg-[#0f1825]/50 rounded-xl p-4">
-                  <h4 className="text-gray-400 text-xs font-medium mb-3 uppercase">Ubicación</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2 text-sm">
-                      <MapPin className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-white">{supplier.city}, {supplier.country}</p>
-                        {supplier.address && (
-                          <p className="text-gray-400 text-xs mt-1">{supplier.address}</p>
-                        )}
+                    {/* RUC */}
+                    <td className="px-6 py-4">
+                      <span className="text-white text-sm font-mono">{supplier.ruc}</span>
+                    </td>
+
+                    {/* Categoría */}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-medium text-gray-300">
+                        {supplier.category}
+                      </span>
+                    </td>
+
+                    {/* Contacto */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1 text-xs">
+                        <span className="text-white flex items-center gap-1">
+                          <User className="w-3 h-3 text-gray-400" />
+                          {supplier.contactName}
+                        </span>
+                        <span className="text-gray-500 flex items-center gap-1">
+                          <Phone className="w-3 h-3" />
+                          {supplier.contactPhone}
+                        </span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Package className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                      <span className="text-white">{supplier.category}</span>
-                    </div>
-                  </div>
-                </div>
+                    </td>
 
-                {/* Información Financiera */}
-                <div className="bg-[#0f1825]/50 rounded-xl p-4">
-                  <h4 className="text-gray-400 text-xs font-medium mb-3 uppercase">Financiero</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Plazo de pago:</span>
-                      <span className="text-white font-medium">
-                        {PAYMENT_TERMS.find((p) => p.id === supplier.paymentTerm)?.name || supplier.paymentTerm}
+                    {/* Productos */}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg text-xs font-medium text-primary">
+                        <Package className="w-3 h-3" />
+                        {supplier.productsOffered.length} productos
                       </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Límite crédito:</span>
-                      <span className="text-white font-medium">
-                        ${parseFloat(supplier.creditLimit).toLocaleString("en-US")}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Saldo pendiente:</span>
-                      <span className={`font-medium ${parseFloat(supplier.outstandingBalance) > 0 ? "text-yellow-400" : "text-green-400"}`}>
-                        ${parseFloat(supplier.outstandingBalance).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                    </td>
 
-              {/* Estadísticas */}
-              <div className="flex items-center gap-6 pt-4 border-t border-white/10">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-primary" />
-                  <span className="text-gray-400 text-sm">Total compras:</span>
-                  <span className="text-white font-bold">
-                    ${parseFloat(supplier.totalPurchases).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                {supplier.lastPurchaseDate && (
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-gray-500" />
-                    <span className="text-gray-400 text-sm">Última compra:</span>
-                    <span className="text-white">
-                      {new Date(supplier.lastPurchaseDate).toLocaleDateString("es-EC")}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))
+                    {/* Estado */}
+                    <td className="px-6 py-4 text-center">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
+                        supplier.status === "active"
+                          ? "bg-green-500/10 border border-green-500/20 text-green-400"
+                          : "bg-red-500/10 border border-red-500/20 text-red-400"
+                      }`}>
+                        {supplier.status === "active" ? "Activo" : "Inactivo"}
+                      </span>
+                    </td>
+
+                    {/* Acciones */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleViewSupplier(supplier)}
+                          className="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
+                          title="Ver detalle"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => handleOpenModal(supplier)}
+                          className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors"
+                          title="Editar"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(supplier.id)}
+                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
-      {/* Modal de agregar/editar */}
+      {/* Paginación */}
+      {filteredSuppliers.length > 0 && (
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Información de registros */}
+          <div className="text-gray-400 text-sm">
+            Mostrando <span className="text-white font-medium">{indexOfFirstItem + 1}</span> a{" "}
+            <span className="text-white font-medium">{Math.min(indexOfLastItem, filteredSuppliers.length)}</span> de{" "}
+            <span className="text-white font-medium">{filteredSuppliers.length}</span> proveedores
+          </div>
+
+          {/* Controles de paginación */}
+          <div className="flex items-center gap-2">
+            {/* Selector de items por página */}
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            >
+              <option value={5}>5 por página</option>
+              <option value={10}>10 por página</option>
+              <option value={20}>20 por página</option>
+              <option value={50}>50 por página</option>
+            </select>
+
+            {/* Botones de navegación */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Primera página"
+              >
+                <ChevronsLeft className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Página anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm min-w-[100px] text-center">
+                {currentPage} / {totalPages}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Página siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Última página"
+              >
+                <ChevronsRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de crear/editar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
             {/* Header del modal */}
-            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
               <h3 className="text-white font-bold text-xl">
                 {editingSupplier ? "Editar Proveedor" : "Nuevo Proveedor"}
               </h3>
@@ -745,68 +637,40 @@ export function SuppliersContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Código <span className="text-red-400">*</span>
+                      Código
                     </label>
                     <input
                       type="text"
-                      placeholder="PROV-001"
                       value={formData.code || ""}
-                      onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors font-mono"
+                      disabled
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-gray-500 font-mono"
                     />
                   </div>
 
                   <div>
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      RUC/ID <span className="text-red-400">*</span>
+                      RUC/Tax ID <span className="text-red-400">*</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="1790016919001"
                       value={formData.ruc || ""}
                       onChange={(e) => setFormData({ ...formData, ruc: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors font-mono"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Razón Social <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Nombre legal de la empresa"
-                      value={formData.businessName || ""}
-                      onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Nombre Comercial
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Nombre comercial o marca"
-                      value={formData.commercialName || ""}
-                      onChange={(e) => setFormData({ ...formData, commercialName: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Tipo
-                    </label>
-                    <select
-                      value={formData.type || "national"}
-                      onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                       className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                    >
-                      <option value="national">Nacional</option>
-                      <option value="international">Internacional</option>
-                    </select>
+                      placeholder="1234567890001"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                      Nombre del Proveedor <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name || ""}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="Nombre de la empresa"
+                    />
                   </div>
 
                   <div>
@@ -818,12 +682,25 @@ export function SuppliersContent() {
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
                     >
-                      <option value="">Seleccionar categoría</option>
-                      {CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
+                      {SUPPLIER_CATEGORIES.filter(cat => cat !== "all").map((category) => (
+                        <option key={category} value={category}>
+                          {category}
                         </option>
                       ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                      Estado
+                    </label>
+                    <select
+                      value={formData.status || ""}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    >
+                      <option value="active">Activo</option>
+                      <option value="inactive">Inactivo</option>
                     </select>
                   </div>
                 </div>
@@ -832,33 +709,20 @@ export function SuppliersContent() {
               {/* Información de Contacto */}
               <div>
                 <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                  <Phone className="w-5 h-5 text-primary" />
-                  Contacto
+                  <User className="w-5 h-5 text-primary" />
+                  Información de Contacto
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Persona de contacto
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Nombre del contacto"
-                      value={formData.contactPerson || ""}
-                      onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-                    />
-                  </div>
-
                   <div>
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
                       Email
                     </label>
                     <input
                       type="email"
-                      placeholder="email@empresa.com"
                       value={formData.email || ""}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="email@empresa.com"
                     />
                   </div>
 
@@ -868,36 +732,49 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="tel"
-                      placeholder="02-1234567"
                       value={formData.phone || ""}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="+593 2 1234567"
                     />
                   </div>
 
                   <div>
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Celular
+                      Nombre del Contacto
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.contactName || ""}
+                      onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="Juan Pérez"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                      Teléfono del Contacto
                     </label>
                     <input
                       type="tel"
-                      placeholder="0987654321"
-                      value={formData.mobile || ""}
-                      onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      value={formData.contactPhone || ""}
+                      onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="+593 99 1234567"
                     />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Sitio web
+                      Email del Contacto
                     </label>
                     <input
-                      type="url"
-                      placeholder="www.empresa.com"
-                      value={formData.website || ""}
-                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      type="email"
+                      value={formData.contactEmail || ""}
+                      onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="contacto@empresa.com"
                     />
                   </div>
                 </div>
@@ -912,14 +789,14 @@ export function SuppliersContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Dirección completa
+                      Dirección
                     </label>
                     <input
                       type="text"
-                      placeholder="Calle, número, sector"
                       value={formData.address || ""}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="Av. Principal N12-34 y Secundaria"
                     />
                   </div>
 
@@ -929,10 +806,10 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="text"
-                      placeholder="Ciudad"
                       value={formData.city || ""}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="Quito"
                     />
                   </div>
 
@@ -940,40 +817,45 @@ export function SuppliersContent() {
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
                       País
                     </label>
-                    <select
-                      value={formData.country || "Ecuador"}
+                    <input
+                      type="text"
+                      value={formData.country || ""}
                       onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                       className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                    >
-                      {COUNTRIES.map((country) => (
-                        <option key={country} value={country}>
-                          {country}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Ecuador"
+                    />
                   </div>
                 </div>
               </div>
 
-              {/* Información Financiera */}
+              {/* Condiciones de Pago */}
               <div>
                 <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-primary" />
-                  Información Financiera
+                  <FileText className="w-5 h-5 text-primary" />
+                  Condiciones de Pago
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Plazo de pago
+                      Términos de Pago
                     </label>
                     <select
-                      value={formData.paymentTerm || "30"}
-                      onChange={(e) => setFormData({ ...formData, paymentTerm: e.target.value })}
+                      value={formData.paymentTerms || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const days = value === "Contado" ? 0 :
+                                    value === "Crédito 15 días" ? 15 :
+                                    value === "Crédito 30 días" ? 30 :
+                                    value === "Crédito 45 días" ? 45 :
+                                    value === "Crédito 60 días" ? 60 :
+                                    value === "Crédito 90 días" ? 90 : 0;
+                        setFormData({ ...formData, paymentTerms: value, creditDays: days });
+                      }}
                       className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
                     >
                       {PAYMENT_TERMS.map((term) => (
-                        <option key={term.id} value={term.id}>
-                          {term.name}
+                        <option key={term} value={term}>
+                          {term}
                         </option>
                       ))}
                     </select>
@@ -981,102 +863,52 @@ export function SuppliersContent() {
 
                   <div>
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Límite de crédito ($)
+                      Días de Crédito
                     </label>
                     <input
                       type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={formData.creditLimit || "0"}
-                      onChange={(e) => setFormData({ ...formData, creditLimit: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Moneda
-                    </label>
-                    <select
-                      value={formData.currency || "USD"}
-                      onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                    >
-                      {CURRENCIES.map((curr) => (
-                        <option key={curr.id} value={curr.id}>
-                          {curr.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Calificación
-                    </label>
-                    <select
-                      value={formData.rating || 3}
-                      onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                    >
-                      <option value={5}>⭐⭐⭐⭐⭐ Excelente</option>
-                      <option value={4}>⭐⭐⭐⭐ Muy bueno</option>
-                      <option value={3}>⭐⭐⭐ Bueno</option>
-                      <option value={2}>⭐⭐ Regular</option>
-                      <option value={1}>⭐ Malo</option>
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Cuenta bancaria
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Número de cuenta - Banco"
-                      value={formData.bankAccount || ""}
-                      onChange={(e) => setFormData({ ...formData, bankAccount: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      value={formData.creditDays || 0}
+                      disabled
+                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-gray-500"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Estado y Opciones */}
+              {/* Productos Ofrecidos */}
               <div>
-                <h4 className="text-white font-bold text-lg mb-4">Estado y Opciones</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Estado
-                    </label>
-                    <select
-                      value={formData.status || "active"}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                    >
-                      <option value="active">Activo</option>
-                      <option value="inactive">Inactivo</option>
-                      <option value="blocked">Bloqueado</option>
-                    </select>
-                  </div>
-
-                  <div className="flex items-end">
-                    <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors flex-1">
-                      <div className="relative">
-                        <input
-                          type="checkbox"
-                          checked={formData.isPreferred || false}
-                          onChange={(e) => setFormData({ ...formData, isPreferred: e.target.checked })}
-                          className="sr-only peer"
-                        />
-                        <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                          {formData.isPreferred && <Check className="w-3 h-3 text-white" />}
-                        </div>
-                      </div>
-                      <span className="text-white font-medium">Proveedor preferido</span>
-                    </label>
+                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-primary" />
+                  Productos Ofrecidos ({formData.productsOffered?.length || 0})
+                </h4>
+                <div className="bg-[#0f1825]/50 border border-white/10 rounded-xl p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                    {AVAILABLE_PRODUCTS.map((product) => {
+                      const isSelected = formData.productsOffered?.includes(product.code);
+                      return (
+                        <label
+                          key={product.code}
+                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                            isSelected
+                              ? "bg-primary/10 border border-primary/20"
+                              : "bg-white/5 border border-white/10 hover:bg-white/10"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleProduct(product.code)}
+                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-primary focus:ring-primary/40"
+                          />
+                          <div className="flex-1">
+                            <p className={`text-sm font-medium ${isSelected ? "text-primary" : "text-white"}`}>
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-gray-500">{product.code}</p>
+                          </div>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -1087,10 +919,10 @@ export function SuppliersContent() {
                   Notas adicionales
                 </label>
                 <textarea
-                  placeholder="Observaciones, acuerdos especiales, etc."
+                  placeholder="Observaciones, condiciones especiales, etc."
                   value={formData.notes || ""}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows={4}
+                  rows={3}
                   className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
                 />
               </div>
@@ -1109,6 +941,172 @@ export function SuppliersContent() {
                 className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium"
               >
                 {editingSupplier ? "Guardar Cambios" : "Crear Proveedor"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de vista detallada */}
+      {showViewModal && viewingSupplier && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+            {/* Header del modal */}
+            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
+              <div>
+                <h3 className="text-white font-bold text-xl font-mono">
+                  {viewingSupplier.code}
+                </h3>
+                <p className="text-gray-400 text-sm mt-1">
+                  {viewingSupplier.name}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Contenido del modal */}
+            <div className="p-6 space-y-6">
+              {/* Información general en cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white/5 rounded-xl p-5">
+                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                    <Building2 className="w-4 h-4" />
+                    Información de la Empresa
+                  </h4>
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <p className="text-gray-500 text-xs">RUC</p>
+                      <p className="text-white font-medium font-mono">{viewingSupplier.ruc}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs">Categoría</p>
+                      <p className="text-white font-medium">{viewingSupplier.category}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs">Estado</p>
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
+                        viewingSupplier.status === "active"
+                          ? "bg-green-500/10 border border-green-500/20 text-green-400"
+                          : "bg-red-500/10 border border-red-500/20 text-red-400"
+                      }`}>
+                        {viewingSupplier.status === "active" ? "Activo" : "Inactivo"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-xl p-5">
+                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Persona de Contacto
+                  </h4>
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <p className="text-gray-500 text-xs">Nombre</p>
+                      <p className="text-white font-medium">{viewingSupplier.contactName}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs">Teléfono</p>
+                      <p className="text-white font-medium flex items-center gap-2">
+                        <Phone className="w-3 h-3 text-gray-400" />
+                        {viewingSupplier.contactPhone}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs">Email</p>
+                      <p className="text-white font-medium flex items-center gap-2">
+                        <Mail className="w-3 h-3 text-gray-400" />
+                        {viewingSupplier.contactEmail}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-xl p-5">
+                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Ubicación
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-white">{viewingSupplier.address}</p>
+                    <p className="text-gray-400">{viewingSupplier.city}, {viewingSupplier.country}</p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <Phone className="w-3 h-3 text-gray-400" />
+                      <span className="text-white">{viewingSupplier.phone}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-3 h-3 text-gray-400" />
+                      <span className="text-white">{viewingSupplier.email}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-xl p-5">
+                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Condiciones Comerciales
+                  </h4>
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <p className="text-gray-500 text-xs">Términos de Pago</p>
+                      <p className="text-white font-medium">{viewingSupplier.paymentTerms}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs">Días de Crédito</p>
+                      <p className="text-primary font-bold text-2xl">{viewingSupplier.creditDays}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Productos Ofrecidos */}
+              <div>
+                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-primary" />
+                  Productos Ofrecidos ({viewingSupplier.productsOffered.length})
+                </h4>
+                <div className="bg-white/5 rounded-xl p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {viewingSupplier.productsOffered.map((productCode) => {
+                      const product = AVAILABLE_PRODUCTS.find(p => p.code === productCode);
+                      return product ? (
+                        <div
+                          key={productCode}
+                          className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg"
+                        >
+                          <Package className="w-4 h-4 text-primary flex-shrink-0" />
+                          <div>
+                            <p className="text-white text-sm font-medium">{product.name}</p>
+                            <p className="text-gray-500 text-xs">{product.code}</p>
+                          </div>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Notas */}
+              {viewingSupplier.notes && (
+                <div className="bg-white/5 rounded-xl p-5">
+                  <h4 className="text-gray-400 text-xs font-medium mb-2 uppercase">Notas</h4>
+                  <p className="text-white text-sm">{viewingSupplier.notes}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer del modal */}
+            <div className="sticky bottom-0 bg-secondary border-t border-white/10 px-6 py-4 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
+              >
+                Cerrar
               </button>
             </div>
           </div>

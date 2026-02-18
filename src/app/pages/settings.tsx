@@ -1,3 +1,17 @@
+import { useState } from "react";
+import { 
+  Settings as SettingsIcon, 
+  Users, 
+  ShoppingCart, 
+  Calendar, 
+  Package, 
+  Warehouse, 
+  FolderTree, 
+  Ruler,
+  ChevronDown,
+  ChevronRight,
+  Box
+} from "lucide-react";
 import { WarehousesContent } from "../components/warehouses-content";
 import { StockConfigContent } from "../components/stock-config-content";
 import { CategoriesContent } from "../components/categories-content";

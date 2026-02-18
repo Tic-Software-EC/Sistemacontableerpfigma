@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShoppingCart, Plus, Pencil, Trash2, Search, Eye, CheckCircle, Clock, XCircle, FileText, Package, DollarSign, Calendar, Truck, X, Check, Filter, Download } from "lucide-react";
+import { ShoppingCart, Plus, Pencil, Trash2, Search, Eye, CheckCircle, Clock, XCircle, FileText, Package, DollarSign, Calendar, Truck, X, Check, Filter, Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 interface OrderItem {
   id: string;
@@ -41,14 +41,21 @@ const SUPPLIERS = [
 ];
 
 const PRODUCTS = [
-  { code: "PROD-001", name: "Laptop Dell Latitude 5420", price: "850.00", tax: "12" },
-  { code: "PROD-002", name: "Monitor LG 27 pulgadas", price: "320.00", tax: "12" },
-  { code: "PROD-003", name: "Teclado mecánico Logitech", price: "89.99", tax: "12" },
-  { code: "PROD-004", name: "Mouse inalámbrico", price: "25.50", tax: "12" },
-  { code: "PROD-005", name: "Resma papel bond A4", price: "4.50", tax: "0" },
-  { code: "PROD-006", name: "Marcadores permanentes x12", price: "8.75", tax: "12" },
-  { code: "PROD-007", name: "Archivador de palanca", price: "2.30", tax: "12" },
-  { code: "PROD-008", name: "Silla ergonómica oficina", price: "185.00", tax: "12" },
+  { code: "PROD-001", name: "Laptop Dell Latitude 5420", price: "850.00", tax: "12", supplierId: "sup-002" },
+  { code: "PROD-002", name: "Monitor LG 27 pulgadas", price: "320.00", tax: "12", supplierId: "sup-002" },
+  { code: "PROD-003", name: "Teclado mecánico Logitech", price: "89.99", tax: "12", supplierId: "sup-002" },
+  { code: "PROD-004", name: "Mouse inalámbrico", price: "25.50", tax: "12", supplierId: "sup-002" },
+  { code: "PROD-005", name: "Resma papel bond A4", price: "4.50", tax: "0", supplierId: "sup-003" },
+  { code: "PROD-006", name: "Marcadores permanentes x12", price: "8.75", tax: "12", supplierId: "sup-003" },
+  { code: "PROD-007", name: "Archivador de palanca", price: "2.30", tax: "12", supplierId: "sup-003" },
+  { code: "PROD-008", name: "Silla ergonómica oficina", price: "185.00", tax: "12", supplierId: "sup-001" },
+  { code: "PROD-009", name: "Escritorio ejecutivo", price: "450.00", tax: "12", supplierId: "sup-001" },
+  { code: "PROD-010", name: "Lámpara LED escritorio", price: "35.00", tax: "12", supplierId: "sup-001" },
+  { code: "PROD-011", name: "Impresora multifunción", price: "280.00", tax: "12", supplierId: "sup-004" },
+  { code: "PROD-012", name: "Caja de bolígrafos x50", price: "12.50", tax: "12", supplierId: "sup-003" },
+  { code: "PROD-013", name: "Cemento Portland x50kg", price: "8.90", tax: "12", supplierId: "sup-005" },
+  { code: "PROD-014", name: "Varilla de hierro 12mm", price: "15.50", tax: "12", supplierId: "sup-005" },
+  { code: "PROD-015", name: "Cable UTP Cat6 x305m", price: "120.00", tax: "12", supplierId: "sup-004" },
 ];
 
 const ORDER_STATUSES = [
@@ -68,6 +75,10 @@ export function PurchaseOrdersContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterSupplier, setFilterSupplier] = useState<string>("all");
+  const [filterDateFrom, setFilterDateFrom] = useState("");
+  const [filterDateTo, setFilterDateTo] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [orders, setOrders] = useState<PurchaseOrder[]>([
     {
@@ -266,7 +277,13 @@ export function PurchaseOrdersContent() {
     const matchesStatus = filterStatus === "all" || order.status === filterStatus;
     const matchesSupplier = filterSupplier === "all" || order.supplierId === filterSupplier;
 
-    return matchesSearch && matchesStatus && matchesSupplier;
+    const matchesDateFrom = !filterDateFrom || new Date(order.date) >= new Date(filterDateFrom);
+    const matchesDateTo = !filterDateTo || new Date(order.date) <= new Date(filterDateTo);
+
+    return matchesSearch && matchesStatus && matchesSupplier && matchesDateFrom && matchesDateTo;
+  }).sort((a, b) => {
+    // Ordenar por fecha descendente (más reciente primero)
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
   const calculateTotals = (items: OrderItem[]) => {
@@ -494,22 +511,34 @@ export function PurchaseOrdersContent() {
     .filter((o) => o.status !== "cancelled")
     .reduce((sum, o) => sum + parseFloat(o.total), 0);
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
-    <div className="space-y-8 max-w-7xl">
-      {/* Header estándar */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="space-y-6">
+      {/* Header estándar con diseño corporativo */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+          <h2 className="text-white font-bold text-2xl mb-2 flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
             Órdenes de Compra
           </h2>
           <p className="text-gray-400 text-sm">
-            Gestión de órdenes de compra y seguimiento
+            Gestiona tus órdenes de compra y realiza seguimiento de entregas
           </p>
         </div>
+        
+        {/* Botón Nueva Orden - Arriba a la derecha */}
         <button
           onClick={() => handleOpenModal()}
-          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium flex items-center gap-2"
+          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 justify-center whitespace-nowrap"
         >
           <Plus className="w-5 h-5" />
           Nueva Orden
@@ -519,64 +548,27 @@ export function PurchaseOrdersContent() {
       {/* Separador */}
       <div className="border-t border-white/10"></div>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-xl p-4">
-          <p className="text-gray-400 text-xs mb-1">Total Órdenes</p>
-          <p className="text-white font-bold text-2xl">{totalOrders}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-gray-500/20 to-gray-500/5 border border-gray-500/20 rounded-xl p-4">
-          <p className="text-gray-400 text-xs mb-1">Borradores</p>
-          <p className="text-gray-400 font-bold text-2xl">{draftOrders}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20 rounded-xl p-4">
-          <p className="text-gray-400 text-xs mb-1">Pendientes</p>
-          <p className="text-yellow-400 font-bold text-2xl">{pendingOrders}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 rounded-xl p-4">
-          <p className="text-gray-400 text-xs mb-1">Aprobadas</p>
-          <p className="text-blue-400 font-bold text-2xl">{approvedOrders}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/20 rounded-xl p-4">
-          <p className="text-gray-400 text-xs mb-1">Recibidas</p>
-          <p className="text-green-400 font-bold text-2xl">{receivedOrders}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-xl p-4">
-          <p className="text-gray-400 text-xs mb-1">Total Monto</p>
-          <p className="text-primary font-bold text-xl">${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</p>
-        </div>
-      </div>
-
-      {/* Filtros y búsqueda */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3 flex items-center gap-2">
-            <Search className="w-5 h-5 text-primary" />
-            Buscar orden
-          </label>
+      {/* Sección de filtros */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        {/* Buscar */}
+        <div className="relative">
+          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Número de orden, proveedor..."
+            placeholder="Buscar orden..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           />
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3 flex items-center gap-2">
-            <Filter className="w-5 h-5 text-primary" />
-            Estado
-          </label>
+        {/* Estado */}
+        <div className="relative">
+          <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
           >
             {ORDER_STATUSES.map((status) => (
               <option key={status.id} value={status.id}>
@@ -586,15 +578,13 @@ export function PurchaseOrdersContent() {
           </select>
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3 flex items-center gap-2">
-            <Truck className="w-5 h-5 text-primary" />
-            Proveedor
-          </label>
+        {/* Proveedor */}
+        <div className="relative">
+          <Truck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <select
             value={filterSupplier}
             onChange={(e) => setFilterSupplier(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
           >
             <option value="all">Todos los proveedores</option>
             {SUPPLIERS.map((supplier) => (
@@ -604,12 +594,52 @@ export function PurchaseOrdersContent() {
             ))}
           </select>
         </div>
+
+        {/* Rango de fechas en un solo campo */}
+        <div className="relative">
+          <Calendar className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <select
+            onChange={(e) => {
+              const value = e.target.value;
+              const today = new Date();
+              let from = "";
+              let to = "";
+
+              switch (value) {
+                case "today":
+                  from = to = today.toISOString().split("T")[0];
+                  break;
+                case "week":
+                  from = new Date(today.setDate(today.getDate() - 7)).toISOString().split("T")[0];
+                  to = new Date().toISOString().split("T")[0];
+                  break;
+                case "month":
+                  from = new Date(today.setDate(today.getDate() - 30)).toISOString().split("T")[0];
+                  to = new Date().toISOString().split("T")[0];
+                  break;
+                case "all":
+                default:
+                  from = to = "";
+              }
+
+              setFilterDateFrom(from);
+              setFilterDateTo(to);
+              setCurrentPage(1);
+            }}
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+          >
+            <option value="all">Todas las fechas</option>
+            <option value="today">Hoy</option>
+            <option value="week">Últimos 7 días</option>
+            <option value="month">Últimos 30 días</option>
+          </select>
+        </div>
       </div>
 
-      {/* Lista de órdenes */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Lista de órdenes - Tabla */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
         {filteredOrders.length === 0 ? (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
+          <div className="p-12 text-center">
             <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <ShoppingCart className="w-8 h-8 text-gray-400" />
             </div>
@@ -619,218 +649,153 @@ export function PurchaseOrdersContent() {
             </p>
           </div>
         ) : (
-          filteredOrders.map((order) => (
-            <div
-              key={order.id}
-              className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] transition-all"
-            >
-              {/* Header de la orden */}
-              <div className="flex items-start justify-between gap-4 mb-5">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-white font-bold text-xl font-mono">
-                      {order.orderNumber}
-                    </h3>
-                    <span className={`px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 ${getStatusColor(order.status)}`}>
-                      {getStatusIcon(order.status)}
-                      {getStatusName(order.status)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
-                    <div className="flex items-center gap-1.5">
-                      <Truck className="w-4 h-4" />
-                      <span>{order.supplierName}</span>
-                    </div>
-                    <span>•</span>
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4" />
-                      <span>Fecha: {new Date(order.date).toLocaleDateString("es-EC")}</span>
-                    </div>
-                    <span>•</span>
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4" />
-                      <span>Entrega: {new Date(order.deliveryDate).toLocaleDateString("es-EC")}</span>
-                    </div>
-                  </div>
-
-                  <div className="text-sm text-gray-400">
-                    <span className="text-gray-500">Creado por:</span>{" "}
-                    <span className="text-white">{order.createdBy}</span>
-                  </div>
-                </div>
-
-                {/* Total */}
-                <div className="text-right">
-                  <p className="text-gray-400 text-sm mb-1">Total</p>
-                  <p className="text-white font-bold text-3xl">
-                    ${parseFloat(order.total).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-
-              {/* Resumen de items */}
-              <div className="bg-[#0f1825]/50 rounded-xl p-4 mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-white font-medium flex items-center gap-2">
-                    <Package className="w-4 h-4 text-primary" />
-                    Productos ({order.items.length})
-                  </h4>
-                </div>
-                <div className="space-y-2">
-                  {order.items.map((item, index) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between text-sm py-2 border-b border-white/5 last:border-0"
-                    >
-                      <div className="flex-1">
-                        <span className="text-white font-medium">{item.productName}</span>
-                        <span className="text-gray-500 ml-2">({item.productCode})</span>
-                      </div>
-                      <div className="flex items-center gap-4 text-gray-400">
-                        <span>Cant: <span className="text-white font-medium">{item.quantity}</span></span>
-                        <span>×</span>
-                        <span>${parseFloat(item.unitPrice).toFixed(2)}</span>
-                        <span>=</span>
-                        <span className="text-white font-bold min-w-[80px] text-right">
-                          ${parseFloat(item.subtotal).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-white/5 border-b border-white/10">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Número de Orden
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Proveedor
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Fecha
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Entrega
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Total
+                  </th>
+                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {currentItems.map((order) => (
+                  <tr key={order.id} className="hover:bg-white/[0.02] transition-colors">
+                    {/* Número de Orden */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-white font-bold font-mono">{order.orderNumber}</span>
+                        <span className="text-gray-500 text-xs mt-0.5">
+                          {order.items.length} producto{order.items.length !== 1 ? 's' : ''}
                         </span>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                    </td>
 
-              {/* Totales y aprobaciones */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                {/* Desglose financiero */}
-                <div className="bg-[#0f1825]/50 rounded-xl p-4">
-                  <h4 className="text-gray-400 text-xs font-medium mb-3 uppercase">Desglose</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Subtotal:</span>
-                      <span className="text-white font-medium">
-                        ${parseFloat(order.subtotal).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                    {parseFloat(order.discountAmount) > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Descuento:</span>
-                        <span className="text-red-400 font-medium">
-                          -${parseFloat(order.discountAmount).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    {/* Proveedor */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <Truck className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-white text-sm">{order.supplierName}</span>
+                      </div>
+                    </td>
+
+                    {/* Fecha */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-white text-sm">
+                          {new Date(order.date).toLocaleDateString("es-EC")}
                         </span>
                       </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Impuestos:</span>
-                      <span className="text-white font-medium">
-                        ${parseFloat(order.taxAmount).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </td>
+
+                    {/* Fecha de Entrega */}
+                    <td className="px-6 py-4">
+                      <span className="text-white text-sm">
+                        {new Date(order.deliveryDate).toLocaleDateString("es-EC")}
                       </span>
-                    </div>
-                    <div className="flex justify-between pt-2 border-t border-white/10">
-                      <span className="text-white font-bold">Total:</span>
-                      <span className="text-primary font-bold text-lg">
+                    </td>
+
+                    {/* Estado */}
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${getStatusColor(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        {getStatusName(order.status)}
+                      </span>
+                    </td>
+
+                    {/* Total */}
+                    <td className="px-6 py-4 text-right">
+                      <span className="text-white font-bold text-lg">
                         ${parseFloat(order.total).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
-                    </div>
-                  </div>
-                </div>
+                    </td>
 
-                {/* Estado y aprobaciones */}
-                <div className="bg-[#0f1825]/50 rounded-xl p-4">
-                  <h4 className="text-gray-400 text-xs font-medium mb-3 uppercase">Estado</h4>
-                  <div className="space-y-2 text-sm">
-                    {order.approvedBy && (
-                      <>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Aprobado por:</span>
-                          <span className="text-white font-medium">{order.approvedBy}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Fecha aprobación:</span>
-                          <span className="text-white">
-                            {order.approvedDate && new Date(order.approvedDate).toLocaleDateString("es-EC")}
-                          </span>
-                        </div>
-                      </>
-                    )}
-                    {order.receivedDate && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Fecha recepción:</span>
-                        <span className="text-white">
-                          {new Date(order.receivedDate).toLocaleDateString("es-EC")}
-                        </span>
+                    {/* Acciones */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleViewOrder(order)}
+                          className="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
+                          title="Ver detalle"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+
+                        {order.status === "draft" && (
+                          <button
+                            onClick={() => handleStatusChange(order.id, "pending")}
+                            className="p-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 rounded-lg transition-colors"
+                            title="Enviar a aprobación"
+                          >
+                            <Clock className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {order.status === "pending" && (
+                          <button
+                            onClick={() => handleStatusChange(order.id, "approved")}
+                            className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+                            title="Aprobar"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {order.status === "approved" && (
+                          <button
+                            onClick={() => handleStatusChange(order.id, "received")}
+                            className="p-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors"
+                            title="Marcar como recibida"
+                          >
+                            <Package className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {(order.status === "draft" || order.status === "pending") && (
+                          <button
+                            onClick={() => handleOpenModal(order)}
+                            className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors"
+                            title="Editar"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {order.status !== "received" && (
+                          <button
+                            onClick={() => handleDelete(order.id)}
+                            className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
-                    )}
-                    {!order.approvedBy && !order.receivedDate && (
-                      <p className="text-gray-500 text-xs italic">
-                        Pendiente de procesamiento
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Acciones */}
-              <div className="flex items-center gap-2 pt-4 border-t border-white/10">
-                <button
-                  onClick={() => handleViewOrder(order)}
-                  className="flex-1 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                >
-                  <Eye className="w-4 h-4" />
-                  Ver Detalle
-                </button>
-
-                {order.status === "draft" && (
-                  <button
-                    onClick={() => handleStatusChange(order.id, "pending")}
-                    className="flex-1 px-4 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                  >
-                    Enviar a Aprobación
-                  </button>
-                )}
-
-                {order.status === "pending" && (
-                  <button
-                    onClick={() => handleStatusChange(order.id, "approved")}
-                    className="flex-1 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Aprobar
-                  </button>
-                )}
-
-                {order.status === "approved" && (
-                  <button
-                    onClick={() => handleStatusChange(order.id, "received")}
-                    className="flex-1 px-4 py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                  >
-                    <Package className="w-4 h-4" />
-                    Marcar Recibida
-                  </button>
-                )}
-
-                {(order.status === "draft" || order.status === "pending") && (
-                  <button
-                    onClick={() => handleOpenModal(order)}
-                    className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                  >
-                    <Pencil className="w-4 h-4" />
-                    Editar
-                  </button>
-                )}
-
-                {order.status !== "received" && (
-                  <button
-                    onClick={() => handleDelete(order.id)}
-                    className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -851,7 +816,7 @@ export function PurchaseOrdersContent() {
               </button>
             </div>
 
-            {/* Contenido del modal */}
+            {/* Contenido del modal de crear/editar */}
             <div className="p-6 space-y-6">
               {/* Información básica */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -948,11 +913,12 @@ export function PurchaseOrdersContent() {
                             value={item.productCode}
                             onChange={(e) => updateItem(item.id, "productCode", e.target.value)}
                             className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
+                            disabled={!formData.supplierId}
                           >
-                            <option value="">Seleccionar</option>
-                            {PRODUCTS.map((product) => (
+                            <option value="">{!formData.supplierId ? "Primero selecciona un proveedor" : "Seleccionar producto"}</option>
+                            {PRODUCTS.filter(product => product.supplierId === formData.supplierId).map((product) => (
                               <option key={product.code} value={product.code}>
-                                {product.name}
+                                {product.name} - ${product.price}
                               </option>
                             ))}
                           </select>
@@ -1256,6 +1222,79 @@ export function PurchaseOrdersContent() {
               <button className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium flex items-center gap-2">
                 <Download className="w-4 h-4" />
                 Descargar PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Paginación */}
+      {filteredOrders.length > 0 && (
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Información de registros */}
+          <div className="text-gray-400 text-sm">
+            Mostrando <span className="text-white font-medium">{indexOfFirstItem + 1}</span> a{" "}
+            <span className="text-white font-medium">{Math.min(indexOfLastItem, filteredOrders.length)}</span> de{" "}
+            <span className="text-white font-medium">{filteredOrders.length}</span> órdenes
+          </div>
+
+          {/* Controles de paginación */}
+          <div className="flex items-center gap-2">
+            {/* Selector de items por página */}
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            >
+              <option value={5}>5 por página</option>
+              <option value={10}>10 por página</option>
+              <option value={20}>20 por página</option>
+              <option value={50}>50 por página</option>
+            </select>
+
+            {/* Botones de navegación */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Primera página"
+              >
+                <ChevronsLeft className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Página anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm min-w-[100px] text-center">
+                {currentPage} / {totalPages}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Página siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Última página"
+              >
+                <ChevronsRight className="w-4 h-4" />
               </button>
             </div>
           </div>

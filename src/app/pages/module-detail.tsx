@@ -1,9 +1,3 @@
-import { WarehousesContent } from "../components/warehouses-content";
-import { StockConfigContent } from "../components/stock-config-content";
-import { CategoriesContent } from "../components/categories-content";
-import { UnitsContent } from "../components/units-content";
-import { AccessLogsContent } from "../components/access-logs-content";
-
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import {
@@ -39,8 +33,19 @@ import {
   AlertCircle,
   Database,
 } from "lucide-react";
+
+// Modales
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
+
+// Componentes de contenido
+import { WarehousesContent } from "../components/warehouses-content";
+import { StockConfigContent } from "../components/stock-config-content";
+import { CategoriesContent } from "../components/categories-content";
+import { UnitsContent } from "../components/units-content";
+import { AccessLogsContent } from "../components/access-logs-content";
+import { SuppliersContent } from "../components/suppliers-content";
+import { PurchaseOrdersContent } from "../components/purchase-orders-content";
 import { PrinterConfigContent } from "../components/printer-config-content";
 import { CommunicationsContent } from "../components/communications-content";
 import { CompanyInfoContent } from "../components/company-info-content";
@@ -48,6 +53,13 @@ import { RegionalConfigContent } from "../components/regional-config-content";
 import { UserListContent } from "../components/user-list-content";
 import { BranchListContent } from "../components/branch-list-content";
 import { RolesPermissionsContent } from "../components/roles-permissions-content";
+import { HolidaysContent } from "../components/holidays-content";
+import { SalesConfigContent } from "../components/sales-config-content";
+import { PaymentMethodsContent } from "../components/payment-methods-content";
+import { WorkScheduleContent } from "../components/work-schedule-content";
+import { TaxesContent } from "../components/taxes-content";
+import { DiscountsContent } from "../components/discounts-content";
+import { PurchasesConfigContent } from "../components/purchases-config-content";
 
 // Componente de Seguridad
 function SecurityContent() {
