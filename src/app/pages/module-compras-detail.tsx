@@ -33,9 +33,6 @@ import {
   TrendingUp,
   TrendingDown,
   Percent,
-  RefreshCw,
-  Grid3x3,
-  List,
   Mail,
   Phone,
   MapPin,
@@ -243,21 +240,27 @@ export default function ModuleComprasDetail() {
   const [showNewOrderModal, setShowNewOrderModal] = useState(false);
   const [showOrderDetailModal, setShowOrderDetailModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterOrder, setFilterOrder] = useState<string>("all");
+  const [filterSupplier, setFilterSupplier] = useState<string>("all");
+  const [filterDate, setFilterDate] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [userStatus, setUserStatus] = useState<"online" | "away" | "dnd" | "offline">("online");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [detailTab, setDetailTab] = useState<"products" | "payments" | "timeline">("products");
 
-  const companyName = localStorage.getItem("companyName") || null;
+  const companyName = localStorage.getItem("companyName") || "Mi Empresa";
   const userPlan = "Plan Profesional";
+  const userRole = "Comprador"; // Rol del usuario con permisos al módulo de compras
+  const userBranch = "Sucursal Matriz - Quito"; // Sucursal a la que pertenece el usuario
 
   const tabs = [
     { id: "orders", name: "Órdenes de Compra", icon: ShoppingCart },
+    { id: "suppliers", name: "Proveedores", icon: User },
     { id: "products", name: "Productos", icon: Package },
     { id: "reports", name: "Reportes", icon: BarChart3 },
-    { id: "config", name: "Configuración", icon: Settings },
   ];
 
   const [userProfile] = useState({
@@ -334,9 +337,33 @@ export default function ModuleComprasDetail() {
     totalPending: mockOrders.reduce((acc, o) => acc + o.pending, 0),
   };
 
-  const filteredOrders = filterStatus === "all" 
-    ? mockOrders 
-    : mockOrders.filter(order => order.status === filterStatus);
+  // Filtrado múltiple de órdenes
+  const filteredOrders = mockOrders.filter(order => {
+    // Filtro por búsqueda (texto en cualquier campo)
+    const matchesSearch = searchQuery === "" || 
+      order.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.supplier.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.buyer.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Filtro por estado
+    const matchesStatus = filterStatus === "all" || order.status === filterStatus;
+    
+    // Filtro por orden (referencia)
+    const matchesOrder = filterOrder === "all" || order.reference === filterOrder;
+    
+    // Filtro por proveedor
+    const matchesSupplier = filterSupplier === "all" || order.supplier === filterSupplier;
+    
+    // Filtro por fecha (podría ser por mes o rango)
+    const matchesDate = filterDate === "all" || order.orderDate.startsWith(filterDate);
+    
+    return matchesSearch && matchesStatus && matchesOrder && matchesSupplier && matchesDate;
+  });
+
+  // Obtener listas únicas para los filtros
+  const uniqueOrders = Array.from(new Set(mockOrders.map(o => o.reference)));
+  const uniqueSuppliers = Array.from(new Set(mockOrders.map(o => o.supplier)));
+  const uniqueDates = Array.from(new Set(mockOrders.map(o => o.orderDate.substring(0, 7)))); // YYYY-MM
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]">
@@ -354,12 +381,12 @@ export default function ModuleComprasDetail() {
 
             {/* Logo y título */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                <ShoppingCart className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                <ShoppingCart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-white font-bold text-xl">Gestión de Compras</h1>
-                <p className="text-gray-400 text-xs">{companyName || "TicSoftEc"}</p>
+                <h1 className="text-white font-bold text-xl">{companyName}</h1>
+                <p className="text-gray-400 text-xs">Compras</p>
               </div>
             </div>
           </div>
@@ -386,7 +413,7 @@ export default function ModuleComprasDetail() {
                 </div>
                 <div className="hidden md:block text-left">
                   <p className="text-white text-sm font-medium">{userProfile.name}</p>
-                  <p className="text-gray-400 text-xs">{userProfile.role}</p>
+                  <p className="text-gray-400 text-xs">{userRole} • {userBranch}</p>
                 </div>
               </button>
 
@@ -414,6 +441,7 @@ export default function ModuleComprasDetail() {
                       <div>
                         <p className="text-white font-medium text-sm">{userProfile.name}</p>
                         <p className="text-gray-400 text-xs">{userProfile.email}</p>
+                        <p className="text-primary text-xs mt-1">{userRole} • {userBranch}</p>
                       </div>
                     </div>
                   </div>
@@ -485,91 +513,10 @@ export default function ModuleComprasDetail() {
       <main className="p-6">
         {activeTab === "orders" && (
           <div className="space-y-6">
-            {/* Filtros por estado */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <button
-                onClick={() => setFilterStatus("all")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  filterStatus === "all"
-                    ? "bg-primary text-white shadow-lg shadow-primary/20"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10"
-                }`}
-              >
-                Todas ({stats.total})
-              </button>
-              <button
-                onClick={() => setFilterStatus("pending")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  filterStatus === "pending"
-                    ? "bg-blue-500 text-white"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10"
-                }`}
-              >
-                Pendientes ({stats.pending})
-              </button>
-              <button
-                onClick={() => setFilterStatus("approved")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  filterStatus === "approved"
-                    ? "bg-purple-500 text-white"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10"
-                }`}
-              >
-                Aprobadas ({stats.approved})
-              </button>
-              <button
-                onClick={() => setFilterStatus("delivered")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  filterStatus === "delivered"
-                    ? "bg-green-500 text-white"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10"
-                }`}
-              >
-                Entregadas ({stats.delivered})
-              </button>
-              <button
-                onClick={() => setFilterStatus("overdue")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  filterStatus === "overdue"
-                    ? "bg-red-500 text-white"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10"
-                }`}
-              >
-                Vencidas ({stats.overdue})
-              </button>
-              <button
-                onClick={() => setFilterStatus("cancelled")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  filterStatus === "cancelled"
-                    ? "bg-gray-500 text-white"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10"
-                }`}
-              >
-                Canceladas ({stats.cancelled})
-              </button>
-            </div>
-
             {/* Barra de herramientas */}
-            <div className="flex items-center justify-between gap-4 flex-wrap bg-white/5 border border-white/10 rounded-xl p-4">
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={() => setShowNewOrderModal(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-medium shadow-lg shadow-primary/20 hover:shadow-primary/40"
-                >
-                  <Plus className="w-4 h-4" />
-                  Nueva Orden
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors border border-white/10">
-                  <Upload className="w-4 h-4" />
-                  Importar
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors border border-white/10">
-                  <Download className="w-4 h-4" />
-                  Exportar
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Buscador */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
@@ -580,42 +527,114 @@ export default function ModuleComprasDetail() {
                     className="w-64 pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
-                
-                <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode("table")}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === "table" ? "bg-primary text-white" : "text-gray-400 hover:text-white hover:bg-white/10"
-                    }`}
+
+                {/* Filtro por Proveedor */}
+                <div className="relative">
+                  <select
+                    value={filterSupplier}
+                    onChange={(e) => setFilterSupplier(e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 cursor-pointer text-sm"
                   >
-                    <List className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === "grid" ? "bg-primary text-white" : "text-gray-400 hover:text-white hover:bg-white/10"
-                    }`}
-                  >
-                    <Grid3x3 className="w-4 h-4" />
-                  </button>
+                    <option value="all" className="bg-secondary text-white">Todos los proveedores</option>
+                    {uniqueSuppliers.map(supplier => (
+                      <option key={supplier} value={supplier} className="bg-secondary text-white">{supplier}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
 
-                <button className="p-2.5 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors border border-white/10">
-                  <RefreshCw className="w-4 h-4" />
+                {/* Filtro por Rango de Fechas */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowDatePicker(!showDatePicker)}
+                    className="flex items-center gap-2 pl-4 pr-10 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-colors text-sm"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    {dateRange.start && dateRange.end
+                      ? `${dateRange.start} - ${dateRange.end}`
+                      : "Seleccionar rango de fechas"}
+                  </button>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  
+                  {showDatePicker && (
+                    <div className="absolute top-full mt-2 left-0 z-50 bg-secondary border border-white/10 rounded-xl p-4 shadow-2xl min-w-[320px]">
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Fecha inicio</label>
+                          <input
+                            type="date"
+                            value={dateRange.start}
+                            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">Fecha fin</label>
+                          <input
+                            type="date"
+                            value={dateRange.end}
+                            onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 pt-2">
+                          <button
+                            onClick={() => {
+                              setDateRange({ start: "", end: "" });
+                              setShowDatePicker(false);
+                            }}
+                            className="flex-1 px-3 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors text-sm border border-white/10"
+                          >
+                            Limpiar
+                          </button>
+                          <button
+                            onClick={() => setShowDatePicker(false)}
+                            className="flex-1 px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm"
+                          >
+                            Aplicar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Filtro por Estado */}
+                <div className="relative">
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="appearance-none pl-4 pr-10 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 cursor-pointer text-sm"
+                  >
+                    <option value="all" className="bg-secondary text-white">Todos los estados</option>
+                    <option value="pending" className="bg-secondary text-white">Pendiente</option>
+                    <option value="approved" className="bg-secondary text-white">Aprobada</option>
+                    <option value="delivered" className="bg-secondary text-white">Entregada</option>
+                    <option value="overdue" className="bg-secondary text-white">Vencida</option>
+                    <option value="cancelled" className="bg-secondary text-white">Cancelada</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+
+                <div className="w-px h-8 bg-white/10"></div>
+
+                {/* Botón Nueva Orden */}
+                <button 
+                  onClick={() => setShowNewOrderModal(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-medium shadow-lg shadow-primary/20 hover:shadow-primary/40"
+                >
+                  <Plus className="w-5 h-5" />
+                  Nueva Orden de Compra
                 </button>
               </div>
             </div>
 
             {/* Vista de tabla */}
-            {viewMode === "table" && (
-              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+            <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-white/5 border-b border-white/10">
                       <tr>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                          <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-white/5" />
-                        </th>
                         <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                           Orden
                         </th>
@@ -656,9 +675,6 @@ export default function ModuleComprasDetail() {
                             setDetailTab("products");
                           }}
                         >
-                          <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                            <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-white/5" />
-                          </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex flex-col">
                               <span className="text-primary font-medium hover:underline">{order.reference}</span>
@@ -750,94 +766,38 @@ export default function ModuleComprasDetail() {
                   </div>
                 </div>
               </div>
-            )}
+          </div>
+        )}
 
-            {/* Vista de grid */}
-            {viewMode === "grid" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-primary/30 transition-all cursor-pointer group"
-                    onClick={() => {
-                      setSelectedOrder(order);
-                      setShowOrderDetailModal(true);
-                      setDetailTab("products");
-                    }}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
-                          <span className="text-primary text-sm font-bold">{order.supplierInitials}</span>
-                        </div>
-                        <div>
-                          <p className="text-white font-medium">{order.reference}</p>
-                          <p className="text-gray-400 text-xs">{order.orderDate}</p>
-                        </div>
-                      </div>
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
-                      </span>
-                    </div>
-
-                    <div className="space-y-3 mb-4">
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">Proveedor</p>
-                        <p className="text-white text-sm font-medium">{order.supplier}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">Comprador</p>
-                        <p className="text-white text-sm">{order.buyer}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-gray-400 text-xs mb-1">Entrega</p>
-                          <p className={`text-sm ${order.status === 'overdue' ? 'text-red-400 font-medium' : 'text-white'}`}>
-                            {order.deliveryDate}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-gray-400 text-xs mb-1">Items</p>
-                          <p className="text-white text-sm font-medium">{order.items}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-4 border-t border-white/10">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-gray-400 text-xs mb-1">Total</p>
-                          <p className="text-white text-lg font-bold">${order.total.toFixed(2)}</p>
-                          {order.pending > 0 && (
-                            <p className="text-yellow-400 text-xs mt-1">Pdte: ${order.pending.toFixed(2)}</p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <button className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button className="p-1.5 text-green-400 hover:bg-green-500/10 rounded-lg transition-colors">
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {order.notes && (
-                      <div className="mt-3 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                        <p className="text-yellow-400 text-xs flex items-center gap-1.5">
-                          <AlertTriangle className="w-3 h-3" />
-                          {order.notes.substring(0, 40)}...
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
+        {activeTab === "suppliers" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-white font-bold text-2xl mb-2 flex items-center gap-3">
+                  <User className="w-7 h-7 text-primary" />
+                  Gestión de Proveedores
+                </h2>
+                <p className="text-gray-400 text-sm">
+                  Administra tu red de proveedores y contactos comerciales
+                </p>
               </div>
-            )}
+              <button className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-medium shadow-lg shadow-primary/20">
+                <Plus className="w-4 h-4" />
+                Nuevo Proveedor
+              </button>
+            </div>
+
+            <div className="border-t border-white/10"></div>
+
+            <div className="bg-white/5 border border-white/10 rounded-xl p-12 text-center">
+              <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <User className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-400 mb-2">Gestión de proveedores en desarrollo</p>
+              <p className="text-gray-500 text-sm">
+                Aquí podrás gestionar todos tus proveedores y contactos comerciales
+              </p>
+            </div>
           </div>
         )}
 

@@ -589,7 +589,19 @@ export default function ModuleDetailPage() {
             {/* Logo y título */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
+                {moduleName === "Configuración" ? (
+                  <Settings className="w-6 h-6 text-white" />
+                ) : moduleName === "Ventas" ? (
+                  <ShoppingCart className="w-6 h-6 text-white" />
+                ) : moduleName === "Inventario" ? (
+                  <Package className="w-6 h-6 text-white" />
+                ) : moduleName === "Contabilidad" ? (
+                  <Wallet className="w-6 h-6 text-white" />
+                ) : moduleName === "Compras" ? (
+                  <ShoppingCart className="w-6 h-6 text-white" />
+                ) : (
+                  <span className="text-white font-bold text-lg">T</span>
+                )}
               </div>
               <div>
                 <h1 className="text-white font-bold text-xl">

@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router";
 import { Login } from "./pages/login";
 import ModulesPage from "./pages/modules";
 import ModuleDetailPage from "./pages/module-detail";
+import ModuleConfigDetailPage from "./pages/module-detail";
 import SubscriptionAdminPage from "./pages/subscription-admin";
 import SubscriptionsManagementPage from "./pages/subscriptions-management";
 import PlanConfigurationPage from "./pages/plan-configuration";
@@ -56,6 +57,10 @@ export const router = createBrowserRouter([
   {
     path: "/module-detail",
     element: <ModuleDetailPage />,
+  },
+  {
+    path: "/module-config-detail",
+    element: <ModuleConfigDetailPage />,
   },
   {
     path: "/module-compras-detail",

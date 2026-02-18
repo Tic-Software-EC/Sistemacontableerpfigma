@@ -300,7 +300,11 @@ export default function ModulesPage() {
     ];
 
     if (modulesWithMenus.includes(module.name)) {
-      navigate("/module-detail", {
+      const targetRoute = module.name === "Configuración" 
+        ? "/module-config-detail" 
+        : "/module-detail";
+        
+      navigate(targetRoute, {
         state: {
           moduleName: module.name,
           moduleColor: module.color,
