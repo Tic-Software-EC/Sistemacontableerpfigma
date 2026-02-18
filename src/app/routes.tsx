@@ -87,7 +87,7 @@ export const router = createBrowserRouter([
         element: <Reports />,
       },
       {
-        path: "inventario",
+        path: "inventory",
         element: <Inventory />,
       },
       {

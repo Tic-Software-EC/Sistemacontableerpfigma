@@ -18,11 +18,11 @@ export function DashboardLayout() {
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-    { icon: FileText, label: "Facturas", path: "/dashboard/invoices" },
-    { icon: Users, label: "Clientes", path: "/dashboard/clients" },
-    { icon: BarChart3, label: "Reportes", path: "/dashboard/reports" },
+    { icon: FileText, label: "Facturas", path: "/dashboard/facturas" },
+    { icon: Users, label: "Clientes", path: "/dashboard/clientes" },
+    { icon: BarChart3, label: "Reportes", path: "/dashboard/reportes" },
     { icon: Package, label: "Inventario", path: "/dashboard/inventory" },
-    { icon: Settings, label: "Configuración", path: "/dashboard/settings" },
+    { icon: Settings, label: "Configuración", path: "/dashboard/configuracion" },
   ];
 
   const handleLogout = () => {

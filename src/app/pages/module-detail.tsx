@@ -1,12 +1,8 @@
-import { PurchasesConfigContent } from "../components/purchases-config-content";
-import { SuppliersContent } from "../components/suppliers-content";
-import { PurchaseOrdersContent } from "../components/purchase-orders-content";
-import { WorkScheduleContent } from "../components/work-schedule-content";
-import { HolidaysContent } from "../components/holidays-content";
-import { SalesConfigContent } from "../components/sales-config-content";
-import { PaymentMethodsContent } from "../components/payment-methods-content";
-import { TaxesContent } from "../components/taxes-content";
-import { DiscountsContent } from "../components/discounts-content";
+import { WarehousesContent } from "../components/warehouses-content";
+import { StockConfigContent } from "../components/stock-config-content";
+import { CategoriesContent } from "../components/categories-content";
+import { UnitsContent } from "../components/units-content";
+import { AccessLogsContent } from "../components/access-logs-content";
 
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
@@ -913,6 +909,14 @@ export default function ModuleDetailPage() {
                 <SuppliersContent />
               ) : selectedMenu === "purchase-orders" ? (
                 <PurchaseOrdersContent />
+              ) : selectedMenu === "warehouses" ? (
+                <WarehousesContent />
+              ) : selectedMenu === "stock-config" ? (
+                <StockConfigContent />
+              ) : selectedMenu === "categories" ? (
+                <CategoriesContent />
+              ) : selectedMenu === "units" ? (
+                <UnitsContent />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">

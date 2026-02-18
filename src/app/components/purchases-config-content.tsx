@@ -233,9 +233,9 @@ export function PurchasesConfigContent() {
       )}
 
       {/* Selector de sucursal */}
-      <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-        <label className="block text-white font-medium mb-3 flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-primary" />
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <label className="block text-white font-semibold text-lg mb-4 flex items-center gap-2">
+          <Building2 className="w-8 h-8 text-primary" />
           Sucursal
         </label>
         <select
@@ -267,8 +267,8 @@ export function PurchasesConfigContent() {
       {/* Configuración General */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-6">
-          <DollarSign className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Configuración General</h3>
+          <DollarSign className="w-8 h-8 text-primary" />
+          <h3 className="text-white font-semibold text-lg">Configuración General</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -309,7 +309,7 @@ export function PurchasesConfigContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
           <label className="flex items-start gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
             <div className="relative mt-0.5">
               <input
@@ -355,8 +355,8 @@ export function PurchasesConfigContent() {
       {/* Configuración de Documentos */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-6">
-          <FileText className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Documentos de Compra</h3>
+          <FileText className="w-8 h-8 text-primary" />
+          <h3 className="text-white font-semibold text-lg">Documentos de Compra</h3>
         </div>
 
         <div className="mb-6">
@@ -454,8 +454,8 @@ export function PurchasesConfigContent() {
       {/* Configuración de Proveedores */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-6">
-          <Truck className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Proveedores</h3>
+          <Truck className="w-8 h-8 text-primary" />
+          <h3 className="text-white font-semibold text-lg">Proveedores</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -524,8 +524,8 @@ export function PurchasesConfigContent() {
       {/* Configuración de Productos e Inventario */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-6">
-          <Package className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Productos e Inventario</h3>
+          <Package className="w-8 h-8 text-primary" />
+          <h3 className="text-white font-semibold text-lg">Productos e Inventario</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -594,8 +594,8 @@ export function PurchasesConfigContent() {
       {/* Configuración de Precios */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-6">
-          <DollarSign className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Precios y Costos</h3>
+          <DollarSign className="w-8 h-8 text-primary" />
+          <h3 className="text-white font-semibold text-lg">Precios y Costos</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -661,8 +661,8 @@ export function PurchasesConfigContent() {
       {/* Términos de Pago */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-6">
-          <Calendar className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Términos de Pago</h3>
+          <Calendar className="w-8 h-8 text-primary" />
+          <h3 className="text-white font-semibold text-lg">Términos de Pago</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -726,8 +726,8 @@ export function PurchasesConfigContent() {
       {/* Aprobaciones */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-6">
-          <Check className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Aprobaciones</h3>
+          <Check className="w-8 h-8 text-primary" />
+          <h3 className="text-white font-semibold text-lg">Aprobaciones</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -790,8 +790,8 @@ export function PurchasesConfigContent() {
       {/* Numeración Automática */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-6">
-          <FileText className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Numeración Automática</h3>
+          <FileText className="w-8 h-8 text-primary" />
+          <h3 className="text-white font-semibold text-lg">Numeración Automática</h3>
         </div>
 
         <div className="mb-4">
