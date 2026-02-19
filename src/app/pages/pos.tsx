@@ -47,6 +47,7 @@ interface Sale {
   customerRuc?: string;
   status: "completed" | "cancelled";
   creditInfo?: CreditInfo;
+  downPayment?: number; // Entrada/Abono inicial para créditos
 }
 
 interface CreditInfo {
@@ -55,6 +56,7 @@ interface CreditInfo {
   monthlyPayment: number;
   totalWithInterest: number;
   amortizationTable: AmortizationRow[];
+  downPayment?: number; // Entrada pagada
 }
 
 interface AmortizationRow {
@@ -281,6 +283,7 @@ export function POS() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showProductDetailModal, setShowProductDetailModal] = useState(false);
+  const [showAmortizationPrintModal, setShowAmortizationPrintModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [paymentType, setPaymentType] = useState<"cash" | "credit">("cash");
@@ -294,7 +297,6 @@ export function POS() {
   const [foundCustomer, setFoundCustomer] = useState<Customer | null>(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
-  const [showAmortizationModal, setShowAmortizationModal] = useState(false);
   const [newCustomerData, setNewCustomerData] = useState({
     email: "",
     phone: "",
@@ -303,6 +305,7 @@ export function POS() {
   // Estados para crédito
   const [creditMonths, setCreditMonths] = useState(3);
   const [interestRate, setInterestRate] = useState(12);
+  const [downPayment, setDownPayment] = useState(0); // Entrada/Abono inicial
   
   // Estados para búsqueda de cliente
   const [customerSearchTerm, setCustomerSearchTerm] = useState("");
@@ -339,7 +342,7 @@ export function POS() {
 
   // Calcular tabla de amortización
   const generateAmortizationTable = (): CreditInfo => {
-    const principal = totals.total;
+    const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar (total - entrada)
     const monthlyRate = interestRate / 100 / 12;
     const n = creditMonths;
     
@@ -376,7 +379,8 @@ export function POS() {
       interestRate,
       monthlyPayment,
       totalWithInterest: monthlyPayment * n,
-      amortizationTable: table
+      amortizationTable: table,
+      downPayment: downPayment // Incluir la entrada en la info del crédito
     };
   };
 
@@ -702,6 +706,12 @@ export function POS() {
       return;
     }
 
+    // Validar que ventas a crédito requieren cliente
+    if (paymentType === "credit" && !customerName.trim() && !foundCustomer) {
+      alert("Las ventas a crédito requieren seleccionar un cliente");
+      return;
+    }
+
     // Validar referencia para pagos no efectivo
     if (paymentMethod !== "cash" && !paymentReference.trim()) {
       alert("Debes ingresar la referencia o número de comprobante del pago");
@@ -732,25 +742,39 @@ export function POS() {
       customerName: customerName || undefined,
       customerRuc: customerRuc || undefined,
       status: "completed",
+      downPayment: paymentType === "credit" && downPayment > 0 ? downPayment : undefined,
     };
 
     if (paymentType === "credit") {
       const creditInfo = generateAmortizationTable();
       sale.creditInfo = creditInfo;
-      setShowAmortizationModal(true);
     }
 
     setLastSale(sale);
     setSales(prevSales => [...prevSales, sale]); // Agregar venta al historial
     setCart([]);
     setShowPaymentModal(false);
-    setShowReceiptModal(true);
+    
+    // Lógica de modales según tipo de pago
+    if (paymentType === "credit") {
+      // Si hay entrada, mostrar recibo primero, sino ir directo a tabla de amortización
+      if (downPayment > 0) {
+        setShowReceiptModal(true);
+      } else {
+        setShowAmortizationPrintModal(true);
+      }
+    } else {
+      // Pago de contado: mostrar recibo normal
+      setShowReceiptModal(true);
+    }
+    
     setAmountPaid("");
     setPaymentReference("");
     setCustomerName("");
     setCustomerRuc("");
     setCustomerSearchTerm("");
     setFoundCustomer(null);
+    setDownPayment(0); // Resetear entrada
     
     // Notificación de éxito
     if (paymentType === "credit") {
@@ -1558,8 +1582,8 @@ export function POS() {
                 {/* Columna Derecha: Resumen o Configuración de Crédito */}
                 <div>
                   {paymentType === "credit" ? (
-                    /* Configuración de Crédito */
-                    <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border-2 border-yellow-500/30 rounded-lg p-4 h-full">
+                    /* Configuración de Crédito con Tabla de Amortización */
+                    <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border-2 border-yellow-500/30 rounded-lg p-4 h-full flex flex-col">
                       <div className="flex items-start gap-2 mb-4">
                         <div className="p-1.5 bg-yellow-500/20 rounded-lg">
                           <AlertTriangle className="w-4 h-4 text-yellow-400" />
@@ -1570,6 +1594,30 @@ export function POS() {
                             Configure el plan de pagos mensuales
                           </p>
                         </div>
+                      </div>
+
+                      {/* Entrada/Abono Inicial */}
+                      <div className="mb-4">
+                        <label className="block text-white text-xs mb-1.5 font-bold flex items-center gap-1.5">
+                          <Banknote className="w-3.5 h-3.5 text-yellow-400" />
+                          Entrada / Abono Inicial
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-400 text-sm font-bold">$</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max={totals.total}
+                            step="0.01"
+                            value={downPayment}
+                            onChange={(e) => setDownPayment(parseFloat(e.target.value) || 0)}
+                            className="w-full pl-8 pr-3 py-2 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                            placeholder="0.00"
+                          />
+                        </div>
+                        <p className="text-gray-400 text-xs mt-1">
+                          Saldo a financiar: <span className="text-yellow-400 font-bold">${Math.max(0, totals.total - downPayment).toFixed(2)}</span>
+                        </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 mb-4">
@@ -1606,54 +1654,119 @@ export function POS() {
                         </div>
                       </div>
 
-                      {/* Preview de la cuota */}
-                      <div className="bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg p-3 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-gray-400 text-xs mb-0.5">Cuota Mensual</p>
-                            <p className="text-white font-bold text-xl">
-                              ${(() => {
-                                const principal = totals.total;
-                                const monthlyRate = interestRate / 100 / 12;
-                                const n = creditMonths;
-                                const monthlyPayment = monthlyRate === 0 
-                                  ? principal / n 
-                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                                return monthlyPayment.toFixed(2);
-                              })()}
-                            </p>
-                            <p className="text-gray-500 text-xs mt-0.5">{creditMonths} pagos</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-gray-400 text-xs mb-0.5">Total con Interés</p>
-                            <p className="text-yellow-400 font-bold text-lg">
-                              ${(() => {
-                                const principal = totals.total;
-                                const monthlyRate = interestRate / 100 / 12;
-                                const n = creditMonths;
-                                const monthlyPayment = monthlyRate === 0 
-                                  ? principal / n 
-                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                                return (monthlyPayment * n).toFixed(2);
-                              })()}
-                            </p>
-                          </div>
+                      {/* Resumen rápido */}
+                      <div className="bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg p-2 mb-4 grid grid-cols-3 gap-2">
+                        <div className="text-center">
+                          <p className="text-gray-400 text-xs mb-0.5">Cuota</p>
+                          <p className="text-white font-bold text-sm">
+                            ${(() => {
+                              const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar
+                              const monthlyRate = interestRate / 100 / 12;
+                              const n = creditMonths;
+                              const monthlyPayment = monthlyRate === 0 
+                                ? principal / n 
+                                : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                              return monthlyPayment.toFixed(2);
+                            })()}
+                          </p>
                         </div>
-                        
-                        <div className="pt-2 border-t border-yellow-500/20">
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-xs">Interés Total:</span>
-                            <span className="text-yellow-400 font-bold text-base">
-                              +${(() => {
-                                const principal = totals.total;
-                                const monthlyRate = interestRate / 100 / 12;
-                                const n = creditMonths;
-                                const monthlyPayment = monthlyRate === 0 
-                                  ? principal / n 
-                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                                return ((monthlyPayment * n) - principal).toFixed(2);
-                              })()}
-                            </span>
+                        <div className="text-center border-l border-r border-yellow-500/20">
+                          <p className="text-gray-400 text-xs mb-0.5">Total</p>
+                          <p className="text-yellow-400 font-bold text-sm">
+                            ${(() => {
+                              const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar
+                              const monthlyRate = interestRate / 100 / 12;
+                              const n = creditMonths;
+                              const monthlyPayment = monthlyRate === 0 
+                                ? principal / n 
+                                : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                              return ((monthlyPayment * n) + downPayment).toFixed(2); // Total incluye la entrada
+                            })()}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-gray-400 text-xs mb-0.5">Interés</p>
+                          <p className="text-red-400 font-bold text-sm">
+                            +${(() => {
+                              const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar
+                              const monthlyRate = interestRate / 100 / 12;
+                              const n = creditMonths;
+                              const monthlyPayment = monthlyRate === 0 
+                                ? principal / n 
+                                : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                              return ((monthlyPayment * n) - principal).toFixed(2);
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Tabla de amortización compacta */}
+                      <div className="flex-1 overflow-hidden flex flex-col">
+                        <h5 className="text-white font-bold text-xs mb-2 flex items-center gap-1.5">
+                          <FileText className="w-3.5 h-3.5 text-yellow-400" />
+                          Tabla de Amortización
+                        </h5>
+                        <div className="bg-[#0D1B2A] border border-yellow-500/20 rounded-lg overflow-hidden flex-1 flex flex-col">
+                          <div className="overflow-y-auto flex-1" style={{ maxHeight: '300px' }}>
+                            <table className="w-full text-xs">
+                              <thead className="sticky top-0 bg-[#0D1B2A] border-b border-yellow-500/20">
+                                <tr>
+                                  <th className="px-2 py-1.5 text-left text-gray-400 font-bold">#</th>
+                                  <th className="px-2 py-1.5 text-left text-gray-400 font-bold">Fecha</th>
+                                  <th className="px-2 py-1.5 text-right text-gray-400 font-bold">Cuota</th>
+                                  <th className="px-2 py-1.5 text-right text-gray-400 font-bold">Interés</th>
+                                  <th className="px-2 py-1.5 text-right text-gray-400 font-bold">Capital</th>
+                                  <th className="px-2 py-1.5 text-right text-gray-400 font-bold">Saldo</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(() => {
+                                  const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar
+                                  const monthlyRate = interestRate / 100 / 12;
+                                  const n = creditMonths;
+                                  
+                                  if (principal === 0) {
+                                    return (
+                                      <tr>
+                                        <td colSpan={6} className="px-2 py-4 text-center text-gray-400 text-xs">
+                                          No hay saldo a financiar. La entrada cubre el total.
+                                        </td>
+                                      </tr>
+                                    );
+                                  }
+                                  
+                                  const monthlyPayment = monthlyRate === 0 
+                                    ? principal / n 
+                                    : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                                  
+                                  let balance = principal;
+                                  const rows = [];
+                                  const today = new Date();
+                                  
+                                  for (let i = 1; i <= n; i++) {
+                                    const interestPayment = balance * monthlyRate;
+                                    const principalPayment = monthlyPayment - interestPayment;
+                                    balance -= principalPayment;
+                                    
+                                    const paymentDate = new Date(today);
+                                    paymentDate.setMonth(paymentDate.getMonth() + i);
+                                    
+                                    rows.push(
+                                      <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                        <td className="px-2 py-1.5 text-white font-mono">{i}</td>
+                                        <td className="px-2 py-1.5 text-gray-300 font-mono">{paymentDate.toLocaleDateString('es-EC', { month: '2-digit', year: 'numeric' })}</td>
+                                        <td className="px-2 py-1.5 text-right text-white font-bold">${monthlyPayment.toFixed(2)}</td>
+                                        <td className="px-2 py-1.5 text-right text-red-400">${interestPayment.toFixed(2)}</td>
+                                        <td className="px-2 py-1.5 text-right text-green-400">${principalPayment.toFixed(2)}</td>
+                                        <td className="px-2 py-1.5 text-right text-yellow-400 font-bold">${Math.max(0, balance).toFixed(2)}</td>
+                                      </tr>
+                                    );
+                                  }
+                                  
+                                  return rows;
+                                })()}
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                       </div>
@@ -1702,7 +1815,10 @@ export function POS() {
             <div className="border-t-2 border-white/10 bg-white/5 backdrop-blur-sm px-5 py-3">
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setShowPaymentModal(false)}
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    setDownPayment(0); // Resetear entrada al cancelar
+                  }}
                   className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 border-2 border-white/20 text-white rounded-lg transition-all font-bold text-sm"
                 >
                   Cancelar
@@ -1766,55 +1882,76 @@ export function POS() {
                 </div>
               )}
 
-              <div className="mb-4">
-                <h4 className="text-sm font-bold text-[#0D1B2A] mb-2">Productos:</h4>
-                <div className="space-y-2">
-                  {lastSale.items.map((item, index) => (
-                    <div key={index} className="text-sm">
-                      <div className="flex justify-between mb-1">
-                        <span className="text-gray-800 font-medium">{item.product.name}</span>
-                        <span className="text-[#0D1B2A] font-bold">
-                          ${(item.subtotal * (1 - item.discount / 100)).toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-500 flex justify-between">
-                        <span>{item.quantity} x ${item.product.price.toFixed(2)}</span>
-                        {item.discount > 0 && <span className="text-red-600">-{item.discount}%</span>}
-                      </div>
+              {/* Solo mostrar productos si es pago de contado */}
+              {lastSale.paymentType === "cash" && (
+                <>
+                  <div className="mb-4">
+                    <h4 className="text-sm font-bold text-[#0D1B2A] mb-2">Productos:</h4>
+                    <div className="space-y-2">
+                      {lastSale.items.map((item, index) => (
+                        <div key={index} className="text-sm">
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-800 font-medium">{item.product.name}</span>
+                            <span className="text-[#0D1B2A] font-bold">
+                              ${(item.subtotal * (1 - item.discount / 100)).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 flex justify-between">
+                            <span>{item.quantity} x ${item.product.price.toFixed(2)}</span>
+                            {item.discount > 0 && <span className="text-red-600">-{item.discount}%</span>}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t border-gray-200 pt-4 space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal:</span>
-                  <span className="text-[#0D1B2A]">${lastSale.subtotal.toFixed(2)}</span>
-                </div>
-                {lastSale.discount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Descuento:</span>
-                    <span className="text-red-600">-${lastSale.discount.toFixed(2)}</span>
                   </div>
-                )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">IVA:</span>
-                  <span className="text-[#0D1B2A]">${lastSale.tax.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold border-t border-gray-200 pt-2">
-                  <span className="text-[#0D1B2A]">TOTAL:</span>
-                  <span className="text-primary text-2xl">${lastSale.total.toFixed(2)}</span>
-                </div>
-              </div>
+
+                  <div className="border-t border-gray-200 pt-4 space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="text-[#0D1B2A]">${lastSale.subtotal.toFixed(2)}</span>
+                    </div>
+                    {lastSale.discount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Descuento:</span>
+                        <span className="text-red-600">-${lastSale.discount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">IVA:</span>
+                      <span className="text-[#0D1B2A]">${lastSale.tax.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold border-t border-gray-200 pt-2">
+                      <span className="text-[#0D1B2A]">TOTAL:</span>
+                      <span className="text-primary text-2xl">${lastSale.total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-600">Tipo de Pago:</span>
+                  <span className="text-[#0D1B2A] font-bold">
+                    {lastSale.paymentType === "credit" ? "CRÉDITO" : "CONTADO"}
+                  </span>
+                </div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-gray-600">Método de Pago:</span>
                   <span className="text-[#0D1B2A] font-medium">
                     {PAYMENT_METHODS.find(m => m.id === lastSale.paymentMethod)?.name}
                   </span>
                 </div>
-                {lastSale.paymentMethod === "cash" ? (
+                
+                {lastSale.paymentType === "credit" && lastSale.downPayment && lastSale.downPayment > 0 && (
+                  <div className="border-t border-gray-300 pt-2 mt-2">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-[#0D1B2A] font-bold">Entrada Pagada:</span>
+                      <span className="text-[#0D1B2A] font-bold">${lastSale.downPayment.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {lastSale.paymentMethod === "cash" && lastSale.paymentType === "cash" && (
                   <>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-600">Efectivo Recibido:</span>
@@ -1825,31 +1962,271 @@ export function POS() {
                       <span className="text-primary font-bold">${lastSale.change.toFixed(2)}</span>
                     </div>
                   </>
-                ) : (
-                  lastSale.paymentReference && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Referencia:</span>
-                      <span className="text-[#0D1B2A] font-mono font-bold">{lastSale.paymentReference}</span>
-                    </div>
-                  )
+                )}
+                
+                {lastSale.paymentReference && (
+                  <div className="flex justify-between text-sm mt-2">
+                    <span className="text-gray-600">Referencia:</span>
+                    <span className="text-[#0D1B2A] font-mono font-bold">{lastSale.paymentReference}</span>
+                  </div>
                 )}
               </div>
+
+              {/* Resumen de crédito si aplica */}
+              {lastSale.paymentType === "credit" && lastSale.creditInfo && (
+                <div className="border border-gray-300 rounded-lg p-3 mb-4">
+                  <h4 className="text-[#0D1B2A] font-bold text-xs mb-2">Resumen del Crédito</h4>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Saldo a Financiar:</span>
+                      <span className="text-[#0D1B2A] font-bold">${(lastSale.total - (lastSale.downPayment || 0)).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Cuotas:</span>
+                      <span className="text-[#0D1B2A] font-bold">{lastSale.creditInfo.months} x ${lastSale.creditInfo.monthlyPayment.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Plazo:</span>
+                      <span className="text-[#0D1B2A] font-bold">{lastSale.creditInfo.months} meses</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 text-center italic">
+                    Ver Tabla para plan de pagos completo
+                  </p>
+                </div>
+              )}
 
               <p className="text-center text-xs text-gray-500 mb-4">
                 ¡Gracias por su compra!
               </p>
             </div>
 
+            <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
+              {lastSale.paymentType === "credit" && lastSale.creditInfo ? (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={printReceipt}
+                      className="px-4 py-3 bg-white border-2 border-primary text-primary hover:bg-primary/5 rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
+                    >
+                      <Receipt className="w-5 h-5" />
+                      <span className="text-sm">Imprimir Recibo</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowReceiptModal(false);
+                        setShowAmortizationPrintModal(true);
+                      }}
+                      className="px-4 py-3 bg-primary border-2 border-primary text-white hover:bg-primary/90 rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
+                    >
+                      <FileText className="w-5 h-5" />
+                      <span className="text-sm">Ver Tabla</span>
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setShowReceiptModal(false)}
+                    className="w-full px-4 py-3 bg-gray-200 hover:bg-gray-300 text-[#0D1B2A] rounded-xl transition-colors font-bold"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-3">
+                  <button
+                    onClick={printReceipt}
+                    className="flex-1 px-4 py-3 bg-white border-2 border-primary text-primary hover:bg-primary/5 rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
+                  >
+                    <Printer className="w-5 h-5" />
+                    Imprimir
+                  </button>
+                  <button
+                    onClick={() => setShowReceiptModal(false)}
+                    className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-bold"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de impresión de tabla de amortización */}
+      {showAmortizationPrintModal && lastSale && lastSale.creditInfo && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            {/* Header simple */}
+            <div className="bg-[#0D1B2A] px-6 py-4 border-b-2 border-gray-300">
+              <h3 className="text-white font-bold text-xl flex items-center gap-2">
+                <FileText className="w-6 h-6" />
+                Tabla de Amortización
+              </h3>
+              <p className="text-white/80 text-sm mt-1">TicSoftEc - Sistema ERP Contable</p>
+            </div>
+
+            {/* Contenido */}
+            <div className="p-6 overflow-y-auto flex-1">
+              {/* Información completa del cliente y venta */}
+              <div className="grid grid-cols-2 gap-6 mb-6 pb-6 border-b-2 border-gray-300">
+                <div>
+                  <p className="text-gray-500 text-xs mb-2 uppercase font-bold">Información del Cliente</p>
+                  <div className="space-y-1">
+                    <div>
+                      <span className="text-gray-600 text-sm">Nombre:</span>
+                      <p className="text-[#0D1B2A] font-bold">{lastSale.customerName}</p>
+                    </div>
+                    {lastSale.customerRuc && (
+                      <div>
+                        <span className="text-gray-600 text-sm">RUC/CI:</span>
+                        <p className="text-[#0D1B2A] font-mono font-bold">{lastSale.customerRuc}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs mb-2 uppercase font-bold">Información de Venta</p>
+                  <div className="space-y-1">
+                    <div>
+                      <span className="text-gray-600 text-sm">N° Venta:</span>
+                      <p className="text-[#0D1B2A] font-mono font-bold">{lastSale.saleNumber}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 text-sm">Fecha:</span>
+                      <p className="text-[#0D1B2A] font-bold">{lastSale.date} - {lastSale.time}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resumen del crédito - Simplificado sin colores */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <div className="border-2 border-gray-300 rounded-lg p-4">
+                  <p className="text-gray-600 text-xs mb-1">Monto Total</p>
+                  <p className="text-[#0D1B2A] font-bold text-xl">${lastSale.total.toFixed(2)}</p>
+                </div>
+                {lastSale.creditInfo.downPayment && lastSale.creditInfo.downPayment > 0 && (
+                  <div className="border-2 border-gray-300 rounded-lg p-4">
+                    <p className="text-gray-600 text-xs mb-1">Entrada Pagada</p>
+                    <p className="text-[#0D1B2A] font-bold text-xl">${lastSale.creditInfo.downPayment.toFixed(2)}</p>
+                  </div>
+                )}
+                <div className="border-2 border-gray-300 rounded-lg p-4">
+                  <p className="text-gray-600 text-xs mb-1">Saldo a Financiar</p>
+                  <p className="text-[#0D1B2A] font-bold text-xl">
+                    ${(lastSale.total - (lastSale.creditInfo.downPayment || 0)).toFixed(2)}
+                  </p>
+                </div>
+                <div className="border-2 border-gray-300 rounded-lg p-4">
+                  <p className="text-gray-600 text-xs mb-1">Plazo</p>
+                  <p className="text-[#0D1B2A] font-bold text-xl">{lastSale.creditInfo.months} meses</p>
+                </div>
+                <div className="border-2 border-gray-300 rounded-lg p-4">
+                  <p className="text-gray-600 text-xs mb-1">Cuota Mensual</p>
+                  <p className="text-[#0D1B2A] font-bold text-xl">${lastSale.creditInfo.monthlyPayment.toFixed(2)}</p>
+                </div>
+                <div className="border-2 border-gray-300 rounded-lg p-4">
+                  <p className="text-gray-600 text-xs mb-1">Total a Pagar</p>
+                  <p className="text-[#0D1B2A] font-bold text-xl">
+                    ${((lastSale.creditInfo.downPayment || 0) + lastSale.creditInfo.totalWithInterest).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Tabla de amortización - Sin colores */}
+              <div className="border-2 border-gray-300 rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-200 border-b-2 border-gray-300">
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#0D1B2A]">#</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#0D1B2A]">Fecha</th>
+                      <th className="px-4 py-3 text-right text-xs font-bold text-[#0D1B2A]">Cuota</th>
+                      <th className="px-4 py-3 text-right text-xs font-bold text-[#0D1B2A]">Interés</th>
+                      <th className="px-4 py-3 text-right text-xs font-bold text-[#0D1B2A]">Capital</th>
+                      <th className="px-4 py-3 text-right text-xs font-bold text-[#0D1B2A]">Saldo</th>
+                      <th className="px-4 py-3 text-center text-xs font-bold text-[#0D1B2A]">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lastSale.creditInfo.amortizationTable.map((row, index) => (
+                      <tr 
+                        key={row.paymentNumber} 
+                        className={`border-b border-gray-200 ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                        }`}
+                      >
+                        <td className="px-4 py-3 text-[#0D1B2A] text-sm font-medium">{row.paymentNumber}</td>
+                        <td className="px-4 py-3 text-[#0D1B2A] text-sm font-mono">{row.date}</td>
+                        <td className="px-4 py-3 text-right text-[#0D1B2A] text-sm font-bold">
+                          ${row.payment.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-[#0D1B2A] text-sm">
+                          ${row.interest.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-[#0D1B2A] text-sm">
+                          ${row.principal.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-[#0D1B2A] text-sm font-bold">
+                          ${row.balance.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className="px-2 py-1 rounded-md text-xs font-medium border border-gray-400 text-gray-700">
+                            Pendiente
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-gray-200 font-bold border-t-2 border-gray-300">
+                      <td colSpan={2} className="px-4 py-3 text-[#0D1B2A] text-sm">TOTALES</td>
+                      <td className="px-4 py-3 text-right text-[#0D1B2A] text-sm">
+                        ${lastSale.creditInfo.totalWithInterest.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-[#0D1B2A] text-sm">
+                        ${(lastSale.creditInfo.totalWithInterest - (lastSale.total - (lastSale.creditInfo.downPayment || 0))).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-[#0D1B2A] text-sm">
+                        ${(lastSale.total - (lastSale.creditInfo.downPayment || 0)).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-[#0D1B2A] text-sm">$0.00</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              {/* Nota al pie */}
+              <div className="mt-6 p-4 border-2 border-gray-300 rounded-lg bg-gray-50">
+                <p className="text-xs text-gray-700 text-center">
+                  <strong>Nota:</strong> Esta tabla de amortización es un plan de pagos proyectado. 
+                  Las fechas y montos están sujetos a las condiciones acordadas con el cliente.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer con botones */}
             <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 flex gap-3">
               <button
                 onClick={printReceipt}
                 className="flex-1 px-4 py-3 bg-white border-2 border-primary text-primary hover:bg-primary/5 rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
               >
                 <Printer className="w-5 h-5" />
-                Imprimir
+                Imprimir Tabla
               </button>
+              {lastSale.downPayment && lastSale.downPayment > 0 && (
+                <button
+                  onClick={() => {
+                    setShowAmortizationPrintModal(false);
+                    setShowReceiptModal(true);
+                  }}
+                  className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-[#0D1B2A] rounded-xl transition-colors font-bold"
+                >
+                  Volver
+                </button>
+              )}
               <button
-                onClick={() => setShowReceiptModal(false)}
+                onClick={() => setShowAmortizationPrintModal(false)}
                 className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-bold"
               >
                 Cerrar
@@ -1942,6 +2319,10 @@ export function POS() {
                         </p>
                         <p className="text-gray-400 text-xs mt-1">
                           Este cliente tiene un saldo pendiente por pagar
+                        </p>
+                        <p className="text-yellow-400 text-xs mt-2 flex items-start gap-1">
+                          <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                          <span>Cada compra a crédito se gestiona de forma independiente</span>
                         </p>
                       </div>
                     </div>
@@ -2088,147 +2469,7 @@ export function POS() {
         </div>
       )}
 
-      {/* Modal de amortización */}
-      {showAmortizationModal && lastSale && lastSale.creditInfo && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-b border-white/10 px-6 py-4">
-              <h3 className="text-white font-bold text-xl flex items-center gap-2">
-                <FileText className="w-6 h-6 text-primary" />
-                Tabla de Amortización - Venta a Crédito
-              </h3>
-              <p className="text-gray-400 text-sm mt-1">N° Venta: {lastSale.saleNumber} | Cliente: {lastSale.customerName}</p>
-            </div>
 
-            <div className="p-6 overflow-y-auto flex-1">
-              {/* Resumen del crédito */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-1">Monto del Crédito</p>
-                  <p className="text-white font-bold text-xl">${lastSale.total.toFixed(2)}</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-1">Plazo</p>
-                  <p className="text-white font-bold text-xl">{lastSale.creditInfo.months} meses</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-1">Tasa Anual</p>
-                  <p className="text-white font-bold text-xl">{lastSale.creditInfo.interestRate}%</p>
-                </div>
-                <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-1">Cuota Mensual</p>
-                  <p className="text-primary font-bold text-xl">${lastSale.creditInfo.monthlyPayment.toFixed(2)}</p>
-                </div>
-              </div>
-
-              {/* Resumen total */}
-              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 mb-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-300 text-sm mb-1">Total a Pagar (Capital + Intereses)</p>
-                    <p className="text-yellow-400 font-bold text-2xl">${lastSale.creditInfo.totalWithInterest.toFixed(2)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-gray-400 text-xs mb-1">Interés Total</p>
-                    <p className="text-red-400 font-bold text-lg">
-                      ${(lastSale.creditInfo.totalWithInterest - lastSale.total).toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tabla de amortización */}
-              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-white/10 border-b border-white/10">
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-300">#</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-300">Fecha</th>
-                        <th className="px-4 py-3 text-right text-xs font-bold text-gray-300">Cuota</th>
-                        <th className="px-4 py-3 text-right text-xs font-bold text-gray-300">Interés</th>
-                        <th className="px-4 py-3 text-right text-xs font-bold text-gray-300">Capital</th>
-                        <th className="px-4 py-3 text-right text-xs font-bold text-gray-300">Saldo</th>
-                        <th className="px-4 py-3 text-center text-xs font-bold text-gray-300">Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {lastSale.creditInfo.amortizationTable.map((row, index) => (
-                        <tr 
-                          key={row.paymentNumber} 
-                          className={`border-b border-white/5 hover:bg-white/5 transition-colors ${
-                            index % 2 === 0 ? 'bg-white/[0.02]' : ''
-                          }`}
-                        >
-                          <td className="px-4 py-3 text-white text-sm font-medium">{row.paymentNumber}</td>
-                          <td className="px-4 py-3 text-gray-300 text-sm font-mono">{row.date}</td>
-                          <td className="px-4 py-3 text-right text-white text-sm font-bold">
-                            ${row.payment.toFixed(2)}
-                          </td>
-                          <td className="px-4 py-3 text-right text-red-400 text-sm">
-                            ${row.interest.toFixed(2)}
-                          </td>
-                          <td className="px-4 py-3 text-right text-green-400 text-sm">
-                            ${row.principal.toFixed(2)}
-                          </td>
-                          <td className="px-4 py-3 text-right text-primary text-sm font-bold">
-                            ${row.balance.toFixed(2)}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                              row.status === "paid" 
-                                ? "bg-green-500/10 text-green-400" 
-                                : "bg-yellow-500/10 text-yellow-400"
-                            }`}>
-                              {row.status === "paid" ? "Pagado" : "Pendiente"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="bg-white/10 font-bold">
-                        <td colSpan={2} className="px-4 py-3 text-white text-sm">TOTALES</td>
-                        <td className="px-4 py-3 text-right text-white text-sm">
-                          ${lastSale.creditInfo.totalWithInterest.toFixed(2)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-red-400 text-sm">
-                          ${(lastSale.creditInfo.totalWithInterest - lastSale.total).toFixed(2)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-green-400 text-sm">
-                          ${lastSale.total.toFixed(2)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-white text-sm">$0.00</td>
-                        <td></td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-white/10 px-6 py-4 flex gap-3">
-              <button
-                onClick={printReceipt}
-                className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl transition-colors font-medium flex items-center justify-center gap-2"
-              >
-                <Printer className="w-5 h-5" />
-                Imprimir
-              </button>
-              <button
-                onClick={() => {
-                  setShowAmortizationModal(false);
-                  setPaymentType("cash");
-                }}
-                className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
-              >
-                <CheckCircle className="w-5 h-5" />
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal de detalles del producto */}
       {showProductDetailModal && selectedProduct && (

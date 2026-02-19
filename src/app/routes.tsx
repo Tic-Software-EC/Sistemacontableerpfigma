@@ -17,7 +17,6 @@ import { Inventory } from "./pages/inventory";
 import { Settings } from "./pages/settings";
 import ModuleComprasDetail from "./pages/module-compras-detail";
 import ModulePosDetail from "./pages/module-pos-detail";
-import { POS } from "./pages/pos";
 
 export const router = createBrowserRouter([
   {
