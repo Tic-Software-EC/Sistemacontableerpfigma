@@ -12,6 +12,8 @@ import {
   Receipt,
   Clock,
   History,
+  ShieldAlert,
+  AlertTriangle,
 } from "lucide-react";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
@@ -28,16 +30,154 @@ export default function ModulePosDetail() {
   // Obtener nombre de empresa desde localStorage
   const companyName = localStorage.getItem("companyName") || "Mi Empresa";
 
+  // Obtener rol del usuario desde localStorage o estado global
+  // Por ahora usamos un estado local, pero en producción vendría de la sesión
   const [userProfile, setUserProfile] = useState({
     name: "Juan Pérez",
     email: "juan.perez@empresa.com",
     phone: "+593 99 123 4567",
-    role: "Cajero",
+    role: localStorage.getItem("userRole") || "Cajero", // Obtener rol desde localStorage
     branch: "Sucursal Matriz - Quito",
   });
 
-  const userRole = "Comprador";
+  const userRole = userProfile.role;
   const userBranch = "Sucursal Centro";
+
+  // Validar acceso: solo usuarios con rol "Cajero" pueden acceder
+  const hasAccess = userProfile.role === "Cajero";
+
+  // Si no tiene acceso, mostrar pantalla de acceso denegado
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e] flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full">
+          {/* Header con botón volver */}
+          <div className="absolute top-6 left-6">
+            <button
+              onClick={() => navigate("/modules")}
+              className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span className="text-sm">Volver a Módulos</span>
+            </button>
+          </div>
+
+          {/* Tarjeta de acceso denegado */}
+          <div className="bg-white/5 border-2 border-red-600/30 rounded-2xl overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-600/20 to-red-600/10 border-b border-red-600/20 px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-red-600 rounded-xl">
+                  <ShieldAlert className="w-10 h-10 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-white font-bold text-2xl">Acceso Denegado</h1>
+                  <p className="text-gray-300 text-sm mt-1">No tienes permisos para acceder a este módulo</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contenido */}
+            <div className="p-8 space-y-6">
+              {/* Información del usuario actual */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                <p className="text-gray-400 text-sm mb-3">Usuario actual:</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold">
+                      {userProfile.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-white font-bold">{userProfile.name}</p>
+                    <p className="text-gray-400 text-sm">{userProfile.email}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="px-2 py-1 bg-gray-600/20 border border-gray-600/30 rounded text-gray-300 text-xs font-medium">
+                        Rol: {userProfile.role}
+                      </span>
+                      <span className="text-gray-500 text-xs">•</span>
+                      <span className="text-gray-400 text-xs">{userProfile.branch}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información sobre el requisito */}
+              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-5">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="text-yellow-400 font-bold text-lg mb-2">Rol Requerido</h3>
+                    <p className="text-gray-300 text-sm mb-3">
+                      El módulo de <strong className="text-white">Punto de Venta (POS)</strong> solo está disponible 
+                      para usuarios con el rol de <strong className="text-primary">Cajero</strong>.
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                      Si necesitas acceso a este módulo, contacta con tu administrador de sistema para que te asigne el rol correspondiente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información adicional */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4 text-primary" />
+                  Acerca del módulo POS
+                </h4>
+                <ul className="space-y-2 text-gray-400 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Gestión completa de ventas en punto de venta</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Control de apertura y cierre de caja</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Emisión de facturas y comprobantes</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Historial y reportes de ventas</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Acciones */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => navigate("/modules")}
+                  className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  Volver a Módulos
+                </button>
+                <button
+                  onClick={() => {
+                    // Aquí se podría abrir un modal de contacto con el admin
+                    alert("Funcionalidad para contactar al administrador (por implementar)");
+                  }}
+                  className="flex-1 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <User className="w-5 h-5" />
+                  Contactar Administrador
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-500 text-sm">
+              {companyName} • Sistema ERP TicSoftEc
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleProfileUpdate = (profile: any) => {
     setUserProfile(profile);
