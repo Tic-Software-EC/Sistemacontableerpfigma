@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShoppingCart, Search, CreditCard, DollarSign, Trash2, Plus, Minus, X, Receipt, User, Package, Calendar, Clock, Banknote, Smartphone, Building2, CheckCircle, Printer, AlertTriangle, UserPlus, Phone, Mail, MapPin, TrendingUp, TrendingDown, FileText, Info, AlertCircle } from "lucide-react";
+import { ShoppingCart, Search, CreditCard, DollarSign, Trash2, Plus, Minus, X, Receipt, User, Package, Calendar, Clock, Banknote, Smartphone, Building2, CheckCircle, Printer, AlertTriangle, UserPlus, Phone, Mail, MapPin, TrendingUp, TrendingDown, FileText, Info, AlertCircle, Pause, Play, Save } from "lucide-react";
 import { toast, Toaster } from "sonner";
 
 interface Product {
@@ -40,6 +40,7 @@ interface Sale {
   total: number;
   paymentMethod: string;
   paymentType: "cash" | "credit";
+  paymentReference?: string;
   amountPaid: number;
   change: number;
   customerName?: string;
@@ -75,6 +76,19 @@ interface Customer {
   totalPurchases: number;
   pendingBalance: number;
   lastPurchaseDate?: string;
+}
+
+interface HeldSale {
+  id: string;
+  timestamp: string;
+  cart: CartItem[];
+  customer: Customer | null;
+  totals: {
+    subtotal: number;
+    discount: number;
+    tax: number;
+    total: number;
+  };
 }
 
 // Mock data de clientes
@@ -270,6 +284,7 @@ export function POS() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [paymentType, setPaymentType] = useState<"cash" | "credit">("cash");
+  const [paymentReference, setPaymentReference] = useState("");
   const [amountPaid, setAmountPaid] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerRuc, setCustomerRuc] = useState("");
@@ -313,6 +328,10 @@ export function POS() {
 
   // Estados para historial de ventas
   const [sales, setSales] = useState<Sale[]>([]);
+
+  // Estados para ventas en espera
+  const [heldSales, setHeldSales] = useState<HeldSale[]>([]);
+  const [showHeldSalesModal, setShowHeldSalesModal] = useState(false);
 
   // Calcular totales de ventas y gastos
   const totalVentas = sales.reduce((sum, sale) => sum + sale.total, 0);
@@ -607,10 +626,85 @@ export function POS() {
     }
   };
 
+  // Pausar venta actual
+  const holdCurrentSale = () => {
+    if (cart.length === 0) {
+      toast.error("No hay productos en el carrito para pausar");
+      return;
+    }
+
+    const heldSale: HeldSale = {
+      id: Date.now().toString(),
+      timestamp: new Date().toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" }),
+      cart: [...cart],
+      customer: foundCustomer,
+      totals: { ...totals }
+    };
+
+    setHeldSales([...heldSales, heldSale]);
+    
+    // Limpiar carrito y cliente
+    setCart([]);
+    setCustomerName("");
+    setCustomerRuc("");
+    setCustomerPhone("");
+    setCustomerAddress("");
+    setFoundCustomer(null);
+    setCustomerSearchTerm("");
+    setPaymentType("cash");
+
+    toast.success("Venta pausada exitosamente", {
+      description: `Venta guardada - Total: $${totals.total.toFixed(2)}`
+    });
+  };
+
+  // Recuperar venta pausada
+  const resumeHeldSale = (heldSale: HeldSale) => {
+    // Si hay algo en el carrito actual, preguntar si desea pausarlo
+    if (cart.length > 0) {
+      if (!confirm("¿Deseas pausar la venta actual antes de recuperar la otra?")) {
+        return;
+      }
+      holdCurrentSale();
+    }
+
+    // Restaurar la venta pausada
+    setCart(heldSale.cart);
+    if (heldSale.customer) {
+      setFoundCustomer(heldSale.customer);
+      setCustomerName(heldSale.customer.name);
+      setCustomerRuc(heldSale.customer.ruc);
+      setCustomerPhone(heldSale.customer.phone || "");
+      setCustomerAddress(heldSale.customer.address || "");
+    }
+
+    // Eliminar de la lista de ventas en espera
+    setHeldSales(heldSales.filter(sale => sale.id !== heldSale.id));
+    setShowHeldSalesModal(false);
+
+    toast.success("Venta recuperada", {
+      description: `Total: $${heldSale.totals.total.toFixed(2)}`
+    });
+  };
+
+  // Eliminar venta pausada
+  const deleteHeldSale = (heldSaleId: string) => {
+    if (confirm("¿Estás seguro de eliminar esta venta pausada?")) {
+      setHeldSales(heldSales.filter(sale => sale.id !== heldSaleId));
+      toast.success("Venta pausada eliminada");
+    }
+  };
+
   // Procesar pago
   const processSale = () => {
     if (cart.length === 0) {
       alert("Agrega productos antes de procesar el pago");
+      return;
+    }
+
+    // Validar referencia para pagos no efectivo
+    if (paymentMethod !== "cash" && !paymentReference.trim()) {
+      alert("Debes ingresar la referencia o número de comprobante del pago");
       return;
     }
 
@@ -632,6 +726,7 @@ export function POS() {
       total: totals.total,
       paymentMethod,
       paymentType,
+      paymentReference: paymentReference || undefined,
       amountPaid: paidAmount,
       change: paymentMethod === "cash" ? paidAmount - totals.total : 0,
       customerName: customerName || undefined,
@@ -651,6 +746,7 @@ export function POS() {
     setShowPaymentModal(false);
     setShowReceiptModal(true);
     setAmountPaid("");
+    setPaymentReference("");
     setCustomerName("");
     setCustomerRuc("");
     setCustomerSearchTerm("");
@@ -682,6 +778,7 @@ export function POS() {
     // Cliente ya no es obligatorio - removida validación
     
     setAmountPaid(totals.total.toFixed(2));
+    setPaymentReference(""); // Limpiar referencia anterior
     setShowPaymentModal(true);
   };
 
@@ -1265,8 +1362,35 @@ export function POS() {
                 </div>
               )}
 
-              {/* Botón de pago */}
-              <div className="p-4 border-t border-white/20 bg-gradient-to-br from-white/5 to-transparent">
+              {/* Botones de control */}
+              <div className="p-4 border-t border-white/20 bg-gradient-to-br from-white/5 to-transparent space-y-2">
+                {/* Fila de botones: Pausar y Ver ventas en espera */}
+                {isCajaOpen && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={holdCurrentSale}
+                      disabled={cart.length === 0}
+                      className="px-3 py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      <Pause className="w-4 h-4" />
+                      Pausar Venta
+                    </button>
+                    <button
+                      onClick={() => setShowHeldSalesModal(true)}
+                      className="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 relative"
+                    >
+                      <Save className="w-4 h-4" />
+                      En Espera
+                      {heldSales.length > 0 && (
+                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold">
+                          {heldSales.length}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                )}
+                
+                {/* Botón de Procesar Pago */}
                 <button
                   onClick={openPaymentModal}
                   disabled={cart.length === 0 || !isCajaOpen}
@@ -1281,229 +1405,327 @@ export function POS() {
         </div>
       </div>
 
-      {/* Modal de pago */}
+      {/* Modal de pago - DISEÑO RENOVADO */}
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-6xl bg-secondary border border-white/10 rounded-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-b border-white/10 px-6 py-4">
-              <h3 className="text-white font-bold text-xl flex items-center gap-2">
-                <DollarSign className="w-6 h-6 text-primary" />
-                Procesar Pago
-              </h3>
-              <p className="text-gray-400 text-sm mt-1">
-                Total a pagar: <span className="text-primary font-bold text-lg">${totals.total.toFixed(2)}</span>
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-              {/* Columna izquierda: Tipo y método de pago */}
-              <div className="space-y-6">
-              {/* Tipo de pago: Contado o Crédito */}
-              <div>
-                <label className="block text-gray-300 text-sm mb-3 font-medium">
-                  Tipo de Pago
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => setPaymentType("cash")}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      paymentType === "cash"
-                        ? "border-primary bg-primary/10"
-                        : "border-white/10 bg-white/5 hover:border-white/20"
-                    }`}
-                  >
-                    <DollarSign className={`w-6 h-6 mx-auto mb-2 ${
-                      paymentType === "cash" ? "text-primary" : "text-gray-400"
-                    }`} />
-                    <span className={`text-sm font-medium ${
-                      paymentType === "cash" ? "text-white" : "text-gray-400"
-                    }`}>
-                      Contado
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => setPaymentType("credit")}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      paymentType === "credit"
-                        ? "border-primary bg-primary/10"
-                        : "border-white/10 bg-white/5 hover:border-white/20"
-                    }`}
-                  >
-                    <FileText className={`w-6 h-6 mx-auto mb-2 ${
-                      paymentType === "credit" ? "text-primary" : "text-gray-400"
-                    }`} />
-                    <span className={`text-sm font-medium ${
-                      paymentType === "credit" ? "text-white" : "text-gray-400"
-                    }`}>
-                      Crédito
-                    </span>
-                  </button>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-6xl bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] border-2 border-primary/30 rounded-3xl overflow-hidden shadow-2xl">
+            
+            {/* Header Premium */}
+            <div className="relative bg-gradient-to-r from-primary via-orange-600 to-primary p-8">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="relative flex items-start justify-between">
+                <div>
+                  <h3 className="text-white font-bold text-3xl flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm shadow-lg">
+                      <DollarSign className="w-8 h-8 text-white" />
+                    </div>
+                    Procesar Pago
+                  </h3>
+                  <p className="text-white/90 text-sm ml-1">
+                    {cart.length} producto{cart.length !== 1 ? 's' : ''} en el carrito
+                  </p>
+                </div>
+                <div className="text-right bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
+                  <p className="text-white/80 text-xs mb-2 uppercase tracking-wider font-medium">Total a Pagar</p>
+                  <p className="text-white font-bold text-5xl tracking-tight">
+                    ${totals.total.toFixed(2)}
+                  </p>
                 </div>
               </div>
+            </div>
 
-              {/* Monto pagado (solo para efectivo en contado) */}
-              {paymentMethod === "cash" && paymentType === "cash" && (
-                <>
+            {/* Contenido del Modal */}
+            <div className="p-8">
+              
+              {/* Formulario en 2 columnas */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                {/* Columna Izquierda: Selecciones y Detalles */}
+                <div className="space-y-6">
+                  {/* Método de Pago */}
                   <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
-                      Monto Recibido
+                    <label className="block text-white text-sm mb-3 font-bold flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-primary" />
+                      Método de Pago
                     </label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={amountPaid}
-                      onChange={(e) => setAmountPaid(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white text-lg font-bold focus:outline-none focus:border-primary/50 transition-all"
-                      placeholder="0.00"
-                    />
-                    {parseFloat(amountPaid) > 0 && (
-                      <div className="mt-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-300">Cambio:</span>
-                          <span className="text-primary font-bold text-lg">
-                            ${Math.max(0, parseFloat(amountPaid) - totals.total).toFixed(2)}
-                          </span>
+                    <select
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-full px-4 py-4 bg-[#0D1B2A] border-2 border-primary/30 rounded-xl text-white text-lg font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                    >
+                      {PAYMENT_METHODS.map((method) => (
+                        <option key={method.id} value={method.id}>
+                          {method.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Tipo de Pago */}
+                  <div>
+                    <label className="block text-white text-sm mb-3 font-bold flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-primary" />
+                      Tipo de Pago
+                    </label>
+                    <select
+                      value={paymentType}
+                      onChange={(e) => setPaymentType(e.target.value as "cash" | "credit")}
+                      className="w-full px-4 py-4 bg-[#0D1B2A] border-2 border-primary/30 rounded-xl text-white text-lg font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                    >
+                      <option value="cash">Contado - Pago inmediato</option>
+                      <option value="credit">Crédito - Pagos diferidos</option>
+                    </select>
+                  </div>
+
+                  {/* Detalles según método seleccionado */}
+                  <div className="space-y-4">
+
+                    {/* Campo de Monto Recibido (solo efectivo + contado) */}
+                    {paymentMethod === "cash" && paymentType === "cash" && (
+                      <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-5 space-y-4">
+                        <div>
+                          <label className="block text-white text-sm mb-3 font-bold flex items-center gap-2">
+                            <Banknote className="w-4 h-4 text-primary" />
+                            Monto Recibido
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary text-2xl font-bold">$</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={amountPaid}
+                              onChange={(e) => setAmountPaid(e.target.value)}
+                              className="w-full pl-10 pr-4 py-4 bg-[#0D1B2A] border-2 border-primary/30 rounded-xl text-white text-2xl font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                              placeholder="0.00"
+                              autoFocus
+                            />
+                          </div>
                         </div>
+                        
+                        {parseFloat(amountPaid) >= totals.total && (
+                          <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-4">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <CheckCircle className="w-5 h-5 text-green-400" />
+                                <span className="text-white font-bold">Cambio:</span>
+                              </div>
+                              <span className="text-primary font-bold text-3xl">
+                                ${Math.max(0, parseFloat(amountPaid) - totals.total).toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {parseFloat(amountPaid) > 0 && parseFloat(amountPaid) < totals.total && (
+                          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-xl p-4">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <AlertTriangle className="w-5 h-5 text-red-400" />
+                                <span className="text-red-400 font-bold">Falta:</span>
+                              </div>
+                              <span className="text-red-400 font-bold text-2xl">
+                                ${(totals.total - parseFloat(amountPaid)).toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Campo de Referencia (tarjeta, transferencia, pago móvil) */}
+                    {paymentMethod !== "cash" && (
+                      <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-5">
+                        <label className="block text-white text-sm mb-3 font-bold flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-primary" />
+                          Referencia / N° de Comprobante
+                          <span className="text-red-400">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={paymentReference}
+                          onChange={(e) => setPaymentReference(e.target.value)}
+                          className="w-full px-4 py-4 bg-[#0D1B2A] border-2 border-primary/30 rounded-xl text-white text-lg font-mono focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                          placeholder={
+                            paymentMethod === "card" ? "Ej: 1234-5678-9012" :
+                            paymentMethod === "transfer" ? "Ej: TRANS-2024-001234" :
+                            "Ej: REF-123456"
+                          }
+                          required
+                        />
+                        <p className="text-gray-500 text-xs mt-3 flex items-start gap-2">
+                          <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                          <span>
+                            {paymentMethod === "card" && "Ingrese los últimos 4 dígitos de la tarjeta o número de autorización"}
+                            {paymentMethod === "transfer" && "Ingrese el número de comprobante de transferencia bancaria"}
+                            {paymentMethod === "mobile" && "Ingrese el código de confirmación del pago móvil"}
+                          </span>
+                        </p>
                       </div>
                     )}
                   </div>
-                </>
-              )}
-              </div>
-
-              {/* Columna derecha: Configuración de crédito */}
-              <div className="space-y-6">
-              {paymentType === "credit" ? (
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 space-y-4 h-full">
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-yellow-400 font-bold text-sm">Venta a Crédito</p>
-                      <p className="text-gray-300 text-xs mt-1">
-                        Configure el plan de pagos mensuales
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-gray-300 text-xs mb-2 font-medium">
-                        Plazo (meses)
-                      </label>
-                      <select
-                        value={creditMonths}
-                        onChange={(e) => setCreditMonths(parseInt(e.target.value))}
-                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
-                      >
-                        <option value={3}>3 meses</option>
-                        <option value={6}>6 meses</option>
-                        <option value={12}>12 meses</option>
-                        <option value={18}>18 meses</option>
-                        <option value={24}>24 meses</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-300 text-xs mb-2 font-medium">
-                        Tasa Anual (%)
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value={interestRate}
-                        onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Preview de la cuota */}
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-3">
-                      <div>
-                        <p className="text-gray-400 text-xs">Cuota Mensual</p>
-                        <p className="text-white font-bold text-2xl">
-                          ${(() => {
-                            const principal = totals.total;
-                            const monthlyRate = interestRate / 100 / 12;
-                            const n = creditMonths;
-                            const monthlyPayment = monthlyRate === 0 
-                              ? principal / n 
-                              : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                            return monthlyPayment.toFixed(2);
-                          })()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-gray-400 text-xs">Total a Pagar</p>
-                        <p className="text-primary font-bold text-xl">
-                          ${(() => {
-                            const principal = totals.total;
-                            const monthlyRate = interestRate / 100 / 12;
-                            const n = creditMonths;
-                            const monthlyPayment = monthlyRate === 0 
-                              ? principal / n 
-                              : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                            return (monthlyPayment * n).toFixed(2);
-                          })()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="pt-3 border-t border-white/10">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Interés total:</span>
-                        <span className="text-yellow-400 font-bold">
-                          ${(() => {
-                            const principal = totals.total;
-                            const monthlyRate = interestRate / 100 / 12;
-                            const n = creditMonths;
-                            const monthlyPayment = monthlyRate === 0 
-                              ? principal / n 
-                              : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                            return ((monthlyPayment * n) - principal).toFixed(2);
-                          })()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              ) : (
-                <div className="bg-white/5 border border-white/10 rounded-xl p-6 h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <DollarSign className="w-10 h-10 text-primary" />
+
+                {/* Columna Derecha: Resumen o Configuración de Crédito */}
+                <div>
+                  {paymentType === "credit" ? (
+                    /* Configuración de Crédito */
+                    <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border-2 border-yellow-500/30 rounded-2xl p-6 h-full">
+                      <div className="flex items-start gap-3 mb-6">
+                        <div className="p-3 bg-yellow-500/20 rounded-xl">
+                          <AlertTriangle className="w-6 h-6 text-yellow-400" />
+                        </div>
+                        <div>
+                          <h4 className="text-yellow-400 font-bold text-lg">Venta a Crédito</h4>
+                          <p className="text-gray-300 text-sm mt-1">
+                            Configure el plan de pagos mensuales
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                          <label className="block text-white text-sm mb-2 font-bold">
+                            Plazo (meses)
+                          </label>
+                          <select
+                            value={creditMonths}
+                            onChange={(e) => setCreditMonths(parseInt(e.target.value))}
+                            className="w-full px-4 py-3 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-xl text-white font-bold focus:outline-none focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition-all"
+                          >
+                            <option value={3}>3 meses</option>
+                            <option value={6}>6 meses</option>
+                            <option value={12}>12 meses</option>
+                            <option value={18}>18 meses</option>
+                            <option value={24}>24 meses</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-white text-sm mb-2 font-bold">
+                            Tasa Anual (%)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value={interestRate}
+                            onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
+                            className="w-full px-4 py-3 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-xl text-white font-bold focus:outline-none focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Preview de la cuota */}
+                      <div className="bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-2xl p-6 space-y-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-gray-400 text-xs mb-1 uppercase tracking-wider">Cuota Mensual</p>
+                            <p className="text-white font-bold text-3xl">
+                              ${(() => {
+                                const principal = totals.total;
+                                const monthlyRate = interestRate / 100 / 12;
+                                const n = creditMonths;
+                                const monthlyPayment = monthlyRate === 0 
+                                  ? principal / n 
+                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                                return monthlyPayment.toFixed(2);
+                              })()}
+                            </p>
+                            <p className="text-gray-500 text-xs mt-1">{creditMonths} pagos</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-gray-400 text-xs mb-1 uppercase tracking-wider">Total con Interés</p>
+                            <p className="text-yellow-400 font-bold text-2xl">
+                              ${(() => {
+                                const principal = totals.total;
+                                const monthlyRate = interestRate / 100 / 12;
+                                const n = creditMonths;
+                                const monthlyPayment = monthlyRate === 0 
+                                  ? principal / n 
+                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                                return (monthlyPayment * n).toFixed(2);
+                              })()}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="pt-4 border-t border-yellow-500/20">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-400 text-sm">Interés Total:</span>
+                            <span className="text-yellow-400 font-bold text-xl">
+                              +${(() => {
+                                const principal = totals.total;
+                                const monthlyRate = interestRate / 100 / 12;
+                                const n = creditMonths;
+                                const monthlyPayment = monthlyRate === 0 
+                                  ? principal / n 
+                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                                return ((monthlyPayment * n) - principal).toFixed(2);
+                              })()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <h4 className="text-white font-bold text-lg mb-2">Pago de Contado</h4>
-                    <p className="text-gray-400 text-sm">
-                      El cliente pagará el monto total en este momento
-                    </p>
-                    <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                      <p className="text-gray-300 text-xs mb-1">Total a pagar</p>
-                      <p className="text-primary font-bold text-3xl">${totals.total.toFixed(2)}</p>
+                  ) : (
+                    /* Resumen de Pago de Contado */
+                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl p-6 h-full flex flex-col">
+                      <div className="flex-1 flex flex-col items-center justify-center text-center">
+                        <div className="w-24 h-24 bg-gradient-to-br from-primary to-orange-600 rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-primary/30">
+                          <CheckCircle className="w-14 h-14 text-white" />
+                        </div>
+                        <h4 className="text-white font-bold text-2xl mb-3">Pago de Contado</h4>
+                        <p className="text-gray-400 text-sm mb-6 max-w-xs">
+                          El cliente pagará el monto total en este momento
+                        </p>
+                        
+                        <div className="w-full bg-white/5 border border-white/20 rounded-2xl p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="text-gray-400 text-sm">Subtotal:</span>
+                            <span className="text-white font-bold">${totals.subtotal.toFixed(2)}</span>
+                          </div>
+                          {totals.discount > 0 && (
+                            <div className="flex items-center justify-between mb-4">
+                              <span className="text-gray-400 text-sm">Descuento:</span>
+                              <span className="text-red-400 font-bold">-${totals.discount.toFixed(2)}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="text-gray-400 text-sm">IVA (12%):</span>
+                            <span className="text-white font-bold">${totals.tax.toFixed(2)}</span>
+                          </div>
+                          <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent my-4"></div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-white font-bold text-lg">TOTAL:</span>
+                            <span className="text-primary font-bold text-4xl">${totals.total.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              )}
               </div>
             </div>
 
-            <div className="border-t border-white/10 px-6 py-4 flex items-center gap-3">
-              <button
-                onClick={() => setShowPaymentModal(false)}
-                className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={processSale}
-                className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
-              >
-                <CheckCircle className="w-5 h-5" />
-                Confirmar
-              </button>
+            {/* Footer con botones */}
+            <div className="border-t-2 border-white/10 bg-white/5 backdrop-blur-sm px-8 py-6">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="flex-1 px-6 py-4 bg-white/5 hover:bg-white/10 border-2 border-white/20 text-white rounded-xl transition-all font-bold text-lg"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={processSale}
+                  className="flex-1 px-6 py-4 bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90 text-white rounded-xl transition-all font-bold text-lg flex items-center justify-center gap-3 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-105"
+                >
+                  <CheckCircle className="w-6 h-6" />
+                  Confirmar Pago
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1603,7 +1825,7 @@ export function POS() {
                     {PAYMENT_METHODS.find(m => m.id === lastSale.paymentMethod)?.name}
                   </span>
                 </div>
-                {lastSale.paymentMethod === "cash" && (
+                {lastSale.paymentMethod === "cash" ? (
                   <>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-600">Efectivo Recibido:</span>
@@ -1614,6 +1836,13 @@ export function POS() {
                       <span className="text-primary font-bold">${lastSale.change.toFixed(2)}</span>
                     </div>
                   </>
+                ) : (
+                  lastSale.paymentReference && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Referencia:</span>
+                      <span className="text-[#0D1B2A] font-mono font-bold">{lastSale.paymentReference}</span>
+                    </div>
+                  )
                 )}
               </div>
 
@@ -2446,6 +2675,128 @@ export function POS() {
               >
                 <X className="w-5 h-5" />
                 Cerrar Caja
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de ventas en espera */}
+      {showHeldSalesModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600/20 to-blue-800/20 border-b border-blue-500/20 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-white font-bold text-xl flex items-center gap-2">
+                    <Save className="w-6 h-6 text-blue-400" />
+                    Ventas en Espera
+                  </h3>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {heldSales.length} {heldSales.length === 1 ? 'venta pausada' : 'ventas pausadas'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowHeldSalesModal(false)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Contenido */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {heldSales.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Save className="w-10 h-10 text-gray-600" />
+                  </div>
+                  <p className="text-white font-bold text-lg mb-2">No hay ventas en espera</p>
+                  <p className="text-gray-400 text-sm">
+                    Las ventas pausadas aparecerán aquí
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {heldSales.map((heldSale) => (
+                    <div
+                      key={heldSale.id}
+                      className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-5 hover:border-blue-500/30 transition-all"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Clock className="w-6 h-6 text-blue-400" />
+                          </div>
+                          <div>
+                            <p className="text-white font-bold text-lg">Venta pausada</p>
+                            <p className="text-gray-400 text-sm">Hora: {heldSale.timestamp}</p>
+                            {heldSale.customer && (
+                              <div className="flex items-center gap-2 mt-2">
+                                <User className="w-4 h-4 text-primary" />
+                                <span className="text-gray-300 text-sm">{heldSale.customer.name}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-gray-400 text-xs mb-1">Total</p>
+                          <p className="text-primary font-bold text-2xl">${heldSale.totals.total.toFixed(2)}</p>
+                        </div>
+                      </div>
+
+                      {/* Productos */}
+                      <div className="bg-white/5 border border-white/10 rounded-lg p-3 mb-4">
+                        <p className="text-gray-400 text-xs mb-2 font-medium">Productos ({heldSale.cart.length})</p>
+                        <div className="space-y-2">
+                          {heldSale.cart.map((item, index) => (
+                            <div key={index} className="flex items-center justify-between text-sm">
+                              <div className="flex-1">
+                                <p className="text-white font-medium">{item.product.name}</p>
+                                <p className="text-gray-500 text-xs">
+                                  {item.quantity} x ${item.product.price.toFixed(2)}
+                                </p>
+                              </div>
+                              <p className="text-primary font-bold">
+                                ${(item.quantity * item.product.price).toFixed(2)}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Botones de acción */}
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => resumeHeldSale(heldSale)}
+                          className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Play className="w-4 h-4" />
+                          Recuperar Venta
+                        </button>
+                        <button
+                          onClick={() => deleteHeldSale(heldSale.id)}
+                          className="px-4 py-2.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/30 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-white/10 px-6 py-4 bg-white/5">
+              <button
+                onClick={() => setShowHeldSalesModal(false)}
+                className="w-full px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
+              >
+                Cerrar
               </button>
             </div>
           </div>

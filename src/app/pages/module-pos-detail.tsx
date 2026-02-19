@@ -18,6 +18,7 @@ import {
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { POS } from "./pos";
+import { SalesHistory } from "./sales-history";
 
 export default function ModulePosDetail() {
   const navigate = useNavigate();
@@ -352,17 +353,7 @@ export default function ModulePosDetail() {
       {/* Contenido */}
       <div className="h-[calc(100vh-145px)]">
         {activeTab === "pos" && <POS />}
-        {activeTab === "historial" && (
-          <div className="p-6">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
-              <History className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-white text-xl font-bold mb-2">Historial de Ventas</h3>
-              <p className="text-gray-400">
-                Aquí se mostrará el historial completo de todas las ventas realizadas
-              </p>
-            </div>
-          </div>
-        )}
+        {activeTab === "historial" && <SalesHistory />}
         {activeTab === "reportes" && (
           <div className="p-6">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
