@@ -1410,48 +1410,37 @@ export function POS() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-6xl bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] border-2 border-primary/30 rounded-3xl overflow-hidden shadow-2xl">
             
-            {/* Header Premium */}
-            <div className="relative bg-gradient-to-r from-primary via-orange-600 to-primary p-8">
+            {/* Header Compacto */}
+            <div className="relative bg-gradient-to-r from-primary via-orange-600 to-primary p-3">
               <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative flex items-start justify-between">
-                <div>
-                  <h3 className="text-white font-bold text-3xl flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm shadow-lg">
-                      <DollarSign className="w-8 h-8 text-white" />
-                    </div>
-                    Procesar Pago
-                  </h3>
-                  <p className="text-white/90 text-sm ml-1">
-                    {cart.length} producto{cart.length !== 1 ? 's' : ''} en el carrito
-                  </p>
-                </div>
-                <div className="text-right bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-                  <p className="text-white/80 text-xs mb-2 uppercase tracking-wider font-medium">Total a Pagar</p>
-                  <p className="text-white font-bold text-5xl tracking-tight">
-                    ${totals.total.toFixed(2)}
-                  </p>
-                </div>
+              <div className="relative">
+                <h3 className="text-white font-bold text-base flex items-center gap-2">
+                  <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <DollarSign className="w-4 h-4 text-white" />
+                  </div>
+                  Procesar Pago
+                </h3>
               </div>
             </div>
 
             {/* Contenido del Modal */}
-            <div className="p-8">
+            <div className="p-5">
               
               {/* Formulario en 2 columnas */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Columna Izquierda: Selecciones y Detalles */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Método de Pago */}
                   <div>
-                    <label className="block text-white text-sm mb-3 font-bold flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-primary" />
+                    <label className="block text-white text-xs mb-2 font-bold flex items-center gap-1.5">
+                      <CreditCard className="w-3.5 h-3.5 text-primary" />
                       Método de Pago
                     </label>
                     <select
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="w-full px-4 py-4 bg-[#0D1B2A] border-2 border-primary/30 rounded-xl text-white text-lg font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2.5 bg-[#0D1B2A] border-2 border-primary/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     >
                       {PAYMENT_METHODS.map((method) => (
                         <option key={method.id} value={method.id}>
@@ -1463,14 +1452,14 @@ export function POS() {
 
                   {/* Tipo de Pago */}
                   <div>
-                    <label className="block text-white text-sm mb-3 font-bold flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-primary" />
+                    <label className="block text-white text-xs mb-2 font-bold flex items-center gap-1.5">
+                      <DollarSign className="w-3.5 h-3.5 text-primary" />
                       Tipo de Pago
                     </label>
                     <select
                       value={paymentType}
                       onChange={(e) => setPaymentType(e.target.value as "cash" | "credit")}
-                      className="w-full px-4 py-4 bg-[#0D1B2A] border-2 border-primary/30 rounded-xl text-white text-lg font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2.5 bg-[#0D1B2A] border-2 border-primary/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     >
                       <option value="cash">Contado - Pago inmediato</option>
                       <option value="credit">Crédito - Pagos diferidos</option>
@@ -1482,21 +1471,21 @@ export function POS() {
 
                     {/* Campo de Monto Recibido (solo efectivo + contado) */}
                     {paymentMethod === "cash" && paymentType === "cash" && (
-                      <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-5 space-y-4">
+                      <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-lg p-3 space-y-2">
                         <div>
-                          <label className="block text-white text-sm mb-3 font-bold flex items-center gap-2">
-                            <Banknote className="w-4 h-4 text-primary" />
+                          <label className="block text-white text-xs mb-2 font-bold flex items-center gap-1.5">
+                            <Banknote className="w-3.5 h-3.5 text-primary" />
                             Monto Recibido
                           </label>
                           <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary text-2xl font-bold">$</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary text-lg font-bold">$</span>
                             <input
                               type="number"
                               min="0"
                               step="0.01"
                               value={amountPaid}
                               onChange={(e) => setAmountPaid(e.target.value)}
-                              className="w-full pl-10 pr-4 py-4 bg-[#0D1B2A] border-2 border-primary/30 rounded-xl text-white text-2xl font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                              className="w-full pl-8 pr-3 py-2.5 bg-[#0D1B2A] border-2 border-primary/30 rounded-lg text-white text-lg font-bold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                               placeholder="0.00"
                               autoFocus
                             />
@@ -1504,13 +1493,13 @@ export function POS() {
                         </div>
                         
                         {parseFloat(amountPaid) >= totals.total && (
-                          <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-4">
+                          <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-2.5">
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2">
-                                <CheckCircle className="w-5 h-5 text-green-400" />
-                                <span className="text-white font-bold">Cambio:</span>
+                              <div className="flex items-center gap-1.5">
+                                <CheckCircle className="w-4 h-4 text-green-400" />
+                                <span className="text-white text-xs font-bold">Cambio:</span>
                               </div>
-                              <span className="text-primary font-bold text-3xl">
+                              <span className="text-primary font-bold text-xl">
                                 ${Math.max(0, parseFloat(amountPaid) - totals.total).toFixed(2)}
                               </span>
                             </div>
@@ -1518,13 +1507,13 @@ export function POS() {
                         )}
                         
                         {parseFloat(amountPaid) > 0 && parseFloat(amountPaid) < totals.total && (
-                          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-xl p-4">
+                          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-2.5">
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2">
-                                <AlertTriangle className="w-5 h-5 text-red-400" />
-                                <span className="text-red-400 font-bold">Falta:</span>
+                              <div className="flex items-center gap-1.5">
+                                <AlertTriangle className="w-4 h-4 text-red-400" />
+                                <span className="text-red-400 text-xs font-bold">Falta:</span>
                               </div>
-                              <span className="text-red-400 font-bold text-2xl">
+                              <span className="text-red-400 font-bold text-lg">
                                 ${(totals.total - parseFloat(amountPaid)).toFixed(2)}
                               </span>
                             </div>
@@ -1535,9 +1524,9 @@ export function POS() {
 
                     {/* Campo de Referencia (tarjeta, transferencia, pago móvil) */}
                     {paymentMethod !== "cash" && (
-                      <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-5">
-                        <label className="block text-white text-sm mb-3 font-bold flex items-center gap-2">
-                          <CreditCard className="w-4 h-4 text-primary" />
+                      <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-lg p-3">
+                        <label className="block text-white text-xs mb-2 font-bold flex items-center gap-1.5">
+                          <CreditCard className="w-3.5 h-3.5 text-primary" />
                           Referencia / N° de Comprobante
                           <span className="text-red-400">*</span>
                         </label>
@@ -1545,7 +1534,7 @@ export function POS() {
                           type="text"
                           value={paymentReference}
                           onChange={(e) => setPaymentReference(e.target.value)}
-                          className="w-full px-4 py-4 bg-[#0D1B2A] border-2 border-primary/30 rounded-xl text-white text-lg font-mono focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all"
+                          className="w-full px-3 py-2.5 bg-[#0D1B2A] border-2 border-primary/30 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                           placeholder={
                             paymentMethod === "card" ? "Ej: 1234-5678-9012" :
                             paymentMethod === "transfer" ? "Ej: TRANS-2024-001234" :
@@ -1553,7 +1542,7 @@ export function POS() {
                           }
                           required
                         />
-                        <p className="text-gray-500 text-xs mt-3 flex items-start gap-2">
+                        <p className="text-gray-500 text-xs mt-2 flex items-start gap-1.5">
                           <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
                           <span>
                             {paymentMethod === "card" && "Ingrese los últimos 4 dígitos de la tarjeta o número de autorización"}
@@ -1570,28 +1559,28 @@ export function POS() {
                 <div>
                   {paymentType === "credit" ? (
                     /* Configuración de Crédito */
-                    <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border-2 border-yellow-500/30 rounded-2xl p-6 h-full">
-                      <div className="flex items-start gap-3 mb-6">
-                        <div className="p-3 bg-yellow-500/20 rounded-xl">
-                          <AlertTriangle className="w-6 h-6 text-yellow-400" />
+                    <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border-2 border-yellow-500/30 rounded-lg p-4 h-full">
+                      <div className="flex items-start gap-2 mb-4">
+                        <div className="p-1.5 bg-yellow-500/20 rounded-lg">
+                          <AlertTriangle className="w-4 h-4 text-yellow-400" />
                         </div>
                         <div>
-                          <h4 className="text-yellow-400 font-bold text-lg">Venta a Crédito</h4>
-                          <p className="text-gray-300 text-sm mt-1">
+                          <h4 className="text-yellow-400 font-bold text-sm">Venta a Crédito</h4>
+                          <p className="text-gray-300 text-xs mt-0.5">
                             Configure el plan de pagos mensuales
                           </p>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="grid grid-cols-2 gap-3 mb-4">
                         <div>
-                          <label className="block text-white text-sm mb-2 font-bold">
+                          <label className="block text-white text-xs mb-1.5 font-bold">
                             Plazo (meses)
                           </label>
                           <select
                             value={creditMonths}
                             onChange={(e) => setCreditMonths(parseInt(e.target.value))}
-                            className="w-full px-4 py-3 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-xl text-white font-bold focus:outline-none focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition-all"
+                            className="w-full px-3 py-2 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
                           >
                             <option value={3}>3 meses</option>
                             <option value={6}>6 meses</option>
@@ -1602,7 +1591,7 @@ export function POS() {
                         </div>
 
                         <div>
-                          <label className="block text-white text-sm mb-2 font-bold">
+                          <label className="block text-white text-xs mb-1.5 font-bold">
                             Tasa Anual (%)
                           </label>
                           <input
@@ -1612,17 +1601,17 @@ export function POS() {
                             step="0.1"
                             value={interestRate}
                             onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
-                            className="w-full px-4 py-3 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-xl text-white font-bold focus:outline-none focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition-all"
+                            className="w-full px-3 py-2 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
                           />
                         </div>
                       </div>
 
                       {/* Preview de la cuota */}
-                      <div className="bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-2xl p-6 space-y-4">
+                      <div className="bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg p-3 space-y-2">
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="text-gray-400 text-xs mb-1 uppercase tracking-wider">Cuota Mensual</p>
-                            <p className="text-white font-bold text-3xl">
+                            <p className="text-gray-400 text-xs mb-0.5">Cuota Mensual</p>
+                            <p className="text-white font-bold text-xl">
                               ${(() => {
                                 const principal = totals.total;
                                 const monthlyRate = interestRate / 100 / 12;
@@ -1633,11 +1622,11 @@ export function POS() {
                                 return monthlyPayment.toFixed(2);
                               })()}
                             </p>
-                            <p className="text-gray-500 text-xs mt-1">{creditMonths} pagos</p>
+                            <p className="text-gray-500 text-xs mt-0.5">{creditMonths} pagos</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-gray-400 text-xs mb-1 uppercase tracking-wider">Total con Interés</p>
-                            <p className="text-yellow-400 font-bold text-2xl">
+                            <p className="text-gray-400 text-xs mb-0.5">Total con Interés</p>
+                            <p className="text-yellow-400 font-bold text-lg">
                               ${(() => {
                                 const principal = totals.total;
                                 const monthlyRate = interestRate / 100 / 12;
@@ -1651,10 +1640,10 @@ export function POS() {
                           </div>
                         </div>
                         
-                        <div className="pt-4 border-t border-yellow-500/20">
+                        <div className="pt-2 border-t border-yellow-500/20">
                           <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-sm">Interés Total:</span>
-                            <span className="text-yellow-400 font-bold text-xl">
+                            <span className="text-gray-400 text-xs">Interés Total:</span>
+                            <span className="text-yellow-400 font-bold text-base">
                               +${(() => {
                                 const principal = totals.total;
                                 const monthlyRate = interestRate / 100 / 12;
@@ -1671,35 +1660,35 @@ export function POS() {
                     </div>
                   ) : (
                     /* Resumen de Pago de Contado */
-                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl p-6 h-full flex flex-col">
+                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-lg p-4 h-full flex flex-col">
                       <div className="flex-1 flex flex-col items-center justify-center text-center">
-                        <div className="w-24 h-24 bg-gradient-to-br from-primary to-orange-600 rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-primary/30">
-                          <CheckCircle className="w-14 h-14 text-white" />
+                        <div className="w-16 h-16 bg-gradient-to-br from-primary to-orange-600 rounded-2xl flex items-center justify-center mb-3 shadow-xl shadow-primary/30">
+                          <CheckCircle className="w-9 h-9 text-white" />
                         </div>
-                        <h4 className="text-white font-bold text-2xl mb-3">Pago de Contado</h4>
-                        <p className="text-gray-400 text-sm mb-6 max-w-xs">
+                        <h4 className="text-white font-bold text-base mb-2">Pago de Contado</h4>
+                        <p className="text-gray-400 text-xs mb-4 max-w-xs">
                           El cliente pagará el monto total en este momento
                         </p>
                         
-                        <div className="w-full bg-white/5 border border-white/20 rounded-2xl p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <span className="text-gray-400 text-sm">Subtotal:</span>
-                            <span className="text-white font-bold">${totals.subtotal.toFixed(2)}</span>
+                        <div className="w-full bg-white/5 border border-white/20 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400 text-xs">Subtotal:</span>
+                            <span className="text-white text-sm font-bold">${totals.subtotal.toFixed(2)}</span>
                           </div>
                           {totals.discount > 0 && (
-                            <div className="flex items-center justify-between mb-4">
-                              <span className="text-gray-400 text-sm">Descuento:</span>
-                              <span className="text-red-400 font-bold">-${totals.discount.toFixed(2)}</span>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-gray-400 text-xs">Descuento:</span>
+                              <span className="text-red-400 text-sm font-bold">-${totals.discount.toFixed(2)}</span>
                             </div>
                           )}
-                          <div className="flex items-center justify-between mb-4">
-                            <span className="text-gray-400 text-sm">IVA (12%):</span>
-                            <span className="text-white font-bold">${totals.tax.toFixed(2)}</span>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400 text-xs">IVA (12%):</span>
+                            <span className="text-white text-sm font-bold">${totals.tax.toFixed(2)}</span>
                           </div>
-                          <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent my-4"></div>
+                          <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent my-2"></div>
                           <div className="flex items-center justify-between">
-                            <span className="text-white font-bold text-lg">TOTAL:</span>
-                            <span className="text-primary font-bold text-4xl">${totals.total.toFixed(2)}</span>
+                            <span className="text-white font-bold text-sm">TOTAL:</span>
+                            <span className="text-primary font-bold text-2xl">${totals.total.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
@@ -1710,19 +1699,19 @@ export function POS() {
             </div>
 
             {/* Footer con botones */}
-            <div className="border-t-2 border-white/10 bg-white/5 backdrop-blur-sm px-8 py-6">
-              <div className="flex items-center gap-4">
+            <div className="border-t-2 border-white/10 bg-white/5 backdrop-blur-sm px-5 py-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowPaymentModal(false)}
-                  className="flex-1 px-6 py-4 bg-white/5 hover:bg-white/10 border-2 border-white/20 text-white rounded-xl transition-all font-bold text-lg"
+                  className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 border-2 border-white/20 text-white rounded-lg transition-all font-bold text-sm"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={processSale}
-                  className="flex-1 px-6 py-4 bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90 text-white rounded-xl transition-all font-bold text-lg flex items-center justify-center gap-3 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-105"
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90 text-white rounded-lg transition-all font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-105"
                 >
-                  <CheckCircle className="w-6 h-6" />
+                  <CheckCircle className="w-4 h-4" />
                   Confirmar Pago
                 </button>
               </div>
