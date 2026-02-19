@@ -80,6 +80,16 @@ interface Customer {
 // Mock data de clientes
 const MOCK_CUSTOMERS: Customer[] = [
   {
+    ruc: "9999999999999",
+    name: "Consumidor Final",
+    email: "",
+    phone: "",
+    address: "",
+    totalPurchases: 0,
+    pendingBalance: 0,
+    lastPurchaseDate: ""
+  },
+  {
     ruc: "1234567890",
     name: "María González López",
     email: "maria.gonzalez@email.com",
