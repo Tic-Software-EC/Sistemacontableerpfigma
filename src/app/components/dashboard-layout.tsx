@@ -13,6 +13,7 @@ import {
   ShoppingBag
 } from "lucide-react";
 import { useState } from "react";
+import { ThemeToggle } from "./theme-toggle";
 
 export function DashboardLayout() {
   const navigate = useNavigate();
@@ -95,18 +96,21 @@ export function DashboardLayout() {
       {/* Contenido Principal */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden text-secondary hover:text-primary transition-colors"
+              className="lg:hidden text-secondary dark:text-gray-200 hover:text-primary transition-colors"
             >
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-4">
+              {/* Toggle de Tema */}
+              <ThemeToggle />
+              
               <div className="text-right">
-                <p className="text-sm font-normal text-secondary">Admin User</p>
-                <p className="text-xs font-light text-gray-500">admin@ticsoftec.com</p>
+                <p className="text-sm font-normal text-secondary dark:text-gray-200">Admin User</p>
+                <p className="text-xs font-light text-gray-500 dark:text-gray-400">admin@ticsoftec.com</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-medium">
                 A
@@ -116,7 +120,7 @@ export function DashboardLayout() {
         </header>
 
         {/* Contenido de la Página */}
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-6 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
           <Outlet />
         </main>
       </div>

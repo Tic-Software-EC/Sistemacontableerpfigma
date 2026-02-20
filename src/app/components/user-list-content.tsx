@@ -561,13 +561,13 @@ export function UserListContent() {
                         <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                           <User className="w-5 h-5 text-primary" />
                         </div>
-                        <div>
-                          <div className="text-white font-medium">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-medium">
                             {user.username}
-                          </div>
-                          <div className="text-gray-400 text-xs">
+                          </span>
+                          <span className="text-gray-400 text-xs">
                             {user.email}
-                          </div>
+                          </span>
                         </div>
                       </div>
                     </td>

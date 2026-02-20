@@ -1254,7 +1254,7 @@ export function POS() {
                               setSelectedProduct(product);
                               setShowProductDetailModal(true);
                             }}
-                            className="p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                            className="p-1 text-primary hover:text-primary/80 transition-colors"
                             title="Ver detalles"
                           >
                             <Info className="w-4 h-4" />

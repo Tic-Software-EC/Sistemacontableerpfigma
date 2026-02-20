@@ -50,12 +50,13 @@ export function Login() {
         {/* Contenido del panel izquierdo */}
         <div className="relative z-10 px-16 text-white max-w-lg">
           <div className="mb-8">
-            <h2 className="text-[2.75rem] font-thin mb-3 tracking-wide leading-tight">Bienvenido a</h2>
-            <h1 className="text-[3.5rem] font-black mb-8 tracking-tight leading-none bg-gradient-to-r from-white via-white to-primary bg-clip-text text-transparent font-[Raleway] text-[40px] font-normal text-center">TicSoftEc</h1>
+            <h2 className="text-[2.75rem] font-thin mb-3 tracking-wide leading-tight">El futuro de tu empresa</h2>
+            <h1 className="text-[3.5rem] font-black mb-4 tracking-tight leading-none bg-gradient-to-r from-white via-white to-primary bg-clip-text text-transparent font-[Raleway]">TicSoftEc</h1>
+            <p className="text-xl font-light text-primary/90 tracking-wide">empieza aquí</p>
           </div>
           
           <p className="text-lg font-light text-white/90 mb-12 leading-relaxed">
-            Plataforma integral de gestión empresarial contable
+            Sistema ERP inteligente que integra contabilidad, ventas, inventario y reportes en una sola plataforma. Toma decisiones basadas en datos reales.
           </p>
           
           <div className="space-y-5">
