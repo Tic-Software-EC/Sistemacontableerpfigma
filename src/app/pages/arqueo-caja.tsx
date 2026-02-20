@@ -1,0 +1,346 @@
+import { useState } from "react";
+import {
+  Calculator,
+  Wallet,
+  Banknote,
+  AlertCircle,
+  Printer,
+  DollarSign,
+  TrendingUp,
+  History,
+  CheckCircle,
+  XCircle,
+  Clock,
+  CreditCard,
+  Lock,
+  Unlock,
+} from "lucide-react";
+import { toast, Toaster } from "sonner";
+
+export function ArqueoCaja() {
+  const [billetes, setBilletes] = useState({
+    b100: 0,
+    b50: 0,
+    b20: 0,
+    b10: 0,
+    b5: 0,
+    b1: 0,
+  });
+  
+  const [monedas, setMonedas] = useState({
+    m1: 0,
+    m050: 0,
+    m025: 0,
+    m010: 0,
+    m005: 0,
+    m001: 0,
+  });
+
+  // Datos de caja (normalmente vendrían del backend)
+  const [montoInicial] = useState(500.00);
+  const [gastos] = useState(45.50);
+  const [isCajaCerrada, setIsCajaCerrada] = useState(false);
+
+  // Ventas del día por método de pago (mock data)
+  const ventasEfectivo = 1234.50;
+  const ventasTarjeta = 2345.75;
+  const ventasTransferencia = 890.25;
+  const ventasCredito = 1486.15;
+  
+  const totalVentas = ventasEfectivo + ventasTarjeta + ventasTransferencia + ventasCredito;
+
+  // Calcular totales
+  const totalBilletes = 
+    billetes.b100 * 100 +
+    billetes.b50 * 50 +
+    billetes.b20 * 20 +
+    billetes.b10 * 10 +
+    billetes.b5 * 5 +
+    billetes.b1 * 1;
+
+  const totalMonedas =
+    monedas.m1 * 1 +
+    monedas.m050 * 0.50 +
+    monedas.m025 * 0.25 +
+    monedas.m010 * 0.10 +
+    monedas.m005 * 0.05 +
+    monedas.m001 * 0.01;
+
+  const totalContado = totalBilletes + totalMonedas;
+  const saldoEsperado = montoInicial + ventasEfectivo - gastos;
+  const diferencia = totalContado - saldoEsperado;
+
+  const handleCerrarCaja = () => {
+    if (totalContado === 0) {
+      toast.error("Debes realizar el conteo de efectivo primero");
+      return;
+    }
+
+    setIsCajaCerrada(true);
+    toast.success("Caja cerrada exitosamente");
+  };
+
+  const handleImprimirArqueo = () => {
+    toast.success("Generando reporte de arqueo...");
+  };
+
+  return (
+    <div className="h-full bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] overflow-auto">
+      <Toaster position="top-right" />
+      
+      <div className="p-4">
+        <div className="max-w-[1600px] mx-auto">
+          
+          {/* Header */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-white font-bold text-xl flex items-center gap-2">
+                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
+                    <Calculator className="w-5 h-5 text-primary" />
+                  </div>
+                  Arqueo de Caja
+                </h2>
+                <p className="text-gray-400 text-xs mt-1 ml-1">
+                  Conteo de efectivo y cierre de caja diario
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${
+                  isCajaCerrada 
+                    ? 'bg-red-500/5 border-red-500/30 text-red-400' 
+                    : 'bg-green-500/5 border-green-500/30 text-green-400'
+                }`}>
+                  {isCajaCerrada ? (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      <span className="text-xs font-bold tracking-wide">CAJA CERRADA</span>
+                    </>
+                  ) : (
+                    <>
+                      <Unlock className="w-4 h-4" />
+                      <span className="text-xs font-bold tracking-wide">CAJA ABIERTA</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Resumen de ventas del día */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4">
+            <div className="bg-white/[0.04] border border-white/10 rounded-lg p-2.5 hover:bg-white/[0.06] transition-all">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="p-1 bg-white/5 rounded">
+                  <Banknote className="w-3.5 h-3.5 text-gray-300" />
+                </div>
+                <p className="text-gray-400 text-[9px] font-semibold uppercase tracking-wider">Efectivo</p>
+              </div>
+              <p className="text-white font-bold text-lg tabular-nums">${ventasEfectivo.toFixed(2)}</p>
+            </div>
+
+            <div className="bg-white/[0.04] border border-white/10 rounded-lg p-2.5 hover:bg-white/[0.06] transition-all">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="p-1 bg-white/5 rounded">
+                  <CreditCard className="w-3.5 h-3.5 text-gray-300" />
+                </div>
+                <p className="text-gray-400 text-[9px] font-semibold uppercase tracking-wider">Tarjeta</p>
+              </div>
+              <p className="text-white font-bold text-lg tabular-nums">${ventasTarjeta.toFixed(2)}</p>
+            </div>
+
+            <div className="bg-white/[0.04] border border-white/10 rounded-lg p-2.5 hover:bg-white/[0.06] transition-all">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="p-1 bg-white/5 rounded">
+                  <DollarSign className="w-3.5 h-3.5 text-gray-300" />
+                </div>
+                <p className="text-gray-400 text-[9px] font-semibold uppercase tracking-wider">Transferencias</p>
+              </div>
+              <p className="text-white font-bold text-lg tabular-nums">${ventasTransferencia.toFixed(2)}</p>
+            </div>
+
+            <div className="bg-primary/8 border border-primary/20 rounded-lg p-2.5 hover:border-primary/30 transition-all">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="p-1 bg-primary/10 rounded">
+                  <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-gray-400 text-[9px] font-bold uppercase tracking-wider">Total Ventas</p>
+              </div>
+              <p className="text-white font-bold text-lg tabular-nums">${totalVentas.toFixed(2)}</p>
+            </div>
+          </div>
+
+          {/* Conteo de efectivo */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            
+            {/* Columna 1: Billetes */}
+            <div className="bg-white/[0.04] border border-white/10 rounded-lg p-3">
+              <h4 className="text-white font-bold text-xs mb-3 flex items-center gap-2 pb-2 border-b border-white/10">
+                <Banknote className="w-4 h-4 text-gray-300" />
+                Billetes
+              </h4>
+              <div className="space-y-2">
+                {[
+                  { key: "b100" as const, label: "$100", value: 100 },
+                  { key: "b50" as const, label: "$50", value: 50 },
+                  { key: "b20" as const, label: "$20", value: 20 },
+                  { key: "b10" as const, label: "$10", value: 10 },
+                  { key: "b5" as const, label: "$5", value: 5 },
+                  { key: "b1" as const, label: "$1", value: 1 },
+                ].map((b) => (
+                  <div key={b.key} className="flex items-center gap-2 bg-[#0D1B2A]/30 rounded p-1.5">
+                    <label className="text-gray-400 text-xs font-semibold w-10 text-right">{b.label}</label>
+                    <span className="text-gray-600 text-[10px]">×</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={billetes[b.key]}
+                      onChange={(e) => setBilletes({ ...billetes, [b.key]: parseInt(e.target.value) || 0 })}
+                      disabled={isCajaCerrada}
+                      className="flex-1 px-2 py-1.5 bg-[#0D1B2A] border border-white/10 rounded text-white text-sm font-semibold text-center focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed tabular-nums"
+                      placeholder="0"
+                    />
+                    <span className="text-gray-600 text-[10px]">=</span>
+                    <span className="text-white text-sm font-bold w-20 text-right tabular-nums">
+                      ${(billetes[b.key] * b.value).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-white/20">
+                <div className="flex justify-between items-center bg-white/5 rounded p-2">
+                  <span className="text-gray-400 text-xs font-bold uppercase">Total:</span>
+                  <span className="text-white font-bold text-lg tabular-nums">${totalBilletes.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Columna 2: Monedas */}
+            <div className="bg-white/[0.04] border border-white/10 rounded-lg p-3">
+              <h4 className="text-white font-bold text-xs mb-3 flex items-center gap-2 pb-2 border-b border-white/10">
+                <Wallet className="w-4 h-4 text-gray-300" />
+                Monedas
+              </h4>
+              <div className="space-y-2">
+                {[
+                  { key: "m1" as const, label: "$1.00", value: 1 },
+                  { key: "m050" as const, label: "$0.50", value: 0.50 },
+                  { key: "m025" as const, label: "$0.25", value: 0.25 },
+                  { key: "m010" as const, label: "$0.10", value: 0.10 },
+                  { key: "m005" as const, label: "$0.05", value: 0.05 },
+                  { key: "m001" as const, label: "$0.01", value: 0.01 },
+                ].map((m) => (
+                  <div key={m.key} className="flex items-center gap-2 bg-[#0D1B2A]/30 rounded p-1.5">
+                    <label className="text-gray-400 text-xs font-semibold w-10 text-right">{m.label}</label>
+                    <span className="text-gray-600 text-[10px]">×</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={monedas[m.key]}
+                      onChange={(e) => setMonedas({ ...monedas, [m.key]: parseInt(e.target.value) || 0 })}
+                      disabled={isCajaCerrada}
+                      className="flex-1 px-2 py-1.5 bg-[#0D1B2A] border border-white/10 rounded text-white text-sm font-semibold text-center focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed tabular-nums"
+                      placeholder="0"
+                    />
+                    <span className="text-gray-600 text-[10px]">=</span>
+                    <span className="text-white text-sm font-bold w-20 text-right tabular-nums">
+                      ${(monedas[m.key] * m.value).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-white/20">
+                <div className="flex justify-between items-center bg-white/5 rounded p-2">
+                  <span className="text-gray-400 text-xs font-bold uppercase">Total:</span>
+                  <span className="text-white font-bold text-lg tabular-nums">${totalMonedas.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Columna 3: Resumen */}
+            <div className="space-y-3">
+              {/* Total Contado */}
+              <div className="bg-white/[0.06] border border-white/20 rounded-lg p-3">
+                <p className="text-gray-400 text-[10px] font-medium uppercase tracking-wider mb-2">Total Contado</p>
+                <p className="text-white font-bold text-2xl tabular-nums">${totalContado.toFixed(2)}</p>
+              </div>
+
+              {/* Detalles */}
+              <div className="bg-white/[0.04] border border-white/10 rounded-lg p-3 space-y-2">
+                <h5 className="text-white font-bold text-[10px] uppercase tracking-wide mb-2 pb-2 border-b border-white/10">Cálculo del Saldo</h5>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-xs">Monto Inicial</span>
+                    <span className="text-white font-bold text-sm tabular-nums">${montoInicial.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-xs">Ventas Efectivo</span>
+                    <span className="text-white font-bold text-sm tabular-nums">+${ventasEfectivo.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-xs">Gastos del Día</span>
+                    <span className="text-white font-bold text-sm tabular-nums">-${gastos.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-white/20 pt-2 mt-2">
+                    <div className="flex justify-between items-center bg-white/5 rounded p-2">
+                      <span className="text-white font-bold text-xs uppercase">Saldo Esperado</span>
+                      <span className="text-white font-bold text-base tabular-nums">${saldoEsperado.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Diferencia */}
+              <div className={`border rounded-lg p-3 ${
+                diferencia === 0 
+                  ? 'bg-white/[0.04] border-white/20' 
+                  : diferencia > 0 
+                    ? 'bg-white/[0.04] border-white/20' 
+                    : 'bg-red-500/5 border-red-500/30'
+              }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {diferencia === 0 ? (
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  ) : (
+                    <AlertCircle className={`w-4 h-4 ${diferencia > 0 ? 'text-white' : 'text-red-400'}`} />
+                  )}
+                  <p className={`text-[10px] font-bold uppercase tracking-wider ${
+                    diferencia === 0 ? 'text-gray-400' : diferencia > 0 ? 'text-gray-400' : 'text-red-400'
+                  }`}>
+                    {diferencia === 0 ? '✓ Caja Cuadrada' : diferencia > 0 ? '↑ Sobrante' : '↓ Faltante'}
+                  </p>
+                </div>
+                <p className={`font-bold text-2xl tabular-nums ${
+                  diferencia === 0 ? 'text-white' : diferencia > 0 ? 'text-white' : 'text-red-400'
+                }`}>
+                  ${Math.abs(diferencia).toFixed(2)}
+                </p>
+              </div>
+
+              {/* Acciones */}
+              <div className="space-y-2">
+                <button
+                  onClick={handleImprimirArqueo}
+                  className="w-full px-3 py-2.5 bg-white/[0.07] hover:bg-white/10 border border-white/20 text-white rounded-lg transition-all font-bold text-xs flex items-center justify-center gap-2 hover:border-white/30"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  Imprimir Arqueo
+                </button>
+                
+                <button
+                  onClick={handleCerrarCaja}
+                  disabled={isCajaCerrada}
+                  className="w-full px-3 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all font-bold text-xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-red-600/20"
+                >
+                  <Lock className="w-4 h-4" />
+                  {isCajaCerrada ? 'Caja Cerrada' : 'Cerrar Caja'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

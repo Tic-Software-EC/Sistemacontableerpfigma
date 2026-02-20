@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShoppingCart, Search, CreditCard, DollarSign, Trash2, Plus, Minus, X, Receipt, User, Package, Calendar, Clock, Banknote, Smartphone, Building2, CheckCircle, Printer, AlertTriangle, UserPlus, Phone, Mail, MapPin, TrendingUp, TrendingDown, FileText, Info, AlertCircle, Pause, Play, Save } from "lucide-react";
+import { ShoppingCart, Search, CreditCard, DollarSign, Trash2, Plus, Minus, X, Receipt, User, Package, Calendar, Clock, Banknote, Smartphone, Building2, CheckCircle, Printer, AlertTriangle, UserPlus, Phone, Mail, MapPin, TrendingUp, TrendingDown, FileText, Info, AlertCircle, Pause, Play, Save, Percent, Camera, Loader2, Users } from "lucide-react";
 import { toast, Toaster } from "sonner";
 
 interface Product {
@@ -48,6 +48,9 @@ interface Sale {
   status: "completed" | "cancelled";
   creditInfo?: CreditInfo;
   downPayment?: number; // Entrada/Abono inicial para créditos
+  sriAuthorization?: string; // Número de autorización del SRI
+  sriAuthorizationDate?: string; // Fecha de autorización SRI
+  sriAuthorizationTime?: string; // Hora de autorización SRI
 }
 
 interface CreditInfo {
@@ -301,7 +304,19 @@ export function POS() {
     email: "",
     phone: "",
     address: "",
+    guarantorName: "",
+    guarantorCedula: "",
+    guarantorPhone: "",
+    photo: "",
   });
+  // Estados para consulta de registro civil
+  const [consultingCedula, setConsultingCedula] = useState(false);
+  const [registroCivilData, setRegistroCivilData] = useState<{
+    nombres: string;
+    apellidos: string;
+    fechaNacimiento: string;
+    lugarNacimiento: string;
+  } | null>(null);
   // Estados para crédito
   const [creditMonths, setCreditMonths] = useState(3);
   const [interestRate, setInterestRate] = useState(12);
@@ -424,7 +439,45 @@ export function POS() {
     setShowCustomerResults(false);
     setCustomerName(customerSearchTerm);
     setCustomerRuc("");
+    setRegistroCivilData(null);
     setShowCreateCustomerModal(true);
+  };
+
+  // Consultar datos del registro civil (simulado)
+  const consultarRegistroCivil = async (cedula: string) => {
+    if (cedula.length < 10) {
+      return;
+    }
+
+    setConsultingCedula(true);
+    
+    // Simulación de consulta a API del Registro Civil
+    setTimeout(() => {
+      // Datos mock del registro civil
+      const mockData = {
+        nombres: "JUAN CARLOS",
+        apellidos: "PÉREZ GONZÁLEZ",
+        fechaNacimiento: "15/03/1985",
+        lugarNacimiento: "QUITO - PICHINCHA",
+      };
+      
+      setRegistroCivilData(mockData);
+      setCustomerName(`${mockData.nombres} ${mockData.apellidos}`);
+      setConsultingCedula(false);
+      toast.success("Datos obtenidos del Registro Civil");
+    }, 1500);
+  };
+
+  // Manejar carga de foto
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewCustomerData({ ...newCustomerData, photo: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const createNewCustomer = () => {
@@ -724,6 +777,22 @@ export function POS() {
       return;
     }
 
+    // Generar número de autorización del SRI (49 dígitos)
+    const generateSRIAuthorization = () => {
+      const timestamp = Date.now().toString();
+      const random = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+      const authNumber = timestamp + random;
+      return authNumber.padEnd(49, '0').substring(0, 49);
+    };
+
+    const currentDate = new Date();
+    const authorizationDate = currentDate.toISOString().split("T")[0];
+    const authorizationTime = currentDate.toLocaleTimeString("es-EC", { 
+      hour: "2-digit", 
+      minute: "2-digit", 
+      second: "2-digit" 
+    });
+
     const sale: Sale = {
       id: `sale-${Date.now()}`,
       saleNumber: `VTA-${String(Math.floor(Math.random() * 10000)).padStart(6, "0")}`,
@@ -743,6 +812,9 @@ export function POS() {
       customerRuc: customerRuc || undefined,
       status: "completed",
       downPayment: paymentType === "credit" && downPayment > 0 ? downPayment : undefined,
+      sriAuthorization: generateSRIAuthorization(), // Generar autorización SRI
+      sriAuthorizationDate: authorizationDate, // Fecha de autorización
+      sriAuthorizationTime: authorizationTime, // Hora de autorización
     };
 
     if (paymentType === "credit") {
@@ -817,12 +889,12 @@ export function POS() {
         
         {/* Header reorganizado - Cliente a la izquierda, Caja a la derecha */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3 mb-4">
-          {/* Sección de Cliente - Izquierda */}
-          <div className={`bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-4 shadow-lg transition-all ${
+          {/* Sección de Cliente - Izquierda COMPACTA */}
+          <div className={`bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-2 shadow-lg transition-all ${
             !isCajaOpen ? 'opacity-50 pointer-events-none' : ''
           }`}>
-            <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-              <div className="p-1.5 bg-primary/20 rounded-lg">
+            <h3 className="text-white font-bold text-sm mb-2 flex items-center gap-2">
+              <div className="p-1 bg-primary/20 rounded-lg">
                 <User className="w-4 h-4 text-primary" />
               </div>
               Cliente
@@ -834,7 +906,7 @@ export function POS() {
             </h3>
             
             {/* Campo de búsqueda */}
-            <div className="relative mb-3">
+            <div className="relative mb-2">
               <input
                 type="text"
                 placeholder="Buscar por nombre o cédula..."
@@ -842,7 +914,7 @@ export function POS() {
                 onChange={(e) => handleCustomerSearch(e.target.value)}
                 onFocus={() => customerSearchTerm && setShowCustomerResults(true)}
                 onBlur={() => setTimeout(() => setShowCustomerResults(false), 200)}
-                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 focus:border-primary/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none transition-all"
+                className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 focus:border-primary/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none transition-all"
               />
 
               {/* Dropdown de resultados */}
@@ -902,131 +974,127 @@ export function POS() {
                 </div>
               )}
 
-              {/* Formulario de datos del cliente */}
-              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Formulario de datos del cliente - En una sola línea compacta */}
+              <div className="mt-2 grid grid-cols-4 gap-2">
                 {/* Campo de Nombre */}
                 <div>
-                  <label className="text-gray-400 text-xs mb-1.5 block">Nombre Completo</label>
+                  <label className="text-gray-400 text-sm mb-1 block">Nombre Completo</label>
                   <input
                     type="text"
                     placeholder="Ingrese el nombre"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     disabled={!!foundCustomer}
-                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* Campo de Cédula/RUC */}
                 <div>
-                  <label className="text-gray-400 text-xs mb-1.5 block">Cédula/RUC</label>
+                  <label className="text-gray-400 text-sm mb-1 block">Cédula/RUC</label>
                   <input
                     type="text"
                     placeholder="Ingrese cédula o RUC"
                     value={customerRuc}
                     onChange={(e) => setCustomerRuc(e.target.value)}
                     disabled={!!foundCustomer}
-                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* Campo de Teléfono */}
                 <div>
-                  <label className="text-gray-400 text-xs mb-1.5 block">Teléfono</label>
+                  <label className="text-gray-400 text-sm mb-1 block">Teléfono</label>
                   <input
                     type="text"
                     placeholder="Ingrese teléfono"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     disabled={!!foundCustomer}
-                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* Campo de Dirección */}
                 <div>
-                  <label className="text-gray-400 text-xs mb-1.5 block">Dirección</label>
+                  <label className="text-gray-400 text-sm mb-1 block">Dirección</label>
                   <input
                     type="text"
                     placeholder="Ingrese dirección"
                     value={customerAddress}
                     onChange={(e) => setCustomerAddress(e.target.value)}
                     disabled={!!foundCustomer}
-                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Sección de Caja - Derecha */}
-          <div className="bg-gradient-to-r from-primary/20 to-orange-600/20 border border-primary/30 rounded-xl p-4 w-full lg:w-[576px] ml-auto">
-            <div className="flex items-center gap-4 mb-3">
-              {/* Indicador de Caja */}
+          {/* Sección de Caja - Derecha COMPACTA */}
+          <div className="bg-[#141c29] border border-white/10 rounded-xl p-4 w-full lg:w-[576px] ml-auto">
+            <div className="flex items-center justify-between mb-3">
+              {/* Indicador de Caja y Estado */}
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary rounded-lg">
-                  <Building2 className="w-6 h-6 text-white" />
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-white/5 rounded-lg">
+                    <Building2 className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <h2 className="text-white font-bold text-base">CAJA 1</h2>
                 </div>
-                <div>
-                  
-                  <h2 className="text-white font-bold text-2xl">CAJA 1</h2>
-                </div>
-              </div>
-              
-              {/* Separador */}
-              <div className="w-px h-12 bg-white/20"></div>
-              
-              {/* Estado de Caja */}
-              <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${isCajaOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                <div>
-                  <p className="text-gray-400 text-sm">Estado</p>
-                  <p className={`font-bold text-base ${isCajaOpen ? 'text-green-400' : 'text-red-400'}`}>
+                
+                <div className="w-px h-6 bg-white/10"></div>
+                
+                {/* Estado de Caja */}
+                <div className="flex items-center gap-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${isCajaOpen ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                  <p className={`font-semibold text-xs ${isCajaOpen ? 'text-green-400' : 'text-gray-500'}`}>
                     {isCajaOpen ? 'ABIERTA' : 'CERRADA'}
                   </p>
                 </div>
               </div>
               
-              {/* Información adicional - siempre visible */}
-              <div className="w-px h-12 bg-white/20"></div>
-              <div>
-                <p className="text-gray-400 text-sm">Apertura</p>
-                <p className="text-white font-medium text-base">{isCajaOpen ? horaApertura : '--:--'}</p>
-              </div>
-              <div className="w-px h-12 bg-white/20"></div>
-              <div>
-                <p className="text-gray-400 text-sm">Monto Inicial</p>
-                <p className="text-primary font-bold text-base">{isCajaOpen ? `$${montoInicialCaja.toFixed(2)}` : '$0.00'}</p>
+              {/* Información adicional */}
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-gray-500 text-xs">Apertura</p>
+                  <p className="text-gray-400 font-medium text-xs">{isCajaOpen ? horaApertura : '--:--'}</p>
+                </div>
+                <div className="w-px h-6 bg-white/10"></div>
+                <div className="text-right">
+                  <p className="text-gray-500 text-xs">Inicial</p>
+                  <p className="text-gray-400 font-semibold text-xs font-mono">{isCajaOpen ? `$${montoInicialCaja.toFixed(2)}` : '$0.00'}</p>
+                </div>
               </div>
             </div>
             
             {/* Resumen de movimientos - siempre visible */}
             <div className="grid grid-cols-3 gap-3 mb-3">
               {/* Ventas */}
-              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-2.5">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingUp className="w-4 h-4 text-green-400" />
-                  <p className="text-gray-300 text-xs font-medium">Ventas</p>
+                  <TrendingUp className="w-3.5 h-3.5 text-gray-500" />
+                  <p className="text-gray-400 text-xs font-medium">Ventas</p>
                 </div>
-                <p className="text-green-400 font-bold text-base">${isCajaOpen ? totalVentas.toFixed(2) : '0.00'}</p>
+                <p className="text-white font-semibold text-sm font-mono">${isCajaOpen ? totalVentas.toFixed(2) : '0.00'}</p>
               </div>
               
               {/* Gastos */}
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-2.5">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingDown className="w-4 h-4 text-red-400" />
-                  <p className="text-gray-300 text-xs font-medium">Gastos</p>
+                  <TrendingDown className="w-3.5 h-3.5 text-gray-500" />
+                  <p className="text-gray-400 text-xs font-medium">Gastos</p>
                 </div>
-                <p className="text-red-400 font-bold text-base">${isCajaOpen ? totalGastos.toFixed(2) : '0.00'}</p>
+                <p className="text-white font-semibold text-sm font-mono">${isCajaOpen ? totalGastos.toFixed(2) : '0.00'}</p>
               </div>
               
-              {/* Balance */}
-              <div className="bg-primary/10 border border-primary/30 rounded-lg p-3">
+              {/* Balance - DESTACADO */}
+              <div className="bg-white/10 border border-white/20 rounded-lg p-2.5">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <DollarSign className="w-4 h-4 text-primary" />
-                  <p className="text-gray-300 text-xs font-medium">En Caja</p>
+                  <DollarSign className="w-3.5 h-3.5 text-primary" />
+                  <p className="text-gray-300 text-xs font-semibold">En Caja</p>
                 </div>
-                <p className="text-primary font-bold text-base">${isCajaOpen ? (montoInicialCaja + totalVentas - totalGastos).toFixed(2) : '0.00'}</p>
+                <p className="text-primary font-bold text-base font-mono">${isCajaOpen ? (montoInicialCaja + totalVentas - totalGastos).toFixed(2) : '0.00'}</p>
               </div>
             </div>
             
@@ -1035,26 +1103,19 @@ export function POS() {
               {!isCajaOpen ? (
                 <button
                   onClick={() => setShowOpenCajaModal(true)}
-                  className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-base transition-all flex items-center justify-center gap-2"
+                  className="flex-1 px-3 py-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2"
                 >
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-4 h-4" />
                   Abrir Caja
                 </button>
               ) : (
                 <>
                   <button
                     onClick={() => setShowExpenseModal(true)}
-                    className="flex-1 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium text-base transition-all flex items-center justify-center gap-2"
+                    className="flex-1 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2"
                   >
-                    <TrendingDown className="w-5 h-5" />
+                    <TrendingDown className="w-4 h-4" />
                     Registrar Gasto
-                  </button>
-                  <button
-                    onClick={() => setShowCloseCajaModal(true)}
-                    className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-base transition-all flex items-center justify-center gap-2"
-                  >
-                    <X className="w-5 h-5" />
-                    Cerrar Caja
                   </button>
                 </>
               )}
@@ -1065,22 +1126,6 @@ export function POS() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3">
           {/* Panel de productos - columna flexible */}
           <div className="space-y-3">
-            {/* Header de Productos */}
-            <div className="flex items-center justify-between">
-              <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                <div className="p-1.5 bg-primary/20 rounded-lg">
-                  <Package className="w-5 h-5 text-primary" />
-                </div>
-                Productos
-              </h3>
-              {!isCajaOpen && (
-                <div className="flex items-center gap-2 bg-yellow-500/10 px-3 py-1.5 rounded-lg border border-yellow-500/20">
-                  <AlertCircle className="w-4 h-4 text-yellow-400" />
-                  <span className="text-yellow-400 text-xs font-medium">Abre la caja para seleccionar productos</span>
-                </div>
-              )}
-            </div>
-            
             {/* Barra de búsqueda y filtros */}
             <div className="bg-white/5 border border-white/10 rounded-lg p-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1132,79 +1177,93 @@ export function POS() {
               </div>
             </div>
 
-            {/* Lista de productos compacta */}
+            {/* Lista de productos - Formato Tabla */}
             <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl overflow-hidden shadow-xl">
-              <div className="max-h-[calc(100vh-380px)] overflow-y-auto custom-scrollbar">
-                <div className="divide-y divide-white/5">
-                {filteredProducts.map((product, index) => (
-                  <div
-                    key={product.code}
-                    onClick={() => isCajaOpen && addToCart(product)}
-                    className={`group relative px-4 py-2.5 flex items-center gap-3 transition-all duration-200 ${
-                      isCajaOpen 
-                        ? 'cursor-pointer hover:bg-gradient-to-r hover:from-primary/15 hover:to-orange-600/5' 
-                        : 'cursor-not-allowed opacity-50'
-                    } ${index % 2 === 0 ? 'bg-white/[0.01]' : 'bg-transparent'}`}
-                  >
-                    {/* Barra lateral */}
-                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
-                    {/* Código */}
-                    <div className="w-20 flex-shrink-0">
-                      <p className="text-gray-500 text-[10px] font-medium">CÓDIGO</p>
-                      <p className="text-white text-xs font-mono font-semibold">{product.code}</p>
+              <div className="overflow-y-auto custom-scrollbar" style={{ height: "500px" }}>
+                {filteredProducts.length > 0 && (
+                  <div className="w-full">
+                    {/* Encabezado de la tabla */}
+                    <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-[#1a2332] border-b border-white/10 text-xs font-semibold text-gray-400 uppercase sticky top-0 z-10">
+                      <div className="col-span-1">Código</div>
+                      <div className="col-span-3">Producto</div>
+                      <div className="col-span-2">Categoría</div>
+                      <div className="col-span-1 text-center">Stock</div>
+                      <div className="col-span-2 text-right">Base</div>
+                      <div className="col-span-2 text-right">Final</div>
+                      <div className="col-span-1"></div>
                     </div>
 
-                    {/* Producto */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-semibold group-hover:text-primary transition-colors truncate">
-                        {product.name}
-                      </p>
-                      <p className="text-gray-500 text-[10px]">{product.category}</p>
-                    </div>
+                    {/* Filas de productos */}
+                    {filteredProducts.map((product) => (
+                      <div
+                        key={product.code}
+                        onClick={() => isCajaOpen && addToCart(product)}
+                        className={`grid grid-cols-12 gap-2 px-3 py-1.5 border-b border-white/5 transition-colors items-center ${
+                          isCajaOpen 
+                            ? 'cursor-pointer hover:bg-white/5' 
+                            : 'cursor-not-allowed opacity-50'
+                        }`}
+                      >
+                        {/* Código */}
+                        <div className="col-span-1">
+                          <p className="text-gray-500 text-xs font-mono truncate">{product.code}</p>
+                        </div>
 
-                    {/* Stock */}
-                    <div className="w-16 flex-shrink-0 text-center">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                        product.stock > 20
-                          ? "bg-green-500/20 text-green-400"
-                          : product.stock > 5
-                          ? "bg-yellow-500/20 text-yellow-400"
-                          : "bg-red-500/20 text-red-400"
-                      }`}>
-                        {product.stock}
-                      </span>
-                    </div>
+                        {/* Producto */}
+                        <div className="col-span-3">
+                          <p className="text-white text-sm font-medium truncate" title={product.name}>
+                            {product.name}
+                          </p>
+                        </div>
 
-                    {/* Precio Base */}
-                    <div className="w-20 flex-shrink-0 text-right">
-                      <p className="text-gray-500 text-[10px] font-medium">BASE</p>
-                      <p className="text-gray-300 text-xs font-bold">${product.price.toFixed(2)}</p>
-                    </div>
+                        {/* Categoría */}
+                        <div className="col-span-2">
+                          <p className="text-gray-400 text-xs truncate">{product.category}</p>
+                        </div>
 
-                    {/* Precio Final */}
-                    <div className="w-24 flex-shrink-0 text-right">
-                      <p className="text-primary text-[10px] font-medium">FINAL</p>
-                      <p className="text-white text-sm font-bold">
-                        ${(product.price * (1 + product.tax / 100)).toFixed(2)}
-                      </p>
-                    </div>
+                        {/* Stock */}
+                        <div className="col-span-1 text-center">
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                            product.stock > 20
+                              ? "bg-green-500/20 text-green-400"
+                              : product.stock > 5
+                              ? "bg-yellow-500/20 text-yellow-400"
+                              : "bg-red-500/20 text-red-400"
+                          }`}>
+                            {product.stock}
+                          </span>
+                        </div>
 
-                    {/* Botón */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedProduct(product);
-                        setShowProductDetailModal(true);
-                      }}
-                      className="flex-shrink-0 p-1.5 bg-primary/20 hover:bg-primary text-primary hover:text-white rounded transition-all"
-                      title="Ver detalles"
-                    >
-                      <Info className="w-3.5 h-3.5" />
-                    </button>
+                        {/* Precio Base */}
+                        <div className="col-span-2 text-right">
+                          <p className="text-gray-400 text-sm font-mono">${product.price.toFixed(2)}</p>
+                        </div>
+
+                        {/* Precio Final */}
+                        <div className="col-span-2 text-right">
+                          <p className="text-white font-semibold text-sm font-mono">
+                            ${(product.price * (1 + product.tax / 100)).toFixed(2)}
+                          </p>
+                        </div>
+
+                        {/* Acciones */}
+                        <div className="col-span-1 flex items-center justify-center">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedProduct(product);
+                              setShowProductDetailModal(true);
+                            }}
+                            className="p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                            title="Ver detalles"
+                          >
+                            <Info className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-                </div>
+                )}
               </div>
 
               {filteredProducts.length === 0 && (
@@ -1239,29 +1298,27 @@ export function POS() {
           {/* Panel de carrito - ancho fijo igual a la caja */}
           <div className="w-full lg:w-[576px]">
             {/* Carrito */}
-            <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl overflow-hidden flex flex-col shadow-xl" style={{ height: "calc(100vh - 240px)" }}>
+            <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl overflow-hidden flex flex-col shadow-xl">
               {/* Header del carrito */}
-              <div className="bg-gradient-to-r from-primary/30 to-orange-600/30 border-b border-white/20 px-4 py-3 flex items-center justify-between backdrop-blur-sm">
+              <div className="bg-[#1a2332] border-b border-white/10 px-4 py-2.5 flex items-center justify-between">
                 <h3 className="text-white font-bold text-base flex items-center gap-2">
-                  <div className="p-1.5 bg-white/20 rounded-lg">
-                    <ShoppingCart className="w-5 h-5 text-white" />
-                  </div>
+                  <ShoppingCart className="w-4 h-4 text-primary" />
                   Carrito
-                  <span className="bg-white/20 px-2 py-0.5 rounded-full text-sm">{cart.length}</span>
+                  <span className="text-gray-400 text-xs font-normal">({cart.length})</span>
                 </h3>
                 {cart.length > 0 && (
                   <button
                     onClick={clearCart}
-                    className="text-red-300 hover:text-white text-sm flex items-center gap-1.5 bg-red-500/20 hover:bg-red-500/30 px-3 py-1.5 rounded-lg transition-all border border-red-500/30"
+                    className="text-gray-400 hover:text-red-400 text-xs flex items-center gap-1 transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                     Limpiar
                   </button>
                 )}
               </div>
 
-              {/* Items del carrito */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scrollbar">
+              {/* Items del carrito - Formato Tabla */}
+              <div className="overflow-y-auto custom-scrollbar" style={{ height: "220px" }}>
                 {cart.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="inline-block p-4 bg-white/5 rounded-2xl mb-3 border border-white/10">
@@ -1276,137 +1333,159 @@ export function POS() {
                     </p>
                   </div>
                 ) : (
-                  cart.map((item) => (
-                    <div
-                      key={item.product.code}
-                      className="bg-gradient-to-br from-[#0f1825] to-[#0a0f16] border border-white/20 rounded-xl p-3 hover:border-primary/30 transition-all shadow-lg"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1 mr-2">
-                          <p className="text-white font-medium text-sm line-clamp-2">
+                  <div className="w-full">
+                    {/* Encabezado de la tabla */}
+                    <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-[#1a2332] border-b border-white/10 text-xs font-semibold text-gray-400 uppercase sticky top-0 z-10">
+                      <div className="col-span-2">Código</div>
+                      <div className="col-span-3">Producto</div>
+                      <div className="col-span-2 text-center">Cantidad</div>
+                      <div className="col-span-2 text-right">P. Unit.</div>
+                      <div className="col-span-2 text-right">Total</div>
+                      <div className="col-span-1"></div>
+                    </div>
+
+                    {/* Filas de productos */}
+                    {cart.map((item) => (
+                      <div
+                        key={item.product.code}
+                        className="grid grid-cols-12 gap-2 px-3 py-2 border-b border-white/5 hover:bg-white/5 transition-colors items-center"
+                      >
+                        {/* Código */}
+                        <div className="col-span-2">
+                          <p className="text-gray-500 text-xs font-mono truncate">{item.product.code}</p>
+                        </div>
+
+                        {/* Producto */}
+                        <div className="col-span-3">
+                          <p className="text-white text-sm font-medium truncate" title={item.product.name}>
                             {item.product.name}
                           </p>
-                          <p className="text-gray-500 text-xs font-mono">
-                            {item.product.code}
-                          </p>
+                          {item.discount > 0 && (
+                            <p className="text-gray-400 text-xs">Desc: {item.discount}%</p>
+                          )}
                         </div>
-                        <button
-                          onClick={() => removeFromCart(item.product.code)}
-                          className="text-red-400 hover:text-red-300 p-1"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
 
-                      <div className="flex items-center gap-2 mb-2">
-                        <button
-                          onClick={() => updateQuantity(item.product.code, item.quantity - 1)}
-                          className="p-1 bg-white/5 hover:bg-white/10 text-white rounded transition-colors"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <input
-                          type="number"
-                          min="1"
-                          max={item.product.stock}
-                          value={item.quantity}
-                          onChange={(e) =>
-                            updateQuantity(item.product.code, parseInt(e.target.value) || 1)
-                          }
-                          className="w-14 px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-center text-sm focus:outline-none focus:border-primary/50"
-                        />
-                        <button
-                          onClick={() => updateQuantity(item.product.code, item.quantity + 1)}
-                          className="p-1 bg-white/5 hover:bg-white/10 text-white rounded transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <span className="text-gray-400 text-xs ml-auto">
-                          ${item.product.price.toFixed(2)} c/u
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400 text-xs">Desc%:</span>
+                        {/* Cantidad */}
+                        <div className="col-span-2 flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => updateQuantity(item.product.code, item.quantity - 1)}
+                            className="p-0.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded transition-colors"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
                           <input
                             type="number"
-                            min="0"
-                            max="100"
-                            step="1"
-                            value={item.discount}
+                            min="1"
+                            max={item.product.stock}
+                            value={item.quantity}
                             onChange={(e) =>
-                              updateDiscount(item.product.code, parseFloat(e.target.value) || 0)
+                              updateQuantity(item.product.code, parseInt(e.target.value) || 1)
                             }
-                            className="w-12 px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs text-center focus:outline-none focus:border-primary/50"
+                            className="w-10 px-1 py-0.5 bg-white/5 border border-white/10 rounded text-white text-center text-sm focus:outline-none focus:border-white/30 font-mono"
                           />
+                          <button
+                            onClick={() => updateQuantity(item.product.code, item.quantity + 1)}
+                            className="p-0.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded transition-colors"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
                         </div>
-                        <span className="text-primary font-bold text-base">
-                          ${(item.subtotal * (1 - item.discount / 100)).toFixed(2)}
-                        </span>
+
+                        {/* Precio Unitario */}
+                        <div className="col-span-2 text-right">
+                          <p className="text-gray-400 text-sm font-mono">${item.product.price.toFixed(2)}</p>
+                        </div>
+
+                        {/* Total */}
+                        <div className="col-span-2 text-right">
+                          <p className="text-white font-semibold text-sm font-mono">
+                            ${(item.subtotal * (1 - item.discount / 100)).toFixed(2)}
+                          </p>
+                        </div>
+
+                        {/* Acciones */}
+                        <div className="col-span-1 flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => {
+                              const newDiscount = prompt(`Descuento para ${item.product.name} (0-100):`, item.discount.toString());
+                              if (newDiscount !== null) {
+                                updateDiscount(item.product.code, parseFloat(newDiscount) || 0);
+                              }
+                            }}
+                            className="p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                            title="Aplicar descuento"
+                          >
+                            <Percent className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => removeFromCart(item.product.code)}
+                            className="p-1 text-gray-500 hover:text-red-400 transition-colors"
+                            title="Eliminar"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
 
               {/* Totales */}
               {cart.length > 0 && (
-                <div className="border-t border-white/20 bg-gradient-to-br from-primary/20 to-orange-600/20 p-4 space-y-2">
+                <div className="border-t border-white/10 bg-[#141c29] p-3 space-y-1.5">
                   <div className="flex justify-between text-sm items-center">
-                    <span className="text-gray-300 font-medium">Subtotal:</span>
-                    <span className="text-white font-semibold text-base">
+                    <span className="text-gray-400 font-medium text-xs">Subtotal:</span>
+                    <span className="text-white font-mono text-xs">
                       ${totals.subtotal.toFixed(2)}
                     </span>
                   </div>
                   {totals.discount > 0 && (
                     <div className="flex justify-between text-sm items-center">
-                      <span className="text-gray-300 font-medium">Descuento:</span>
-                      <span className="text-red-400 font-semibold text-base">
+                      <span className="text-gray-400 font-medium text-xs">Descuento:</span>
+                      <span className="text-gray-300 font-mono text-xs">
                         -${totals.discount.toFixed(2)}
                       </span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm items-center">
-                    <span className="text-gray-300 font-medium">IVA (12%):</span>
-                    <span className="text-white font-semibold text-base">
+                    <span className="text-gray-400 font-medium text-xs">IVA (12%):</span>
+                    <span className="text-white font-mono text-xs">
                       ${totals.tax.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center border-t border-white/30 pt-3 mt-2">
-                    <span className="text-white font-bold text-lg">TOTAL A PAGAR:</span>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2 mt-1.5">
+                    <span className="text-white font-bold text-sm">TOTAL A PAGAR:</span>
                     <div className="text-right">
-                      <div className="bg-primary/20 px-3 py-1.5 rounded-lg border-2 border-primary">
-                        <span className="text-primary font-bold text-3xl">
-                          ${totals.total.toFixed(2)}
-                        </span>
-                      </div>
+                      <span className="text-white font-bold text-lg font-mono">
+                        ${totals.total.toFixed(2)}
+                      </span>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Botones de control */}
-              <div className="p-4 border-t border-white/20 bg-gradient-to-br from-white/5 to-transparent space-y-2">
+              <div className="p-4 border-t border-white/10 bg-white/[0.02] space-y-2">
                 {/* Fila de botones: Pausar y Ver ventas en espera */}
                 {isCajaOpen && (
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={holdCurrentSale}
                       disabled={cart.length === 0}
-                      className="px-3 py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 rounded-lg font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                     >
-                      <Pause className="w-4 h-4" />
-                      Pausar Venta
+                      <Pause className="w-3.5 h-3.5" />
+                      Pausar
                     </button>
                     <button
                       onClick={() => setShowHeldSalesModal(true)}
-                      className="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 relative"
+                      className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 rounded-lg font-medium text-xs transition-all flex items-center justify-center gap-1.5 relative"
                     >
-                      <Save className="w-4 h-4" />
+                      <Save className="w-3.5 h-3.5" />
                       En Espera
                       {heldSales.length > 0 && (
-                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold">
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[10px] font-bold text-white">
                           {heldSales.length}
                         </span>
                       )}
@@ -1418,9 +1497,9 @@ export function POS() {
                 <button
                   onClick={openPaymentModal}
                   disabled={cart.length === 0 || !isCajaOpen}
-                  className="w-full py-3.5 bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90 text-white rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-primary/50 border border-primary/30 disabled:from-gray-600 disabled:to-gray-700"
+                  className="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-semibold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 disabled:bg-white/5 disabled:text-gray-600"
                 >
-                  <CreditCard className="w-6 h-6" />
+                  <CreditCard className="w-4 h-4" />
                   {!isCajaOpen ? "Caja Cerrada" : "Procesar Pago"}
                 </button>
               </div>
@@ -1432,19 +1511,16 @@ export function POS() {
       {/* Modal de pago - DISEÑO RENOVADO */}
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-6xl bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] border-2 border-primary/30 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="w-full max-w-6xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             
             {/* Header Compacto */}
-            <div className="relative bg-gradient-to-r from-primary via-orange-600 to-primary p-3">
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative">
-                <h3 className="text-white font-bold text-base flex items-center gap-2">
-                  <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
-                    <DollarSign className="w-4 h-4 text-white" />
-                  </div>
-                  Procesar Pago
-                </h3>
-              </div>
+            <div className="bg-[#1a2332] border-b border-white/10 px-4 py-3">
+              <h3 className="text-white font-bold text-base flex items-center gap-2">
+                <div className="p-1.5 bg-primary/10 rounded-lg">
+                  <DollarSign className="w-4 h-4 text-primary" />
+                </div>
+                Procesar Pago
+              </h3>
             </div>
 
             {/* Contenido del Modal */}
@@ -1464,7 +1540,7 @@ export function POS() {
                     <select
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="w-full px-3 py-2.5 bg-[#0D1B2A] border-2 border-primary/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2.5 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
                     >
                       {PAYMENT_METHODS.map((method) => (
                         <option key={method.id} value={method.id}>
@@ -1483,7 +1559,7 @@ export function POS() {
                     <select
                       value={paymentType}
                       onChange={(e) => setPaymentType(e.target.value as "cash" | "credit")}
-                      className="w-full px-3 py-2.5 bg-[#0D1B2A] border-2 border-primary/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2.5 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
                     >
                       <option value="cash">Contado - Pago inmediato</option>
                       <option value="credit">Crédito - Pagos diferidos</option>
@@ -1495,9 +1571,9 @@ export function POS() {
 
                     {/* Campo de Monto Recibido (solo efectivo + contado) */}
                     {paymentMethod === "cash" && paymentType === "cash" && (
-                      <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-lg p-3 space-y-2">
+                      <div className="bg-white/5 border border-white/10 rounded-lg p-3 space-y-2">
                         <div>
-                          <label className="block text-white text-xs mb-2 font-bold flex items-center gap-1.5">
+                          <label className="block text-white text-xs mb-2 font-medium flex items-center gap-1.5">
                             <Banknote className="w-3.5 h-3.5 text-primary" />
                             Monto Recibido
                           </label>
@@ -1509,7 +1585,7 @@ export function POS() {
                               step="0.01"
                               value={amountPaid}
                               onChange={(e) => setAmountPaid(e.target.value)}
-                              className="w-full pl-8 pr-3 py-2.5 bg-[#0D1B2A] border-2 border-primary/30 rounded-lg text-white text-lg font-bold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                              className="w-full pl-8 pr-3 py-2.5 bg-[#141c29] border border-white/10 rounded-lg text-white text-lg font-bold focus:outline-none focus:border-primary/50 transition-all"
                               placeholder="0.00"
                               autoFocus
                             />
@@ -1517,11 +1593,11 @@ export function POS() {
                         </div>
                         
                         {parseFloat(amountPaid) >= totals.total && (
-                          <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-2.5">
+                          <div className="bg-white/5 border border-white/10 rounded-lg p-2.5">
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-1.5">
                                 <CheckCircle className="w-4 h-4 text-green-400" />
-                                <span className="text-white text-xs font-bold">Cambio:</span>
+                                <span className="text-white text-xs font-medium">Cambio:</span>
                               </div>
                               <span className="text-primary font-bold text-xl">
                                 ${Math.max(0, parseFloat(amountPaid) - totals.total).toFixed(2)}
@@ -1531,11 +1607,11 @@ export function POS() {
                         )}
                         
                         {parseFloat(amountPaid) > 0 && parseFloat(amountPaid) < totals.total && (
-                          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-2.5">
+                          <div className="bg-white/5 border border-red-500/20 rounded-lg p-2.5">
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-1.5">
                                 <AlertTriangle className="w-4 h-4 text-red-400" />
-                                <span className="text-red-400 text-xs font-bold">Falta:</span>
+                                <span className="text-red-400 text-xs font-medium">Falta:</span>
                               </div>
                               <span className="text-red-400 font-bold text-lg">
                                 ${(totals.total - parseFloat(amountPaid)).toFixed(2)}
@@ -1548,8 +1624,8 @@ export function POS() {
 
                     {/* Campo de Referencia (tarjeta, transferencia, pago móvil) */}
                     {paymentMethod !== "cash" && (
-                      <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-lg p-3">
-                        <label className="block text-white text-xs mb-2 font-bold flex items-center gap-1.5">
+                      <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                        <label className="block text-white text-xs mb-2 font-medium flex items-center gap-1.5">
                           <CreditCard className="w-3.5 h-3.5 text-primary" />
                           Referencia / N° de Comprobante
                           <span className="text-red-400">*</span>
@@ -1558,7 +1634,7 @@ export function POS() {
                           type="text"
                           value={paymentReference}
                           onChange={(e) => setPaymentReference(e.target.value)}
-                          className="w-full px-3 py-2.5 bg-[#0D1B2A] border-2 border-primary/30 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                          className="w-full px-3 py-2.5 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-primary/50 transition-all"
                           placeholder={
                             paymentMethod === "card" ? "Ej: 1234-5678-9012" :
                             paymentMethod === "transfer" ? "Ej: TRANS-2024-001234" :
@@ -1583,14 +1659,14 @@ export function POS() {
                 <div>
                   {paymentType === "credit" ? (
                     /* Configuración de Crédito con Tabla de Amortización */
-                    <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border-2 border-yellow-500/30 rounded-lg p-4 h-full flex flex-col">
+                    <div className="bg-white/5 border border-white/10 rounded-lg p-4 h-full flex flex-col">
                       <div className="flex items-start gap-2 mb-4">
-                        <div className="p-1.5 bg-yellow-500/20 rounded-lg">
-                          <AlertTriangle className="w-4 h-4 text-yellow-400" />
+                        <div className="p-1.5 bg-white/5 rounded-lg">
+                          <AlertTriangle className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <h4 className="text-yellow-400 font-bold text-sm">Venta a Crédito</h4>
-                          <p className="text-gray-300 text-xs mt-0.5">
+                          <h4 className="text-white font-bold text-sm">Venta a Crédito</h4>
+                          <p className="text-gray-400 text-xs mt-0.5">
                             Configure el plan de pagos mensuales
                           </p>
                         </div>
@@ -1598,12 +1674,12 @@ export function POS() {
 
                       {/* Entrada/Abono Inicial */}
                       <div className="mb-4">
-                        <label className="block text-white text-xs mb-1.5 font-bold flex items-center gap-1.5">
-                          <Banknote className="w-3.5 h-3.5 text-yellow-400" />
+                        <label className="block text-white text-xs mb-1.5 font-medium flex items-center gap-1.5">
+                          <Banknote className="w-3.5 h-3.5 text-primary" />
                           Entrada / Abono Inicial
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-400 text-sm font-bold">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary text-sm font-bold">$</span>
                           <input
                             type="number"
                             min="0"
@@ -1611,24 +1687,24 @@ export function POS() {
                             step="0.01"
                             value={downPayment}
                             onChange={(e) => setDownPayment(parseFloat(e.target.value) || 0)}
-                            className="w-full pl-8 pr-3 py-2 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                            className="w-full pl-8 pr-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-primary/50 transition-all"
                             placeholder="0.00"
                           />
                         </div>
                         <p className="text-gray-400 text-xs mt-1">
-                          Saldo a financiar: <span className="text-yellow-400 font-bold">${Math.max(0, totals.total - downPayment).toFixed(2)}</span>
+                          Saldo a financiar: <span className="text-white font-bold">${Math.max(0, totals.total - downPayment).toFixed(2)}</span>
                         </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 mb-4">
                         <div>
-                          <label className="block text-white text-xs mb-1.5 font-bold">
+                          <label className="block text-white text-xs mb-1.5 font-medium">
                             Plazo (meses)
                           </label>
                           <select
                             value={creditMonths}
                             onChange={(e) => setCreditMonths(parseInt(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                            className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
                           >
                             <option value={3}>3 meses</option>
                             <option value={6}>6 meses</option>
@@ -1639,7 +1715,7 @@ export function POS() {
                         </div>
 
                         <div>
-                          <label className="block text-white text-xs mb-1.5 font-bold">
+                          <label className="block text-white text-xs mb-1.5 font-medium">
                             Tasa Anual (%)
                           </label>
                           <input
@@ -1649,13 +1725,13 @@ export function POS() {
                             step="0.1"
                             value={interestRate}
                             onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
-                            className="w-full px-3 py-2 bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                            className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
                           />
                         </div>
                       </div>
 
                       {/* Resumen rápido */}
-                      <div className="bg-[#0D1B2A] border-2 border-yellow-500/30 rounded-lg p-2 mb-4 grid grid-cols-3 gap-2">
+                      <div className="bg-[#141c29] border border-white/10 rounded-lg p-2 mb-4 grid grid-cols-3 gap-2">
                         <div className="text-center">
                           <p className="text-gray-400 text-xs mb-0.5">Cuota</p>
                           <p className="text-white font-bold text-sm">
@@ -1670,9 +1746,9 @@ export function POS() {
                             })()}
                           </p>
                         </div>
-                        <div className="text-center border-l border-r border-yellow-500/20">
+                        <div className="text-center border-l border-r border-white/10">
                           <p className="text-gray-400 text-xs mb-0.5">Total</p>
-                          <p className="text-yellow-400 font-bold text-sm">
+                          <p className="text-primary font-bold text-sm">
                             ${(() => {
                               const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar
                               const monthlyRate = interestRate / 100 / 12;
@@ -1703,13 +1779,13 @@ export function POS() {
                       {/* Tabla de amortización compacta */}
                       <div className="flex-1 overflow-hidden flex flex-col">
                         <h5 className="text-white font-bold text-xs mb-2 flex items-center gap-1.5">
-                          <FileText className="w-3.5 h-3.5 text-yellow-400" />
+                          <FileText className="w-3.5 h-3.5 text-primary" />
                           Tabla de Amortización
                         </h5>
-                        <div className="bg-[#0D1B2A] border border-yellow-500/20 rounded-lg overflow-hidden flex-1 flex flex-col">
+                        <div className="bg-[#141c29] border border-white/10 rounded-lg overflow-hidden flex-1 flex flex-col">
                           <div className="overflow-y-auto flex-1" style={{ maxHeight: '300px' }}>
                             <table className="w-full text-xs">
-                              <thead className="sticky top-0 bg-[#0D1B2A] border-b border-yellow-500/20">
+                              <thead className="sticky top-0 bg-[#141c29] border-b border-white/10">
                                 <tr>
                                   <th className="px-2 py-1.5 text-left text-gray-400 font-bold">#</th>
                                   <th className="px-2 py-1.5 text-left text-gray-400 font-bold">Fecha</th>
@@ -1775,15 +1851,15 @@ export function POS() {
                     /* Resumen de Pago de Contado */
                     <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-lg p-4 h-full flex flex-col">
                       <div className="flex-1 flex flex-col items-center justify-center text-center">
-                        <div className="w-16 h-16 bg-gradient-to-br from-primary to-orange-600 rounded-2xl flex items-center justify-center mb-3 shadow-xl shadow-primary/30">
-                          <CheckCircle className="w-9 h-9 text-white" />
+                        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-3 border border-white/10">
+                          <CheckCircle className="w-9 h-9 text-primary" />
                         </div>
                         <h4 className="text-white font-bold text-base mb-2">Pago de Contado</h4>
                         <p className="text-gray-400 text-xs mb-4 max-w-xs">
                           El cliente pagará el monto total en este momento
                         </p>
                         
-                        <div className="w-full bg-white/5 border border-white/20 rounded-lg p-3">
+                        <div className="w-full bg-white/5 border border-white/10 rounded-lg p-3">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-gray-400 text-xs">Subtotal:</span>
                             <span className="text-white text-sm font-bold">${totals.subtotal.toFixed(2)}</span>
@@ -1812,20 +1888,20 @@ export function POS() {
             </div>
 
             {/* Footer con botones */}
-            <div className="border-t-2 border-white/10 bg-white/5 backdrop-blur-sm px-5 py-3">
+            <div className="border-t border-white/10 bg-white/5 px-5 py-3">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
                     setShowPaymentModal(false);
                     setDownPayment(0); // Resetear entrada al cancelar
                   }}
-                  className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 border-2 border-white/20 text-white rounded-lg transition-all font-bold text-sm"
+                  className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all font-medium text-sm"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={processSale}
-                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90 text-white rounded-lg transition-all font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-105"
+                  className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-semibold text-sm flex items-center justify-center gap-2"
                 >
                   <CheckCircle className="w-4 h-4" />
                   Confirmar Pago
@@ -1841,40 +1917,64 @@ export function POS() {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-md bg-white rounded-2xl overflow-hidden">
             {/* Comprobante */}
-            <div className="p-8">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle className="w-10 h-10 text-white" />
+            <div className="p-5">
+              <div className="text-center mb-3">
+                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <CheckCircle className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#0D1B2A] mb-1">¡Venta Exitosa!</h2>
-                <p className="text-gray-600 text-sm">TicSoftEc - Sistema ERP</p>
+                <h2 className="text-lg font-bold text-[#0D1B2A] mb-0.5">¡Venta Exitosa!</h2>
+                <p className="text-gray-600 text-xs">TicSoftEc - Sistema ERP</p>
               </div>
 
-              <div className="border-t border-b border-gray-200 py-4 mb-4">
-                <div className="flex justify-between text-sm mb-2">
+              <div className="border-t border-b border-gray-200 py-2 mb-2">
+                <div className="flex justify-between text-xs mb-1.5">
                   <span className="text-gray-600">N° Venta:</span>
                   <span className="font-mono font-bold text-[#0D1B2A]">{lastSale.saleNumber}</span>
                 </div>
-                <div className="flex justify-between text-sm mb-2">
+                <div className="flex justify-between text-xs mb-1.5">
                   <span className="text-gray-600">Fecha:</span>
-                  <span className="text-[#0D1B2A]">{lastSale.date}</span>
+                  <span className="text-[#0D1B2A] datetime-display">{lastSale.date}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs mb-1.5">
                   <span className="text-gray-600">Hora:</span>
-                  <span className="text-[#0D1B2A]">{lastSale.time}</span>
+                  <span className="text-[#0D1B2A] datetime-display">{lastSale.time}</span>
                 </div>
+                {lastSale.sriAuthorization && (
+                  <div className="mt-2 pt-2 border-t border-gray-200">
+                    <div className="text-xs mb-1">
+                      <span className="text-gray-600 font-semibold">Autorización SRI:</span>
+                    </div>
+                    <div className="bg-green-50 border border-green-200 rounded p-2">
+                      <span className="font-mono text-[10px] text-green-800 font-bold break-all">
+                        {lastSale.sriAuthorization}
+                      </span>
+                    </div>
+                    {lastSale.sriAuthorizationDate && lastSale.sriAuthorizationTime && (
+                      <div className="flex justify-between mt-2 text-xs">
+                        <div>
+                          <span className="text-gray-600">Fecha Aut.:</span>
+                          <span className="ml-1 text-green-700 datetime-display">{lastSale.sriAuthorizationDate}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Hora Aut.:</span>
+                          <span className="ml-1 text-green-700 datetime-display">{lastSale.sriAuthorizationTime}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {(lastSale.customerName || lastSale.customerRuc) && (
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div className="mb-2 p-2 bg-gray-50 rounded-lg">
                   {lastSale.customerName && (
-                    <div className="flex justify-between text-sm mb-1">
+                    <div className="flex justify-between text-xs mb-1">
                       <span className="text-gray-600">Cliente:</span>
                       <span className="text-[#0D1B2A] font-medium">{lastSale.customerName}</span>
                     </div>
                   )}
                   {lastSale.customerRuc && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs">
                       <span className="text-gray-600">RUC/CI:</span>
                       <span className="text-[#0D1B2A] font-mono">{lastSale.customerRuc}</span>
                     </div>
@@ -1885,18 +1985,18 @@ export function POS() {
               {/* Solo mostrar productos si es pago de contado */}
               {lastSale.paymentType === "cash" && (
                 <>
-                  <div className="mb-4">
-                    <h4 className="text-sm font-bold text-[#0D1B2A] mb-2">Productos:</h4>
-                    <div className="space-y-2">
+                  <div className="mb-2">
+                    <h4 className="text-xs font-bold text-[#0D1B2A] mb-1.5">Productos:</h4>
+                    <div className="space-y-1.5">
                       {lastSale.items.map((item, index) => (
-                        <div key={index} className="text-sm">
-                          <div className="flex justify-between mb-1">
+                        <div key={index} className="text-xs">
+                          <div className="flex justify-between mb-0.5">
                             <span className="text-gray-800 font-medium">{item.product.name}</span>
                             <span className="text-[#0D1B2A] font-bold">
                               ${(item.subtotal * (1 - item.discount / 100)).toFixed(2)}
                             </span>
                           </div>
-                          <div className="text-xs text-gray-500 flex justify-between">
+                          <div className="text-[10px] text-gray-500 flex justify-between">
                             <span>{item.quantity} x ${item.product.price.toFixed(2)}</span>
                             {item.discount > 0 && <span className="text-red-600">-{item.discount}%</span>}
                           </div>
@@ -1905,37 +2005,37 @@ export function POS() {
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 pt-4 space-y-2 mb-4">
-                    <div className="flex justify-between text-sm">
+                  <div className="border-t border-gray-200 pt-2 space-y-1 mb-2">
+                    <div className="flex justify-between text-xs">
                       <span className="text-gray-600">Subtotal:</span>
                       <span className="text-[#0D1B2A]">${lastSale.subtotal.toFixed(2)}</span>
                     </div>
                     {lastSale.discount > 0 && (
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs">
                         <span className="text-gray-600">Descuento:</span>
                         <span className="text-red-600">-${lastSale.discount.toFixed(2)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs">
                       <span className="text-gray-600">IVA:</span>
                       <span className="text-[#0D1B2A]">${lastSale.tax.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-lg font-bold border-t border-gray-200 pt-2">
+                    <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-1.5">
                       <span className="text-[#0D1B2A]">TOTAL:</span>
-                      <span className="text-primary text-2xl">${lastSale.total.toFixed(2)}</span>
+                      <span className="text-primary text-lg">${lastSale.total.toFixed(2)}</span>
                     </div>
                   </div>
                 </>
               )}
 
-              <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                <div className="flex justify-between text-sm mb-2">
+              <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-600">Tipo de Pago:</span>
                   <span className="text-[#0D1B2A] font-bold">
                     {lastSale.paymentType === "credit" ? "CRÉDITO" : "CONTADO"}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm mb-2">
+                <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-600">Método de Pago:</span>
                   <span className="text-[#0D1B2A] font-medium">
                     {PAYMENT_METHODS.find(m => m.id === lastSale.paymentMethod)?.name}
@@ -1943,8 +2043,8 @@ export function POS() {
                 </div>
                 
                 {lastSale.paymentType === "credit" && lastSale.downPayment && lastSale.downPayment > 0 && (
-                  <div className="border-t border-gray-300 pt-2 mt-2">
-                    <div className="flex justify-between text-sm mb-1">
+                  <div className="border-t border-gray-300 pt-1 mt-1">
+                    <div className="flex justify-between text-xs mb-0.5">
                       <span className="text-[#0D1B2A] font-bold">Entrada Pagada:</span>
                       <span className="text-[#0D1B2A] font-bold">${lastSale.downPayment.toFixed(2)}</span>
                     </div>
@@ -1953,11 +2053,11 @@ export function POS() {
                 
                 {lastSale.paymentMethod === "cash" && lastSale.paymentType === "cash" && (
                   <>
-                    <div className="flex justify-between text-sm mb-1">
+                    <div className="flex justify-between text-xs mb-0.5">
                       <span className="text-gray-600">Efectivo Recibido:</span>
                       <span className="text-[#0D1B2A]">${lastSale.amountPaid.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs">
                       <span className="text-gray-600">Cambio:</span>
                       <span className="text-primary font-bold">${lastSale.change.toFixed(2)}</span>
                     </div>
@@ -1965,7 +2065,7 @@ export function POS() {
                 )}
                 
                 {lastSale.paymentReference && (
-                  <div className="flex justify-between text-sm mt-2">
+                  <div className="flex justify-between text-xs mt-1">
                     <span className="text-gray-600">Referencia:</span>
                     <span className="text-[#0D1B2A] font-mono font-bold">{lastSale.paymentReference}</span>
                   </div>
@@ -1974,9 +2074,9 @@ export function POS() {
 
               {/* Resumen de crédito si aplica */}
               {lastSale.paymentType === "credit" && lastSale.creditInfo && (
-                <div className="border border-gray-300 rounded-lg p-3 mb-4">
-                  <h4 className="text-[#0D1B2A] font-bold text-xs mb-2">Resumen del Crédito</h4>
-                  <div className="space-y-1 text-xs">
+                <div className="border border-gray-300 rounded-lg p-2 mb-2">
+                  <h4 className="text-[#0D1B2A] font-bold text-xs mb-1">Resumen del Crédito</h4>
+                  <div className="space-y-0.5 text-[10px]">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Saldo a Financiar:</span>
                       <span className="text-[#0D1B2A] font-bold">${(lastSale.total - (lastSale.downPayment || 0)).toFixed(2)}</span>
@@ -1990,58 +2090,58 @@ export function POS() {
                       <span className="text-[#0D1B2A] font-bold">{lastSale.creditInfo.months} meses</span>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2 text-center italic">
+                  <p className="text-[10px] text-gray-500 mt-1 text-center italic">
                     Ver Tabla para plan de pagos completo
                   </p>
                 </div>
               )}
 
-              <p className="text-center text-xs text-gray-500 mb-4">
+              <p className="text-center text-xs text-gray-500 mb-2">
                 ¡Gracias por su compra!
               </p>
             </div>
 
-            <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
+            <div className="border-t border-gray-200 px-4 py-3 bg-gray-50">
               {lastSale.paymentType === "credit" && lastSale.creditInfo ? (
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={printReceipt}
-                      className="px-4 py-3 bg-white border-2 border-primary text-primary hover:bg-primary/5 rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
+                      className="px-3 py-2 bg-white border border-primary text-primary hover:bg-primary/5 rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
                     >
-                      <Receipt className="w-5 h-5" />
-                      <span className="text-sm">Imprimir Recibo</span>
+                      <Receipt className="w-4 h-4" />
+                      Imprimir
                     </button>
                     <button
                       onClick={() => {
                         setShowReceiptModal(false);
                         setShowAmortizationPrintModal(true);
                       }}
-                      className="px-4 py-3 bg-primary border-2 border-primary text-white hover:bg-primary/90 rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
+                      className="px-3 py-2 bg-primary border border-primary text-white hover:bg-primary/90 rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
                     >
-                      <FileText className="w-5 h-5" />
-                      <span className="text-sm">Ver Tabla</span>
+                      <FileText className="w-4 h-4" />
+                      Ver Tabla
                     </button>
                   </div>
                   <button
                     onClick={() => setShowReceiptModal(false)}
-                    className="w-full px-4 py-3 bg-gray-200 hover:bg-gray-300 text-[#0D1B2A] rounded-xl transition-colors font-bold"
+                    className="w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 text-[#0D1B2A] rounded-lg transition-colors font-medium text-xs"
                   >
                     Cerrar
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <button
                     onClick={printReceipt}
-                    className="flex-1 px-4 py-3 bg-white border-2 border-primary text-primary hover:bg-primary/5 rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
+                    className="flex-1 px-3 py-2 bg-white border border-primary text-primary hover:bg-primary/5 rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
                   >
-                    <Printer className="w-5 h-5" />
+                    <Printer className="w-4 h-4" />
                     Imprimir
                   </button>
                   <button
                     onClick={() => setShowReceiptModal(false)}
-                    className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-bold"
+                    className="flex-1 px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium text-xs"
                   >
                     Cerrar
                   </button>
@@ -2361,105 +2461,251 @@ export function POS() {
 
       {/* Modal de crear cliente */}
       {showCreateCustomerModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md bg-secondary border border-white/10 rounded-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-b border-white/10 px-6 py-4">
-              <h3 className="text-white font-bold text-xl flex items-center gap-2">
-                <UserPlus className="w-6 h-6 text-primary" />
-                Crear Nuevo Cliente
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto">
+            
+            {/* Header */}
+            <div className="bg-[#1a2332] border-b border-white/10 px-5 py-3 sticky top-0 z-10">
+              <h3 className="text-white font-bold text-base flex items-center gap-2">
+                <div className="p-1.5 bg-primary/10 rounded-lg">
+                  <UserPlus className="w-4 h-4 text-primary" />
+                </div>
+                Registrar Nuevo Cliente
               </h3>
-              <p className="text-gray-400 text-sm mt-1">Complete los datos del cliente</p>
+              <p className="text-gray-400 text-xs mt-0.5">Consulta automática del Registro Civil mediante cédula</p>
             </div>
 
-            <div className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 text-xs mb-2 font-medium">
-                    Nombre Completo *
+            <div className="p-5">
+              {/* Sección 1: Consulta de Cédula y Foto */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                
+                {/* Foto del Cliente */}
+                <div className="lg:col-span-1">
+                  <label className="block text-white text-xs mb-2 font-medium">
+                    Foto del Cliente
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Ingrese el nombre completo"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                    required
-                  />
+                  <div className="relative">
+                    <div className="w-full aspect-square bg-white/5 border-2 border-dashed border-white/10 rounded-lg overflow-hidden flex items-center justify-center">
+                      {newCustomerData.photo ? (
+                        <img src={newCustomerData.photo} alt="Cliente" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="text-center">
+                          <Camera className="w-12 h-12 text-gray-500 mx-auto mb-2" />
+                          <p className="text-gray-500 text-xs">Cargar foto</p>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-gray-300 text-xs mb-2 font-medium">
-                    RUC/Cédula *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Ingrese RUC o cédula"
-                    value={customerRuc}
-                    onChange={(e) => setCustomerRuc(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 text-xs mb-2 font-medium">
-                    Correo Electrónico
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="correo@ejemplo.com"
-                    value={newCustomerData.email}
-                    onChange={(e) => setNewCustomerData({ ...newCustomerData, email: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 text-xs mb-2 font-medium">
-                    Teléfono
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="+593 99 123 4567"
-                    value={newCustomerData.phone}
-                    onChange={(e) => setNewCustomerData({ ...newCustomerData, phone: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 text-xs mb-2 font-medium">
-                    Dirección
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Calle, número, ciudad"
-                    value={newCustomerData.address}
-                    onChange={(e) => setNewCustomerData({ ...newCustomerData, address: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                  />
+
+                {/* Datos del Registro Civil */}
+                <div className="lg:col-span-2 space-y-3">
+                  <div>
+                    <label className="block text-white text-xs mb-2 font-medium flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-primary" />
+                      Número de Cédula *
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="1234567890"
+                        value={customerRuc}
+                        onChange={(e) => setCustomerRuc(e.target.value)}
+                        maxLength={10}
+                        className="flex-1 px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
+                        required
+                      />
+                      <button
+                        onClick={() => consultarRegistroCivil(customerRuc)}
+                        disabled={customerRuc.length < 10 || consultingCedula}
+                        className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-medium text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {consultingCedula ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Consultando...
+                          </>
+                        ) : (
+                          <>
+                            <Search className="w-4 h-4" />
+                            Consultar
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Datos obtenidos del Registro Civil */}
+                  {registroCivilData && (
+                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                        <h4 className="text-white font-bold text-xs">Datos del Registro Civil</h4>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-400">Nombres:</span>
+                          <p className="text-white font-medium">{registroCivilData.nombres}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Apellidos:</span>
+                          <p className="text-white font-medium">{registroCivilData.apellidos}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">F. Nacimiento:</span>
+                          <p className="text-white font-medium">{registroCivilData.fechaNacimiento}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Lugar:</span>
+                          <p className="text-white font-medium">{registroCivilData.lugarNacimiento}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-white text-xs mb-2 font-medium">
+                      Nombre Completo *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nombre completo del cliente"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
+                      required
+                      disabled={consultingCedula}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                <p className="text-yellow-400 text-xs">
-                  * Los campos marcados son obligatorios
+              {/* Sección 2: Datos de Contacto */}
+              <div className="mb-4">
+                <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-primary" />
+                  Información de Contacto
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
+                      Correo Electrónico
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="correo@ejemplo.com"
+                      value={newCustomerData.email}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, email: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
+                      Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="+593 99 123 4567"
+                      value={newCustomerData.phone}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, phone: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
+                      Dirección
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Calle, número, ciudad"
+                      value={newCustomerData.address}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, address: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección 3: Datos del Garante */}
+              <div className="mb-4">
+                <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-primary" />
+                  Información del Garante (Opcional)
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
+                      Nombre del Garante
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nombre completo"
+                      value={newCustomerData.guarantorName}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, guarantorName: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
+                      Cédula del Garante
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="1234567890"
+                      value={newCustomerData.guarantorCedula}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, guarantorCedula: e.target.value })}
+                      maxLength={10}
+                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
+                      Teléfono del Garante
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="+593 99 123 4567"
+                      value={newCustomerData.guarantorPhone}
+                      onChange={(e) => setNewCustomerData({ ...newCustomerData, guarantorPhone: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-2 bg-white/5 border border-white/10 rounded-lg">
+                <p className="text-gray-400 text-xs flex items-center gap-1.5">
+                  <Info className="w-3 h-3" />
+                  Los campos marcados con * son obligatorios. La consulta al Registro Civil es automática.
                 </p>
               </div>
             </div>
 
-            <div className="border-t border-white/10 px-6 py-4 flex items-center gap-3">
+            {/* Footer */}
+            <div className="border-t border-white/10 bg-white/5 px-5 py-3 flex items-center gap-2">
               <button
                 onClick={() => {
                   setShowCreateCustomerModal(false);
                   setCustomerSearchTerm("");
                   setCustomerName("");
                   setCustomerRuc("");
-                  setNewCustomerData({ email: "", phone: "", address: "" });
+                  setRegistroCivilData(null);
+                  setNewCustomerData({ email: "", phone: "", address: "", guarantorName: "", guarantorCedula: "", guarantorPhone: "", photo: "" });
                 }}
-                className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
+                className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all font-medium text-sm"
               >
                 Cancelar
               </button>
               <button
                 onClick={createNewCustomer}
-                className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
+                disabled={consultingCedula}
+                className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <CheckCircle className="w-5 h-5" />
                 Guardar Cliente
@@ -2769,142 +3015,6 @@ export function POS() {
               >
                 <Plus className="w-5 h-5" />
                 Registrar Gasto
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Cerrar Caja */}
-      {showCloseCajaModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-red-600/20 to-red-600/10 border-b border-white/10 px-6 py-4">
-              <h3 className="text-white font-bold text-xl flex items-center gap-2">
-                <X className="w-6 h-6 text-red-500" />
-                Cerrar Caja
-              </h3>
-              <p className="text-gray-400 text-sm mt-1">
-                Resumen del turno y arqueo de caja
-              </p>
-            </div>
-
-            <div className="p-6 space-y-4">
-              {/* Información del turno */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <User className="w-4 h-4 text-primary" />
-                    <span className="text-gray-400 text-xs">Vendedor</span>
-                  </div>
-                  <p className="text-white font-medium text-sm">Juan Pérez</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span className="text-gray-400 text-xs">Apertura</span>
-                  </div>
-                  <p className="text-white font-medium text-sm">{horaApertura}</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span className="text-gray-400 text-xs">Cierre</span>
-                  </div>
-                  <p className="text-white font-medium text-sm">
-                    {new Date().toLocaleTimeString("es-EC", { 
-                      hour: "2-digit", 
-                      minute: "2-digit" 
-                    })}
-                  </p>
-                </div>
-              </div>
-
-              {/* Resumen financiero */}
-              <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4 space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2">
-                  <Receipt className="w-4 h-4 text-primary" />
-                  Resumen Financiero
-                </h4>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center py-2 border-b border-white/10">
-                    <span className="text-gray-400 text-sm">Monto Inicial:</span>
-                    <span className="text-white font-bold">${montoInicialCaja.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-white/10">
-                    <span className="text-gray-400 text-sm flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-green-400" />
-                      Ventas del día:
-                    </span>
-                    <span className="text-green-400 font-bold">$0.00</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-white/10">
-                    <span className="text-gray-400 text-sm flex items-center gap-2">
-                      <TrendingDown className="w-4 h-4 text-red-400" />
-                      Gastos:
-                    </span>
-                    <span className="text-red-400 font-bold">${totalExpenses.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-3 border-t-2 border-primary/30">
-                    <span className="text-white font-bold">Total en Caja:</span>
-                    <span className="text-primary font-bold text-2xl">
-                      ${(montoInicialCaja - totalExpenses).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Detalle de gastos si hay */}
-              {expenses.length > 0 && (
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-red-400" />
-                    Detalle de Gastos ({expenses.length})
-                  </h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {expenses.map((expense) => (
-                      <div key={expense.id} className="flex justify-between items-start py-2 border-b border-white/5 last:border-0">
-                        <div className="flex-1">
-                          <p className="text-white text-sm font-medium">{expense.concepto}</p>
-                          <p className="text-gray-400 text-xs">{expense.fecha} · {expense.hora}</p>
-                        </div>
-                        <span className="text-red-400 font-bold text-sm">
-                          ${expense.monto.toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Advertencia */}
-              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
-                <div className="flex items-start gap-2">
-                  <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-yellow-400 font-bold text-sm">¿Estás seguro de cerrar la caja?</p>
-                    <p className="text-gray-300 text-xs mt-1">
-                      Esta acción finalizará el turno actual y no podrás realizar más ventas hasta abrir la caja nuevamente.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-white/10 bg-white/5 px-6 py-4 flex gap-3">
-              <button
-                onClick={() => setShowCloseCajaModal(false)}
-                className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-medium transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleCloseCaja}
-                className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
-              >
-                <X className="w-5 h-5" />
-                Cerrar Caja
               </button>
             </div>
           </div>

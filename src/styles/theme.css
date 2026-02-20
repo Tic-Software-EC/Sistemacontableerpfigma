@@ -135,7 +135,7 @@
 
   html {
     font-size: var(--font-size);
-    font-family: 'Raleway', sans-serif;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   h1 {
@@ -198,5 +198,27 @@
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #f07635 0%, #E8692E 100%);
+  }
+
+  /* Fuente monoespaciada para números - más legible */
+  input[type="number"],
+  .number,
+  .price,
+  .amount,
+  .total,
+  .currency {
+    font-family: 'IBM Plex Mono', 'Consolas', 'Monaco', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+  }
+
+  /* Fuente especial para fechas y horas - máxima visibilidad */
+  .datetime-display {
+    font-family: 'IBM Plex Mono', 'Consolas', monospace;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+    font-size: 0.95em;
   }
 }

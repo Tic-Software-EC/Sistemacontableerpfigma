@@ -14,11 +14,12 @@ import {
   History,
   ShieldAlert,
   AlertTriangle,
+  Calculator,
 } from "lucide-react";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { POS } from "./pos";
-import { SalesHistory } from "./sales-history";
+import { ArqueoCaja } from "./arqueo-caja";
 
 export default function ModulePosDetail() {
   const navigate = useNavigate();
@@ -203,8 +204,7 @@ export default function ModulePosDetail() {
 
   const tabs = [
     { id: "pos", label: "Punto de Venta", icon: ShoppingCart },
-    { id: "historial", label: "Historial de Ventas", icon: History },
-    { id: "reportes", label: "Reportes", icon: BarChart3 },
+    { id: "arqueo", label: "Arqueo de Caja", icon: Calculator },
   ];
 
   return (
@@ -353,18 +353,7 @@ export default function ModulePosDetail() {
       {/* Contenido */}
       <div className="h-[calc(100vh-145px)]">
         {activeTab === "pos" && <POS />}
-        {activeTab === "historial" && <SalesHistory />}
-        {activeTab === "reportes" && (
-          <div className="p-6">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
-              <BarChart3 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-white text-xl font-bold mb-2">Reportes de Ventas</h3>
-              <p className="text-gray-400">
-                Visualiza estadísticas y análisis detallados de tus ventas
-              </p>
-            </div>
-          </div>
-        )}
+        {activeTab === "arqueo" && <ArqueoCaja />}
       </div>
 
       {/* Modales */}

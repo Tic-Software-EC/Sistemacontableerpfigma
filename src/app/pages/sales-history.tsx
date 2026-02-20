@@ -16,7 +16,11 @@ import {
   RefreshCcw,
   TrendingUp,
   ShoppingBag,
+  Calculator,
+  Wallet,
+  AlertCircle,
 } from "lucide-react";
+import { ArqueoModal } from "../components/arqueo-modal";
 
 interface SaleItem {
   code: string;
@@ -190,6 +194,28 @@ export function SalesHistory() {
   const [filterDate, setFilterDate] = useState<string>("today");
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [showArqueoModal, setShowArqueoModal] = useState(false);
+
+  // Estados para arqueo de caja
+  const [montoInicial] = useState(500.00); // Monto inicial de caja
+  const [gastos] = useState(45.50); // Gastos de caja
+  const [montoReal, setMontoReal] = useState(0);
+  const [billetes, setBilletes] = useState({
+    b100: 0,
+    b50: 0,
+    b20: 0,
+    b10: 0,
+    b5: 0,
+    b1: 0,
+  });
+  const [monedas, setMonedas] = useState({
+    m1: 0,
+    m050: 0,
+    m025: 0,
+    m010: 0,
+    m005: 0,
+    m001: 0,
+  });
 
   // Calcular totales
   const completedSales = sales.filter(s => s.status === "completed");
@@ -272,6 +298,41 @@ export function SalesHistory() {
     }
   };
 
+  // Calcular totales del arqueo
+  const totalBilletes = 
+    billetes.b100 * 100 +
+    billetes.b50 * 50 +
+    billetes.b20 * 20 +
+    billetes.b10 * 10 +
+    billetes.b5 * 5 +
+    billetes.b1 * 1;
+
+  const totalMonedas =
+    monedas.m1 * 1 +
+    monedas.m050 * 0.50 +
+    monedas.m025 * 0.25 +
+    monedas.m010 * 0.10 +
+    monedas.m005 * 0.05 +
+    monedas.m001 * 0.01;
+
+  const totalContado = totalBilletes + totalMonedas;
+
+  // Calcular ventas por método de pago
+  const ventasEfectivo = completedSales
+    .filter(s => s.paymentMethod === "cash")
+    .reduce((sum, sale) => sum + sale.total, 0);
+  
+  const ventasTarjeta = completedSales
+    .filter(s => s.paymentMethod === "card")
+    .reduce((sum, sale) => sum + sale.total, 0);
+
+  const ventasTransferencia = completedSales
+    .filter(s => s.paymentMethod === "transfer")
+    .reduce((sum, sale) => sum + sale.total, 0);
+
+  const saldoEsperado = montoInicial + ventasEfectivo - gastos;
+  const diferencia = totalContado - saldoEsperado;
+
   return (
     <div className="h-full bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] overflow-auto">
       <div className="p-6">
@@ -329,6 +390,14 @@ export function SalesHistory() {
                 <option value="mixed">Mixto</option>
                 <option value="credit">Crédito</option>
               </select>
+
+              {/* Botón Arqueo de Caja */}
+              <button 
+                onClick={() => setShowArqueoModal(true)}
+                className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm transition-all flex items-center gap-2">
+                <Calculator className="w-4 h-4" />
+                Arqueo
+              </button>
 
               {/* Botón exportar */}
               <button className="px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium text-sm transition-all flex items-center gap-2">
@@ -389,8 +458,8 @@ export function SalesHistory() {
                         </td>
                         <td className="px-4 py-4">
                           <div className="text-sm">
-                            <p className="text-white">{sale.date}</p>
-                            <p className="text-gray-400 text-xs">{sale.time}</p>
+                            <p className="text-white datetime-display">{sale.date}</p>
+                            <p className="text-gray-400 text-xs datetime-display">{sale.time}</p>
                           </div>
                         </td>
                         <td className="px-4 py-4">
@@ -581,6 +650,19 @@ export function SalesHistory() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de arqueo de caja */}
+      {showArqueoModal && (
+        <ArqueoModal
+          isOpen={showArqueoModal}
+          onClose={() => setShowArqueoModal(false)}
+          montoInicial={montoInicial}
+          gastos={gastos}
+          ventasEfectivo={ventasEfectivo}
+          ventasTarjeta={ventasTarjeta}
+          ventasTransferencia={ventasTransferencia}
+        />
       )}
     </div>
   );

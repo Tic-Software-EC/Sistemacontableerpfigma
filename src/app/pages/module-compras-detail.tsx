@@ -814,18 +814,18 @@ export default function ModuleComprasDetail() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <p className="text-gray-400 text-xs mb-1">Fecha de Orden</p>
-                        <p className="text-white">{selectedOrder.orderDate}</p>
+                        <p className="text-white datetime-display">{selectedOrder.orderDate}</p>
                       </div>
                       <div>
                         <p className="text-gray-400 text-xs mb-1">Fecha de Entrega</p>
-                        <p className={selectedOrder.status === 'overdue' ? 'text-red-400 font-medium' : 'text-white'}>
+                        <p className={selectedOrder.status === 'overdue' ? 'text-red-400 datetime-display' : 'text-white datetime-display'}>
                           {selectedOrder.deliveryDate}
                         </p>
                       </div>
                     </div>
                     <div>
                       <p className="text-gray-400 text-xs mb-1">Fecha de Vencimiento</p>
-                      <p className="text-white">{selectedOrder.dueDate}</p>
+                      <p className="text-white datetime-display">{selectedOrder.dueDate}</p>
                     </div>
                   </div>
                 </div>
@@ -1054,7 +1054,7 @@ export default function ModuleComprasDetail() {
                               <div className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors">
                                 <div className="flex items-start justify-between mb-2">
                                   <p className="text-white font-medium">{event.action}</p>
-                                  <span className="text-gray-400 text-xs">{event.date}</span>
+                                  <span className="text-gray-400 text-xs datetime-display">{event.date}</span>
                                 </div>
                                 <p className="text-gray-400 text-sm">{event.description}</p>
                                 <p className="text-gray-500 text-xs mt-2">Por: {event.user}</p>
