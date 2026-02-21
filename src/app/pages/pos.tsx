@@ -22,6 +22,7 @@ interface CartItem {
 
 interface Expense {
   id: string;
+  tipo: string; // Tipo de gasto
   concepto: string;
   monto: number;
   fecha: string;
@@ -296,6 +297,8 @@ export function POS() {
   const [customerRuc, setCustomerRuc] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [isEditingCustomer, setIsEditingCustomer] = useState(false);
   const [lastSale, setLastSale] = useState<Sale | null>(null);
   const [foundCustomer, setFoundCustomer] = useState<Customer | null>(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -341,8 +344,11 @@ export function POS() {
   // Estados para gastos de caja
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [expenseTipo, setExpenseTipo] = useState(""); // Tipo de gasto
   const [expenseConcepto, setExpenseConcepto] = useState("");
   const [expenseMonto, setExpenseMonto] = useState("");
+  const [showExpensesList, setShowExpensesList] = useState(false); // Para ver lista de gastos
+  const [expenseFilterTipo, setExpenseFilterTipo] = useState("todos"); // Filtro de tipo
 
   // Estados para historial de ventas
   const [sales, setSales] = useState<Sale[]>([]);
@@ -429,9 +435,32 @@ export function POS() {
     setCustomerRuc(customer.ruc);
     setCustomerPhone(customer.phone || "");
     setCustomerAddress(customer.address || "");
+    setCustomerEmail(customer.email || "");
     setCustomerSearchTerm("");
     setShowCustomerResults(false);
     setShowCustomerModal(true);
+    setIsEditingCustomer(false);
+  };
+
+  // Actualizar datos del cliente
+  const handleUpdateCustomer = () => {
+    if (!foundCustomer) return;
+    
+    // Aquí iría la lógica para actualizar el cliente en la base de datos
+    // Por ahora solo mostramos un mensaje de confirmación
+    alert(`Datos actualizados para ${customerName}\nRUC: ${customerRuc}\nTeléfono: ${customerPhone}\nEmail: ${customerEmail}\nDirección: ${customerAddress}`);
+    
+    // Actualizar el foundCustomer con los nuevos datos
+    setFoundCustomer({
+      ...foundCustomer,
+      name: customerName,
+      ruc: customerRuc,
+      phone: customerPhone,
+      address: customerAddress,
+      email: customerEmail
+    });
+    
+    setIsEditingCustomer(false);
   };
 
   // Abrir modal para crear nuevo cliente
@@ -574,6 +603,11 @@ export function POS() {
 
   // Función para registrar gasto
   const handleAddExpense = () => {
+    if (!expenseTipo) {
+      alert("Debes seleccionar un tipo de gasto");
+      return;
+    }
+
     if (!expenseConcepto.trim()) {
       alert("Debes ingresar un concepto para el gasto");
       return;
@@ -593,6 +627,7 @@ export function POS() {
     const now = new Date();
     const newExpense: Expense = {
       id: Date.now().toString(),
+      tipo: expenseTipo,
       concepto: expenseConcepto,
       monto: monto,
       fecha: now.toLocaleDateString("es-EC"),
@@ -600,9 +635,14 @@ export function POS() {
     };
 
     setExpenses([...expenses, newExpense]);
+    setExpenseTipo("");
     setExpenseConcepto("");
     setExpenseMonto("");
     setShowExpenseModal(false);
+    
+    toast.success("Gasto registrado exitosamente", {
+      description: `${expenseTipo}: $${monto.toFixed(2)}`
+    });
   };
 
   // Calcular total de gastos
@@ -678,6 +718,7 @@ export function POS() {
       setCustomerRuc("");
       setCustomerPhone("");
       setCustomerAddress("");
+      setCustomerEmail("");
       setCustomerSearchTerm("");
       setFoundCustomer(null);
     }
@@ -706,6 +747,7 @@ export function POS() {
     setCustomerRuc("");
     setCustomerPhone("");
     setCustomerAddress("");
+    setCustomerEmail("");
     setFoundCustomer(null);
     setCustomerSearchTerm("");
     setPaymentType("cash");
@@ -733,6 +775,7 @@ export function POS() {
       setCustomerRuc(heldSale.customer.ruc);
       setCustomerPhone(heldSale.customer.phone || "");
       setCustomerAddress(heldSale.customer.address || "");
+      setCustomerEmail(heldSale.customer.email || "");
     }
 
     // Eliminar de la lista de ventas en espera
@@ -884,11 +927,11 @@ export function POS() {
 
   return (
     <div className="h-full bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] overflow-auto">
-      <div className="p-3">
+      <div className="p-2">
       <div className="max-w-[1800px] mx-auto">
         
         {/* Header reorganizado - Cliente a la izquierda, Caja a la derecha */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3 mb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3 mb-2">
           {/* Sección de Cliente - Izquierda COMPACTA */}
           <div className={`bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-2 shadow-lg transition-all ${
             !isCajaOpen ? 'opacity-50 pointer-events-none' : ''
@@ -898,6 +941,11 @@ export function POS() {
                 <User className="w-4 h-4 text-primary" />
               </div>
               Cliente
+              {foundCustomer && (
+                <span className="text-green-400 text-xs bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                  Seleccionado
+                </span>
+              )}
               {!isCajaOpen && (
                 <span className="text-yellow-400 text-xs ml-auto bg-yellow-500/10 px-2 py-0.5 rounded-full border border-yellow-500/20">
                   Abrir caja primero
@@ -905,7 +953,7 @@ export function POS() {
               )}
             </h3>
             
-            {/* Campo de búsqueda */}
+            {/* Fila 1: Campo de búsqueda */}
             <div className="relative mb-2">
               <input
                 type="text"
@@ -973,159 +1021,378 @@ export function POS() {
                   )}
                 </div>
               )}
+            </div>
 
-              {/* Formulario de datos del cliente - En una sola línea compacta */}
-              <div className="mt-2 grid grid-cols-4 gap-2">
-                {/* Campo de Nombre */}
-                <div>
-                  <label className="text-gray-400 text-sm mb-1 block">Nombre Completo</label>
-                  <input
-                    type="text"
-                    placeholder="Ingrese el nombre"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    disabled={!!foundCustomer}
-                    className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Campo de Cédula/RUC */}
-                <div>
-                  <label className="text-gray-400 text-sm mb-1 block">Cédula/RUC</label>
-                  <input
-                    type="text"
-                    placeholder="Ingrese cédula o RUC"
-                    value={customerRuc}
-                    onChange={(e) => setCustomerRuc(e.target.value)}
-                    disabled={!!foundCustomer}
-                    className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Campo de Teléfono */}
-                <div>
-                  <label className="text-gray-400 text-sm mb-1 block">Teléfono</label>
-                  <input
-                    type="text"
-                    placeholder="Ingrese teléfono"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    disabled={!!foundCustomer}
-                    className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Campo de Dirección */}
-                <div>
-                  <label className="text-gray-400 text-sm mb-1 block">Dirección</label>
-                  <input
-                    type="text"
-                    placeholder="Ingrese dirección"
-                    value={customerAddress}
-                    onChange={(e) => setCustomerAddress(e.target.value)}
-                    disabled={!!foundCustomer}
-                    className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
+            {/* Fila 2: Nombre, RUC y Teléfono */}
+            <div className="grid grid-cols-[2fr_1fr_1fr] gap-2 mb-2">
+              <div>
+                <label className="text-gray-400 text-xs mb-1 block">Nombre Completo</label>
+                <input
+                  type="text"
+                  placeholder="Ingrese nombre completo"
+                  value={customerName}
+                  onChange={(e) => {
+                    setCustomerName(e.target.value);
+                    if (foundCustomer) setIsEditingCustomer(true);
+                  }}
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-gray-400 text-xs mb-1 block">Cédula/RUC</label>
+                <input
+                  type="text"
+                  placeholder="Ingrese cédula o RUC"
+                  value={customerRuc}
+                  onChange={(e) => {
+                    setCustomerRuc(e.target.value);
+                    if (foundCustomer) setIsEditingCustomer(true);
+                  }}
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-gray-400 text-xs mb-1 block">Teléfono</label>
+                <input
+                  type="text"
+                  placeholder="Ingrese teléfono"
+                  value={customerPhone}
+                  onChange={(e) => {
+                    setCustomerPhone(e.target.value);
+                    if (foundCustomer) setIsEditingCustomer(true);
+                  }}
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                />
               </div>
             </div>
+
+            {/* Fila 3: Email y Dirección (dirección más grande) */}
+            <div className="grid grid-cols-[1fr_2fr] gap-2 mb-2">
+              <div>
+                <label className="text-gray-400 text-xs mb-1 block">Email</label>
+                <input
+                  type="email"
+                  placeholder="Ingrese email"
+                  value={customerEmail}
+                  onChange={(e) => {
+                    setCustomerEmail(e.target.value);
+                    if (foundCustomer) setIsEditingCustomer(true);
+                  }}
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-gray-400 text-xs mb-1 block">Dirección</label>
+                <input
+                  type="text"
+                  placeholder="Ingrese dirección completa"
+                  value={customerAddress}
+                  onChange={(e) => {
+                    setCustomerAddress(e.target.value);
+                    if (foundCustomer) setIsEditingCustomer(true);
+                  }}
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Botón de actualizar - solo visible cuando hay un cliente seleccionado y se está editando */}
+            {foundCustomer && isEditingCustomer && (
+              <div className="flex justify-end">
+                <button
+                  onClick={handleUpdateCustomer}
+                  className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-all flex items-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  Actualizar Datos
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Sección de Caja - Derecha COMPACTA */}
-          <div className="bg-[#141c29] border border-white/10 rounded-xl p-4 w-full lg:w-[576px] ml-auto">
-            <div className="flex items-center justify-between mb-3">
-              {/* Indicador de Caja y Estado */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-white/5 rounded-lg">
-                    <Building2 className="w-4 h-4 text-gray-400" />
-                  </div>
-                  <h2 className="text-white font-bold text-base">CAJA 1</h2>
-                </div>
-                
-                <div className="w-px h-6 bg-white/10"></div>
-                
-                {/* Estado de Caja */}
-                <div className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${isCajaOpen ? 'bg-green-500' : 'bg-gray-500'}`}></div>
-                  <p className={`font-semibold text-xs ${isCajaOpen ? 'text-green-400' : 'text-gray-500'}`}>
-                    {isCajaOpen ? 'ABIERTA' : 'CERRADA'}
-                  </p>
-                </div>
+          {/* Sección de Control de Caja - Compacta */}
+          <div className="bg-white/5 border border-white/10 rounded-lg p-3 w-full lg:w-[500px]">
+            {/* Header de Caja */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <Building2 className="w-4 h-4 text-primary" />
+                <span className="text-white text-sm font-bold">CAJA 1</span>
               </div>
-              
-              {/* Información adicional */}
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <p className="text-gray-500 text-xs">Apertura</p>
-                  <p className="text-gray-400 font-medium text-xs">{isCajaOpen ? horaApertura : '--:--'}</p>
-                </div>
-                <div className="w-px h-6 bg-white/10"></div>
-                <div className="text-right">
-                  <p className="text-gray-500 text-xs">Inicial</p>
-                  <p className="text-gray-400 font-semibold text-xs font-mono">{isCajaOpen ? `$${montoInicialCaja.toFixed(2)}` : '$0.00'}</p>
-                </div>
+              <div className="flex items-center gap-1.5">
+                <div className={`w-1.5 h-1.5 rounded-full ${isCajaOpen ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                <span className={`text-xs font-semibold ${isCajaOpen ? 'text-green-400' : 'text-gray-500'}`}>
+                  {isCajaOpen ? 'Abierta' : 'Cerrada'}
+                </span>
               </div>
             </div>
-            
-            {/* Resumen de movimientos - siempre visible */}
-            <div className="grid grid-cols-3 gap-3 mb-3">
-              {/* Ventas */}
-              <div className="bg-white/5 border border-white/10 rounded-lg p-2.5">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-gray-500" />
-                  <p className="text-gray-400 text-xs font-medium">Ventas</p>
+
+            {/* Grid de información financiera */}
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              {/* Monto Inicial */}
+              <div className="bg-white/5 border border-white/10 rounded p-2">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <DollarSign className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="text-gray-400 text-xs">Monto Inicial</span>
                 </div>
-                <p className="text-white font-semibold text-sm font-mono">${isCajaOpen ? totalVentas.toFixed(2) : '0.00'}</p>
+                <span className="text-white text-sm font-bold font-mono">
+                  ${isCajaOpen ? montoInicialCaja.toFixed(2) : '0.00'}
+                </span>
               </div>
-              
-              {/* Gastos */}
-              <div className="bg-white/5 border border-white/10 rounded-lg p-2.5">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingDown className="w-3.5 h-3.5 text-gray-500" />
-                  <p className="text-gray-400 text-xs font-medium">Gastos</p>
+
+              {/* Total Gastos */}
+              <div className="bg-white/5 border border-white/10 rounded p-2">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <TrendingDown className="w-3.5 h-3.5 text-red-400" />
+                  <span className="text-gray-400 text-xs">Total Gastos</span>
                 </div>
-                <p className="text-white font-semibold text-sm font-mono">${isCajaOpen ? totalGastos.toFixed(2) : '0.00'}</p>
+                <span className="text-red-400 text-sm font-bold font-mono">
+                  ${isCajaOpen ? totalGastos.toFixed(2) : '0.00'}
+                </span>
               </div>
-              
-              {/* Balance - DESTACADO */}
-              <div className="bg-white/10 border border-white/20 rounded-lg p-2.5">
-                <div className="flex items-center gap-1.5 mb-1">
+
+              {/* En Caja */}
+              <div className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 rounded p-2">
+                <div className="flex items-center gap-1.5 mb-0.5">
                   <DollarSign className="w-3.5 h-3.5 text-primary" />
-                  <p className="text-gray-300 text-xs font-semibold">En Caja</p>
+                  <span className="text-gray-300 text-xs font-semibold">En Caja</span>
                 </div>
-                <p className="text-primary font-bold text-base font-mono">${isCajaOpen ? (montoInicialCaja + totalVentas - totalGastos).toFixed(2) : '0.00'}</p>
+                <span className="text-primary text-base font-bold font-mono">
+                  ${isCajaOpen ? (montoInicialCaja + totalVentas - totalGastos).toFixed(2) : '0.00'}
+                </span>
+              </div>
+            </div>
+
+            {/* Información adicional */}
+            <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-3 h-3 text-gray-400" />
+                <span className="text-gray-500 text-xs">Apertura:</span>
+                <span className="text-gray-300 text-xs font-mono font-semibold">
+                  {isCajaOpen ? horaApertura : '--:--'}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Receipt className="w-3 h-3 text-gray-400" />
+                <span className="text-gray-500 text-xs">Gastos:</span>
+                <span className="text-white text-xs font-semibold">
+                  {expenses.length}
+                </span>
               </div>
             </div>
             
-            {/* Botones de control */}
+            {/* Botones */}
             <div className="flex items-center gap-2">
               {!isCajaOpen ? (
                 <button
                   onClick={() => setShowOpenCajaModal(true)}
-                  className="flex-1 px-3 py-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2"
+                  className="flex-1 px-3 py-1.5 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white rounded text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
                 >
-                  <CheckCircle className="w-4 h-4" />
+                  <CheckCircle className="w-3.5 h-3.5" />
                   Abrir Caja
                 </button>
               ) : (
                 <>
                   <button
                     onClick={() => setShowExpenseModal(true)}
-                    className="flex-1 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2"
+                    className="flex-1 px-3 py-1.5 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
                   >
-                    <TrendingDown className="w-4 h-4" />
+                    <TrendingDown className="w-3.5 h-3.5" />
                     Registrar Gasto
                   </button>
+                  {expenses.length > 0 && (
+                    <button
+                      onClick={() => setShowExpensesList(true)}
+                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white rounded text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Ver Gastos
+                    </button>
+                  )}
                 </>
               )}
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3">
-          {/* Panel de productos - columna flexible */}
-          <div className="space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-2">
+          {/* Panel de carrito - columna izquierda (flexible) */}
+          <div className="order-2 lg:order-1">
+            {/* Carrito */}
+            <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl overflow-hidden flex flex-col shadow-xl">
+              {/* Header del carrito */}
+              <div className="bg-[#1a2332] border-b border-white/10 px-4 py-2.5 flex items-center justify-between">
+                <h3 className="text-white font-bold text-base flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4 text-primary" />
+                  Carrito
+                  <span className="text-gray-400 text-xs font-normal">({cart.length})</span>
+                </h3>
+                {cart.length > 0 && (
+                  <button
+                    onClick={clearCart}
+                    className="text-gray-400 hover:text-red-400 transition-colors text-xs flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Limpiar
+                  </button>
+                )}
+              </div>
+
+              {/* Contenido del carrito con altura fija y scroll */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ height: "300px" }}>
+                {cart.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full p-8">
+                    <div className="p-6 bg-white/5 rounded-2xl border border-white/10 mb-4">
+                      <ShoppingCart className="w-16 h-16 text-gray-600" />
+                    </div>
+                    <p className="text-white font-bold text-lg mb-2">Carrito vacío</p>
+                    <p className="text-gray-400 text-sm text-center">
+                      Agrega productos desde la lista
+                    </p>
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    {/* Encabezado de la tabla */}
+                    <div className="grid grid-cols-[90px_1fr_140px_90px_100px_30px] gap-2 px-3 py-2 bg-[#1a2332] border-b border-white/10 text-xs font-semibold text-gray-400 uppercase sticky top-0 z-10">
+                      <div>Código</div>
+                      <div>Producto</div>
+                      <div>Cantidad</div>
+                      <div>P. Unit.</div>
+                      <div>Total</div>
+                      <div></div>
+                    </div>
+
+                    {/* Filas de productos */}
+                    {cart.map((item) => (
+                      <div
+                        key={item.product.code}
+                        className="grid grid-cols-[90px_1fr_140px_90px_100px_30px] gap-2 px-3 py-2 border-b border-white/5 hover:bg-white/5 transition-colors items-center"
+                      >
+                        {/* Código */}
+                        <div className="text-gray-500 text-xs font-mono uppercase">
+                          {item.product.code}
+                        </div>
+
+                        {/* Producto */}
+                        <div className="text-white text-sm truncate" title={item.product.name}>
+                          {item.product.name}
+                        </div>
+
+                        {/* Cantidad con botones */}
+                        <div className="flex items-center gap-1 bg-[#0f1825] rounded border border-white/10 w-fit">
+                          <button
+                            onClick={() => updateQuantity(item.product.code, item.quantity - 1)}
+                            className="p-1 text-gray-400 hover:text-white transition-colors"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <input
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value) || 1;
+                              updateQuantity(item.product.code, val);
+                            }}
+                            className="w-12 bg-transparent text-white text-center text-sm font-mono focus:outline-none"
+                            min="1"
+                          />
+                          <button
+                            onClick={() => updateQuantity(item.product.code, item.quantity + 1)}
+                            className="p-1 text-gray-400 hover:text-white transition-colors"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        {/* Precio Unitario */}
+                        <div className="text-gray-400 text-sm font-mono">
+                          ${(item.product.price * (1 + item.product.tax / 100)).toFixed(2)}
+                        </div>
+
+                        {/* Total */}
+                        <div className="text-white text-sm font-bold font-mono">
+                          ${(item.product.price * (1 + item.product.tax / 100) * item.quantity).toFixed(2)}
+                        </div>
+
+                        {/* Botón eliminar */}
+                        <div>
+                          <button
+                            onClick={() => removeFromCart(item.product.code)}
+                            className="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer - Totales y acciones */}
+              {cart.length > 0 && (
+<div className="bg-[#1a2332] border-t border-white/10 p-3 space-y-2">
+                  {/* Total a Pagar - Header destacado */}
+                  <div className="flex justify-between items-center py-2 px-3 bg-[#0f1825] rounded-lg">
+                    <span className="text-white font-bold text-sm uppercase">TOTAL A PAGAR:</span>
+                    <span className="text-white font-bold text-2xl font-mono">${totals.total.toFixed(2)}</span>
+                  </div>
+
+                  {/* Botones de acción - 3 botones */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Pausar */}
+                    <button
+                      onClick={holdCurrentSale}
+                      disabled={!isCajaOpen}
+                      className={`px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+                        isCajaOpen
+                          ? 'bg-white/10 hover:bg-white/15 border border-white/20 text-white'
+                          : 'bg-gray-700 text-gray-400 cursor-not-allowed border border-gray-600'
+                      }`}
+                    >
+                      <Pause className="w-4 h-4" />
+                      Pausar
+                    </button>
+
+                    {/* En Espera */}
+                    <button
+                      onClick={() => setShowHeldSalesModal(true)}
+                      disabled={!isCajaOpen}
+                      className={`px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 relative ${
+                        isCajaOpen
+                          ? 'bg-white/10 hover:bg-white/15 border border-white/20 text-white'
+                          : 'bg-gray-700 text-gray-400 cursor-not-allowed border border-gray-600'
+                      }`}
+                    >
+                      <FileText className="w-4 h-4" />
+                      En Espera
+                      {heldSales.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                          {heldSales.length}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Procesar Pago - Botón grande */}
+                  <button
+                    onClick={() => setShowPaymentModal(true)}
+                    disabled={!isCajaOpen}
+                    className={`w-full px-4 py-3 rounded-lg font-bold text-base transition-all flex items-center justify-center gap-2 ${
+                      isCajaOpen
+                        ? 'bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30'
+                        : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <CreditCard className="w-5 h-5" />
+                    Procesar Pago
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Panel de productos - columna derecha con ancho auto */}
+          <div className="space-y-3 order-1 lg:order-2 w-full lg:w-[500px]">
             {/* Barra de búsqueda y filtros */}
             <div className="bg-white/5 border border-white/10 rounded-lg p-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1179,17 +1446,13 @@ export function POS() {
 
             {/* Lista de productos - Formato Tabla */}
             <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl overflow-hidden shadow-xl">
-              <div className="overflow-y-auto custom-scrollbar" style={{ height: "500px" }}>
+              <div className="overflow-y-auto custom-scrollbar" style={{ height: "400px" }}>
                 {filteredProducts.length > 0 && (
                   <div className="w-full">
                     {/* Encabezado de la tabla */}
                     <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-[#1a2332] border-b border-white/10 text-xs font-semibold text-gray-400 uppercase sticky top-0 z-10">
-                      <div className="col-span-1">Código</div>
-                      <div className="col-span-3">Producto</div>
-                      <div className="col-span-2">Categoría</div>
-                      <div className="col-span-1 text-center">Stock</div>
-                      <div className="col-span-2 text-right">Base</div>
-                      <div className="col-span-2 text-right">Final</div>
+                      <div className="col-span-3">Código</div>
+                      <div className="col-span-8">Producto</div>
                       <div className="col-span-1"></div>
                     </div>
 
@@ -1205,44 +1468,14 @@ export function POS() {
                         }`}
                       >
                         {/* Código */}
-                        <div className="col-span-1">
-                          <p className="text-gray-500 text-xs font-mono truncate">{product.code}</p>
+                        <div className="col-span-3">
+                          <p className="text-gray-500 text-xs font-mono">{product.code}</p>
                         </div>
 
                         {/* Producto */}
-                        <div className="col-span-3">
+                        <div className="col-span-8">
                           <p className="text-white text-sm font-medium truncate" title={product.name}>
                             {product.name}
-                          </p>
-                        </div>
-
-                        {/* Categoría */}
-                        <div className="col-span-2">
-                          <p className="text-gray-400 text-xs truncate">{product.category}</p>
-                        </div>
-
-                        {/* Stock */}
-                        <div className="col-span-1 text-center">
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                            product.stock > 20
-                              ? "bg-green-500/20 text-green-400"
-                              : product.stock > 5
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-red-500/20 text-red-400"
-                          }`}>
-                            {product.stock}
-                          </span>
-                        </div>
-
-                        {/* Precio Base */}
-                        <div className="col-span-2 text-right">
-                          <p className="text-gray-400 text-sm font-mono">${product.price.toFixed(2)}</p>
-                        </div>
-
-                        {/* Precio Final */}
-                        <div className="col-span-2 text-right">
-                          <p className="text-white font-semibold text-sm font-mono">
-                            ${(product.price * (1 + product.tax / 100)).toFixed(2)}
                           </p>
                         </div>
 
@@ -1292,217 +1525,6 @@ export function POS() {
                   )}
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Panel de carrito - ancho fijo igual a la caja */}
-          <div className="w-full lg:w-[576px]">
-            {/* Carrito */}
-            <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl overflow-hidden flex flex-col shadow-xl">
-              {/* Header del carrito */}
-              <div className="bg-[#1a2332] border-b border-white/10 px-4 py-2.5 flex items-center justify-between">
-                <h3 className="text-white font-bold text-base flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4 text-primary" />
-                  Carrito
-                  <span className="text-gray-400 text-xs font-normal">({cart.length})</span>
-                </h3>
-                {cart.length > 0 && (
-                  <button
-                    onClick={clearCart}
-                    className="text-gray-400 hover:text-red-400 text-xs flex items-center gap-1 transition-colors"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    Limpiar
-                  </button>
-                )}
-              </div>
-
-              {/* Items del carrito - Formato Tabla */}
-              <div className="overflow-y-auto custom-scrollbar" style={{ height: "220px" }}>
-                {cart.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="inline-block p-4 bg-white/5 rounded-2xl mb-3 border border-white/10">
-                      <ShoppingCart className="w-16 h-16 text-gray-600 mx-auto" />
-                    </div>
-                    <p className="text-gray-300 font-semibold text-base mb-1">Carrito vacío</p>
-                    <p className="text-gray-500 text-sm">
-                      {!isCajaOpen 
-                        ? "Primero abre la caja para comenzar" 
-                        : "Selecciona productos para agregar al carrito"
-                      }
-                    </p>
-                  </div>
-                ) : (
-                  <div className="w-full">
-                    {/* Encabezado de la tabla */}
-                    <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-[#1a2332] border-b border-white/10 text-xs font-semibold text-gray-400 uppercase sticky top-0 z-10">
-                      <div className="col-span-2">Código</div>
-                      <div className="col-span-3">Producto</div>
-                      <div className="col-span-2 text-center">Cantidad</div>
-                      <div className="col-span-2 text-right">P. Unit.</div>
-                      <div className="col-span-2 text-right">Total</div>
-                      <div className="col-span-1"></div>
-                    </div>
-
-                    {/* Filas de productos */}
-                    {cart.map((item) => (
-                      <div
-                        key={item.product.code}
-                        className="grid grid-cols-12 gap-2 px-3 py-2 border-b border-white/5 hover:bg-white/5 transition-colors items-center"
-                      >
-                        {/* Código */}
-                        <div className="col-span-2">
-                          <p className="text-gray-500 text-xs font-mono truncate">{item.product.code}</p>
-                        </div>
-
-                        {/* Producto */}
-                        <div className="col-span-3">
-                          <p className="text-white text-sm font-medium truncate" title={item.product.name}>
-                            {item.product.name}
-                          </p>
-                          {item.discount > 0 && (
-                            <p className="text-gray-400 text-xs">Desc: {item.discount}%</p>
-                          )}
-                        </div>
-
-                        {/* Cantidad */}
-                        <div className="col-span-2 flex items-center justify-center gap-1">
-                          <button
-                            onClick={() => updateQuantity(item.product.code, item.quantity - 1)}
-                            className="p-0.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded transition-colors"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <input
-                            type="number"
-                            min="1"
-                            max={item.product.stock}
-                            value={item.quantity}
-                            onChange={(e) =>
-                              updateQuantity(item.product.code, parseInt(e.target.value) || 1)
-                            }
-                            className="w-10 px-1 py-0.5 bg-white/5 border border-white/10 rounded text-white text-center text-sm focus:outline-none focus:border-white/30 font-mono"
-                          />
-                          <button
-                            onClick={() => updateQuantity(item.product.code, item.quantity + 1)}
-                            className="p-0.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded transition-colors"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
-
-                        {/* Precio Unitario */}
-                        <div className="col-span-2 text-right">
-                          <p className="text-gray-400 text-sm font-mono">${item.product.price.toFixed(2)}</p>
-                        </div>
-
-                        {/* Total */}
-                        <div className="col-span-2 text-right">
-                          <p className="text-white font-semibold text-sm font-mono">
-                            ${(item.subtotal * (1 - item.discount / 100)).toFixed(2)}
-                          </p>
-                        </div>
-
-                        {/* Acciones */}
-                        <div className="col-span-1 flex items-center justify-center gap-1">
-                          <button
-                            onClick={() => {
-                              const newDiscount = prompt(`Descuento para ${item.product.name} (0-100):`, item.discount.toString());
-                              if (newDiscount !== null) {
-                                updateDiscount(item.product.code, parseFloat(newDiscount) || 0);
-                              }
-                            }}
-                            className="p-1 text-gray-500 hover:text-gray-300 transition-colors"
-                            title="Aplicar descuento"
-                          >
-                            <Percent className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => removeFromCart(item.product.code)}
-                            className="p-1 text-gray-500 hover:text-red-400 transition-colors"
-                            title="Eliminar"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Totales */}
-              {cart.length > 0 && (
-                <div className="border-t border-white/10 bg-[#141c29] p-3 space-y-1.5">
-                  <div className="flex justify-between text-sm items-center">
-                    <span className="text-gray-400 font-medium text-xs">Subtotal:</span>
-                    <span className="text-white font-mono text-xs">
-                      ${totals.subtotal.toFixed(2)}
-                    </span>
-                  </div>
-                  {totals.discount > 0 && (
-                    <div className="flex justify-between text-sm items-center">
-                      <span className="text-gray-400 font-medium text-xs">Descuento:</span>
-                      <span className="text-gray-300 font-mono text-xs">
-                        -${totals.discount.toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-sm items-center">
-                    <span className="text-gray-400 font-medium text-xs">IVA (12%):</span>
-                    <span className="text-white font-mono text-xs">
-                      ${totals.tax.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center border-t border-white/10 pt-2 mt-1.5">
-                    <span className="text-white font-bold text-sm">TOTAL A PAGAR:</span>
-                    <div className="text-right">
-                      <span className="text-white font-bold text-lg font-mono">
-                        ${totals.total.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Botones de control */}
-              <div className="p-4 border-t border-white/10 bg-white/[0.02] space-y-2">
-                {/* Fila de botones: Pausar y Ver ventas en espera */}
-                {isCajaOpen && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={holdCurrentSale}
-                      disabled={cart.length === 0}
-                      className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 rounded-lg font-medium text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
-                    >
-                      <Pause className="w-3.5 h-3.5" />
-                      Pausar
-                    </button>
-                    <button
-                      onClick={() => setShowHeldSalesModal(true)}
-                      className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 rounded-lg font-medium text-xs transition-all flex items-center justify-center gap-1.5 relative"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                      En Espera
-                      {heldSales.length > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[10px] font-bold text-white">
-                          {heldSales.length}
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                )}
-                
-                {/* Botón de Procesar Pago */}
-                <button
-                  onClick={openPaymentModal}
-                  disabled={cart.length === 0 || !isCajaOpen}
-                  className="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-semibold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 disabled:bg-white/5 disabled:text-gray-600"
-                >
-                  <CreditCard className="w-4 h-4" />
-                  {!isCajaOpen ? "Caja Cerrada" : "Procesar Pago"}
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -2941,21 +2963,43 @@ export function POS() {
             </div>
 
             <div className="p-6 space-y-4">
+              {/* Tipo de Gasto */}
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">Tipo de Gasto *</label>
+                <select
+                  value={expenseTipo}
+                  onChange={(e) => setExpenseTipo(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                >
+                  <option value="" className="bg-secondary">Seleccione tipo de gasto...</option>
+                  <option value="Suministros" className="bg-secondary">Suministros</option>
+                  <option value="Mantenimiento" className="bg-secondary">Mantenimiento</option>
+                  <option value="Servicios" className="bg-secondary">Servicios (Luz, Agua, Internet)</option>
+                  <option value="Transporte" className="bg-secondary">Transporte</option>
+                  <option value="Alimentación" className="bg-secondary">Alimentación</option>
+                  <option value="Limpieza" className="bg-secondary">Limpieza</option>
+                  <option value="Marketing" className="bg-secondary">Marketing/Publicidad</option>
+                  <option value="Personal" className="bg-secondary">Personal/Nómina</option>
+                  <option value="Compras" className="bg-secondary">Compras de Mercadería</option>
+                  <option value="Otros" className="bg-secondary">Otros</option>
+                </select>
+              </div>
+
               {/* Concepto del gasto */}
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Concepto del Gasto</label>
+                <label className="block text-gray-400 text-sm mb-2">Concepto del Gasto *</label>
                 <input
                   type="text"
                   value={expenseConcepto}
                   onChange={(e) => setExpenseConcepto(e.target.value)}
-                  placeholder="Ej: Compra de suministros, Mantenimiento, etc."
+                  placeholder="Descripción detallada del gasto..."
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                 />
               </div>
 
               {/* Monto del gasto */}
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Monto del Gasto</label>
+                <label className="block text-gray-400 text-sm mb-2">Monto del Gasto *</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
                   <input
@@ -2970,29 +3014,23 @@ export function POS() {
                 </div>
               </div>
 
-              {/* Lista de gastos registrados */}
+              {/* Resumen de gastos registrados */}
               {expenses.length > 0 && (
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                  <h4 className="text-white font-bold text-sm flex items-center gap-2 mb-3">
                     <FileText className="w-4 h-4 text-primary" />
-                    Gastos del Turno
+                    Resumen del Turno
                   </h4>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {expenses.map((expense) => (
-                      <div key={expense.id} className="flex justify-between items-start py-2 border-b border-white/5 last:border-0">
-                        <div className="flex-1">
-                          <p className="text-white text-sm font-medium">{expense.concepto}</p>
-                          <p className="text-gray-400 text-xs">{expense.hora}</p>
-                        </div>
-                        <span className="text-red-400 font-bold text-sm">
-                          ${expense.monto.toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-between items-center pt-3 mt-3 border-t border-white/10">
-                    <span className="text-gray-400 text-sm font-medium">Total Gastos:</span>
-                    <span className="text-red-400 font-bold text-lg">${totalExpenses.toFixed(2)}</span>
+                  
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-gray-400 text-sm">Gastos Registrados:</span>
+                      <span className="text-white text-sm font-semibold ml-2">{expenses.length}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-gray-400 text-xs block mb-1">Total</span>
+                      <span className="text-red-400 font-bold text-xl">${totalExpenses.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -3002,6 +3040,7 @@ export function POS() {
               <button
                 onClick={() => {
                   setShowExpenseModal(false);
+                  setExpenseTipo("");
                   setExpenseConcepto("");
                   setExpenseMonto("");
                 }}
@@ -3015,6 +3054,155 @@ export function POS() {
               >
                 <Plus className="w-5 h-5" />
                 Registrar Gasto
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Ver Gastos */}
+      {showExpensesList && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-3xl bg-secondary border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-600/20 to-orange-600/20 border-b border-red-500/20 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-white font-bold text-xl flex items-center gap-2">
+                    <FileText className="w-6 h-6 text-red-400" />
+                    Detalle de Gastos
+                  </h3>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {expenses.length} {expenses.length === 1 ? 'gasto registrado' : 'gastos registrados'} en el turno
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowExpensesList(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Contenido */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {/* Filtro por tipo */}
+              <div className="mb-4">
+                <label className="block text-gray-400 text-sm mb-2 font-semibold">Filtrar por tipo de gasto</label>
+                <select
+                  value={expenseFilterTipo}
+                  onChange={(e) => setExpenseFilterTipo(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                >
+                  <option value="todos" className="bg-secondary">Todos los tipos</option>
+                  <option value="Suministros" className="bg-secondary">Suministros</option>
+                  <option value="Mantenimiento" className="bg-secondary">Mantenimiento</option>
+                  <option value="Servicios" className="bg-secondary">Servicios</option>
+                  <option value="Transporte" className="bg-secondary">Transporte</option>
+                  <option value="Alimentación" className="bg-secondary">Alimentación</option>
+                  <option value="Limpieza" className="bg-secondary">Limpieza</option>
+                  <option value="Marketing" className="bg-secondary">Marketing</option>
+                  <option value="Personal" className="bg-secondary">Personal</option>
+                  <option value="Compras" className="bg-secondary">Compras</option>
+                  <option value="Otros" className="bg-secondary">Otros</option>
+                </select>
+              </div>
+
+              {/* Resumen por tipo */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div className="bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/30 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <TrendingDown className="w-5 h-5 text-red-400" />
+                    <span className="text-gray-400 text-xs">Total Gastos</span>
+                  </div>
+                  <span className="text-red-400 text-2xl font-bold font-mono">
+                    ${expenses
+                      .filter(expense => expenseFilterTipo === 'todos' || expense.tipo === expenseFilterTipo)
+                      .reduce((sum, expense) => sum + expense.monto, 0)
+                      .toFixed(2)}
+                  </span>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <FileText className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-400 text-xs">Cantidad</span>
+                  </div>
+                  <span className="text-white text-2xl font-bold">
+                    {expenses.filter(expense => expenseFilterTipo === 'todos' || expense.tipo === expenseFilterTipo).length}
+                  </span>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <DollarSign className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-400 text-xs">Promedio</span>
+                  </div>
+                  <span className="text-white text-2xl font-bold font-mono">
+                    ${expenses.filter(expense => expenseFilterTipo === 'todos' || expense.tipo === expenseFilterTipo).length > 0
+                      ? (expenses
+                          .filter(expense => expenseFilterTipo === 'todos' || expense.tipo === expenseFilterTipo)
+                          .reduce((sum, expense) => sum + expense.monto, 0) /
+                          expenses.filter(expense => expenseFilterTipo === 'todos' || expense.tipo === expenseFilterTipo).length
+                        ).toFixed(2)
+                      : '0.00'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Lista de gastos */}
+              <div className="space-y-3">
+                {expenses
+                  .filter(expense => expenseFilterTipo === 'todos' || expense.tipo === expenseFilterTipo)
+                  .length > 0 ? (
+                  expenses
+                    .filter(expense => expenseFilterTipo === 'todos' || expense.tipo === expenseFilterTipo)
+                    .map((expense) => (
+                    <div key={expense.id} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-primary text-xs font-bold bg-primary/20 px-3 py-1 rounded-lg">
+                              {expense.tipo}
+                            </span>
+                            <span className="text-gray-400 text-xs flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5" />
+                              {expense.hora}
+                            </span>
+                            <span className="text-gray-400 text-xs flex items-center gap-1">
+                              <Calendar className="w-3.5 h-3.5" />
+                              {expense.fecha}
+                            </span>
+                          </div>
+                          <p className="text-white text-base font-medium">{expense.concepto}</p>
+                        </div>
+                        <div className="text-right ml-4">
+                          <span className="text-red-400 font-bold text-2xl">
+                            ${expense.monto.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 border border-white/10 mb-4">
+                      <FileText className="w-8 h-8 text-gray-500" />
+                    </div>
+                    <p className="text-gray-400 text-sm">
+                      No hay gastos registrados para el tipo seleccionado
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-white/10 bg-white/5 px-6 py-4">
+              <button
+                onClick={() => setShowExpensesList(false)}
+                className="w-full px-4 py-3 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-xl font-medium transition-colors"
+              >
+                Cerrar
               </button>
             </div>
           </div>
