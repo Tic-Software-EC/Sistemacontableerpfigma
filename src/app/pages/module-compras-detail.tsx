@@ -3,7 +3,6 @@ import { useNavigate } from "react-router";
 import {
   ShoppingCart,
   User,
-  BarChart3,
   ChevronLeft,
   Bell,
   Settings,
@@ -32,7 +31,9 @@ import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { PurchaseOrdersContent } from "../components/purchase-orders-content";
 import { SuppliersContent } from "../components/suppliers-content";
-import { ReportsContent } from "../components/reports-content";
+import { MerchandiseReceptionContent } from "../components/merchandise-reception-content";
+import { SupplierInvoicesContent } from "../components/supplier-invoices-content";
+import { RetentionsContent } from "../components/retentions-content";
 
 // Mock data para las órdenes de compra con productos detallados
 const mockOrders = [
@@ -250,8 +251,11 @@ export default function ModuleComprasDetail() {
 
   const tabs = [
     { id: "orders", name: "Órdenes de Compra", icon: ShoppingCart },
+    { id: "reception", name: "Recepción de Mercadería", icon: Package },
     { id: "suppliers", name: "Proveedores", icon: User },
-    { id: "reports", name: "Reportes", icon: BarChart3 },
+    { id: "invoices", name: "Facturas a Proveedores", icon: FileText },
+    { id: "retentions", name: "Retenciones a Proveedores", icon: Receipt },
+    { id: "payments", name: "Pagos a Proveedores", icon: DollarSign },
   ];
 
   const [userProfile] = useState({
@@ -506,12 +510,53 @@ export default function ModuleComprasDetail() {
           <PurchaseOrdersContent />
         )}
 
+        {activeTab === "reception" && (
+          <MerchandiseReceptionContent />
+        )}
+
         {activeTab === "suppliers" && (
           <SuppliersContent />
         )}
 
-        {activeTab === "reports" && (
-          <ReportsContent />
+        {activeTab === "invoices" && (
+          <SupplierInvoicesContent />
+        )}
+
+        {activeTab === "retentions" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+                <Receipt className="w-8 h-8 text-primary" />
+                Retenciones a Proveedores
+              </h2>
+              <p className="text-gray-400 text-sm">
+                Administración de retenciones fiscales a proveedores
+              </p>
+            </div>
+            <div className="border-t border-white/10"></div>
+            <RetentionsContent />
+          </div>
+        )}
+
+        {activeTab === "payments" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+                <DollarSign className="w-8 h-8 text-primary" />
+                Pagos a Proveedores
+              </h2>
+              <p className="text-gray-400 text-sm">
+                Control de pagos y cuentas por pagar a proveedores
+              </p>
+            </div>
+            <div className="border-t border-white/10"></div>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <DollarSign className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-400">Módulo en desarrollo</p>
+            </div>
+          </div>
         )}
 
         {activeTab === "config" && (

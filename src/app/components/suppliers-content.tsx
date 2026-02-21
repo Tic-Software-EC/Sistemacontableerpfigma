@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Truck, Plus, Pencil, Trash2, Search, Eye, Mail, Phone, MapPin, User, Building2, FileText, X, Package, ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight, Filter, Download } from "lucide-react";
+import { Truck, Plus, Pencil, Trash2, Search, Eye, Mail, Phone, MapPin, User, Building2, FileText, X, ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Supplier {
   id: string;
@@ -19,7 +19,6 @@ interface Supplier {
   category: string;
   status: "active" | "inactive";
   notes: string;
-  productsOffered: string[];
   createdDate: string;
   createdBy: string;
 }
@@ -42,24 +41,6 @@ const PAYMENT_TERMS = [
   "Crédito 45 días",
   "Crédito 60 días",
   "Crédito 90 días"
-];
-
-const AVAILABLE_PRODUCTS = [
-  { code: "PROD-001", name: "Laptop Dell Latitude 5420" },
-  { code: "PROD-002", name: "Monitor LG 27 pulgadas" },
-  { code: "PROD-003", name: "Teclado mecánico Logitech" },
-  { code: "PROD-004", name: "Mouse inalámbrico" },
-  { code: "PROD-005", name: "Resma papel bond A4" },
-  { code: "PROD-006", name: "Marcadores permanentes x12" },
-  { code: "PROD-007", name: "Archivador de palanca" },
-  { code: "PROD-008", name: "Silla ergonómica oficina" },
-  { code: "PROD-009", name: "Escritorio ejecutivo" },
-  { code: "PROD-010", name: "Lámpara LED escritorio" },
-  { code: "PROD-011", name: "Impresora multifunción" },
-  { code: "PROD-012", name: "Caja de bolígrafos x50" },
-  { code: "PROD-013", name: "Cemento Portland x50kg" },
-  { code: "PROD-014", name: "Varilla de hierro 12mm" },
-  { code: "PROD-015", name: "Cable UTP Cat6 x305m" },
 ];
 
 export function SuppliersContent() {
@@ -92,7 +73,6 @@ export function SuppliersContent() {
       category: "Muebles",
       status: "active",
       notes: "Proveedor principal de mobiliario de oficina",
-      productsOffered: ["PROD-008", "PROD-009", "PROD-010"],
       createdDate: "2025-01-15",
       createdBy: "Admin Sistema"
     },
@@ -114,7 +94,6 @@ export function SuppliersContent() {
       category: "Tecnología",
       status: "active",
       notes: "Distribuidor autorizado de equipos Dell y HP",
-      productsOffered: ["PROD-001", "PROD-002", "PROD-003", "PROD-004"],
       createdDate: "2025-02-01",
       createdBy: "Admin Sistema"
     },
@@ -136,7 +115,6 @@ export function SuppliersContent() {
       category: "Papelería",
       status: "active",
       notes: "Proveedor de suministros de oficina y papelería",
-      productsOffered: ["PROD-005", "PROD-006", "PROD-007", "PROD-012"],
       createdDate: "2025-01-20",
       createdBy: "Admin Sistema"
     },
@@ -158,7 +136,6 @@ export function SuppliersContent() {
       category: "Tecnología",
       status: "active",
       notes: "Proveedor internacional de equipos industriales",
-      productsOffered: ["PROD-011", "PROD-015"],
       createdDate: "2025-02-10",
       createdBy: "Admin Sistema"
     },
@@ -180,7 +157,6 @@ export function SuppliersContent() {
       category: "Construcción",
       status: "inactive",
       notes: "Temporalmente inactivo por restructuración",
-      productsOffered: ["PROD-013", "PROD-014"],
       createdDate: "2025-01-05",
       createdBy: "Admin Sistema"
     },
@@ -203,7 +179,7 @@ export function SuppliersContent() {
     category: "Otros",
     status: "active",
     notes: "",
-    productsOffered: [],
+    createdDate: new Date().toISOString().split("T")[0],
     createdBy: "Usuario Actual"
   });
 
@@ -245,7 +221,6 @@ export function SuppliersContent() {
         category: "Otros",
         status: "active",
         notes: "",
-        productsOffered: [],
         createdDate: new Date().toISOString().split("T")[0],
         createdBy: "Usuario Actual"
       });
@@ -291,21 +266,6 @@ export function SuppliersContent() {
     setShowViewModal(true);
   };
 
-  const toggleProduct = (productCode: string) => {
-    const currentProducts = formData.productsOffered || [];
-    if (currentProducts.includes(productCode)) {
-      setFormData({
-        ...formData,
-        productsOffered: currentProducts.filter(code => code !== productCode)
-      });
-    } else {
-      setFormData({
-        ...formData,
-        productsOffered: [...currentProducts, productCode]
-      });
-    }
-  };
-
   // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -315,10 +275,6 @@ export function SuppliersContent() {
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
-
-  // Estadísticas
-  const activeSuppliers = suppliers.filter(s => s.status === "active").length;
-  const inactiveSuppliers = suppliers.filter(s => s.status === "inactive").length;
 
   return (
     <div className="space-y-6">
@@ -330,14 +286,12 @@ export function SuppliersContent() {
             Gestión de Proveedores
           </h2>
           <p className="text-gray-400 text-sm">
-            Administra tu catálogo de proveedores y sus productos
+            Administra tu catálogo de proveedores
           </p>
         </div>
         
         {/* Botones de acción - Arriba a la derecha */}
         <div className="flex items-center gap-3">
-          
-          
           <button
             onClick={() => handleOpenModal()}
             className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 justify-center whitespace-nowrap"
@@ -446,40 +400,25 @@ export function SuppliersContent() {
                     </td>
 
                     {/* Proveedor */}
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-white font-medium">{supplier.name}</span>
-                        <span className="text-gray-500 text-xs flex items-center gap-1 mt-1">
-                          <MapPin className="w-3 h-3" />
-                          {supplier.city}, {supplier.country}
-                        </span>
-                      </div>
+                    <td className="px-6 py-3">
+                      <span className="text-white font-medium">{supplier.name}</span>
                     </td>
 
                     {/* RUC */}
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-3">
                       <span className="text-white text-sm font-mono">{supplier.ruc}</span>
                     </td>
 
                     {/* Categoría */}
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-3">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-medium text-gray-300">
                         {supplier.category}
                       </span>
                     </td>
 
                     {/* Contacto */}
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-1 text-xs">
-                        <span className="text-white flex items-center gap-1">
-                          <User className="w-3 h-3 text-gray-400" />
-                          {supplier.contactName}
-                        </span>
-                        <span className="text-gray-500 flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          {supplier.contactPhone}
-                        </span>
-                      </div>
+                    <td className="px-6 py-3">
+                      <span className="text-white text-sm">{supplier.contactName}</span>
                     </td>
 
                     {/* Estado */}
@@ -867,6 +806,21 @@ export function SuppliersContent() {
                   </div>
                 </div>
               </div>
+
+              {/* Notas */}
+              <div>
+                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  Notas Adicionales
+                </h4>
+                <textarea
+                  value={formData.notes || ""}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  rows={4}
+                  placeholder="Observaciones o notas sobre el proveedor..."
+                />
+              </div>
             </div>
 
             {/* Footer del modal */}
@@ -1001,33 +955,6 @@ export function SuppliersContent() {
                       <p className="text-gray-500 text-xs">Días de Crédito</p>
                       <p className="text-primary font-bold text-2xl">{viewingSupplier.creditDays}</p>
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Productos Ofrecidos */}
-              <div>
-                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-primary" />
-                  Productos Ofrecidos ({viewingSupplier.productsOffered.length})
-                </h4>
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {viewingSupplier.productsOffered.map((productCode) => {
-                      const product = AVAILABLE_PRODUCTS.find(p => p.code === productCode);
-                      return product ? (
-                        <div
-                          key={productCode}
-                          className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg"
-                        >
-                          <Package className="w-4 h-4 text-primary flex-shrink-0" />
-                          <div>
-                            <p className="text-white text-sm font-medium">{product.name}</p>
-                            <p className="text-gray-500 text-xs">{product.code}</p>
-                          </div>
-                        </div>
-                      ) : null;
-                    })}
                   </div>
                 </div>
               </div>

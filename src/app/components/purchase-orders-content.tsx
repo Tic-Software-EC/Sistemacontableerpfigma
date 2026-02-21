@@ -125,6 +125,9 @@ export function PurchaseOrdersContent() {
   const [receivingNotes, setReceivingNotes] = useState("");
   const [receptions, setReceptions] = useState<Reception[]>([]);
 
+  // Rol del usuario - simulación (en producción vendría de autenticación)
+  const userRole = "jefe"; // Puede ser: "empleado", "comprador", "jefe", "administrador"
+
   const [orders, setOrders] = useState<PurchaseOrder[]>([
     {
       id: "po-001",
@@ -892,88 +895,77 @@ export function PurchaseOrdersContent() {
             <table className="w-full">
               <thead className="bg-white/5 border-b border-white/10">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Número de Orden
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Proveedor
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Fecha
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Entrega
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Estado
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Total
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
                     Acciones
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {currentItems.map((order) => (
-                  <tr key={order.id} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={order.id} className="hover:bg-white/[0.02] transition-colors h-12">
                     {/* Número de Orden */}
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-white font-bold font-mono">{order.orderNumber}</span>
-                        <span className="text-gray-500 text-xs mt-0.5">
-                          {order.items.length} producto{order.items.length !== 1 ? 's' : ''}
-                        </span>
-                      </div>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <span className="text-white font-mono text-sm">{order.orderNumber}</span>
                     </td>
 
                     {/* Proveedor */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Truck className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        <span className="text-white text-sm">{order.supplierName}</span>
-                      </div>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <span className="text-white text-sm">{order.supplierName}</span>
                     </td>
 
                     {/* Fecha */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        <span className="text-white text-sm">
-                          {new Date(order.date).toLocaleDateString("es-EC")}
-                        </span>
-                      </div>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <span className="text-white text-sm font-mono">
+                        {new Date(order.date).toLocaleDateString("es-EC")}
+                      </span>
                     </td>
 
                     {/* Fecha de Entrega */}
-                    <td className="px-6 py-4">
-                      <span className="text-white text-sm">
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <span className="text-white text-sm font-mono">
                         {new Date(order.deliveryDate).toLocaleDateString("es-EC")}
                       </span>
                     </td>
 
                     {/* Estado */}
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${getStatusColor(order.status)}`}>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${getStatusColor(order.status)}`}>
                         {getStatusIcon(order.status)}
                         {getStatusName(order.status)}
                       </span>
                     </td>
 
                     {/* Total */}
-                    <td className="px-6 py-4 text-right">
-                      <span className="text-white font-bold text-lg">
+                    <td className="px-4 py-2 text-right whitespace-nowrap">
+                      <span className="text-white font-mono text-sm">
                         ${parseFloat(order.total).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
                     </td>
 
                     {/* Acciones */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => handleViewOrder(order)}
-                          className="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
+                          className="p-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
                           title="Ver detalle"
                         >
                           <Eye className="w-4 h-4" />
@@ -982,37 +974,28 @@ export function PurchaseOrdersContent() {
                         {order.status === "draft" && (
                           <button
                             onClick={() => handleStatusChange(order.id, "pending")}
-                            className="p-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 rounded-lg transition-colors"
+                            className="p-1.5 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 rounded-lg transition-colors"
                             title="Enviar a aprobación"
                           >
                             <Clock className="w-4 h-4" />
                           </button>
                         )}
 
-                        {order.status === "pending" && (
+                        {/* Botón de Aprobar - EXCLUSIVO PARA JEFES */}
+                        {order.status === "pending" && (userRole === "jefe" || userRole === "administrador") && (
                           <button
                             onClick={() => handleStatusChange(order.id, "approved")}
-                            className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
-                            title="Aprobar"
+                            className="p-1.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all shadow-lg shadow-green-500/30 hover:shadow-green-500/50 border border-green-400/30"
+                            title="Aprobar orden de compra"
                           >
                             <CheckCircle className="w-4 h-4" />
-                          </button>
-                        )}
-
-                        {(order.status === "approved" || order.status === "partial") && (
-                          <button
-                            onClick={() => handleOpenReceivingModal(order)}
-                            className="p-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors"
-                            title="Recibir mercancía"
-                          >
-                            <PackageCheck className="w-4 h-4" />
                           </button>
                         )}
 
                         {(order.status === "draft" || order.status === "pending") && (
                           <button
                             onClick={() => handleOpenModal(order)}
-                            className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors"
+                            className="p-1.5 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors"
                             title="Editar"
                           >
                             <Pencil className="w-4 h-4" />
@@ -1022,7 +1005,7 @@ export function PurchaseOrdersContent() {
                         {order.status !== "received" && (
                           <button
                             onClick={() => handleDelete(order.id)}
-                            className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                            className="p-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
                             title="Eliminar"
                           >
                             <Trash2 className="w-4 h-4" />
