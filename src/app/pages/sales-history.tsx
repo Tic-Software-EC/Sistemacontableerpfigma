@@ -246,14 +246,14 @@ export function SalesHistory() {
     switch (status) {
       case "completed":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-xs font-medium">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded text-green-400 text-[10px] font-medium">
             <CheckCircle className="w-3 h-3" />
             Completada
           </span>
         );
       case "cancelled":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs font-medium">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-[10px] font-medium">
             <XCircle className="w-3 h-3" />
             Anulada
           </span>
@@ -413,28 +413,28 @@ export function SalesHistory() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/5">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Factura
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Fecha/Hora
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Cliente
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Items
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Pago
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Total
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Estado
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Acciones
                     </th>
                   </tr>
@@ -446,59 +446,36 @@ export function SalesHistory() {
                         key={sale.id}
                         className="hover:bg-white/5 transition-colors"
                       >
-                        <td className="px-4 py-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <span className="text-primary font-mono text-xs font-bold">
-                                {sale.invoiceNumber.split("-")[2]}
-                              </span>
-                            </div>
-                            <span className="text-white text-sm font-mono">{sale.invoiceNumber}</span>
-                          </div>
+                        <td className="px-4 py-2.5">
+                          <span className="text-white text-sm font-mono">{sale.invoiceNumber}</span>
                         </td>
-                        <td className="px-4 py-4">
-                          <div className="text-sm">
-                            <p className="text-white datetime-display">{sale.date}</p>
-                            <p className="text-gray-400 text-xs datetime-display">{sale.time}</p>
-                          </div>
+                        <td className="px-4 py-2.5">
+                          <span className="text-white text-sm datetime-display">{sale.date} {sale.time}</span>
                         </td>
-                        <td className="px-4 py-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <span className="text-white font-bold text-xs">
-                                {sale.customer.name.split(" ").map((n) => n[0]).join("").substring(0, 2)}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="text-white text-sm font-medium">{sale.customer.name}</p>
-                              <p className="text-gray-400 text-xs font-mono">{sale.customer.ruc}</p>
-                            </div>
-                          </div>
+                        <td className="px-4 py-2.5">
+                          <span className="text-white text-sm font-medium">{sale.customer.name}</span>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <span className="text-white text-sm">{sale.items.length} items</span>
                         </td>
-                        <td className="px-4 py-4">
-                          <div className="flex items-center gap-2">
-                            {getPaymentIcon(sale.paymentMethod)}
-                            <span className="text-white text-sm">{getPaymentLabel(sale.paymentMethod)}</span>
-                          </div>
+                        <td className="px-4 py-2.5">
+                          <span className="text-white text-sm">{getPaymentLabel(sale.paymentMethod)}</span>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <span className="text-white font-bold text-sm">${sale.total.toFixed(2)}</span>
                         </td>
-                        <td className="px-4 py-4">{getStatusBadge(sale.status)}</td>
-                        <td className="px-4 py-4">
-                          <div className="flex items-center gap-2">
+                        <td className="px-4 py-2.5">{getStatusBadge(sale.status)}</td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-1.5">
                             <button
                               onClick={() => setSelectedSale(sale)}
-                              className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                              className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
                               title="Ver detalles"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                             <button
-                              className="p-2 text-gray-400 hover:bg-white/5 rounded-lg transition-colors"
+                              className="p-1.5 text-gray-400 hover:bg-white/5 rounded-lg transition-colors"
                               title="Imprimir"
                             >
                               <Printer className="w-4 h-4" />

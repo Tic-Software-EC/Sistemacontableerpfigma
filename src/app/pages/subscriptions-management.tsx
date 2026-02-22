@@ -466,28 +466,28 @@ export default function SubscriptionsManagementPage() {
             <table className="w-full">
               <thead className="bg-white/5 border-b border-white/10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Empresa
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Plan
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Estado
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Usuarios
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Precio Mensual
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Próximo Pago
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Auto-Renovación
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
@@ -495,71 +495,59 @@ export default function SubscriptionsManagementPage() {
               <tbody className="divide-y divide-white/10">
                 {currentItems.map((sub) => (
                   <tr key={sub.id} className="hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="text-white font-medium">{sub.companyName}</p>
-                        <p className="text-gray-400 text-sm">RUC: {sub.companyRuc}</p>
-                      </div>
+                    <td className="px-4 py-2.5">
+                      <span className="text-white font-medium text-sm">{sub.companyName}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-2.5">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${getPlanBadgeColor(
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${getPlanBadgeColor(
                           sub.plan
                         )}`}
                       >
                         {getPlanLabel(sub.plan)}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-2.5">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${getStatusBadgeColor(
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusBadgeColor(
                           sub.status
                         )}`}
                       >
                         {getStatusLabel(sub.status)}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-gray-400 text-sm">
+                    <td className="px-4 py-2.5">
+                      <span className="text-gray-300 text-sm">
                         {sub.users}/{sub.maxUsers}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="text-white font-medium">
+                    <td className="px-4 py-2.5">
+                      <span className="text-white font-medium text-sm">
                         ${sub.monthlyPrice.toFixed(2)}
-                      </p>
+                      </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="text-white text-sm">{sub.nextPayment}</p>
-                        <p className="text-gray-400 text-xs">{sub.paymentMethod}</p>
-                      </div>
+                    <td className="px-4 py-2.5">
+                      <span className="text-white text-sm">{sub.nextPayment}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-2.5">
                       {sub.autoRenew ? (
-                        <div className="flex items-center gap-2">
-                          <RefreshCw className="w-4 h-4 text-green-400" />
-                          <span className="text-green-400 text-sm">Sí</span>
-                        </div>
+                        <span className="text-green-400 text-sm">Sí</span>
                       ) : (
-                        <div className="flex items-center gap-2">
-                          <X className="w-4 h-4 text-gray-500" />
-                          <span className="text-gray-500 text-sm">No</span>
-                        </div>
+                        <span className="text-gray-500 text-sm">No</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 py-2.5">
+                      <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => alert(`Ver detalles de suscripción ${sub.companyName}`)}
-                          className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                           title="Ver detalles"
                         >
                           <FileText className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => alert(`Renovar suscripción de ${sub.companyName}`)}
-                          className="p-2 text-green-400 hover:text-green-300 hover:bg-green-500/10 rounded-lg transition-colors"
+                          className="p-1.5 text-green-400 hover:text-green-300 hover:bg-green-500/10 rounded-lg transition-colors"
                           title="Renovar"
                         >
                           <RefreshCw className="w-4 h-4" />

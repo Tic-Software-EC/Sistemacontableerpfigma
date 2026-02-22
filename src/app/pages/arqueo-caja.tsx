@@ -783,19 +783,19 @@ export function ArqueoCaja() {
         </div>
       </div>
 
-      {/* Modal de Detalle de Gastos */}
+      {/* Modal de Detalle de Gastos - Diseño Compacto */}
       {showGastosModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             {/* Header */}
-            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-6 py-4">
+            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-5 py-3.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-bold text-xl mb-1 flex items-center gap-2">
+                  <h3 className="text-white font-bold text-lg mb-0.5 flex items-center gap-2">
                     <ShoppingBag className="w-5 h-5 text-red-400" />
                     Detalle de Gastos de Caja
                   </h3>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-400 text-[11px]">
                     Registro completo de gastos realizados en el día
                   </p>
                 </div>
@@ -803,13 +803,13 @@ export function ArqueoCaja() {
                   onClick={() => setShowGastosModal(false)}
                   className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
-                  <XCircle className="w-5 h-5" />
+                  <XCircle className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-6">
+            <div className="p-5">
               <div className="bg-white/[0.04] border border-white/10 rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -889,19 +889,19 @@ export function ArqueoCaja() {
         </div>
       )}
 
-      {/* Modal de Detalle de Tarjetas */}
+      {/* Modal de Detalle de Tarjetas - Diseño Compacto */}
       {showTarjetaModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             {/* Header */}
-            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-6 py-4">
+            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-5 py-3.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-bold text-xl mb-1 flex items-center gap-2">
+                  <h3 className="text-white font-bold text-lg mb-0.5 flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-red-400" />
                     Detalle de Transacciones con Tarjeta
                   </h3>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-400 text-[11px]">
                     Registro completo de transacciones realizadas con tarjeta en el día
                   </p>
                 </div>
@@ -909,13 +909,13 @@ export function ArqueoCaja() {
                   onClick={() => setShowTarjetaModal(false)}
                   className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
-                  <XCircle className="w-5 h-5" />
+                  <XCircle className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-6">
+            <div className="p-5">
               <div className="bg-white/[0.04] border border-white/10 rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -995,19 +995,19 @@ export function ArqueoCaja() {
         </div>
       )}
 
-      {/* Modal de Detalle de Transferencias */}
+      {/* Modal de Detalle de Transferencias - Diseño Compacto */}
       {showTransferenciaModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             {/* Header */}
-            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-6 py-4">
+            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-5 py-3.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-bold text-xl mb-1 flex items-center gap-2">
+                  <h3 className="text-white font-bold text-lg mb-0.5 flex items-center gap-2">
                     <DollarSign className="w-5 h-5 text-red-400" />
                     Detalle de Transacciones con Transferencia
                   </h3>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-400 text-[11px]">
                     Registro completo de transacciones realizadas con transferencia en el día
                   </p>
                 </div>
@@ -1015,13 +1015,13 @@ export function ArqueoCaja() {
                   onClick={() => setShowTransferenciaModal(false)}
                   className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
-                  <XCircle className="w-5 h-5" />
+                  <XCircle className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-6">
+            <div className="p-5">
               <div className="bg-white/[0.04] border border-white/10 rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">

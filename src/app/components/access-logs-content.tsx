@@ -339,19 +339,19 @@ export function AccessLogsContent() {
     switch (action) {
       case "login":
         return (
-          <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-xs font-medium">
+          <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-[10px] font-medium">
             Ingreso
           </span>
         );
       case "logout":
         return (
-          <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-xs font-medium">
+          <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[10px] font-medium">
             Salida
           </span>
         );
       case "failed_login":
         return (
-          <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-xs font-medium">
+          <span className="px-2 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px] font-medium">
             Intento Fallido
           </span>
         );
@@ -497,25 +497,25 @@ export function AccessLogsContent() {
           <table className="w-full">
             <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                <th className="text-left px-6 py-4 text-gray-400 text-sm font-medium">
+                <th className="text-left px-4 py-2.5 text-gray-400 text-[11px] font-semibold uppercase tracking-wider">
                   Usuario
                 </th>
-                <th className="text-left px-6 py-4 text-gray-400 text-sm font-medium">
+                <th className="text-left px-4 py-2.5 text-gray-400 text-[11px] font-semibold uppercase tracking-wider">
                   Acción
                 </th>
-                <th className="text-left px-6 py-4 text-gray-400 text-sm font-medium">
+                <th className="text-left px-4 py-2.5 text-gray-400 text-[11px] font-semibold uppercase tracking-wider">
                   Fecha y Hora
                 </th>
-                <th className="text-left px-6 py-4 text-gray-400 text-sm font-medium">
+                <th className="text-left px-4 py-2.5 text-gray-400 text-[11px] font-semibold uppercase tracking-wider">
                   IP / Dispositivo
                 </th>
-                <th className="text-left px-6 py-4 text-gray-400 text-sm font-medium">
+                <th className="text-left px-4 py-2.5 text-gray-400 text-[11px] font-semibold uppercase tracking-wider">
                   Sucursal
                 </th>
-                <th className="text-left px-6 py-4 text-gray-400 text-sm font-medium">
+                <th className="text-left px-4 py-2.5 text-gray-400 text-[11px] font-semibold uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="text-center px-6 py-4 text-gray-400 text-sm font-medium">
+                <th className="text-center px-4 py-2.5 text-gray-400 text-[11px] font-semibold uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
@@ -526,54 +526,30 @@ export function AccessLogsContent() {
                   key={log.id}
                   className="border-b border-white/5 hover:bg-white/5 transition-colors"
                 >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-white font-medium">{log.userName}</p>
-                        <p className="text-gray-400 text-xs">{log.userRole}</p>
-                      </div>
-                    </div>
+                  <td className="px-4 py-2.5">
+                    <span className="text-white font-medium text-sm">{log.userName}</span>
                   </td>
-                  <td className="px-6 py-4">{getActionBadge(log.action)}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      {log.timestamp}
-                    </div>
+                  <td className="px-4 py-2.5">{getActionBadge(log.action)}</td>
+                  <td className="px-4 py-2.5">
+                    <span className="text-gray-300 text-sm">{log.timestamp}</span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="text-white text-sm font-medium">{log.ipAddress}</p>
-                      <p className="text-gray-400 text-xs flex items-center gap-1">
-                        <Monitor className="w-3 h-3" />
-                        {log.device} • {log.browser}
-                      </p>
-                    </div>
+                  <td className="px-4 py-2.5">
+                    <span className="text-white text-sm font-medium">{log.ipAddress}</span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <Building2 className="w-4 h-4 text-gray-400" />
-                      {log.branch}
-                    </div>
+                  <td className="px-4 py-2.5">
+                    <span className="text-gray-300 text-sm">{log.branch}</span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(log.status)}
-                    </div>
+                  <td className="px-4 py-2.5">
+                    {getStatusIcon(log.status)}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex justify-center">
-                      <button
-                        onClick={() => handleViewDetails(log)}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
-                        title="Ver detalles"
-                      >
-                        <Eye className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
-                      </button>
-                    </div>
+                  <td className="px-4 py-2.5 text-center">
+                    <button
+                      onClick={() => handleViewDetails(log)}
+                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors group inline-flex"
+                      title="Ver detalles"
+                    >
+                      <Eye className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
+                    </button>
                   </td>
                 </tr>
               ))}

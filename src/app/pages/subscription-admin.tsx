@@ -936,25 +936,25 @@ export default function SubscriptionAdminPage() {
             <table className="w-full">
               <thead className="bg-white/5 border-b border-white/10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Empresa
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Administrador
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Plan
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Estado
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Usuarios
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Vigencia
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
@@ -962,73 +962,64 @@ export default function SubscriptionAdminPage() {
               <tbody className="divide-y divide-white/10">
                 {paginatedCompanies.map((company) => (
                   <tr key={company.id} className="hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="text-white font-medium">{company.name}</p>
-                        <p className="text-gray-400 text-sm">RUC: {company.ruc}</p>
-                      </div>
+                    <td className="px-4 py-2.5">
+                      <span className="text-white font-medium text-sm">{company.name}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="text-white text-sm">{company.admin}</p>
-                        <p className="text-gray-400 text-xs">{company.adminEmail}</p>
-                      </div>
+                    <td className="px-4 py-2.5">
+                      <span className="text-white text-sm">{company.admin}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-2.5">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${getPlanBadgeColor(
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${getPlanBadgeColor(
                           company.plan
                         )}`}
                       >
                         {getPlanLabel(company.plan)}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-2.5">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${getStatusBadgeColor(
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusBadgeColor(
                           company.status
                         )}`}
                       >
                         {getStatusLabel(company.status)}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-gray-400 text-sm">
+                    <td className="px-4 py-2.5">
+                      <span className="text-gray-300 text-sm">
                         {company.users}/{company.maxUsers}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="text-white text-sm">Hasta {company.expiresAt}</p>
-                        <p className="text-gray-400 text-xs">Creada: {company.createdAt}</p>
-                      </div>
+                    <td className="px-4 py-2.5">
+                      <span className="text-white text-sm">{company.expiresAt}</span>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 py-2.5 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => handleOpenViewModal(company)}
-                          className="p-2 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-lg transition-colors"
+                          className="p-1.5 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-lg transition-colors"
                           title="Ver detalles"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleOpenEditModal(company)}
-                          className="p-2 text-primary hover:text-primary/80 hover:bg-primary/10 rounded-lg transition-colors"
+                          className="p-1.5 text-primary hover:text-primary/80 hover:bg-primary/10 rounded-lg transition-colors"
                           title="Editar"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleResendCredentials(company)}
-                          className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
+                          className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
                           title="Enviar credenciales por correo"
                         >
                           <Mail className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteCompany(company.name)}
-                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -1062,27 +1053,25 @@ export default function SubscriptionAdminPage() {
         </div>
       </main>
 
-      {/* Modal Ver Empresa */}
+      {/* Modal Ver Empresa - Diseño Compacto */}
       {showViewModal && selectedCompany && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#1e2530] border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-cyan-500/10 to-cyan-600/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center">
-                  <Eye className="w-5 h-5 text-cyan-400" />
-                </div>
-                <h3 className="text-white font-semibold text-xl">Detalles de la Empresa</h3>
+            <div className="flex items-center justify-between p-5 border-b border-white/10 bg-gradient-to-r from-cyan-500/10 to-cyan-600/10">
+              <div className="flex items-center gap-2.5">
+                <Eye className="w-5 h-5 text-cyan-400" />
+                <h3 className="text-white font-bold text-lg">Detalles de la Empresa</h3>
               </div>
               <button
                 onClick={() => setShowViewModal(false)}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+            <div className="p-5 space-y-5">
+              <div className="grid grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-gray-400 text-xs font-medium mb-1">Nombre de la Empresa</label>
                   <p className="text-white text-sm font-medium">{selectedCompany.name}</p>
@@ -1221,69 +1210,67 @@ export default function SubscriptionAdminPage() {
         </div>
       )}
 
-      {/* Modal Nueva Empresa */}
+      {/* Modal Nueva Empresa - Diseño Compacto */}
       {showNewModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#1e2530] border border-white/10 rounded-2xl w-full max-w-3xl overflow-hidden max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-green-500/10 to-green-600/10 sticky top-0 z-10 bg-[#1e2530]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <Plus className="w-5 h-5 text-green-400" />
-                </div>
-                <h3 className="text-white font-semibold text-xl">Nueva Empresa</h3>
+            <div className="flex items-center justify-between p-5 border-b border-white/10 bg-gradient-to-r from-green-500/10 to-green-600/10 sticky top-0 z-10 bg-[#1e2530]">
+              <div className="flex items-center gap-2.5">
+                <Plus className="w-5 h-5 text-green-400" />
+                <h3 className="text-white font-bold text-lg">Registrar Nueva Empresa</h3>
               </div>
               <button
                 onClick={() => setShowNewModal(false)}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-5 space-y-5">
               <div>
-                <h4 className="text-white font-medium mb-4 flex items-center gap-2">
+                <h4 className="text-white font-medium mb-3.5 flex items-center gap-2 text-sm">
                   <Building2 className="w-4 h-4" />
                   Información General
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Nombre de la Empresa *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Nombre de la Empresa *</label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="Nombre completo"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">RUC *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">RUC *</label>
                     <input
                       type="text"
                       value={formData.ruc}
                       onChange={(e) => setFormData({ ...formData, ruc: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="1792345678001"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Email *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Email *</label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="email@empresa.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Teléfono *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Teléfono *</label>
                     <input
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="+593 99 123 4567"
                     />
                   </div>
@@ -1291,33 +1278,33 @@ export default function SubscriptionAdminPage() {
               </div>
 
               <div className="border-t border-white/10 pt-5">
-                <h4 className="text-white font-medium mb-4 flex items-center gap-2">
+                <h4 className="text-white font-medium mb-3.5 flex items-center gap-2 text-sm">
                   <Users className="w-4 h-4" />
                   Administrador Principal
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Nombre del Administrador *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Nombre del Administrador *</label>
                     <input
                       type="text"
                       value={formData.admin}
                       onChange={(e) => setFormData({ ...formData, admin: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="Juan Pérez"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Email del Administrador *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Email del Administrador *</label>
                     <input
                       type="email"
                       value={formData.adminEmail}
                       onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="admin@empresa.com"
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-gray-400 text-sm font-medium mb-2">
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">
                       Contraseña Inicial (opcional)
                     </label>
                     <div className="relative">
@@ -1325,12 +1312,12 @@ export default function SubscriptionAdminPage() {
                         type="text"
                         value={formData.adminPassword}
                         onChange={(e) => setFormData({ ...formData, adminPassword: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                         placeholder="Dejar vacío para generar automáticamente"
                       />
                       <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     </div>
-                    <p className="text-gray-500 text-xs mt-1">
+                    <p className="text-gray-500 text-[11px] mt-1">
                       Si no especifica una contraseña, se generará una automáticamente de forma segura
                     </p>
                   </div>
@@ -1338,17 +1325,17 @@ export default function SubscriptionAdminPage() {
               </div>
 
               <div className="border-t border-white/10 pt-5">
-                <h4 className="text-white font-medium mb-4 flex items-center gap-2">
+                <h4 className="text-white font-medium mb-3.5 flex items-center gap-2 text-sm">
                   <CreditCard className="w-4 h-4" />
                   Configuración de Suscripción
                 </h4>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3.5">
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Plan *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Plan *</label>
                     <select
                       value={formData.plan}
                       onChange={(e) => handlePlanChange(e.target.value as "free" | "standard" | "custom")}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm focus:outline-none focus:border-primary"
                     >
                       <option value="free">Free</option>
                       <option value="standard">Standard</option>
@@ -1356,11 +1343,11 @@ export default function SubscriptionAdminPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Estado *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Estado *</label>
                     <select
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value as "active" | "trial" | "suspended" | "expired" })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm focus:outline-none focus:border-primary"
                     >
                       <option value="active">Activo</option>
                       <option value="trial">Prueba</option>
@@ -1372,22 +1359,22 @@ export default function SubscriptionAdminPage() {
                 </div>
 
                 {/* Información del plan seleccionado */}
-                <div className="mt-4 bg-white/5 border border-white/10 rounded-xl p-4">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Package className="w-5 h-5 text-primary" />
+                <div className="mt-3.5 bg-white/5 border border-white/10 rounded-xl p-3.5">
+                  <div className="flex items-start gap-2.5 mb-2.5">
+                    <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Package className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <h5 className="text-white font-medium mb-1">
+                      <h5 className="text-white font-medium mb-0.5 text-sm">
                         Características del Plan {PLAN_CONFIGS[formData.plan].displayName}
                       </h5>
-                      <p className="text-gray-400 text-xs">
+                      <p className="text-gray-400 text-[11px]">
                         {PLAN_CONFIGS[formData.plan].description}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5">
                     <div className="bg-white/5 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
                         <Users className="w-4 h-4 text-blue-400" />
@@ -1557,69 +1544,67 @@ export default function SubscriptionAdminPage() {
         </div>
       )}
 
-      {/* Modal Editar Empresa */}
+      {/* Modal Editar Empresa - Diseño Compacto */}
       {showEditModal && selectedCompany && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#1e2530] border border-white/10 rounded-2xl w-full max-w-3xl overflow-hidden max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-blue-500/10 to-blue-600/10 sticky top-0 z-10 bg-[#1e2530]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                  <Edit className="w-5 h-5 text-blue-400" />
-                </div>
-                <h3 className="text-white font-semibold text-xl">Editar Empresa</h3>
+            <div className="flex items-center justify-between p-5 border-b border-white/10 bg-gradient-to-r from-blue-500/10 to-blue-600/10 sticky top-0 z-10 bg-[#1e2530]">
+              <div className="flex items-center gap-2.5">
+                <Edit className="w-5 h-5 text-blue-400" />
+                <h3 className="text-white font-bold text-lg">Editar Empresa</h3>
               </div>
               <button
                 onClick={() => setShowEditModal(false)}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-5 space-y-5">
               <div>
-                <h4 className="text-white font-medium mb-4 flex items-center gap-2">
+                <h4 className="text-white font-medium mb-3.5 flex items-center gap-2 text-sm">
                   <Building2 className="w-4 h-4" />
                   Información General
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Nombre de la Empresa *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Nombre de la Empresa *</label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="Nombre completo"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">RUC *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">RUC *</label>
                     <input
                       type="text"
                       value={formData.ruc}
                       onChange={(e) => setFormData({ ...formData, ruc: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="1792345678001"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Email *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Email *</label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="email@empresa.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Teléfono *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Teléfono *</label>
                     <input
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       placeholder="+593 99 123 4567"
                     />
                   </div>
@@ -1627,17 +1612,17 @@ export default function SubscriptionAdminPage() {
               </div>
 
               <div className="border-t border-white/10 pt-5">
-                <h4 className="text-white font-medium mb-4 flex items-center gap-2">
+                <h4 className="text-white font-medium mb-3.5 flex items-center gap-2 text-sm">
                   <CreditCard className="w-4 h-4" />
                   Configuración de Suscripción
                 </h4>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3.5">
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Plan *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Plan *</label>
                     <select
                       value={formData.plan}
                       onChange={(e) => handlePlanChange(e.target.value as "free" | "standard" | "custom")}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm focus:outline-none focus:border-primary"
                     >
                       <option value="free">Free</option>
                       <option value="standard">Standard</option>
@@ -1645,11 +1630,11 @@ export default function SubscriptionAdminPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">Estado *</label>
+                    <label className="block text-gray-400 text-xs font-medium mb-1.5">Estado *</label>
                     <select
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value as "active" | "trial" | "suspended" | "expired" })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm focus:outline-none focus:border-primary"
                     >
                       <option value="active">Activo</option>
                       <option value="trial">Prueba</option>
@@ -1661,10 +1646,10 @@ export default function SubscriptionAdminPage() {
                 </div>
 
                 {/* Información del plan seleccionado */}
-                <div className="mt-4 bg-white/5 border border-white/10 rounded-xl p-4">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Package className="w-5 h-5 text-primary" />
+                <div className="mt-3.5 bg-white/5 border border-white/10 rounded-xl p-3.5">
+                  <div className="flex items-start gap-2.5 mb-2.5">
+                    <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Package className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h5 className="text-white font-medium mb-1">
@@ -1865,29 +1850,27 @@ export default function SubscriptionAdminPage() {
         </div>
       )}
 
-      {/* Modal de Credenciales Generadas */}
+      {/* Modal de Credenciales Generadas - Diseño Compacto */}
       {showCredentialsModal && generatedCredentials && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#1e2530] border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-green-500/10 to-green-600/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 text-green-400" />
-                </div>
+            <div className="flex items-center justify-between p-5 border-b border-white/10 bg-gradient-to-r from-green-500/10 to-green-600/10">
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
                 <div>
-                  <h3 className="text-white font-semibold text-xl">¡Empresa Creada Exitosamente!</h3>
-                  <p className="text-gray-400 text-sm">Credenciales de acceso generadas</p>
+                  <h3 className="text-white font-bold text-lg">¡Empresa Creada Exitosamente!</h3>
+                  <p className="text-gray-400 text-xs">Credenciales de acceso generadas</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowCredentialsModal(false)}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-5 space-y-5">
               {/* Información de la empresa */}
               <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">

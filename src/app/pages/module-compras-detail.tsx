@@ -922,45 +922,40 @@ export default function ModuleComprasDetail() {
                     <div className="space-y-4">
                       <div className="overflow-x-auto">
                         <table className="w-full">
-                          <thead className="bg-white/5">
+                          <thead className="bg-white/5 border-b border-white/10">
                             <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Código</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Producto</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Cantidad</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Precio Unit.</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Subtotal</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">IVA</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Total</th>
+                              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Código</th>
+                              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Producto</th>
+                              <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Cantidad</th>
+                              <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Precio Unit.</th>
+                              <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Subtotal</th>
+                              <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">IVA</th>
+                              <th className="px-4 py-2.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/10">
                             {selectedOrder.products?.map((product: any, index: number) => (
                               <tr key={index} className="hover:bg-white/5 transition-colors">
-                                <td className="px-4 py-3">
+                                <td className="px-4 py-2.5">
                                   <span className="text-primary font-mono text-sm">{product.code}</span>
                                 </td>
-                                <td className="px-4 py-3">
-                                  <div>
-                                    <p className="text-white font-medium">{product.name}</p>
-                                    {product.description && (
-                                      <p className="text-gray-400 text-xs mt-1">{product.description}</p>
-                                    )}
-                                  </div>
+                                <td className="px-4 py-2.5">
+                                  <span className="text-white font-medium text-sm">{product.name}</span>
                                 </td>
-                                <td className="px-4 py-3 text-right">
-                                  <span className="text-white">{product.quantity} {product.unit}</span>
+                                <td className="px-4 py-2.5 text-right">
+                                  <span className="text-white text-sm">{product.quantity} {product.unit}</span>
                                 </td>
-                                <td className="px-4 py-3 text-right">
-                                  <span className="text-white">${product.unitPrice.toFixed(2)}</span>
+                                <td className="px-4 py-2.5 text-right">
+                                  <span className="text-white text-sm">${product.unitPrice.toFixed(2)}</span>
                                 </td>
-                                <td className="px-4 py-3 text-right">
-                                  <span className="text-white font-medium">${product.subtotal.toFixed(2)}</span>
+                                <td className="px-4 py-2.5 text-right">
+                                  <span className="text-white font-medium text-sm">${product.subtotal.toFixed(2)}</span>
                                 </td>
-                                <td className="px-4 py-3 text-right">
-                                  <span className="text-gray-400">${product.tax.toFixed(2)}</span>
+                                <td className="px-4 py-2.5 text-right">
+                                  <span className="text-gray-400 text-sm">${product.tax.toFixed(2)}</span>
                                 </td>
-                                <td className="px-4 py-3 text-right">
-                                  <span className="text-white font-bold">${product.total.toFixed(2)}</span>
+                                <td className="px-4 py-2.5 text-right">
+                                  <span className="text-white font-bold text-sm">${product.total.toFixed(2)}</span>
                                 </td>
                               </tr>
                             ))}
