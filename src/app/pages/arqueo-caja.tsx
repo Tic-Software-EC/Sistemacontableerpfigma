@@ -14,8 +14,32 @@ import {
   CreditCard,
   Lock,
   Unlock,
+  ShoppingBag,
+  FileText,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
+
+// Interfaz para gastos
+interface Gasto {
+  id: string;
+  fecha: string;
+  hora: string;
+  concepto: string;
+  categoria: string;
+  monto: number;
+  responsable: string;
+}
+
+// Interfaz para transacciones
+interface Transaccion {
+  id: string;
+  fecha: string;
+  hora: string;
+  cliente: string;
+  factura: string;
+  monto: number;
+  estado: string;
+}
 
 export function ArqueoCaja() {
   const [billetes, setBilletes] = useState({
@@ -36,10 +60,112 @@ export function ArqueoCaja() {
     m001: 0,
   });
 
+  const [isCajaCerrada, setIsCajaCerrada] = useState(false);
+  const [showGastosModal, setShowGastosModal] = useState(false);
+  const [showTarjetaModal, setShowTarjetaModal] = useState(false);
+  const [showTransferenciaModal, setShowTransferenciaModal] = useState(false);
+
   // Datos de caja (normalmente vendrían del backend)
   const [montoInicial] = useState(500.00);
   const [gastos] = useState(45.50);
-  const [isCajaCerrada, setIsCajaCerrada] = useState(false);
+
+  // Gastos del día (mock data)
+  const gastosDelDia: Gasto[] = [
+    {
+      id: "G-001",
+      fecha: "22/02/2026",
+      hora: "09:15",
+      concepto: "Compra de suministros de limpieza",
+      categoria: "Suministros",
+      monto: 15.50,
+      responsable: "Juan Pérez"
+    },
+    {
+      id: "G-002",
+      fecha: "22/02/2026",
+      hora: "11:30",
+      concepto: "Pago de servicio de internet",
+      categoria: "Servicios",
+      monto: 25.00,
+      responsable: "Juan Pérez"
+    },
+    {
+      id: "G-003",
+      fecha: "22/02/2026",
+      hora: "14:45",
+      concepto: "Compra de tinta para impresora",
+      categoria: "Suministros",
+      monto: 5.00,
+      responsable: "Juan Pérez"
+    }
+  ];
+
+  const totalGastos = gastosDelDia.reduce((sum, gasto) => sum + gasto.monto, 0);
+
+  // Transacciones con Tarjeta (mock data)
+  const transaccionesTarjeta: Transaccion[] = [
+    {
+      id: "TRX-001",
+      fecha: "22/02/2026",
+      hora: "10:25",
+      cliente: "María González",
+      factura: "FAC-001-001456",
+      monto: 450.00,
+      estado: "Aprobada"
+    },
+    {
+      id: "TRX-002",
+      fecha: "22/02/2026",
+      hora: "12:10",
+      cliente: "Carlos Ruiz",
+      factura: "FAC-001-001457",
+      monto: 789.50,
+      estado: "Aprobada"
+    },
+    {
+      id: "TRX-003",
+      fecha: "22/02/2026",
+      hora: "14:35",
+      cliente: "Ana Martínez",
+      factura: "FAC-001-001458",
+      monto: 325.25,
+      estado: "Aprobada"
+    },
+    {
+      id: "TRX-004",
+      fecha: "22/02/2026",
+      hora: "16:20",
+      cliente: "Pedro Sánchez",
+      factura: "FAC-001-001459",
+      monto: 781.00,
+      estado: "Aprobada"
+    }
+  ];
+
+  // Transacciones con Transferencia (mock data)
+  const transaccionesTransferencia: Transaccion[] = [
+    {
+      id: "TRF-001",
+      fecha: "22/02/2026",
+      hora: "09:45",
+      cliente: "Empresa ABC S.A.",
+      factura: "FAC-001-001454",
+      monto: 560.75,
+      estado: "Confirmada"
+    },
+    {
+      id: "TRF-002",
+      fecha: "22/02/2026",
+      hora: "13:20",
+      cliente: "Distribuidora XYZ",
+      factura: "FAC-001-001460",
+      monto: 329.50,
+      estado: "Confirmada"
+    }
+  ];
+
+  const totalTarjeta = transaccionesTarjeta.reduce((sum, t) => sum + t.monto, 0);
+  const totalTransferencias = transaccionesTransferencia.reduce((sum, t) => sum + t.monto, 0);
 
   // Ventas del día por método de pago (mock data)
   const ventasEfectivo = 1234.50;
@@ -67,7 +193,7 @@ export function ArqueoCaja() {
     monedas.m001 * 0.01;
 
   const totalContado = totalBilletes + totalMonedas;
-  const saldoEsperado = montoInicial + ventasEfectivo - gastos;
+  const saldoEsperado = montoInicial + ventasEfectivo - totalGastos;
   const diferencia = totalContado - saldoEsperado;
 
   const handleCerrarCaja = () => {
@@ -128,8 +254,8 @@ export function ArqueoCaja() {
             </div>
           </div>
 
-          {/* Resumen de ventas del día */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4">
+          {/* Resumen compacto de Gastos */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
             <div className="bg-white/[0.04] border border-white/10 rounded-lg p-2.5 hover:bg-white/[0.06] transition-all">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="p-1 bg-white/5 rounded">
@@ -140,24 +266,55 @@ export function ArqueoCaja() {
               <p className="text-white font-bold text-lg tabular-nums">${ventasEfectivo.toFixed(2)}</p>
             </div>
 
-            <div className="bg-white/[0.04] border border-white/10 rounded-lg p-2.5 hover:bg-white/[0.06] transition-all">
+            {/* Tarjeta clickeable */}
+            <div 
+              onClick={() => setShowTarjetaModal(true)}
+              className="bg-white/[0.04] border border-white/10 rounded-lg p-2.5 hover:bg-white/[0.06] transition-all cursor-pointer"
+            >
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="p-1 bg-white/5 rounded">
                   <CreditCard className="w-3.5 h-3.5 text-gray-300" />
                 </div>
                 <p className="text-gray-400 text-[9px] font-semibold uppercase tracking-wider">Tarjeta</p>
               </div>
-              <p className="text-white font-bold text-lg tabular-nums">${ventasTarjeta.toFixed(2)}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-white font-bold text-lg tabular-nums">${ventasTarjeta.toFixed(2)}</p>
+                <FileText className="w-3.5 h-3.5 text-gray-400/60" />
+              </div>
             </div>
 
-            <div className="bg-white/[0.04] border border-white/10 rounded-lg p-2.5 hover:bg-white/[0.06] transition-all">
+            {/* Transferencias clickeable */}
+            <div 
+              onClick={() => setShowTransferenciaModal(true)}
+              className="bg-white/[0.04] border border-white/10 rounded-lg p-2.5 hover:bg-white/[0.06] transition-all cursor-pointer"
+            >
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="p-1 bg-white/5 rounded">
                   <DollarSign className="w-3.5 h-3.5 text-gray-300" />
                 </div>
                 <p className="text-gray-400 text-[9px] font-semibold uppercase tracking-wider">Transferencias</p>
               </div>
-              <p className="text-white font-bold text-lg tabular-nums">${ventasTransferencia.toFixed(2)}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-white font-bold text-lg tabular-nums">${ventasTransferencia.toFixed(2)}</p>
+                <FileText className="w-3.5 h-3.5 text-gray-400/60" />
+              </div>
+            </div>
+
+            {/* Tarjeta de Gastos con botón */}
+            <div 
+              onClick={() => setShowGastosModal(true)}
+              className="bg-red-500/5 border border-red-500/20 rounded-lg p-2.5 hover:bg-red-500/10 hover:border-red-500/30 transition-all cursor-pointer"
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="p-1 bg-red-500/10 rounded">
+                  <ShoppingBag className="w-3.5 h-3.5 text-red-400" />
+                </div>
+                <p className="text-red-400 text-[9px] font-bold uppercase tracking-wider">Gastos</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-red-400 font-bold text-lg tabular-nums">${totalGastos.toFixed(2)}</p>
+                <FileText className="w-3.5 h-3.5 text-red-400/60" />
+              </div>
             </div>
 
             <div className="bg-primary/8 border border-primary/20 rounded-lg p-2.5 hover:border-primary/30 transition-all">
@@ -280,7 +437,7 @@ export function ArqueoCaja() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400 text-xs">Gastos del Día</span>
-                    <span className="text-white font-bold text-sm tabular-nums">-${gastos.toFixed(2)}</span>
+                    <span className="text-white font-bold text-sm tabular-nums">-${totalGastos.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-white/20 pt-2 mt-2">
                     <div className="flex justify-between items-center bg-white/5 rounded p-2">
@@ -341,6 +498,324 @@ export function ArqueoCaja() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Detalle de Gastos */}
+      {showGastosModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-white font-bold text-xl mb-1 flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5 text-red-400" />
+                    Detalle de Gastos de Caja
+                  </h3>
+                  <p className="text-gray-400 text-xs">
+                    Registro completo de gastos realizados en el día
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowGastosModal(false)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <XCircle className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="bg-white/[0.04] border border-white/10 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[#0D1B2A]/50 border-b border-white/10">
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">ID</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Fecha/Hora</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Concepto</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Categoría</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Responsable</th>
+                        <th className="px-4 py-3 text-right text-gray-400 text-xs font-bold uppercase tracking-wider">Monto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gastosDelDia.map((gasto, index) => (
+                        <tr 
+                          key={gasto.id}
+                          className={`border-b border-white/5 hover:bg-white/[0.02] transition-colors ${
+                            index % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'
+                          }`}
+                        >
+                          <td className="px-4 py-3 text-gray-400 text-sm font-mono">{gasto.id}</td>
+                          <td className="px-4 py-3 text-white text-sm">
+                            <div className="flex items-center gap-2">
+                              <span>{gasto.fecha}</span>
+                              <span className="text-gray-600">•</span>
+                              <span className="text-gray-400 text-xs">{gasto.hora}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-white text-sm">{gasto.concepto}</td>
+                          <td className="px-4 py-3">
+                            <span className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded text-xs font-medium">
+                              {gasto.categoria}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-300 text-sm">{gasto.responsable}</td>
+                          <td className="px-4 py-3 text-right">
+                            <span className="text-red-400 font-bold text-base tabular-nums">${gasto.monto.toFixed(2)}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-red-500/5 border-t-2 border-red-500/20">
+                        <td colSpan={5} className="px-4 py-3 text-right text-white font-bold text-sm uppercase">
+                          Total Gastos del Día:
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span className="text-red-400 font-bold text-xl tabular-nums">${totalGastos.toFixed(2)}</span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                {gastosDelDia.length === 0 && (
+                  <div className="px-4 py-12 text-center">
+                    <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400 text-base font-medium">No se registraron gastos en esta caja</p>
+                    <p className="text-gray-500 text-sm mt-2">Los gastos aparecerán aquí cuando se registren</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-white/10 px-6 py-4 bg-white/5">
+              <button
+                onClick={() => setShowGastosModal(false)}
+                className="w-full px-6 py-2.5 bg-white/[0.07] hover:bg-white/10 border border-white/20 text-white rounded-xl transition-all font-bold text-sm flex items-center justify-center gap-2"
+              >
+                <XCircle className="w-4 h-4" />
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalle de Tarjetas */}
+      {showTarjetaModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-white font-bold text-xl mb-1 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-red-400" />
+                    Detalle de Transacciones con Tarjeta
+                  </h3>
+                  <p className="text-gray-400 text-xs">
+                    Registro completo de transacciones realizadas con tarjeta en el día
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowTarjetaModal(false)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <XCircle className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="bg-white/[0.04] border border-white/10 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[#0D1B2A]/50 border-b border-white/10">
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">ID</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Fecha/Hora</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Cliente</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Factura</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Estado</th>
+                        <th className="px-4 py-3 text-right text-gray-400 text-xs font-bold uppercase tracking-wider">Monto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transaccionesTarjeta.map((transaccion, index) => (
+                        <tr 
+                          key={transaccion.id}
+                          className={`border-b border-white/5 hover:bg-white/[0.02] transition-colors ${
+                            index % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'
+                          }`}
+                        >
+                          <td className="px-4 py-3 text-gray-400 text-sm font-mono">{transaccion.id}</td>
+                          <td className="px-4 py-3 text-white text-sm">
+                            <div className="flex items-center gap-2">
+                              <span>{transaccion.fecha}</span>
+                              <span className="text-gray-600">•</span>
+                              <span className="text-gray-400 text-xs">{transaccion.hora}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-white text-sm">{transaccion.cliente}</td>
+                          <td className="px-4 py-3">
+                            <span className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded text-xs font-medium">
+                              {transaccion.factura}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-300 text-sm">{transaccion.estado}</td>
+                          <td className="px-4 py-3 text-right">
+                            <span className="text-red-400 font-bold text-base tabular-nums">${transaccion.monto.toFixed(2)}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-red-500/5 border-t-2 border-red-500/20">
+                        <td colSpan={5} className="px-4 py-3 text-right text-white font-bold text-sm uppercase">
+                          Total Transacciones con Tarjeta:
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span className="text-red-400 font-bold text-xl tabular-nums">${totalTarjeta.toFixed(2)}</span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                {transaccionesTarjeta.length === 0 && (
+                  <div className="px-4 py-12 text-center">
+                    <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400 text-base font-medium">No se registraron transacciones con tarjeta en esta caja</p>
+                    <p className="text-gray-500 text-sm mt-2">Las transacciones aparecerán aquí cuando se registren</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-white/10 px-6 py-4 bg-white/5">
+              <button
+                onClick={() => setShowTarjetaModal(false)}
+                className="w-full px-6 py-2.5 bg-white/[0.07] hover:bg-white/10 border border-white/20 text-white rounded-xl transition-all font-bold text-sm flex items-center justify-center gap-2"
+              >
+                <XCircle className="w-4 h-4" />
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalle de Transferencias */}
+      {showTransferenciaModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-white font-bold text-xl mb-1 flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-red-400" />
+                    Detalle de Transacciones con Transferencia
+                  </h3>
+                  <p className="text-gray-400 text-xs">
+                    Registro completo de transacciones realizadas con transferencia en el día
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowTransferenciaModal(false)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <XCircle className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="bg-white/[0.04] border border-white/10 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[#0D1B2A]/50 border-b border-white/10">
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">ID</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Fecha/Hora</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Cliente</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Factura</th>
+                        <th className="px-4 py-3 text-left text-gray-400 text-xs font-bold uppercase tracking-wider">Estado</th>
+                        <th className="px-4 py-3 text-right text-gray-400 text-xs font-bold uppercase tracking-wider">Monto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transaccionesTransferencia.map((transaccion, index) => (
+                        <tr 
+                          key={transaccion.id}
+                          className={`border-b border-white/5 hover:bg-white/[0.02] transition-colors ${
+                            index % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'
+                          }`}
+                        >
+                          <td className="px-4 py-3 text-gray-400 text-sm font-mono">{transaccion.id}</td>
+                          <td className="px-4 py-3 text-white text-sm">
+                            <div className="flex items-center gap-2">
+                              <span>{transaccion.fecha}</span>
+                              <span className="text-gray-600">•</span>
+                              <span className="text-gray-400 text-xs">{transaccion.hora}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-white text-sm">{transaccion.cliente}</td>
+                          <td className="px-4 py-3">
+                            <span className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded text-xs font-medium">
+                              {transaccion.factura}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-300 text-sm">{transaccion.estado}</td>
+                          <td className="px-4 py-3 text-right">
+                            <span className="text-red-400 font-bold text-base tabular-nums">${transaccion.monto.toFixed(2)}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-red-500/5 border-t-2 border-red-500/20">
+                        <td colSpan={5} className="px-4 py-3 text-right text-white font-bold text-sm uppercase">
+                          Total Transacciones con Transferencia:
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span className="text-red-400 font-bold text-xl tabular-nums">${totalTransferencias.toFixed(2)}</span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                {transaccionesTransferencia.length === 0 && (
+                  <div className="px-4 py-12 text-center">
+                    <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400 text-base font-medium">No se registraron transacciones con transferencia en esta caja</p>
+                    <p className="text-gray-500 text-sm mt-2">Las transacciones aparecerán aquí cuando se registren</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-white/10 px-6 py-4 bg-white/5">
+              <button
+                onClick={() => setShowTransferenciaModal(false)}
+                className="w-full px-6 py-2.5 bg-white/[0.07] hover:bg-white/10 border border-white/20 text-white rounded-xl transition-all font-bold text-sm flex items-center justify-center gap-2"
+              >
+                <XCircle className="w-4 h-4" />
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

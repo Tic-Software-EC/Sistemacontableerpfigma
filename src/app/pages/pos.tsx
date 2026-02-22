@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { ShoppingCart, Search, CreditCard, DollarSign, Trash2, Plus, Minus, X, Receipt, User, Package, Calendar, Clock, Banknote, Smartphone, Building2, CheckCircle, Printer, AlertTriangle, UserPlus, Phone, Mail, MapPin, TrendingUp, TrendingDown, FileText, Info, AlertCircle, Pause, Play, Save, Percent, Camera, Loader2, Users } from "lucide-react";
+import { ShoppingCart, Search, CreditCard, DollarSign, Trash2, Plus, Minus, X, Receipt, User, Package, Calendar, Clock, Banknote, Smartphone, Building2, CheckCircle, Printer, AlertTriangle, UserPlus, Phone, Mail, MapPin, TrendingUp, TrendingDown, FileText, Info, AlertCircle, Pause, Play, Save, Percent, Camera, Loader2, Users, Heart, Briefcase } from "lucide-react";
 import { toast, Toaster } from "sonner";
+import { CustomerModal } from "./pos-customer-modal";
+import { CreateCustomerModal } from "./pos-create-customer-modal";
 
 interface Product {
   code: string;
@@ -307,10 +309,23 @@ export function POS() {
     email: "",
     phone: "",
     address: "",
+    birthDate: "",
+    birthPlace: "",
+    civilStatus: "Soltero/a",
+    spouseName: "",
+    occupation: "",
+    workplace: "",
+    workPhone: "",
+    city: "",
+    parish: "",
+    neighborhood: "",
+    reference: "",
     guarantorName: "",
     guarantorCedula: "",
     guarantorPhone: "",
+    guarantorRelationship: "",
     photo: "",
+    signature: "",
   });
   // Estados para consulta de registro civil
   const [consultingCedula, setConsultingCedula] = useState(false);
@@ -492,8 +507,16 @@ export function POS() {
       
       setRegistroCivilData(mockData);
       setCustomerName(`${mockData.nombres} ${mockData.apellidos}`);
+      
+      // Completar automáticamente los campos del formulario
+      setNewCustomerData({
+        ...newCustomerData,
+        birthDate: mockData.fechaNacimiento,
+        birthPlace: mockData.lugarNacimiento,
+      });
+      
       setConsultingCedula(false);
-      toast.success("Datos obtenidos del Registro Civil");
+      toast.success("Datos obtenidos del Registro Civil y completados automáticamente");
     }, 1500);
   };
 
@@ -504,6 +527,18 @@ export function POS() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setNewCustomerData({ ...newCustomerData, photo: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Manejar carga de firma
+  const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewCustomerData({ ...newCustomerData, signature: reader.result as string });
       };
       reader.readAsDataURL(file);
     }
@@ -532,7 +567,32 @@ export function POS() {
     setFoundCustomer(newCustomer);
     setCustomerSearchTerm(`${newCustomer.name} - ${newCustomer.ruc}`);
     setShowCreateCustomerModal(false);
-    setNewCustomerData({ email: "", phone: "", address: "" });
+    setRegistroCivilData(null);
+    setCustomerName("");
+    setCustomerRuc("");
+    setNewCustomerData({ 
+      email: "", 
+      phone: "", 
+      address: "",
+      birthDate: "",
+      birthPlace: "",
+      civilStatus: "Soltero/a",
+      spouseName: "",
+      occupation: "",
+      workplace: "",
+      workPhone: "",
+      city: "",
+      parish: "",
+      neighborhood: "",
+      reference: "",
+      guarantorName: "", 
+      guarantorCedula: "", 
+      guarantorPhone: "",
+      guarantorRelationship: "",
+      photo: "",
+      signature: ""
+    });
+    toast.success("Cliente registrado exitosamente");
   };
 
   // Filtrar productos por búsqueda y categoría
@@ -654,6 +714,15 @@ export function POS() {
       alert("Debes abrir la caja antes de realizar ventas");
       return;
     }
+    
+    // Validar que haya un cliente seleccionado
+    if (!customerName || customerName.trim() === "") {
+      toast.error("Debe seleccionar un cliente", {
+        description: "Selecciona o crea un cliente antes de agregar productos"
+      });
+      return;
+    }
+    
     const existingItem = cart.find((item) => item.product.code === product.code);
 
     if (existingItem) {
@@ -996,15 +1065,6 @@ export function POS() {
                           </div>
                         </button>
                       ))}
-                      <button
-                        onClick={openCreateCustomerModal}
-                        className="w-full text-left px-4 py-3 bg-primary/10 hover:bg-primary/20 transition-colors border-t border-primary/20"
-                      >
-                        <div className="flex items-center gap-2">
-                          <UserPlus className="w-4 h-4 text-primary" />
-                          <span className="text-primary font-medium text-sm">Crear nuevo cliente</span>
-                        </div>
-                      </button>
                     </>
                   ) : (
                     <div className="px-4 py-8 text-center">
@@ -1029,85 +1089,57 @@ export function POS() {
                 <label className="text-gray-400 text-xs mb-1 block">Nombre Completo</label>
                 <input
                   type="text"
-                  placeholder="Ingrese nombre completo"
+                  placeholder="Seleccione o cree un cliente"
                   value={customerName}
-                  onChange={(e) => {
-                    setCustomerName(e.target.value);
-                    if (foundCustomer) setIsEditingCustomer(true);
-                  }}
-                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  readOnly
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none cursor-default opacity-70"
                 />
               </div>
               <div>
                 <label className="text-gray-400 text-xs mb-1 block">Cédula/RUC</label>
                 <input
                   type="text"
-                  placeholder="Ingrese cédula o RUC"
+                  placeholder="Automático"
                   value={customerRuc}
-                  onChange={(e) => {
-                    setCustomerRuc(e.target.value);
-                    if (foundCustomer) setIsEditingCustomer(true);
-                  }}
-                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  readOnly
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none cursor-default opacity-70 font-mono"
                 />
               </div>
               <div>
                 <label className="text-gray-400 text-xs mb-1 block">Teléfono</label>
                 <input
                   type="text"
-                  placeholder="Ingrese teléfono"
+                  placeholder="Automático"
                   value={customerPhone}
-                  onChange={(e) => {
-                    setCustomerPhone(e.target.value);
-                    if (foundCustomer) setIsEditingCustomer(true);
-                  }}
-                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  readOnly
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none cursor-default opacity-70"
                 />
               </div>
             </div>
 
             {/* Fila 3: Email y Dirección (dirección más grande) */}
-            <div className="grid grid-cols-[1fr_2fr] gap-2 mb-2">
+            <div className="grid grid-cols-[1fr_2fr] gap-2">
               <div>
                 <label className="text-gray-400 text-xs mb-1 block">Email</label>
                 <input
                   type="email"
-                  placeholder="Ingrese email"
+                  placeholder="Automático"
                   value={customerEmail}
-                  onChange={(e) => {
-                    setCustomerEmail(e.target.value);
-                    if (foundCustomer) setIsEditingCustomer(true);
-                  }}
-                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  readOnly
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none cursor-default opacity-70"
                 />
               </div>
               <div>
                 <label className="text-gray-400 text-xs mb-1 block">Dirección</label>
                 <input
                   type="text"
-                  placeholder="Ingrese dirección completa"
+                  placeholder="Automático"
                   value={customerAddress}
-                  onChange={(e) => {
-                    setCustomerAddress(e.target.value);
-                    if (foundCustomer) setIsEditingCustomer(true);
-                  }}
-                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  readOnly
+                  className="w-full px-2 py-1.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none cursor-default opacity-70"
                 />
               </div>
             </div>
-
-            {/* Botón de actualizar - solo visible cuando hay un cliente seleccionado y se está editando */}
-            {foundCustomer && isEditingCustomer && (
-              <div className="flex justify-end">
-                <button
-                  onClick={handleUpdateCustomer}
-                  className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-all flex items-center gap-1.5"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  Actualizar Datos
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Sección de Control de Caja - Compacta */}
@@ -1185,26 +1217,26 @@ export function POS() {
               {!isCajaOpen ? (
                 <button
                   onClick={() => setShowOpenCajaModal(true)}
-                  className="flex-1 px-3 py-1.5 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white rounded text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
                 >
-                  <CheckCircle className="w-3.5 h-3.5" />
+                  <CheckCircle className="w-5 h-5" />
                   Abrir Caja
                 </button>
               ) : (
                 <>
                   <button
                     onClick={() => setShowExpenseModal(true)}
-                    className="flex-1 px-3 py-1.5 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                    className="flex-1 px-4 py-2.5 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
                   >
-                    <TrendingDown className="w-3.5 h-3.5" />
+                    <TrendingDown className="w-5 h-5" />
                     Registrar Gasto
                   </button>
                   {expenses.length > 0 && (
                     <button
                       onClick={() => setShowExpensesList(true)}
-                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white rounded text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                      className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
                     >
-                      <FileText className="w-3.5 h-3.5" />
+                      <FileText className="w-5 h-5" />
                       Ver Gastos
                     </button>
                   )}
@@ -1218,7 +1250,7 @@ export function POS() {
           {/* Panel de carrito - columna izquierda (flexible) */}
           <div className="order-2 lg:order-1">
             {/* Carrito */}
-            <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl overflow-hidden flex flex-col shadow-xl">
+            <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl overflow-hidden flex flex-col shadow-xl" style={{ maxHeight: "480px" }}>
               {/* Header del carrito */}
               <div className="bg-[#1a2332] border-b border-white/10 px-4 py-2.5 flex items-center justify-between">
                 <h3 className="text-white font-bold text-base flex items-center gap-2">
@@ -1238,7 +1270,7 @@ export function POS() {
               </div>
 
               {/* Contenido del carrito con altura fija y scroll */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ height: "300px" }}>
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {cart.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full p-8">
                     <div className="p-6 bg-white/5 rounded-2xl border border-white/10 mb-4">
@@ -1305,12 +1337,12 @@ export function POS() {
 
                         {/* Precio Unitario */}
                         <div className="text-gray-400 text-sm font-mono">
-                          ${(item.product.price * (1 + item.product.tax / 100)).toFixed(2)}
+                          ${item.product.price.toFixed(2)}
                         </div>
 
                         {/* Total */}
                         <div className="text-white text-sm font-bold font-mono">
-                          ${(item.product.price * (1 + item.product.tax / 100) * item.quantity).toFixed(2)}
+                          ${(item.product.price * item.quantity).toFixed(2)}
                         </div>
 
                         {/* Botón eliminar */}
@@ -1331,6 +1363,18 @@ export function POS() {
               {/* Footer - Totales y acciones */}
               {cart.length > 0 && (
 <div className="bg-[#1a2332] border-t border-white/10 p-3 space-y-2">
+                  {/* Desglose de totales */}
+                  <div className="space-y-1.5 px-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400 text-sm">Subtotal:</span>
+                      <span className="text-white text-sm font-mono">${totals.subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400 text-sm">IVA (15%):</span>
+                      <span className="text-white text-sm font-mono">${totals.tax.toFixed(2)}</span>
+                    </div>
+                  </div>
+
                   {/* Total a Pagar - Header destacado */}
                   <div className="flex justify-between items-center py-2 px-3 bg-[#0f1825] rounded-lg">
                     <span className="text-white font-bold text-sm uppercase">TOTAL A PAGAR:</span>
@@ -1694,31 +1738,47 @@ export function POS() {
                         </div>
                       </div>
 
-                      {/* Entrada/Abono Inicial */}
-                      <div className="mb-4">
-                        <label className="block text-white text-xs mb-1.5 font-medium flex items-center gap-1.5">
-                          <Banknote className="w-3.5 h-3.5 text-primary" />
-                          Entrada / Abono Inicial
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary text-sm font-bold">$</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max={totals.total}
-                            step="0.01"
-                            value={downPayment}
-                            onChange={(e) => setDownPayment(parseFloat(e.target.value) || 0)}
-                            className="w-full pl-8 pr-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm font-bold focus:outline-none focus:border-primary/50 transition-all"
-                            placeholder="0.00"
-                          />
+                      {/* Resumen financiero compacto */}
+                      <div className="bg-[#141c29] border border-white/10 rounded-lg p-3 mb-3">
+                        <div className="grid grid-cols-3 gap-3 mb-3">
+                          <div>
+                            <p className="text-gray-400 text-[10px] uppercase font-medium mb-1">Total Compra</p>
+                            <p className="text-white font-bold text-base">${totals.total.toFixed(2)}</p>
+                            {totals.discount > 0 && (
+                              <p className="text-red-400 text-[10px] mt-0.5">-${totals.discount.toFixed(2)}</p>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-[10px] uppercase font-medium mb-1">Entrada</p>
+                            <p className="text-primary font-bold text-base">${downPayment.toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-[10px] uppercase font-medium mb-1">A Financiar</p>
+                            <p className="text-white font-bold text-base">${Math.max(0, totals.total - downPayment).toFixed(2)}</p>
+                          </div>
                         </div>
-                        <p className="text-gray-400 text-xs mt-1">
-                          Saldo a financiar: <span className="text-white font-bold">${Math.max(0, totals.total - downPayment).toFixed(2)}</span>
-                        </p>
+                        
+                        <div className="border-t border-white/10 pt-2">
+                          <label className="block text-gray-400 text-[10px] uppercase font-medium mb-1.5">
+                            Entrada / Abono Inicial (Opcional)
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
+                            <input
+                              type="number"
+                              min="0"
+                              max={totals.total}
+                              step="0.01"
+                              value={downPayment}
+                              onChange={(e) => setDownPayment(parseFloat(e.target.value) || 0)}
+                              className="w-full pl-7 pr-3 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm font-bold focus:outline-none focus:border-primary/50 transition-all"
+                              placeholder="0.00"
+                            />
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
                           <label className="block text-white text-xs mb-1.5 font-medium">
                             Plazo (meses)
@@ -1752,62 +1812,58 @@ export function POS() {
                         </div>
                       </div>
 
-                      {/* Resumen rápido */}
-                      <div className="bg-[#141c29] border border-white/10 rounded-lg p-2 mb-4 grid grid-cols-3 gap-2">
-                        <div className="text-center">
-                          <p className="text-gray-400 text-xs mb-0.5">Cuota</p>
-                          <p className="text-white font-bold text-sm">
-                            ${(() => {
-                              const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar
-                              const monthlyRate = interestRate / 100 / 12;
-                              const n = creditMonths;
-                              const monthlyPayment = monthlyRate === 0 
-                                ? principal / n 
-                                : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                              return monthlyPayment.toFixed(2);
-                            })()}
-                          </p>
-                        </div>
-                        <div className="text-center border-l border-r border-white/10">
-                          <p className="text-gray-400 text-xs mb-0.5">Total</p>
-                          <p className="text-primary font-bold text-sm">
-                            ${(() => {
-                              const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar
-                              const monthlyRate = interestRate / 100 / 12;
-                              const n = creditMonths;
-                              const monthlyPayment = monthlyRate === 0 
-                                ? principal / n 
-                                : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                              return ((monthlyPayment * n) + downPayment).toFixed(2); // Total incluye la entrada
-                            })()}
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-gray-400 text-xs mb-0.5">Interés</p>
-                          <p className="text-red-400 font-bold text-sm">
-                            +${(() => {
-                              const principal = Math.max(0, totals.total - downPayment); // Saldo a financiar
-                              const monthlyRate = interestRate / 100 / 12;
-                              const n = creditMonths;
-                              const monthlyPayment = monthlyRate === 0 
-                                ? principal / n 
-                                : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-                              return ((monthlyPayment * n) - principal).toFixed(2);
-                            })()}
-                          </p>
+                      {/* Resumen de cuota y totales - Profesional */}
+                      <div className="bg-[#141c29] border border-white/10 rounded-lg p-3 mb-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <p className="text-gray-400 text-[10px] uppercase font-medium mb-1">Cuota Mensual</p>
+                            <p className="text-white font-bold text-base">
+                              ${(() => {
+                                const principal = Math.max(0, totals.total - downPayment);
+                                const monthlyRate = interestRate / 100 / 12;
+                                const n = creditMonths;
+                                const monthlyPayment = monthlyRate === 0 
+                                  ? principal / n 
+                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                                return monthlyPayment.toFixed(2);
+                              })()} <span className="text-gray-400 text-xs font-normal">x {creditMonths} meses</span>
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-[10px] uppercase font-medium mb-1">Total a Pagar</p>
+                            <p className="text-primary font-bold text-base">
+                              ${(() => {
+                                const principal = Math.max(0, totals.total - downPayment);
+                                const monthlyRate = interestRate / 100 / 12;
+                                const n = creditMonths;
+                                const monthlyPayment = monthlyRate === 0 
+                                  ? principal / n 
+                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                                return ((monthlyPayment * n) + downPayment).toFixed(2);
+                              })()} <span className="text-red-400 text-[10px]">+${(() => {
+                                const principal = Math.max(0, totals.total - downPayment);
+                                const monthlyRate = interestRate / 100 / 12;
+                                const n = creditMonths;
+                                const monthlyPayment = monthlyRate === 0 
+                                  ? principal / n 
+                                  : principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                                return ((monthlyPayment * n) - principal).toFixed(2);
+                              })()}</span>
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Tabla de amortización compacta */}
-                      <div className="flex-1 overflow-hidden flex flex-col">
+                      {/* Tabla de amortización compacta con scroll */}
+                      <div className="flex-1 overflow-hidden flex flex-col min-h-0">
                         <h5 className="text-white font-bold text-xs mb-2 flex items-center gap-1.5">
                           <FileText className="w-3.5 h-3.5 text-primary" />
                           Tabla de Amortización
                         </h5>
-                        <div className="bg-[#141c29] border border-white/10 rounded-lg overflow-hidden flex-1 flex flex-col">
-                          <div className="overflow-y-auto flex-1" style={{ maxHeight: '300px' }}>
+                        <div className="bg-[#141c29] border border-white/10 rounded-lg overflow-hidden flex-1 flex flex-col min-h-0">
+                          <div className="overflow-y-auto flex-1" style={{ maxHeight: '200px' }}>
                             <table className="w-full text-xs">
-                              <thead className="sticky top-0 bg-[#141c29] border-b border-white/10">
+                              <thead className="sticky top-0 bg-[#141c29] border-b border-white/10 z-10">
                                 <tr>
                                   <th className="px-2 py-1.5 text-left text-gray-400 font-bold">#</th>
                                   <th className="px-2 py-1.5 text-left text-gray-400 font-bold">Fecha</th>
@@ -1846,13 +1902,19 @@ export function POS() {
                                     const principalPayment = monthlyPayment - interestPayment;
                                     balance -= principalPayment;
                                     
+                                    // Calcular fecha de pago: mismo día del mes siguiente
                                     const paymentDate = new Date(today);
                                     paymentDate.setMonth(paymentDate.getMonth() + i);
+                                    
+                                    // Formatear fecha con día/mes/año (ej: 21/03/2026)
+                                    const day = paymentDate.getDate().toString().padStart(2, '0');
+                                    const month = (paymentDate.getMonth() + 1).toString().padStart(2, '0');
+                                    const year = paymentDate.getFullYear();
                                     
                                     rows.push(
                                       <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                         <td className="px-2 py-1.5 text-white font-mono">{i}</td>
-                                        <td className="px-2 py-1.5 text-gray-300 font-mono">{paymentDate.toLocaleDateString('es-EC', { month: '2-digit', year: 'numeric' })}</td>
+                                        <td className="px-2 py-1.5 text-gray-300 font-mono">{day}/{month}/{year}</td>
                                         <td className="px-2 py-1.5 text-right text-white font-bold">${monthlyPayment.toFixed(2)}</td>
                                         <td className="px-2 py-1.5 text-right text-red-400">${interestPayment.toFixed(2)}</td>
                                         <td className="px-2 py-1.5 text-right text-green-400">${principalPayment.toFixed(2)}</td>
@@ -2221,6 +2283,31 @@ export function POS() {
                 </div>
               </div>
 
+              {/* Desglose de la venta */}
+              <div className="border-2 border-gray-300 rounded-lg p-4 mb-6">
+                <p className="text-gray-500 text-xs mb-3 uppercase font-bold">Desglose de la Venta</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">Subtotal:</span>
+                    <span className="text-[#0D1B2A] font-bold">${lastSale.subtotal.toFixed(2)}</span>
+                  </div>
+                  {lastSale.discount > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Descuento Aplicado:</span>
+                      <span className="text-red-600 font-bold">-${lastSale.discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">IVA (12%):</span>
+                    <span className="text-[#0D1B2A] font-bold">${lastSale.tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t-2 border-gray-300">
+                    <span className="text-[#0D1B2A] font-bold">Total a Pagar:</span>
+                    <span className="text-[#0D1B2A] font-bold text-xl">${lastSale.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Resumen del crédito - Simplificado sin colores */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <div className="border-2 border-gray-300 rounded-lg p-4">
@@ -2360,381 +2447,42 @@ export function POS() {
 
       {/* Modal de cliente encontrado */}
       {showCustomerModal && foundCustomer && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md bg-secondary border border-white/10 rounded-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-b border-white/10 px-6 py-4">
-              <h3 className="text-white font-bold text-xl flex items-center gap-2">
-                <CheckCircle className="w-6 h-6 text-green-400" />
-                Cliente Encontrado
-              </h3>
-              <p className="text-gray-400 text-sm mt-1">RUC/Cédula: {foundCustomer.ruc}</p>
-            </div>
-
-            <div className="p-6">
-              {/* Información del cliente */}
-              <div className="mb-6 space-y-3">
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">
-                        {foundCustomer.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-white font-bold text-lg">{foundCustomer.name}</p>
-                      <p className="text-gray-400 text-sm">Cliente Registrado</p>
-                    </div>
-                  </div>
-
-                  {foundCustomer.email && (
-                    <div className="flex items-center gap-2 text-sm text-gray-300 mb-2">
-                      <Mail className="w-4 h-4 text-primary" />
-                      <span>{foundCustomer.email}</span>
-                    </div>
-                  )}
-
-                  {foundCustomer.phone && (
-                    <div className="flex items-center gap-2 text-sm text-gray-300 mb-2">
-                      <Phone className="w-4 h-4 text-primary" />
-                      <span>{foundCustomer.phone}</span>
-                    </div>
-                  )}
-
-                  {foundCustomer.address && (
-                    <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      <span>{foundCustomer.address}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Estadísticas del cliente */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <TrendingUp className="w-4 h-4 text-green-400" />
-                      <p className="text-gray-400 text-xs">Total Compras</p>
-                    </div>
-                    <p className="text-white font-bold text-2xl">{foundCustomer.totalPurchases}</p>
-                  </div>
-                  
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <DollarSign className="w-4 h-4 text-blue-400" />
-                      <p className="text-gray-400 text-xs">Última Compra</p>
-                    </div>
-                    <p className="text-white font-bold text-sm">
-                      {foundCustomer.lastPurchaseDate || 'N/A'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Alerta de saldo pendiente */}
-                {foundCustomer.pendingBalance > 0 && (
-                  <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-                    <div className="flex items-start gap-3">
-                      <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-red-400 font-bold text-sm mb-1">¡Saldo Pendiente!</p>
-                        <p className="text-white font-bold text-2xl">
-                          ${foundCustomer.pendingBalance.toFixed(2)}
-                        </p>
-                        <p className="text-gray-400 text-xs mt-1">
-                          Este cliente tiene un saldo pendiente por pagar
-                        </p>
-                        <p className="text-yellow-400 text-xs mt-2 flex items-start gap-1">
-                          <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                          <span>Cada compra a crédito se gestiona de forma independiente</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Sin saldo pendiente */}
-                {foundCustomer.pendingBalance === 0 && (
-                  <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-400" />
-                      <div>
-                        <p className="text-green-400 font-bold text-sm">Sin Saldos Pendientes</p>
-                        <p className="text-gray-400 text-xs mt-1">
-                          El cliente está al día con sus pagos
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="border-t border-white/10 px-6 py-4">
-              <button
-                onClick={() => setShowCustomerModal(false)}
-                className="w-full px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-bold flex items-center justify-center gap-2"
-              >
-                <CheckCircle className="w-5 h-5" />
-                Continuar con este Cliente
-              </button>
-            </div>
-          </div>
-        </div>
+        <CustomerModal
+          customer={foundCustomer}
+          onConfirm={() => setShowCustomerModal(false)}
+          onCancel={() => {
+            setShowCustomerModal(false);
+            setFoundCustomer(null);
+            setCustomerName("");
+            setCustomerRuc("");
+            setCustomerPhone("");
+            setCustomerAddress("");
+            setCustomerEmail("");
+          }}
+        />
       )}
 
       {/* Modal de crear cliente */}
       {showCreateCustomerModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto">
-            
-            {/* Header */}
-            <div className="bg-[#1a2332] border-b border-white/10 px-5 py-3 sticky top-0 z-10">
-              <h3 className="text-white font-bold text-base flex items-center gap-2">
-                <div className="p-1.5 bg-primary/10 rounded-lg">
-                  <UserPlus className="w-4 h-4 text-primary" />
-                </div>
-                Registrar Nuevo Cliente
-              </h3>
-              <p className="text-gray-400 text-xs mt-0.5">Consulta automática del Registro Civil mediante cédula</p>
-            </div>
-
-            <div className="p-5">
-              {/* Sección 1: Consulta de Cédula y Foto */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                
-                {/* Foto del Cliente */}
-                <div className="lg:col-span-1">
-                  <label className="block text-white text-xs mb-2 font-medium">
-                    Foto del Cliente
-                  </label>
-                  <div className="relative">
-                    <div className="w-full aspect-square bg-white/5 border-2 border-dashed border-white/10 rounded-lg overflow-hidden flex items-center justify-center">
-                      {newCustomerData.photo ? (
-                        <img src={newCustomerData.photo} alt="Cliente" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="text-center">
-                          <Camera className="w-12 h-12 text-gray-500 mx-auto mb-2" />
-                          <p className="text-gray-500 text-xs">Cargar foto</p>
-                        </div>
-                      )}
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhotoUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                  </div>
-                </div>
-
-                {/* Datos del Registro Civil */}
-                <div className="lg:col-span-2 space-y-3">
-                  <div>
-                    <label className="block text-white text-xs mb-2 font-medium flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-primary" />
-                      Número de Cédula *
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="1234567890"
-                        value={customerRuc}
-                        onChange={(e) => setCustomerRuc(e.target.value)}
-                        maxLength={10}
-                        className="flex-1 px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                        required
-                      />
-                      <button
-                        onClick={() => consultarRegistroCivil(customerRuc)}
-                        disabled={customerRuc.length < 10 || consultingCedula}
-                        className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-medium text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {consultingCedula ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Consultando...
-                          </>
-                        ) : (
-                          <>
-                            <Search className="w-4 h-4" />
-                            Consultar
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Datos obtenidos del Registro Civil */}
-                  {registroCivilData && (
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle className="w-4 h-4 text-green-400" />
-                        <h4 className="text-white font-bold text-xs">Datos del Registro Civil</h4>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <span className="text-gray-400">Nombres:</span>
-                          <p className="text-white font-medium">{registroCivilData.nombres}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Apellidos:</span>
-                          <p className="text-white font-medium">{registroCivilData.apellidos}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">F. Nacimiento:</span>
-                          <p className="text-white font-medium">{registroCivilData.fechaNacimiento}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Lugar:</span>
-                          <p className="text-white font-medium">{registroCivilData.lugarNacimiento}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-white text-xs mb-2 font-medium">
-                      Nombre Completo *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Nombre completo del cliente"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                      required
-                      disabled={consultingCedula}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Sección 2: Datos de Contacto */}
-              <div className="mb-4">
-                <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-primary" />
-                  Información de Contacto
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
-                      Correo Electrónico
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="correo@ejemplo.com"
-                      value={newCustomerData.email}
-                      onChange={(e) => setNewCustomerData({ ...newCustomerData, email: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
-                      Teléfono
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="+593 99 123 4567"
-                      value={newCustomerData.phone}
-                      onChange={(e) => setNewCustomerData({ ...newCustomerData, phone: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
-                      Dirección
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Calle, número, ciudad"
-                      value={newCustomerData.address}
-                      onChange={(e) => setNewCustomerData({ ...newCustomerData, address: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Sección 3: Datos del Garante */}
-              <div className="mb-4">
-                <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-primary" />
-                  Información del Garante (Opcional)
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
-                      Nombre del Garante
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Nombre completo"
-                      value={newCustomerData.guarantorName}
-                      onChange={(e) => setNewCustomerData({ ...newCustomerData, guarantorName: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
-                      Cédula del Garante
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="1234567890"
-                      value={newCustomerData.guarantorCedula}
-                      onChange={(e) => setNewCustomerData({ ...newCustomerData, guarantorCedula: e.target.value })}
-                      maxLength={10}
-                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 text-xs mb-1.5 font-medium">
-                      Teléfono del Garante
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="+593 99 123 4567"
-                      value={newCustomerData.guarantorPhone}
-                      onChange={(e) => setNewCustomerData({ ...newCustomerData, guarantorPhone: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#141c29] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-2 bg-white/5 border border-white/10 rounded-lg">
-                <p className="text-gray-400 text-xs flex items-center gap-1.5">
-                  <Info className="w-3 h-3" />
-                  Los campos marcados con * son obligatorios. La consulta al Registro Civil es automática.
-                </p>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-white/10 bg-white/5 px-5 py-3 flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setShowCreateCustomerModal(false);
-                  setCustomerSearchTerm("");
-                  setCustomerName("");
-                  setCustomerRuc("");
-                  setRegistroCivilData(null);
-                  setNewCustomerData({ email: "", phone: "", address: "", guarantorName: "", guarantorCedula: "", guarantorPhone: "", photo: "" });
-                }}
-                className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all font-medium text-sm"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={createNewCustomer}
-                disabled={consultingCedula}
-                className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <CheckCircle className="w-5 h-5" />
-                Guardar Cliente
-              </button>
-            </div>
-          </div>
-        </div>
+        <CreateCustomerModal
+          existingCustomers={MOCK_CUSTOMERS}
+          onConfirm={(newCustomer) => {
+            // Agregar al array mock (en producción se guardaría en BD)
+            MOCK_CUSTOMERS.push(newCustomer);
+            setFoundCustomer(newCustomer);
+            setCustomerSearchTerm(""); // Campo de búsqueda vacío
+            // Llenar todos los campos con la información del nuevo cliente
+            setCustomerName(newCustomer.name);
+            setCustomerRuc(newCustomer.ruc);
+            setCustomerPhone(newCustomer.phone || "");
+            setCustomerEmail(newCustomer.email || "");
+            setCustomerAddress(newCustomer.address || "");
+            setShowCreateCustomerModal(false);
+          }}
+          onCancel={() => {
+            setShowCreateCustomerModal(false);
+          }}
+        />
       )}
 
 
@@ -2868,7 +2616,7 @@ export function POS() {
                   </div>
                   <div>
                     <p className="text-white font-medium text-sm">Juan Pérez</p>
-                    <p className="text-gray-400 text-xs">Vendedor · Sucursal Centro</p>
+                    <p className="text-gray-400 text-xs">Cajero · Sucursal Centro</p>
                   </div>
                 </div>
               </div>
@@ -3276,22 +3024,32 @@ export function POS() {
                       </div>
 
                       {/* Productos */}
-                      <div className="bg-white/5 border border-white/10 rounded-lg p-3 mb-4">
-                        <p className="text-gray-400 text-xs mb-2 font-medium">Productos ({heldSale.cart.length})</p>
-                        <div className="space-y-2">
-                          {heldSale.cart.map((item, index) => (
-                            <div key={index} className="flex items-center justify-between text-sm">
-                              <div className="flex-1">
-                                <p className="text-white font-medium">{item.product.name}</p>
-                                <p className="text-gray-500 text-xs">
-                                  {item.quantity} x ${item.product.price.toFixed(2)}
-                                </p>
-                              </div>
-                              <p className="text-primary font-bold">
-                                ${(item.quantity * item.product.price).toFixed(2)}
-                              </p>
-                            </div>
-                          ))}
+                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4">
+                        <div className="overflow-x-auto">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="bg-white/5 border-b border-white/10">
+                                <th className="text-left text-gray-400 text-xs font-medium px-3 py-2 uppercase">Código</th>
+                                <th className="text-left text-gray-400 text-xs font-medium px-3 py-2 uppercase">Producto</th>
+                                <th className="text-center text-gray-400 text-xs font-medium px-3 py-2 uppercase">Cantidad</th>
+                                <th className="text-right text-gray-400 text-xs font-medium px-3 py-2 uppercase">P. Unit.</th>
+                                <th className="text-right text-gray-400 text-xs font-medium px-3 py-2 uppercase">Total</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {heldSale.cart.map((item, index) => (
+                                <tr key={index} className="border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-colors">
+                                  <td className="text-gray-400 text-sm px-3 py-2.5">{item.product.code}</td>
+                                  <td className="text-white text-sm px-3 py-2.5">{item.product.name}</td>
+                                  <td className="text-white text-sm px-3 py-2.5 text-center">{item.quantity}</td>
+                                  <td className="text-gray-300 text-sm px-3 py-2.5 text-right">${item.product.price.toFixed(2)}</td>
+                                  <td className="text-white font-bold text-sm px-3 py-2.5 text-right">
+                                    ${(item.quantity * item.product.price).toFixed(2)}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
 
