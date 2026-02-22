@@ -290,16 +290,16 @@ export function DiscountsContent() {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-6 max-w-7xl">
       {/* Header estándar */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
             <DollarSign className="w-8 h-8 text-primary" />
-            Descuentos
+            Descuentos y Promociones
           </h2>
           <p className="text-gray-400 text-sm">
-            Gestiona descuentos y promociones por sucursal
+            Gestiona los descuentos activos y promociones disponibles
           </p>
         </div>
         <button

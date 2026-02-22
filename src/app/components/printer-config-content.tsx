@@ -241,16 +241,16 @@ export function PrinterConfigContent() {
   });
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-6 max-w-7xl">
       {/* Header con título y botón */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
             <Printer className="w-8 h-8 text-primary" />
-            Configuración de Impresoras
+            Configuración de Impresión
           </h2>
           <p className="text-gray-400 text-sm">
-            Gestiona impresoras por sucursal y configuración de documentos
+            Gestiona impresoras y formatos de impresión por documento
           </p>
         </div>
         <button

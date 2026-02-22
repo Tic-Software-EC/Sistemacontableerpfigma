@@ -31,7 +31,7 @@ export function CompanyInfoContent() {
   };
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-6 max-w-6xl">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
@@ -53,13 +53,13 @@ export function CompanyInfoContent() {
       <div className="border-t border-white/10"></div>
 
       {/* Datos Generales */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-6">
+      <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-5">
           <Building2 className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Datos Generales</h3>
+          <h3 className="text-white font-bold text-lg">Datos Generales</h3>
         </div>
         
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-300 text-sm mb-2 font-medium">
               Razón Social
@@ -135,14 +135,14 @@ export function CompanyInfoContent() {
       </div>
 
       {/* Configuración Fiscal */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-6">
+      <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-5">
           <Calculator className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Configuración Fiscal</h3>
+          <h3 className="text-white font-bold text-lg">Configuración Fiscal</h3>
         </div>
 
-        <div className="space-y-5">
-          <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
+        <div className="space-y-4">
+          <label className="flex items-center gap-3 cursor-pointer group p-3 bg-[#0f1825]/50 rounded-lg hover:bg-[#0f1825] transition-colors">
             <div className="relative">
               <input
                 type="checkbox"
@@ -164,7 +164,7 @@ export function CompanyInfoContent() {
             </div>
           </label>
 
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-300 text-sm mb-2 font-medium">
                 Régimen Tributario
@@ -222,7 +222,7 @@ export function CompanyInfoContent() {
             </div>
           </div>
 
-          <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
+          <label className="flex items-center gap-3 cursor-pointer group p-3 bg-[#0f1825]/50 rounded-lg hover:bg-[#0f1825] transition-colors">
             <div className="relative">
               <input
                 type="checkbox"
@@ -244,7 +244,7 @@ export function CompanyInfoContent() {
             </div>
           </label>
 
-          <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
+          <label className="flex items-center gap-3 cursor-pointer group p-3 bg-[#0f1825]/50 rounded-lg hover:bg-[#0f1825] transition-colors">
             <div className="relative">
               <input
                 type="checkbox"
@@ -269,13 +269,13 @@ export function CompanyInfoContent() {
       </div>
 
       {/* Configuración Contable */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-6">
+      <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-5">
           <FileText className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Configuración Contable</h3>
+          <h3 className="text-white font-bold text-lg">Configuración Contable</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-300 text-sm mb-2 font-medium">
               Fecha Inicio Contabilidad
@@ -303,13 +303,13 @@ export function CompanyInfoContent() {
       </div>
 
       {/* Representante Legal */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-6">
+      <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-5">
           <Users className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Representante Legal</h3>
+          <h3 className="text-white font-bold text-lg">Representante Legal</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-300 text-sm mb-2 font-medium">
               Nombre Completo
@@ -337,13 +337,13 @@ export function CompanyInfoContent() {
       </div>
 
       {/* Contadora de la Empresa */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-6">
+      <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-5">
           <Users className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Contadora de la Empresa</h3>
+          <h3 className="text-white font-bold text-lg">Contadora de la Empresa</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-300 text-sm mb-2 font-medium">
               Nombre Completo

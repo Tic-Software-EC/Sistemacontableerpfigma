@@ -246,7 +246,7 @@ export function PaymentMethodsContent() {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-6 max-w-7xl">
       {/* Header estándar */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
@@ -255,7 +255,7 @@ export function PaymentMethodsContent() {
             Métodos de Pago
           </h2>
           <p className="text-gray-400 text-sm">
-            Gestiona los métodos de pago disponibles por sucursal
+            Configura los métodos de pago disponibles por sucursal
           </p>
         </div>
         <button
