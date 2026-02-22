@@ -60,6 +60,7 @@ import { WorkScheduleContent } from "../components/work-schedule-content";
 import { TaxesContent } from "../components/taxes-content";
 import { DiscountsContent } from "../components/discounts-content";
 import { PurchasesConfigContent } from "../components/purchases-config-content";
+import { PosConfigContent } from "../components/pos-config-content";
 
 // Componente de Seguridad
 function SecurityContent() {
@@ -294,6 +295,7 @@ const moduleMenus: Record<string, any> = {
       submenus: [
         { id: "company-info", name: "Empresa", icon: Building2 },
         { id: "branches", name: "Sucursales", icon: Building2 },
+        { id: "pos-config", name: "Configurar POS", icon: ShoppingCart },
         { id: "regional-config", name: "Config. Regional", icon: Globe },
         { id: "security", name: "Seguridad", icon: Shield },
         { id: "communications", name: "Comunicaciones", icon: Mail },
@@ -929,6 +931,8 @@ export default function ModuleConfigDetailPage() {
                 <CategoriesContent />
               ) : selectedMenu === "units" ? (
                 <UnitsContent />
+              ) : selectedMenu === "pos-config" ? (
+                <PosConfigContent userPlan={userPlan} />
               ) : (
                 <>
                   <h2 className="text-white font-bold text-2xl mb-6">
