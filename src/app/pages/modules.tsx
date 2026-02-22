@@ -95,7 +95,7 @@ export default function ModulesPage() {
       name: "Facturas",
       icon: FileText,
       color: "from-blue-500 to-blue-600",
-      route: "/dashboard/facturas",
+      route: "/module-config-detail",
       description: "Gestión de facturas",
     },
     {
@@ -103,7 +103,7 @@ export default function ModulesPage() {
       name: "Clientes",
       icon: Users,
       color: "from-green-500 to-green-600",
-      route: "/dashboard/clientes",
+      route: "/module-config-detail",
       description: "Administración de clientes",
     },
     {
@@ -111,7 +111,7 @@ export default function ModulesPage() {
       name: "Reportes",
       icon: BarChart3,
       color: "from-purple-500 to-purple-600",
-      route: "/dashboard/reportes",
+      route: "/module-config-detail",
       description: "Reportes y análisis",
     },
     {
@@ -119,7 +119,7 @@ export default function ModulesPage() {
       name: "Inventario",
       icon: Package,
       color: "from-orange-500 to-orange-600",
-      route: "/dashboard/inventario",
+      route: "/module-config-detail",
       description: "Control de inventario",
     },
     {
@@ -127,7 +127,7 @@ export default function ModulesPage() {
       name: "Contabilidad",
       icon: Calculator,
       color: "from-pink-500 to-pink-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Gestión contable",
     },
     {
@@ -135,7 +135,7 @@ export default function ModulesPage() {
       name: "Ventas",
       icon: ShoppingCart,
       color: "from-cyan-500 to-cyan-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Módulo de ventas",
     },
     {
@@ -143,7 +143,7 @@ export default function ModulesPage() {
       name: "Punto de Venta",
       icon: Receipt,
       color: "from-primary to-primary/80",
-      route: "/dashboard/pos",
+      route: "/module-pos-detail",
       description: "Sistema POS",
     },
     {
@@ -151,7 +151,7 @@ export default function ModulesPage() {
       name: "Compras",
       icon: ShoppingBag,
       color: "from-indigo-500 to-indigo-600",
-      route: "/dashboard",
+      route: "/module-compras-detail",
       description: "Gestión de compras",
     },
     {
@@ -159,7 +159,7 @@ export default function ModulesPage() {
       name: "Gastos",
       icon: Wallet,
       color: "from-red-500 to-red-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Control de gastos",
     },
     {
@@ -167,7 +167,7 @@ export default function ModulesPage() {
       name: "Empleados",
       icon: UserCheck,
       color: "from-teal-500 to-teal-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Gestión de personal",
     },
     {
@@ -175,7 +175,7 @@ export default function ModulesPage() {
       name: "Configuración",
       icon: Settings,
       color: "from-gray-500 to-gray-600",
-      route: "/dashboard/configuracion",
+      route: "/module-config-detail",
       description: "Ajustes del sistema",
     },
     {
@@ -183,7 +183,7 @@ export default function ModulesPage() {
       name: "Estados Financieros",
       icon: FileBarChart,
       color: "from-emerald-500 to-emerald-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Reportes financieros",
     },
     {
@@ -191,7 +191,7 @@ export default function ModulesPage() {
       name: "Calendario",
       icon: Calendar,
       color: "from-amber-500 to-amber-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Calendario fiscal",
     },
     {
@@ -199,7 +199,7 @@ export default function ModulesPage() {
       name: "Pagos",
       icon: CreditCard,
       color: "from-violet-500 to-violet-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Gestión de pagos",
     },
     {
@@ -207,7 +207,7 @@ export default function ModulesPage() {
       name: "Proveedores",
       icon: Truck,
       color: "from-lime-500 to-lime-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Administración de proveedores",
     },
     {
@@ -215,7 +215,7 @@ export default function ModulesPage() {
       name: "Cotizaciones",
       icon: Receipt,
       color: "from-sky-500 to-sky-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Gestión de cotizaciones",
     },
     {
@@ -223,7 +223,7 @@ export default function ModulesPage() {
       name: "Activos",
       icon: Building2,
       color: "from-rose-500 to-rose-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Control de activos fijos",
     },
     {
@@ -231,7 +231,7 @@ export default function ModulesPage() {
       name: "Proyectos",
       icon: ClipboardList,
       color: "from-fuchsia-500 to-fuchsia-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Gestión de proyectos",
     },
     {
@@ -239,7 +239,7 @@ export default function ModulesPage() {
       name: "Indicadores",
       icon: TrendingUp,
       color: "from-yellow-500 to-yellow-600",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "KPIs y métricas",
     },
     {
@@ -247,7 +247,7 @@ export default function ModulesPage() {
       name: "Caja y Bancos",
       icon: DollarSign,
       color: "from-green-600 to-green-700",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Gestión de tesorería",
     },
     {
@@ -255,7 +255,7 @@ export default function ModulesPage() {
       name: "Productos",
       icon: Boxes,
       color: "from-orange-600 to-orange-700",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Catálogo de productos",
     },
     {
@@ -263,7 +263,7 @@ export default function ModulesPage() {
       name: "Libro Diario",
       icon: BookOpen,
       color: "from-blue-600 to-blue-700",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Asientos contables",
     },
     {
@@ -271,7 +271,7 @@ export default function ModulesPage() {
       name: "Auditoría",
       icon: FileCheck,
       color: "from-purple-600 to-purple-700",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Trazabilidad y auditoría",
     },
     {
@@ -279,7 +279,7 @@ export default function ModulesPage() {
       name: "Presupuestos",
       icon: PieChart,
       color: "from-cyan-600 to-cyan-700",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Control presupuestario",
     },
     {
@@ -287,7 +287,7 @@ export default function ModulesPage() {
       name: "Almacenes",
       icon: Layers,
       color: "from-indigo-600 to-indigo-700",
-      route: "/dashboard",
+      route: "/module-config-detail",
       description: "Gestión de almacenes",
     },
   ];
@@ -311,14 +311,13 @@ export default function ModulesPage() {
       "Ventas",
       "Inventario",
       "Contabilidad",
+      "Facturas",
+      "Clientes",
+      "Reportes",
     ];
 
     if (modulesWithMenus.includes(module.name)) {
-      const targetRoute = module.name === "Configuración" 
-        ? "/module-config-detail" 
-        : "/module-detail";
-        
-      navigate(targetRoute, {
+      navigate("/module-config-detail", {
         state: {
           moduleName: module.name,
           moduleColor: module.color,

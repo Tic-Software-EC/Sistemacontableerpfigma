@@ -500,7 +500,7 @@ const planAccess: Record<string, any> = {
   },
 };
 
-export default function ModuleDetailPage() {
+export default function ModuleConfigDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { moduleName, moduleColor, userPlan } = location.state || {

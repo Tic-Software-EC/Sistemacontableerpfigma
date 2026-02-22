@@ -1148,7 +1148,7 @@ export function POS() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <Building2 className="w-4 h-4 text-primary" />
-                <span className="text-white text-sm font-bold">CAJA 1</span>
+                <span className="text-white text-lg font-bold">CAJA 1</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className={`w-1.5 h-1.5 rounded-full ${isCajaOpen ? 'bg-green-500' : 'bg-gray-500'}`}></div>
