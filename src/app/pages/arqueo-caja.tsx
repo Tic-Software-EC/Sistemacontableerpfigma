@@ -207,6 +207,7 @@ export function ArqueoCaja() {
   };
 
   const handleImprimirArqueo = () => {
+    window.print();
     toast.success("Generando reporte de arqueo...");
   };
 
@@ -214,7 +215,290 @@ export function ArqueoCaja() {
     <div className="h-full bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] overflow-auto">
       <Toaster position="top-right" />
       
-      <div className="p-4">
+      {/* Sección de impresión - Solo visible al imprimir */}
+      <div className="hidden print:block print:p-8 print:bg-white print:text-black">
+        <style>{`
+          @media print {
+            body { margin: 0; padding: 0; }
+            @page { margin: 1cm; size: letter portrait; }
+            .print\\:hidden { display: none !important; }
+            .print\\:block { display: block !important; }
+            .print\\:p-8 { padding: 2rem; }
+            .print\\:bg-white { background: white; }
+            .print\\:text-black { color: black; }
+            .page-break { page-break-before: always; }
+            .avoid-break { page-break-inside: avoid; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          }
+        `}</style>
+
+        {/* Header del reporte */}
+        <div className="mb-6 pb-4 border-b-2 border-gray-800">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">ARQUEO DE CAJA</h1>
+              <p className="text-sm text-gray-600">Sistema ERP TicSoftEc</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {localStorage.getItem("companyName") || "Mi Empresa"}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Fecha: {new Date().toLocaleDateString()}</p>
+              <p className="text-sm text-gray-600">Hora: {new Date().toLocaleTimeString()}</p>
+              <p className="text-sm font-bold text-gray-800 mt-2">Cajero: Juan Pérez</p>
+              <p className="text-sm text-gray-600">Sucursal: Centro</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Resumen de Ventas */}
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-3 pb-2 border-b border-gray-400">RESUMEN DE VENTAS</h2>
+          <table className="w-full mb-4">
+            <tbody>
+              <tr className="border-b border-gray-300">
+                <td className="py-2 text-sm font-semibold">Ventas en Efectivo:</td>
+                <td className="py-2 text-sm text-right font-mono">${ventasEfectivo.toFixed(2)}</td>
+              </tr>
+              <tr className="border-b border-gray-300">
+                <td className="py-2 text-sm font-semibold">Ventas con Tarjeta:</td>
+                <td className="py-2 text-sm text-right font-mono">${ventasTarjeta.toFixed(2)}</td>
+              </tr>
+              <tr className="border-b border-gray-300">
+                <td className="py-2 text-sm font-semibold">Ventas con Transferencia:</td>
+                <td className="py-2 text-sm text-right font-mono">${ventasTransferencia.toFixed(2)}</td>
+              </tr>
+              <tr className="border-b border-gray-300">
+                <td className="py-2 text-sm font-semibold">Ventas a Crédito:</td>
+                <td className="py-2 text-sm text-right font-mono">${ventasCredito.toFixed(2)}</td>
+              </tr>
+              <tr className="bg-gray-100 font-bold">
+                <td className="py-2 text-base">TOTAL VENTAS DEL DÍA:</td>
+                <td className="py-2 text-base text-right font-mono">${totalVentas.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Gastos del Día */}
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-3 pb-2 border-b border-gray-400">GASTOS DEL DÍA</h2>
+          <table className="w-full mb-2">
+            <thead>
+              <tr className="bg-gray-200 border-b-2 border-gray-400">
+                <th className="py-2 px-2 text-left text-xs font-bold">ID</th>
+                <th className="py-2 px-2 text-left text-xs font-bold">CONCEPTO</th>
+                <th className="py-2 px-2 text-left text-xs font-bold">CATEGORÍA</th>
+                <th className="py-2 px-2 text-right text-xs font-bold">MONTO</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gastosDelDia.map((gasto) => (
+                <tr key={gasto.id} className="border-b border-gray-200">
+                  <td className="py-2 px-2 text-xs font-mono">{gasto.id}</td>
+                  <td className="py-2 px-2 text-xs">{gasto.concepto}</td>
+                  <td className="py-2 px-2 text-xs">{gasto.categoria}</td>
+                  <td className="py-2 px-2 text-xs text-right font-mono">${gasto.monto.toFixed(2)}</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-100 font-bold border-t-2 border-gray-400">
+                <td colSpan={3} className="py-2 px-2 text-sm text-right">TOTAL GASTOS:</td>
+                <td className="py-2 px-2 text-sm text-right font-mono">${totalGastos.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Transacciones con Tarjeta */}
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-3 pb-2 border-b border-gray-400">TRANSACCIONES CON TARJETA</h2>
+          <table className="w-full mb-2">
+            <thead>
+              <tr className="bg-gray-200 border-b-2 border-gray-400">
+                <th className="py-2 px-2 text-left text-xs font-bold">ID</th>
+                <th className="py-2 px-2 text-left text-xs font-bold">FECHA/HORA</th>
+                <th className="py-2 px-2 text-left text-xs font-bold">CLIENTE</th>
+                <th className="py-2 px-2 text-left text-xs font-bold">FACTURA</th>
+                <th className="py-2 px-2 text-right text-xs font-bold">MONTO</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transaccionesTarjeta.map((trx) => (
+                <tr key={trx.id} className="border-b border-gray-200">
+                  <td className="py-2 px-2 text-xs font-mono">{trx.id}</td>
+                  <td className="py-2 px-2 text-xs">{trx.fecha} {trx.hora}</td>
+                  <td className="py-2 px-2 text-xs">{trx.cliente}</td>
+                  <td className="py-2 px-2 text-xs font-mono">{trx.factura}</td>
+                  <td className="py-2 px-2 text-xs text-right font-mono">${trx.monto.toFixed(2)}</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-100 font-bold border-t-2 border-gray-400">
+                <td colSpan={4} className="py-2 px-2 text-sm text-right">TOTAL TARJETA:</td>
+                <td className="py-2 px-2 text-sm text-right font-mono">${totalTarjeta.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Transacciones con Transferencia */}
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-3 pb-2 border-b border-gray-400">TRANSACCIONES CON TRANSFERENCIA</h2>
+          <table className="w-full mb-2">
+            <thead>
+              <tr className="bg-gray-200 border-b-2 border-gray-400">
+                <th className="py-2 px-2 text-left text-xs font-bold">ID</th>
+                <th className="py-2 px-2 text-left text-xs font-bold">FECHA/HORA</th>
+                <th className="py-2 px-2 text-left text-xs font-bold">CLIENTE</th>
+                <th className="py-2 px-2 text-left text-xs font-bold">FACTURA</th>
+                <th className="py-2 px-2 text-right text-xs font-bold">MONTO</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transaccionesTransferencia.map((trx) => (
+                <tr key={trx.id} className="border-b border-gray-200">
+                  <td className="py-2 px-2 text-xs font-mono">{trx.id}</td>
+                  <td className="py-2 px-2 text-xs">{trx.fecha} {trx.hora}</td>
+                  <td className="py-2 px-2 text-xs">{trx.cliente}</td>
+                  <td className="py-2 px-2 text-xs font-mono">{trx.factura}</td>
+                  <td className="py-2 px-2 text-xs text-right font-mono">${trx.monto.toFixed(2)}</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-100 font-bold border-t-2 border-gray-400">
+                <td colSpan={4} className="py-2 px-2 text-sm text-right">TOTAL TRANSFERENCIAS:</td>
+                <td className="py-2 px-2 text-sm text-right font-mono">${totalTransferencias.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Conteo de Efectivo */}
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-3 pb-2 border-b border-gray-400">CONTEO DE EFECTIVO</h2>
+          
+          <div className="grid grid-cols-2 gap-6 mb-4">
+            {/* Billetes */}
+            <div>
+              <h3 className="text-sm font-bold text-gray-700 mb-2">BILLETES</h3>
+              <table className="w-full">
+                <tbody>
+                  {[
+                    { key: "b100" as const, label: "$100", value: 100 },
+                    { key: "b50" as const, label: "$50", value: 50 },
+                    { key: "b20" as const, label: "$20", value: 20 },
+                    { key: "b10" as const, label: "$10", value: 10 },
+                    { key: "b5" as const, label: "$5", value: 5 },
+                    { key: "b1" as const, label: "$1", value: 1 },
+                  ].map((b) => (
+                    <tr key={b.key} className="border-b border-gray-200">
+                      <td className="py-1 text-xs font-semibold">{b.label}</td>
+                      <td className="py-1 text-xs text-center">×</td>
+                      <td className="py-1 text-xs text-center font-mono">{billetes[b.key]}</td>
+                      <td className="py-1 text-xs text-center">=</td>
+                      <td className="py-1 text-xs text-right font-mono">${(billetes[b.key] * b.value).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                  <tr className="bg-gray-100 font-bold border-t-2 border-gray-400">
+                    <td colSpan={4} className="py-2 text-xs text-right">TOTAL:</td>
+                    <td className="py-2 text-xs text-right font-mono">${totalBilletes.toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Monedas */}
+            <div>
+              <h3 className="text-sm font-bold text-gray-700 mb-2">MONEDAS</h3>
+              <table className="w-full">
+                <tbody>
+                  {[
+                    { key: "m1" as const, label: "$1.00", value: 1 },
+                    { key: "m050" as const, label: "$0.50", value: 0.50 },
+                    { key: "m025" as const, label: "$0.25", value: 0.25 },
+                    { key: "m010" as const, label: "$0.10", value: 0.10 },
+                    { key: "m005" as const, label: "$0.05", value: 0.05 },
+                    { key: "m001" as const, label: "$0.01", value: 0.01 },
+                  ].map((m) => (
+                    <tr key={m.key} className="border-b border-gray-200">
+                      <td className="py-1 text-xs font-semibold">{m.label}</td>
+                      <td className="py-1 text-xs text-center">×</td>
+                      <td className="py-1 text-xs text-center font-mono">{monedas[m.key]}</td>
+                      <td className="py-1 text-xs text-center">=</td>
+                      <td className="py-1 text-xs text-right font-mono">${(monedas[m.key] * m.value).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                  <tr className="bg-gray-100 font-bold border-t-2 border-gray-400">
+                    <td colSpan={4} className="py-2 text-xs text-right">TOTAL:</td>
+                    <td className="py-2 text-xs text-right font-mono">${totalMonedas.toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Resumen Final */}
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-3 pb-2 border-b border-gray-400">RESUMEN FINAL</h2>
+          <table className="w-full">
+            <tbody>
+              <tr className="border-b border-gray-300">
+                <td className="py-2 text-sm font-semibold">Monto Inicial de Caja:</td>
+                <td className="py-2 text-sm text-right font-mono">${montoInicial.toFixed(2)}</td>
+              </tr>
+              <tr className="border-b border-gray-300">
+                <td className="py-2 text-sm font-semibold">Ventas en Efectivo:</td>
+                <td className="py-2 text-sm text-right font-mono">+ ${ventasEfectivo.toFixed(2)}</td>
+              </tr>
+              <tr className="border-b border-gray-300">
+                <td className="py-2 text-sm font-semibold">Gastos del Día:</td>
+                <td className="py-2 text-sm text-right font-mono">- ${totalGastos.toFixed(2)}</td>
+              </tr>
+              <tr className="bg-gray-200 font-bold border-t-2 border-gray-400">
+                <td className="py-2 text-base">SALDO ESPERADO:</td>
+                <td className="py-2 text-base text-right font-mono">${saldoEsperado.toFixed(2)}</td>
+              </tr>
+              <tr className="border-b-2 border-gray-400">
+                <td className="py-2 text-base font-bold">EFECTIVO CONTADO:</td>
+                <td className="py-2 text-base text-right font-mono font-bold">${totalContado.toFixed(2)}</td>
+              </tr>
+              <tr className={`${diferencia === 0 ? 'bg-green-100' : diferencia > 0 ? 'bg-blue-100' : 'bg-red-100'} font-bold`}>
+                <td className="py-3 text-lg">
+                  {diferencia === 0 ? '✓ CAJA CUADRADA' : diferencia > 0 ? '↑ SOBRANTE' : '↓ FALTANTE'}
+                </td>
+                <td className="py-3 text-lg text-right font-mono">${Math.abs(diferencia).toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Firmas */}
+        <div className="mt-12 pt-8 border-t-2 border-gray-800">
+          <div className="grid grid-cols-2 gap-12">
+            <div className="text-center">
+              <div className="border-t-2 border-gray-800 pt-2 mt-16">
+                <p className="text-sm font-bold">FIRMA DEL CAJERO</p>
+                <p className="text-xs text-gray-600 mt-1">Juan Pérez</p>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="border-t-2 border-gray-800 pt-2 mt-16">
+                <p className="text-sm font-bold">FIRMA DEL SUPERVISOR</p>
+                <p className="text-xs text-gray-600 mt-1">Nombre y Cargo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-6 pt-4 border-t border-gray-400 text-center">
+          <p className="text-xs text-gray-500">
+            Documento generado automáticamente por TicSoftEc • {new Date().toLocaleString()}
+          </p>
+        </div>
+      </div>
+
+      {/* Contenido normal de la pantalla - Oculto al imprimir */}
+      <div className="p-4 print:hidden">
         <div className="max-w-[1600px] mx-auto">
           
           {/* Header */}
