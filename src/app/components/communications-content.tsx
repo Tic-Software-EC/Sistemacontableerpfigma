@@ -181,7 +181,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   type="text"
                   value={smtpHost}
                   onChange={(e) => setSmtpHost(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   placeholder="smtp.gmail.com"
                 />
               </div>
@@ -194,7 +194,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   type="text"
                   value={smtpPort}
                   onChange={(e) => setSmtpPort(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   placeholder="587"
                 />
               </div>
@@ -207,7 +207,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   type="text"
                   value={smtpUsername}
                   onChange={(e) => setSmtpUsername(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
 
@@ -219,7 +219,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   type="password"
                   value={smtpPassword}
                   onChange={(e) => setSmtpPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
 
@@ -230,7 +230,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                 <select
                   value={smtpEncryption}
                   onChange={(e) => setSmtpEncryption(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 >
                   <option value="TLS">TLS</option>
                   <option value="SSL">SSL</option>
@@ -246,7 +246,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   type="email"
                   value={testEmail}
                   onChange={(e) => setTestEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   placeholder="test@ejemplo.com"
                 />
               </div>
@@ -259,7 +259,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   type="text"
                   value={smtpFromName}
                   onChange={(e) => setSmtpFromName(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
 
@@ -271,7 +271,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   type="email"
                   value={smtpFromEmail}
                   onChange={(e) => setSmtpFromEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
             </div>
@@ -327,7 +327,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   value={smsProvider}
                   onChange={(e) => setSmsProvider(e.target.value)}
                   disabled={!smsEnabled}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 >
                   <option value="twilio">Twilio</option>
                   <option value="aws-sns">AWS SNS</option>
@@ -344,7 +344,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   value={smsAccountSid}
                   onChange={(e) => setSmsAccountSid(e.target.value)}
                   disabled={!smsEnabled}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 />
               </div>
 
@@ -357,7 +357,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   value={smsAuthToken}
                   onChange={(e) => setSmsAuthToken(e.target.value)}
                   disabled={!smsEnabled}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 />
               </div>
 
@@ -371,7 +371,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   onChange={(e) => setSmsFromNumber(e.target.value)}
                   disabled={!smsEnabled}
                   placeholder="+1234567890"
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 />
               </div>
 
@@ -385,7 +385,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   onChange={(e) => setTestPhone(e.target.value)}
                   disabled={!smsEnabled}
                   placeholder="+593999999999"
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 />
               </div>
             </div>
@@ -441,7 +441,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   value={whatsappProvider}
                   onChange={(e) => setWhatsappProvider(e.target.value)}
                   disabled={!whatsappEnabled}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 >
                   <option value="twilio">Twilio</option>
                   <option value="whatsapp-business">WhatsApp Business API</option>
@@ -458,7 +458,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   value={whatsappApiKey}
                   onChange={(e) => setWhatsappApiKey(e.target.value)}
                   disabled={!whatsappEnabled}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 />
               </div>
 
@@ -471,7 +471,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   value={whatsappPhoneId}
                   onChange={(e) => setWhatsappPhoneId(e.target.value)}
                   disabled={!whatsappEnabled}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 />
               </div>
 
@@ -484,7 +484,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   value={whatsappBusinessId}
                   onChange={(e) => setWhatsappBusinessId(e.target.value)}
                   disabled={!whatsappEnabled}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 />
               </div>
 
@@ -498,7 +498,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                   onChange={(e) => setTestWhatsapp(e.target.value)}
                   disabled={!whatsappEnabled}
                   placeholder="+593999999999"
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                 />
               </div>
             </div>
@@ -630,7 +630,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                         value={quietHoursStart}
                         onChange={(e) => setQuietHoursStart(e.target.value)}
                         disabled={!doNotDisturb}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                       />
                     </div>
                     <div>
@@ -642,7 +642,7 @@ export function CommunicationsContent(_props: CommunicationsContentProps) {
                         value={quietHoursEnd}
                         onChange={(e) => setQuietHoursEnd(e.target.value)}
                         disabled={!doNotDisturb}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                       />
                     </div>
                   </div>

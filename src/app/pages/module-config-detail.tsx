@@ -137,7 +137,7 @@ function SecurityContent() {
                 type="number"
                 value={sessionTimeout}
                 onChange={(e) => setSessionTimeout(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
 
@@ -149,7 +149,7 @@ function SecurityContent() {
                 type="number"
                 value={passwordExpiry}
                 onChange={(e) => setPasswordExpiry(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
 
@@ -161,7 +161,7 @@ function SecurityContent() {
                 type="number"
                 value={loginAttempts}
                 onChange={(e) => setLoginAttempts(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
 

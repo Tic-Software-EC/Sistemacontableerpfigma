@@ -68,7 +68,7 @@ export function CompanyInfoContent() {
               type="text"
               value={businessName}
               onChange={(e) => setBusinessName(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -80,7 +80,7 @@ export function CompanyInfoContent() {
               type="text"
               value={commercialName}
               onChange={(e) => setCommercialName(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -92,7 +92,7 @@ export function CompanyInfoContent() {
               type="text"
               value={ruc}
               onChange={(e) => setRuc(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -104,7 +104,7 @@ export function CompanyInfoContent() {
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -116,7 +116,7 @@ export function CompanyInfoContent() {
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -128,7 +128,7 @@ export function CompanyInfoContent() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
         </div>
@@ -172,7 +172,7 @@ export function CompanyInfoContent() {
               <select
                 value={taxRegime}
                 onChange={(e) => setTaxRegime(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="general">Régimen General</option>
                 <option value="rimpe">RIMPE</option>
@@ -187,7 +187,7 @@ export function CompanyInfoContent() {
               <select
                 value={contributorType}
                 onChange={(e) => setContributorType(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="especial">Especial</option>
                 <option value="normal">Normal</option>
@@ -201,7 +201,7 @@ export function CompanyInfoContent() {
               <select
                 value={ivaRate}
                 onChange={(e) => setIvaRate(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="0">0%</option>
                 <option value="12">12%</option>
@@ -217,7 +217,7 @@ export function CompanyInfoContent() {
                 type="text"
                 value={economicActivity}
                 onChange={(e) => setEconomicActivity(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
           </div>
@@ -284,7 +284,7 @@ export function CompanyInfoContent() {
               type="date"
               value={accountingStartDate}
               onChange={(e) => setAccountingStartDate(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -296,7 +296,7 @@ export function CompanyInfoContent() {
               type="text"
               value={fiscalYear}
               onChange={(e) => setFiscalYear(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
         </div>
@@ -318,7 +318,7 @@ export function CompanyInfoContent() {
               type="text"
               value={legalRepresentative}
               onChange={(e) => setLegalRepresentative(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -330,7 +330,7 @@ export function CompanyInfoContent() {
               type="text"
               value={representativeId}
               onChange={(e) => setRepresentativeId(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
         </div>
@@ -352,7 +352,7 @@ export function CompanyInfoContent() {
               type="text"
               value={accountantName}
               onChange={(e) => setAccountantName(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -364,7 +364,7 @@ export function CompanyInfoContent() {
               type="text"
               value={accountantId}
               onChange={(e) => setAccountantId(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -376,7 +376,7 @@ export function CompanyInfoContent() {
               type="text"
               value={accountantLicense}
               onChange={(e) => setAccountantLicense(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -388,7 +388,7 @@ export function CompanyInfoContent() {
               type="text"
               value={accountantPhone}
               onChange={(e) => setAccountantPhone(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 
@@ -400,7 +400,7 @@ export function CompanyInfoContent() {
               type="email"
               value={accountantEmail}
               onChange={(e) => setAccountantEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
         </div>

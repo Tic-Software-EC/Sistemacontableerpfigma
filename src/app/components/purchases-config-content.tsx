@@ -23,8 +23,7 @@ const DOCUMENT_TYPES = [
 ];
 
 const PAYMENT_TERMS = [
-  { id: "0", name: "Pago inmediato (contado)" },
-  { id: "7", name: "7 días" },
+  { id: "immediate", name: "Pago inmediato (contado)" },
   { id: "15", name: "15 días" },
   { id: "30", name: "30 días" },
   { id: "45", name: "45 días" },
@@ -35,9 +34,9 @@ const PAYMENT_TERMS = [
 
 const APPROVAL_LEVELS = [
   { id: "none", name: "Sin aprobación requerida" },
-  { id: "single", name: "Una aprobación" },
-  { id: "double", name: "Doble aprobación" },
-  { id: "triple", name: "Triple aprobación" },
+  { id: "supervisor", name: "Requiere aprobación de supervisor" },
+  { id: "manager", name: "Requiere aprobación de gerente" },
+  { id: "both", name: "Requiere ambas aprobaciones" },
 ];
 
 const CURRENCIES = [
@@ -45,6 +44,8 @@ const CURRENCIES = [
   { id: "EUR", name: "Euro (EUR)", symbol: "€" },
   { id: "COP", name: "Peso colombiano (COP)", symbol: "$" },
   { id: "PEN", name: "Sol peruano (PEN)", symbol: "S/" },
+  { id: "CLP", name: "Peso chileno (CLP)", symbol: "$" },
+  { id: "MXN", name: "Peso mexicano (MXN)", symbol: "$" },
 ];
 
 interface PurchaseConfig {
@@ -187,6 +188,45 @@ export function PurchasesConfigContent() {
     updateConfig("enabledDocuments", enabledDocs);
   };
 
+  const loadSucursalConfig = (sucursalId: string) => {
+    // Aquí puedes agregar lógica para cargar la configuración de la sucursal desde una API o base de datos
+    // Por ahora, simplemente se utiliza la configuración predeterminada
+    const defaultConfig: PurchaseConfig = {
+      sucursalId: sucursalId,
+      defaultCurrency: "USD",
+      allowMultiCurrency: true,
+      defaultTax: "iva12",
+      applyTaxByDefault: true,
+      enabledDocuments: ["factura", "nota-credito", "retencion"],
+      requireDocumentNumber: true,
+      validateDocumentNumber: true,
+      allowManualEntry: true,
+      requireSupplier: true,
+      allowNewSupplierOnPurchase: true,
+      requireSupplierRUC: true,
+      allowNewProductOnPurchase: true,
+      updateCostOnPurchase: true,
+      updateStockAutomatically: true,
+      allowNegativePrices: false,
+      roundPrices: true,
+      decimalPlaces: "2",
+      defaultPaymentTerm: "30",
+      customPaymentDays: "",
+      allowPartialPayments: true,
+      approvalLevel: "single",
+      approvalAmountThreshold: "1000",
+      requireApprovalForAllPurchases: false,
+      useAutoNumbering: true,
+      purchasePrefix: "COMP",
+      nextNumber: "1001",
+      numberLength: "6",
+    };
+    setConfigs({
+      ...configs,
+      [sucursalId]: defaultConfig,
+    });
+  };
+
   return (
     <div className="space-y-6 max-w-7xl">
       {/* Header estándar */}
@@ -241,20 +281,10 @@ export function PurchasesConfigContent() {
         <select
           value={selectedSucursal}
           onChange={(e) => {
-            if (hasUnsavedChanges) {
-              if (
-                confirm(
-                  "Tienes cambios sin guardar. ¿Deseas continuar sin guardar?"
-                )
-              ) {
-                setSelectedSucursal(e.target.value);
-                setHasUnsavedChanges(false);
-              }
-            } else {
-              setSelectedSucursal(e.target.value);
-            }
+            setSelectedSucursal(e.target.value);
+            loadSucursalConfig(e.target.value);
           }}
-          className="w-full max-w-md px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+          className="w-full max-w-md px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
         >
           {SUCURSALES.map((sucursal) => (
             <option key={sucursal.id} value={sucursal.id}>
@@ -280,25 +310,26 @@ export function PurchasesConfigContent() {
             <select
               value={currentConfig.defaultCurrency}
               onChange={(e) => updateConfig("defaultCurrency", e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
-              {CURRENCIES.map((currency) => (
-                <option key={currency.id} value={currency.id}>
-                  {currency.name}
-                </option>
-              ))}
+              <option value="USD">USD - Dólar Estadounidense</option>
+              <option value="EUR">EUR - Euro</option>
+              <option value="COP">COP - Peso Colombiano</option>
+              <option value="PEN">PEN - Sol Peruano</option>
+              <option value="CLP">CLP - Peso Chileno</option>
+              <option value="MXN">MXN - Peso Mexicano</option>
             </select>
           </div>
 
           {/* Impuesto predeterminado */}
           <div>
             <label className="block text-gray-300 text-sm mb-2 font-medium">
-              Impuesto predeterminado
+              Impuesto por defecto
             </label>
             <select
               value={currentConfig.defaultTax}
               onChange={(e) => updateConfig("defaultTax", e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               {TAX_OPTIONS.map((tax) => (
                 <option key={tax.id} value={tax.id}>
@@ -606,11 +637,13 @@ export function PurchasesConfigContent() {
             <select
               value={currentConfig.decimalPlaces}
               onChange={(e) => updateConfig("decimalPlaces", e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
-              <option value="0">Sin decimales (0)</option>
-              <option value="2">2 decimales (0.00)</option>
-              <option value="4">4 decimales (0.0000)</option>
+              <option value="0">0 decimales (1234)</option>
+              <option value="1">1 decimal (1234.5)</option>
+              <option value="2">2 decimales (1234.56)</option>
+              <option value="3">3 decimales (1234.567)</option>
+              <option value="4">4 decimales (1234.5678)</option>
             </select>
           </div>
         </div>
@@ -673,13 +706,15 @@ export function PurchasesConfigContent() {
             <select
               value={currentConfig.defaultPaymentTerm}
               onChange={(e) => updateConfig("defaultPaymentTerm", e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
-              {PAYMENT_TERMS.map((term) => (
-                <option key={term.id} value={term.id}>
-                  {term.name}
-                </option>
-              ))}
+              <option value="immediate">Inmediato</option>
+              <option value="15">15 días</option>
+              <option value="30">30 días</option>
+              <option value="45">45 días</option>
+              <option value="60">60 días</option>
+              <option value="90">90 días</option>
+              <option value="custom">Personalizado</option>
             </select>
           </div>
 
@@ -691,10 +726,9 @@ export function PurchasesConfigContent() {
               <input
                 type="number"
                 min="1"
-                placeholder="Ingresa los días"
                 value={currentConfig.customPaymentDays}
                 onChange={(e) => updateConfig("customPaymentDays", e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
           )}
@@ -738,30 +772,30 @@ export function PurchasesConfigContent() {
             <select
               value={currentConfig.approvalLevel}
               onChange={(e) => updateConfig("approvalLevel", e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
-              {APPROVAL_LEVELS.map((level) => (
-                <option key={level.id} value={level.id}>
-                  {level.name}
-                </option>
-              ))}
+              <option value="none">Sin aprobación requerida</option>
+              <option value="supervisor">Requiere aprobación de supervisor</option>
+              <option value="manager">Requiere aprobación de gerente</option>
+              <option value="both">Requiere ambas aprobaciones</option>
             </select>
           </div>
 
-          <div>
-            <label className="block text-gray-300 text-sm mb-2 font-medium">
-              Monto mínimo para aprobación ($)
-            </label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-              value={currentConfig.approvalAmountThreshold}
-              onChange={(e) => updateConfig("approvalAmountThreshold", e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-            />
-          </div>
+          {currentConfig.approvalLevel !== "none" && (
+            <div>
+              <label className="block text-gray-300 text-sm mb-2 font-medium">
+                Monto mínimo para aprobación ($)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={currentConfig.approvalAmountThreshold}
+                onChange={(e) => updateConfig("approvalAmountThreshold", e.target.value)}
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+          )}
         </div>
 
         <div className="mt-4">
@@ -824,10 +858,9 @@ export function PurchasesConfigContent() {
               </label>
               <input
                 type="text"
-                placeholder="COMP"
                 value={currentConfig.purchasePrefix}
                 onChange={(e) => updateConfig("purchasePrefix", e.target.value.toUpperCase())}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors font-mono"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors font-mono"
               />
             </div>
 
@@ -838,21 +871,20 @@ export function PurchasesConfigContent() {
               <input
                 type="number"
                 min="1"
-                placeholder="1001"
                 value={currentConfig.nextNumber}
                 onChange={(e) => updateConfig("nextNumber", e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
 
             <div>
               <label className="block text-gray-300 text-sm mb-2 font-medium">
-                Longitud
+                Longitud del número
               </label>
               <select
                 value={currentConfig.numberLength}
                 onChange={(e) => updateConfig("numberLength", e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="4">4 dígitos</option>
                 <option value="5">5 dígitos</option>

@@ -585,12 +585,12 @@ export default function ModuleComprasDetail() {
                     <input
                       type="text"
                       defaultValue="OC-{YYYY}-{###}"
-                      className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
                     />
                   </div>
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Aprobación requerida</label>
-                    <select className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50">
+                    <select className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50">
                       <option>Siempre</option>
                       <option>Solo montos mayores a $1000</option>
                       <option>Nunca</option>
@@ -691,7 +691,7 @@ export default function ModuleComprasDetail() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">Proveedor *</label>
-                  <select className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50">
+                  <select className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50">
                     <option>Seleccionar proveedor...</option>
                     <option>Distribuidora Nacional S.A.</option>
                     <option>Kreafast</option>
@@ -700,7 +700,7 @@ export default function ModuleComprasDetail() {
                 </div>
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">Comprador *</label>
-                  <select className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50">
+                  <select className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50">
                     <option>Seleccionar comprador...</option>
                     <option>Juan Pérez</option>
                     <option>María García</option>
@@ -714,14 +714,14 @@ export default function ModuleComprasDetail() {
                   <label className="block text-gray-400 text-sm mb-2">Fecha de Orden *</label>
                   <input
                     type="date"
-                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
                   />
                 </div>
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">Fecha de Entrega *</label>
                   <input
                     type="date"
-                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
                   />
                 </div>
               </div>
@@ -730,7 +730,7 @@ export default function ModuleComprasDetail() {
                 <label className="block text-gray-400 text-sm mb-2">Notas</label>
                 <textarea
                   rows={3}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 resize-none"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 resize-none"
                   placeholder="Agregar notas adicionales..."
                 ></textarea>
               </div>

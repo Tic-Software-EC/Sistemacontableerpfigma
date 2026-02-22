@@ -373,14 +373,14 @@ export function BranchListContent() {
               <div className="flex items-center gap-2 pt-4 border-t border-white/10">
                 <button
                   onClick={() => handleOpenEditModal(branch)}
-                  className="flex-1 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
+                  className="flex-1 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
                 >
                   <Edit className="w-4 h-4" />
                   Editar
                 </button>
                 <button
                   onClick={() => handleDeleteBranch(branch.id)}
-                  className="flex-1 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
+                  className="flex-1 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
                 >
                   <Trash2 className="w-4 h-4" />
                   Eliminar
@@ -494,7 +494,7 @@ export function BranchListContent() {
                         setFormData({ ...formData, code: e.target.value })
                       }
                       placeholder="SUC-001"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      className="w-full pl-10 pr-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       required
                     />
                   </div>
@@ -514,7 +514,7 @@ export function BranchListContent() {
                         setFormData({ ...formData, name: e.target.value })
                       }
                       placeholder="Ej: Sucursal Centro"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      className="w-full pl-10 pr-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       required
                     />
                   </div>
@@ -536,7 +536,7 @@ export function BranchListContent() {
                         type: e.target.value as "principal" | "secundaria",
                       })
                     }
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                     required
                   >
                     <option value="secundaria">Secundaria</option>
@@ -557,7 +557,7 @@ export function BranchListContent() {
                         status: e.target.value as "active" | "inactive",
                       })
                     }
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                     required
                   >
                     <option value="active">Activa</option>
@@ -581,7 +581,7 @@ export function BranchListContent() {
                       setFormData({ ...formData, address: e.target.value })
                     }
                     placeholder="Av. Principal N123-456"
-                    className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full pl-10 pr-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                     required
                   />
                 </div>
@@ -601,7 +601,7 @@ export function BranchListContent() {
                       setFormData({ ...formData, city: e.target.value })
                     }
                     placeholder="Quito"
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                     required
                   />
                 </div>
@@ -618,7 +618,7 @@ export function BranchListContent() {
                       setFormData({ ...formData, province: e.target.value })
                     }
                     placeholder="Pichincha"
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                     required
                   />
                 </div>
@@ -640,7 +640,7 @@ export function BranchListContent() {
                         setFormData({ ...formData, phone: e.target.value })
                       }
                       placeholder="02-2345678"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      className="w-full pl-10 pr-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       required
                     />
                   </div>
@@ -660,7 +660,7 @@ export function BranchListContent() {
                         setFormData({ ...formData, email: e.target.value })
                       }
                       placeholder="sucursal@empresa.com"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      className="w-full pl-10 pr-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       required
                     />
                   </div>
@@ -683,7 +683,7 @@ export function BranchListContent() {
                         setFormData({ ...formData, manager: e.target.value })
                       }
                       placeholder="Nombre del responsable"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      className="w-full pl-10 pr-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       required
                     />
                   </div>
@@ -705,7 +705,7 @@ export function BranchListContent() {
                           openingDate: e.target.value,
                         })
                       }
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      className="w-full pl-10 pr-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       required
                     />
                   </div>
@@ -727,7 +727,7 @@ export function BranchListContent() {
                       setFormData({ ...formData, schedule: e.target.value })
                     }
                     placeholder="Lun-Vie: 8:00-18:00, Sáb: 9:00-13:00"
-                    className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full pl-10 pr-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                     required
                   />
                 </div>

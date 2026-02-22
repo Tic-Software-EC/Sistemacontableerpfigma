@@ -273,14 +273,14 @@ export function PaymentMethodsContent() {
       {/* Selector de sucursal y búsqueda */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3 flex items-center gap-2">
+          <label className="flex items-center gap-2 text-white font-medium mb-2 text-sm">
             <Building2 className="w-5 h-5 text-primary" />
             Sucursal
           </label>
           <select
             value={selectedSucursal}
             onChange={(e) => setSelectedSucursal(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
           >
             {SUCURSALES.map((sucursal) => (
               <option key={sucursal.id} value={sucursal.id}>
@@ -291,13 +291,13 @@ export function PaymentMethodsContent() {
         </div>
 
         <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3">Buscar método</label>
+          <label className="block text-white font-medium mb-3">Buscar método de pago</label>
           <input
             type="text"
-            placeholder="Nombre del método de pago..."
+            placeholder="Nombre..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           />
         </div>
       </div>
@@ -441,22 +441,20 @@ export function PaymentMethodsContent() {
 
             {/* Contenido del modal */}
             <div className="p-6 space-y-5">
-              {/* Nombre */}
-              <div>
-                <label className="block text-gray-300 text-sm mb-2 font-medium">
-                  Nombre del método <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej: Efectivo, Tarjeta Visa, Transferencia..."
-                  value={formData.name || ""}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-                />
-              </div>
-
-              {/* Tipo y Color */}
               <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-300 text-sm mb-2 font-medium">
+                    Nombre <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Efectivo, Tarjeta..."
+                    value={formData.name || ""}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-gray-300 text-sm mb-2 font-medium">
                     Tipo de pago
@@ -464,7 +462,7 @@ export function PaymentMethodsContent() {
                   <select
                     value={formData.type || "cash"}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   >
                     {PAYMENT_TYPES.map((type) => (
                       <option key={type.id} value={type.id}>
@@ -473,79 +471,73 @@ export function PaymentMethodsContent() {
                     ))}
                   </select>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-300 text-sm mb-2 font-medium">
-                    Color de identificación
+                    Color
                   </label>
                   <select
                     value={formData.color || "#10b981"}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   >
                     {COLORS.map((color) => (
-                      <option key={color.id} value={color.value}>
+                      <option key={color.id} value={color.value} style={{ backgroundColor: color.value }}>
                         {color.name}
                       </option>
                     ))}
                   </select>
-                  <div className="mt-2 flex items-center gap-2">
-                    <div
-                      className="w-6 h-6 rounded-lg border-2 border-white/20"
-                      style={{ backgroundColor: formData.color }}
-                    />
-                    <span className="text-gray-400 text-xs">Vista previa del color</span>
-                  </div>
                 </div>
-              </div>
 
-              {/* Cuenta contable */}
-              <div>
-                <label className="block text-gray-300 text-sm mb-2 font-medium">
-                  Cuenta contable <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej: 1101-001"
-                  value={formData.accountingAccount || ""}
-                  onChange={(e) => setFormData({ ...formData, accountingAccount: e.target.value })}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-                />
+                <div>
+                  <label className="block text-gray-300 text-sm mb-2 font-medium">
+                    Cuenta contable
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej: 1.1.01.001"
+                    value={formData.accountingAccount || ""}
+                    onChange={(e) => setFormData({ ...formData, accountingAccount: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                  />
+                </div>
               </div>
 
               {/* Comisiones */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-300 text-sm mb-2 font-medium flex items-center gap-2">
-                    <Percent className="w-4 h-4 text-yellow-400" />
-                    Comisión (%)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    placeholder="0.00"
-                    value={formData.commissionPercent || "0"}
-                    onChange={(e) => setFormData({ ...formData, commissionPercent: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-                  />
-                </div>
+              <div className="bg-white/5 rounded-xl p-4">
+                <h4 className="text-white font-medium mb-4 text-sm">Comisiones</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                      Comisión porcentual (%)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.commissionPercent || "0"}
+                      onChange={(e) => setFormData({ ...formData, commissionPercent: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-gray-300 text-sm mb-2 font-medium flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-green-400" />
-                    Comisión fija ($)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={formData.commissionFixed || "0"}
-                    onChange={(e) => setFormData({ ...formData, commissionFixed: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
-                  />
+                  <div>
+                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                      Comisión fija ($)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.commissionFixed || "0"}
+                      onChange={(e) => setFormData({ ...formData, commissionFixed: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -561,7 +553,7 @@ export function PaymentMethodsContent() {
                   placeholder="Sin límite"
                   value={formData.maxAmount || ""}
                   onChange={(e) => setFormData({ ...formData, maxAmount: e.target.value })}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
 

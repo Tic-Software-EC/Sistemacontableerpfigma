@@ -334,7 +334,7 @@ export function PrinterConfigContent() {
                   <select
                     value={selectedDoc.printerId}
                     onChange={(e) => handleUpdateDocument("printerId", e.target.value)}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   >
                     {printers.map(printer => (
                       <option key={printer.id} value={printer.id}>
@@ -355,7 +355,7 @@ export function PrinterConfigContent() {
                       <select
                         value={selectedDoc.format}
                         onChange={(e) => handleUpdateDocument("format", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       >
                         <option value="A4">A4 (210x297mm)</option>
                         <option value="A5">A5 (148x210mm)</option>
@@ -372,7 +372,7 @@ export function PrinterConfigContent() {
                       <select
                         value={selectedDoc.orientation}
                         onChange={(e) => handleUpdateDocument("orientation", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       >
                         <option value="portrait">Vertical</option>
                         <option value="landscape">Horizontal</option>
@@ -393,7 +393,7 @@ export function PrinterConfigContent() {
                         type="number"
                         value={selectedDoc.width}
                         onChange={(e) => handleUpdateDocument("width", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
 
@@ -405,7 +405,7 @@ export function PrinterConfigContent() {
                         type="number"
                         value={selectedDoc.height}
                         onChange={(e) => handleUpdateDocument("height", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
 
@@ -416,7 +416,7 @@ export function PrinterConfigContent() {
                       <select
                         value={selectedDoc.unit}
                         onChange={(e) => handleUpdateDocument("unit", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       >
                         <option value="mm">mm</option>
                         <option value="cm">cm</option>
@@ -438,7 +438,7 @@ export function PrinterConfigContent() {
                         type="number"
                         value={selectedDoc.marginTop}
                         onChange={(e) => handleUpdateDocument("marginTop", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
 
@@ -450,7 +450,7 @@ export function PrinterConfigContent() {
                         type="number"
                         value={selectedDoc.marginBottom}
                         onChange={(e) => handleUpdateDocument("marginBottom", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
 
@@ -462,7 +462,7 @@ export function PrinterConfigContent() {
                         type="number"
                         value={selectedDoc.marginLeft}
                         onChange={(e) => handleUpdateDocument("marginLeft", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
 
@@ -474,7 +474,7 @@ export function PrinterConfigContent() {
                         type="number"
                         value={selectedDoc.marginRight}
                         onChange={(e) => handleUpdateDocument("marginRight", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
                   </div>
@@ -494,7 +494,7 @@ export function PrinterConfigContent() {
                         max="10"
                         value={selectedDoc.copies}
                         onChange={(e) => handleUpdateDocument("copies", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
                   </div>
@@ -655,7 +655,7 @@ export function PrinterConfigContent() {
                         type="text"
                         value={selectedPrinter.name}
                         onChange={(e) => handleUpdatePrinter("name", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
 
@@ -666,7 +666,7 @@ export function PrinterConfigContent() {
                       <select
                         value={selectedPrinter.type}
                         onChange={(e) => handleUpdatePrinter("type", e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       >
                         <option value="Láser">Láser</option>
                         <option value="Térmica">Térmica</option>
@@ -741,7 +741,7 @@ export function PrinterConfigContent() {
                         value={selectedPrinter.ip}
                         onChange={(e) => handleUpdatePrinter("ip", e.target.value)}
                         placeholder="192.168.1.100"
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
 
@@ -754,7 +754,7 @@ export function PrinterConfigContent() {
                         value={selectedPrinter.port}
                         onChange={(e) => handleUpdatePrinter("port", e.target.value)}
                         placeholder="9100"
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
                   </div>
@@ -770,7 +770,7 @@ export function PrinterConfigContent() {
                     <select
                       value={selectedPrinter.driver}
                       onChange={(e) => handleUpdatePrinter("driver", e.target.value)}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                     >
                       <option value="Generic / PCL6">Generic / PCL6</option>
                       <option value="ESC/POS">ESC/POS (Térmica)</option>

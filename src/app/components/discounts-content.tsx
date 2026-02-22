@@ -317,14 +317,14 @@ export function DiscountsContent() {
       {/* Selector de sucursal y búsqueda */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <label className="block text-white font-medium mb-3 flex items-center gap-2">
+          <label className="flex items-center gap-2 text-white font-medium mb-2 text-sm">
             <Building2 className="w-5 h-5 text-primary" />
             Sucursal
           </label>
           <select
             value={selectedSucursal}
             onChange={(e) => setSelectedSucursal(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
           >
             {SUCURSALES.map((sucursal) => (
               <option key={sucursal.id} value={sucursal.id}>
@@ -341,7 +341,7 @@ export function DiscountsContent() {
             placeholder="Nombre o código..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           />
         </div>
       </div>
@@ -589,7 +589,7 @@ export function DiscountsContent() {
                     placeholder="Ej: Black Friday, Cliente VIP..."
                     value={formData.name || ""}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
 
@@ -602,7 +602,7 @@ export function DiscountsContent() {
                     placeholder="Ej: BLACKFRIDAY26"
                     value={formData.code || ""}
                     onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors font-mono"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors font-mono"
                   />
                 </div>
               </div>
@@ -616,7 +616,7 @@ export function DiscountsContent() {
                   <select
                     value={formData.type || "percentage"}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   >
                     {DISCOUNT_TYPES.map((type) => (
                       <option key={type.id} value={type.id}>
@@ -638,7 +638,7 @@ export function DiscountsContent() {
                     placeholder={formData.type === "percentage" ? "25" : "15.00"}
                     value={formData.value || ""}
                     onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
               </div>
@@ -680,7 +680,7 @@ export function DiscountsContent() {
                     type="date"
                     value={formData.startDate || ""}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
 
@@ -692,7 +692,7 @@ export function DiscountsContent() {
                     type="date"
                     value={formData.endDate || ""}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
               </div>
@@ -710,7 +710,7 @@ export function DiscountsContent() {
                     placeholder="0.00"
                     value={formData.minAmount || "0"}
                     onChange={(e) => setFormData({ ...formData, minAmount: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
 
@@ -725,7 +725,7 @@ export function DiscountsContent() {
                     placeholder="Sin límite"
                     value={formData.maxDiscount || ""}
                     onChange={(e) => setFormData({ ...formData, maxDiscount: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
               </div>
@@ -741,7 +741,7 @@ export function DiscountsContent() {
                   placeholder="0"
                   value={formData.usageLimit || "0"}
                   onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value })}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
 
@@ -782,7 +782,7 @@ export function DiscountsContent() {
                   value={formData.description || ""}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
                 />
               </div>
 
