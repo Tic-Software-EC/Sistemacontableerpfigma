@@ -485,7 +485,7 @@ export function WorkScheduleContent() {
                     value={newShift.name}
                     onChange={(e) => setNewShift({ ...newShift, name: e.target.value })}
                     placeholder="Ej: Primer Turno, Segundo Turno, Turno Nocturno..."
-                    className="w-full px-4 py-3 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full px-3 py-2 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                   />
                 </div>
 
@@ -749,7 +749,7 @@ export function WorkScheduleContent() {
                     value={editingShift.name}
                     onChange={(e) => setEditingShift({ ...editingShift, name: e.target.value })}
                     placeholder="Ej: Primer Turno, Segundo Turno, Turno Nocturno..."
-                    className="w-full px-4 py-3 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full px-3 py-2 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                   />
                 </div>
 

@@ -904,7 +904,7 @@ export default function SubscriptionAdminPage() {
                 setSelectedPlan(e.target.value as any);
                 handleFilterChange();
               }}
-              className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary"
+              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary"
             >
               <option value="all">Todos los planes</option>
               <option value="free">Free</option>
@@ -919,7 +919,7 @@ export default function SubscriptionAdminPage() {
                 setSelectedStatus(e.target.value as any);
                 handleFilterChange();
               }}
-              className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary"
+              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary"
             >
               <option value="all">Todos los estados</option>
               <option value="active">Activo</option>

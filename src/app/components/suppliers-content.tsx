@@ -21,6 +21,9 @@ interface Supplier {
   notes: string;
   createdDate: string;
   createdBy: string;
+  website: string;
+  contactPerson: string;
+  bankAccount: string;
 }
 
 const SUPPLIER_CATEGORIES = [
@@ -74,7 +77,10 @@ export function SuppliersContent() {
       status: "active",
       notes: "Proveedor principal de mobiliario de oficina",
       createdDate: "2025-01-15",
-      createdBy: "Admin Sistema"
+      createdBy: "Admin Sistema",
+      website: "www.lafavorita.com.ec",
+      contactPerson: "María Rodríguez",
+      bankAccount: "1234567890001"
     },
     {
       id: "sup-002",
@@ -95,7 +101,10 @@ export function SuppliersContent() {
       status: "active",
       notes: "Distribuidor autorizado de equipos Dell y HP",
       createdDate: "2025-02-01",
-      createdBy: "Admin Sistema"
+      createdBy: "Admin Sistema",
+      website: "www.tecnoavanzada.com.ec",
+      contactPerson: "Carlos Méndez",
+      bankAccount: "1234567890002"
     },
     {
       id: "sup-003",
@@ -116,7 +125,10 @@ export function SuppliersContent() {
       status: "active",
       notes: "Proveedor de suministros de oficina y papelería",
       createdDate: "2025-01-20",
-      createdBy: "Admin Sistema"
+      createdBy: "Admin Sistema",
+      website: "www.papelcorp.com.ec",
+      contactPerson: "Ana López",
+      bankAccount: "1234567890003"
     },
     {
       id: "sup-004",
@@ -137,7 +149,10 @@ export function SuppliersContent() {
       status: "active",
       notes: "Proveedor internacional de equipos industriales",
       createdDate: "2025-02-10",
-      createdBy: "Admin Sistema"
+      createdBy: "Admin Sistema",
+      website: "www.indsupplies.com",
+      contactPerson: "John Smith",
+      bankAccount: "1234567890004"
     },
     {
       id: "sup-005",
@@ -158,7 +173,10 @@ export function SuppliersContent() {
       status: "inactive",
       notes: "Temporalmente inactivo por restructuración",
       createdDate: "2025-01-05",
-      createdBy: "Admin Sistema"
+      createdBy: "Admin Sistema",
+      website: "www.construandinas.com.ec",
+      contactPerson: "Pedro Morales",
+      bankAccount: "1234567890005"
     },
   ]);
 
@@ -180,7 +198,10 @@ export function SuppliersContent() {
     status: "active",
     notes: "",
     createdDate: new Date().toISOString().split("T")[0],
-    createdBy: "Usuario Actual"
+    createdBy: "Usuario Actual",
+    website: "",
+    contactPerson: "",
+    bankAccount: ""
   });
 
   const filteredSuppliers = suppliers.filter((supplier) => {
@@ -222,7 +243,10 @@ export function SuppliersContent() {
         status: "active",
         notes: "",
         createdDate: new Date().toISOString().split("T")[0],
-        createdBy: "Usuario Actual"
+        createdBy: "Usuario Actual",
+        website: "",
+        contactPerson: "",
+        bankAccount: ""
       });
     }
     setShowModal(true);
@@ -573,9 +597,9 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="text"
-                      value={formData.code || ""}
+                      value={formData.code}
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-gray-500 text-sm font-mono"
                       disabled
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-gray-500 font-mono"
                     />
                   </div>
 
@@ -587,7 +611,7 @@ export function SuppliersContent() {
                       type="text"
                       value={formData.ruc || ""}
                       onChange={(e) => setFormData({ ...formData, ruc: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       placeholder="1234567890001"
                     />
                   </div>
@@ -598,10 +622,11 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="text"
-                      value={formData.name || ""}
+                      value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                      placeholder="Nombre de la empresa"
+                      placeholder="Nombre del proveedor"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                      required
                     />
                   </div>
 
@@ -612,7 +637,7 @@ export function SuppliersContent() {
                     <select
                       value={formData.category || ""}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                     >
                       {SUPPLIER_CATEGORIES.filter(cat => cat !== "all").map((category) => (
                         <option key={category} value={category}>
@@ -629,7 +654,7 @@ export function SuppliersContent() {
                     <select
                       value={formData.status || ""}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                     >
                       <option value="active">Activo</option>
                       <option value="inactive">Inactivo</option>
@@ -651,10 +676,10 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="email"
-                      value={formData.email || ""}
+                      value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                      placeholder="email@empresa.com"
+                      placeholder="proveedor@ejemplo.com"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                     />
                   </div>
 
@@ -664,10 +689,10 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="tel"
-                      value={formData.phone || ""}
+                      value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                      placeholder="+593 2 1234567"
+                      placeholder="+593 99 999 9999"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                     />
                   </div>
 
@@ -679,7 +704,7 @@ export function SuppliersContent() {
                       type="text"
                       value={formData.contactName || ""}
                       onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       placeholder="Juan Pérez"
                     />
                   </div>
@@ -692,7 +717,7 @@ export function SuppliersContent() {
                       type="tel"
                       value={formData.contactPhone || ""}
                       onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       placeholder="+593 99 1234567"
                     />
                   </div>
@@ -705,7 +730,7 @@ export function SuppliersContent() {
                       type="email"
                       value={formData.contactEmail || ""}
                       onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       placeholder="contacto@empresa.com"
                     />
                   </div>
@@ -725,10 +750,10 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="text"
-                      value={formData.address || ""}
+                      value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                      placeholder="Av. Principal N12-34 y Secundaria"
+                      placeholder="Dirección completa"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                     />
                   </div>
 
@@ -738,10 +763,10 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="text"
-                      value={formData.city || ""}
+                      value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                      placeholder="Quito"
+                      placeholder="Ciudad"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                     />
                   </div>
 
@@ -751,10 +776,10 @@ export function SuppliersContent() {
                     </label>
                     <input
                       type="text"
-                      value={formData.country || ""}
+                      value={formData.country}
                       onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                      placeholder="Ecuador"
+                      placeholder="País"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                     />
                   </div>
                 </div>
@@ -801,7 +826,7 @@ export function SuppliersContent() {
                       type="number"
                       value={formData.creditDays || 0}
                       disabled
-                      className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-gray-500"
+                      className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-gray-500 text-sm"
                     />
                   </div>
                 </div>
@@ -814,11 +839,11 @@ export function SuppliersContent() {
                   Notas Adicionales
                 </h4>
                 <textarea
-                  value={formData.notes || ""}
+                  value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
-                  rows={4}
-                  placeholder="Observaciones o notas sobre el proveedor..."
+                  placeholder="Notas adicionales sobre el proveedor..."
+                  rows={3}
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-gray-500 text-sm"
                 />
               </div>
             </div>

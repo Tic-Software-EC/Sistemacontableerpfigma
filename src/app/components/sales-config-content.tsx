@@ -148,7 +148,7 @@ export function SalesConfigContent() {
         <select
           value={selectedSucursal}
           onChange={(e) => setSelectedSucursal(e.target.value)}
-          className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+          className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
         >
           {SUCURSALES.map((sucursal) => (
             <option key={sucursal.id} value={sucursal.id}>
@@ -311,7 +311,7 @@ export function SalesConfigContent() {
               <select
                 value={currentConfig.defaultPriceList}
                 onChange={(e) => handleUpdateConfig("defaultPriceList", e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               >
                 {PRICE_LISTS.map((list) => (
                   <option key={list.id} value={list.id}>
@@ -337,7 +337,7 @@ export function SalesConfigContent() {
                 step="0.1"
                 value={currentConfig.maxDiscountPercent}
                 onChange={(e) => handleUpdateConfig("maxDiscountPercent", e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               />
               <p className="text-gray-500 text-xs mt-2">
                 Los vendedores no podrán aplicar descuentos superiores a este porcentaje
@@ -352,7 +352,7 @@ export function SalesConfigContent() {
               <select
                 value={currentConfig.roundingDecimals}
                 onChange={(e) => handleUpdateConfig("roundingDecimals", e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="0">Sin decimales (0)</option>
                 <option value="1">1 decimal</option>
@@ -412,7 +412,7 @@ export function SalesConfigContent() {
                   max="365"
                   value={currentConfig.creditDaysLimit}
                   onChange={(e) => handleUpdateConfig("creditDaysLimit", e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 />
                 <p className="text-gray-500 text-xs mt-2">
                   Plazo máximo en días para pago de ventas a crédito

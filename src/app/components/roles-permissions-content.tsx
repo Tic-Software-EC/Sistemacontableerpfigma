@@ -797,7 +797,7 @@ export function RolesPermissionsContent() {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     placeholder="Ej: Gerente de Ventas"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
 
@@ -812,7 +812,7 @@ export function RolesPermissionsContent() {
                     }
                     placeholder="Describe las responsabilidades de este rol..."
                     rows={3}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
                   />
                 </div>
               </div>

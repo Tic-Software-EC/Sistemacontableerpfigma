@@ -242,18 +242,18 @@ export function ArqueoModal({
         <div className="border-t border-white/10 bg-white/5 px-5 py-3 flex items-center gap-2">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all font-medium text-sm"
+            className="flex-1 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all font-medium text-sm"
           >
             Cancelar
           </button>
           <button
-            className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-semibold text-sm flex items-center justify-center gap-2"
+            className="flex-1 px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all font-semibold text-sm flex items-center justify-center gap-2"
           >
             <Printer className="w-4 h-4" />
             Imprimir Arqueo
           </button>
           <button
-            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all font-semibold text-sm"
+            className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all font-semibold text-sm"
           >
             Cerrar Caja
           </button>

@@ -371,17 +371,15 @@ export function HolidaysContent() {
             </div>
 
             <div className="space-y-6">
-              {/* Nombre */}
+              {/* Nombre del día festivo */}
               <div>
-                <label className="text-gray-400 text-sm mb-2 block">
-                  Nombre del día festivo *
-                </label>
+                <label className="text-gray-400 text-sm mb-2 block">Nombre del Festivo *</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej: Año Nuevo, Día del Trabajo..."
-                  className="w-full px-4 py-3 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  className="w-full px-3 py-2 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                 />
               </div>
 
@@ -392,7 +390,7 @@ export function HolidaysContent() {
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="w-full px-4 py-3 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  className="w-full px-3 py-2 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                 />
               </div>
 
@@ -407,7 +405,7 @@ export function HolidaysContent() {
                       type: e.target.value as Holiday["type"],
                     })
                   }
-                  className="w-full px-4 py-3 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+                  className="w-full px-3 py-2 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
                 >
                   {HOLIDAY_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
@@ -427,7 +425,7 @@ export function HolidaysContent() {
                   }
                   placeholder="Descripción opcional del día festivo..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all resize-none"
+                  className="w-full px-3 py-2 bg-[#0D1B2A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all resize-none"
                 />
               </div>
 

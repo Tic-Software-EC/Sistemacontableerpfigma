@@ -55,7 +55,7 @@ export function RegionalConfigContent() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value="es">Español</option>
               <option value="en">English</option>
@@ -70,7 +70,7 @@ export function RegionalConfigContent() {
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value="EC">Ecuador</option>
               <option value="CO">Colombia</option>
@@ -88,7 +88,7 @@ export function RegionalConfigContent() {
             <select
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value="America/Guayaquil">GMT-5 (Ecuador)</option>
               <option value="America/Bogota">GMT-5 (Colombia)</option>
@@ -106,7 +106,7 @@ export function RegionalConfigContent() {
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value="USD">USD - Dólar Estadounidense</option>
               <option value="COP">COP - Peso Colombiano</option>
@@ -134,7 +134,7 @@ export function RegionalConfigContent() {
             <select
               value={dateFormat}
               onChange={(e) => setDateFormat(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value="DD/MM/YYYY">DD/MM/YYYY (16/02/2026)</option>
               <option value="MM/DD/YYYY">MM/DD/YYYY (02/16/2026)</option>
@@ -150,7 +150,7 @@ export function RegionalConfigContent() {
             <select
               value={timeFormat}
               onChange={(e) => setTimeFormat(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value="24">24 horas (14:30)</option>
               <option value="12">12 horas (02:30 PM)</option>
@@ -164,7 +164,7 @@ export function RegionalConfigContent() {
             <select
               value={decimalSeparator}
               onChange={(e) => setDecimalSeparator(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value=".">Punto (1234.56)</option>
               <option value=",">Coma (1234,56)</option>
@@ -178,7 +178,7 @@ export function RegionalConfigContent() {
             <select
               value={thousandSeparator}
               onChange={(e) => setThousandSeparator(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value=",">Coma (1,234.56)</option>
               <option value=".">Punto (1.234,56)</option>
@@ -194,7 +194,7 @@ export function RegionalConfigContent() {
             <select
               value={firstDayOfWeek}
               onChange={(e) => setFirstDayOfWeek(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value="monday">Lunes</option>
               <option value="sunday">Domingo</option>
@@ -208,7 +208,7 @@ export function RegionalConfigContent() {
             <select
               value={paperSize}
               onChange={(e) => setPaperSize(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
             >
               <option value="A4">A4 (210 x 297 mm)</option>
               <option value="Letter">Letter (216 x 279 mm)</option>

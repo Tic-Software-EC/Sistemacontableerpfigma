@@ -407,7 +407,7 @@ export function PosConfigContent({ userPlan = "Plan Básico" }: PosConfigContent
             <h3 className="text-white font-bold text-xl">Sucursales ({branches.length})</h3>
             <button 
               onClick={() => setShowAddBranchModal(true)}
-              className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium text-sm flex items-center gap-2"
+              className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium text-sm flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Agregar Sucursal
@@ -502,13 +502,13 @@ export function PosConfigContent({ userPlan = "Plan Básico" }: PosConfigContent
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCancelEdit}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl transition-colors font-medium text-sm"
+                className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg transition-colors font-medium text-sm"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSaveBranch}
-                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium text-sm"
+                className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium text-sm"
               >
                 Guardar Cambios
               </button>
@@ -716,7 +716,7 @@ export function PosConfigContent({ userPlan = "Plan Básico" }: PosConfigContent
                     onChange={(e) => updateFormData("maxDiscount", e.target.value)}
                     min="0"
                     max="100"
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   />
                   <p className="text-gray-500 text-xs mt-1">Porcentaje máximo de descuento por venta</p>
                 </div>
@@ -728,7 +728,7 @@ export function PosConfigContent({ userPlan = "Plan Básico" }: PosConfigContent
                   <select
                     value={formData.defaultPaymentMethod}
                     onChange={(e) => updateFormData("defaultPaymentMethod", e.target.value)}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   >
                     <option value="efectivo">Efectivo</option>
                     <option value="tarjeta">Tarjeta de crédito/débito</option>
@@ -1079,14 +1079,14 @@ export function PosConfigContent({ userPlan = "Plan Básico" }: PosConfigContent
                 <div className="flex items-center gap-3 pt-5 border-t border-white/10">
                   <button
                     onClick={handleCloseModal}
-                    className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl transition-colors font-medium text-sm"
+                    className="flex-1 px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg transition-colors font-medium text-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleAddSelectedBranches}
                     disabled={selectedBranchesIds.length === 0}
-                    className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Agregar {selectedBranchesIds.length > 0 && `(${selectedBranchesIds.length})`}
                   </button>

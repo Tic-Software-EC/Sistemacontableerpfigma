@@ -8,12 +8,17 @@ interface PreferencesModalProps {
 
 export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
   const [activeTab, setActiveTab] = useState("preferences");
-  const [theme, setTheme] = useState("Oscuro");
-  const [language, setLanguage] = useState("Español");
-  const [timezone, setTimezone] = useState("GMT-5 (Ecuador)");
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [systemAlerts, setSystemAlerts] = useState(false);
+  const [preferences, setPreferences] = useState({
+    theme: "Oscuro",
+    language: "Español",
+    timezone: "GMT-5 (Ecuador)",
+    emailNotifications: true,
+    pushNotifications: true,
+    systemAlerts: false,
+    notificationEmail: "contacto@comercialdelpacífico.com.ec",
+    notificationPhone: "+593 2 123-4567",
+    whatsappNumber: "+593 99 876-5432",
+  });
 
   // Estados para Información de la Empresa
   const [companyName, setCompanyName] = useState("Comercial del Pacífico S.A.");
@@ -56,14 +61,21 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
 
   const handleSave = () => {
     console.log("Guardando cambios...", {
-      theme,
-      language,
-      timezone,
-      emailNotifications,
-      pushNotifications,
-      systemAlerts,
+      theme: preferences.theme,
+      language: preferences.language,
+      timezone: preferences.timezone,
+      emailNotifications: preferences.emailNotifications,
+      pushNotifications: preferences.pushNotifications,
+      systemAlerts: preferences.systemAlerts,
     });
     onClose();
+  };
+
+  const updatePreference = (key: keyof typeof preferences, value: string | boolean) => {
+    setPreferences({
+      ...preferences,
+      [key]: value,
+    });
   };
 
   return (
@@ -130,9 +142,9 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
                         Tema
                       </label>
                       <select
-                        value={theme}
-                        onChange={(e) => setTheme(e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        value={preferences.theme}
+                        onChange={(e) => updatePreference("theme", e.target.value)}
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       >
                         <option value="Oscuro">Oscuro</option>
                         <option value="Claro">Claro</option>
@@ -146,9 +158,9 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
                         Idioma
                       </label>
                       <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                        value={preferences.language}
+                        onChange={(e) => updatePreference("language", e.target.value)}
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                       >
                         <option value="Español">Español</option>
                         <option value="English">English</option>
@@ -173,12 +185,12 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
                       <div className="relative">
                         <input
                           type="checkbox"
-                          checked={emailNotifications}
-                          onChange={(e) => setEmailNotifications(e.target.checked)}
+                          checked={preferences.emailNotifications}
+                          onChange={(e) => updatePreference("emailNotifications", e.target.checked)}
                           className="sr-only peer"
                         />
                         <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                          {emailNotifications && (
+                          {preferences.emailNotifications && (
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
@@ -195,12 +207,12 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
                       <div className="relative">
                         <input
                           type="checkbox"
-                          checked={pushNotifications}
-                          onChange={(e) => setPushNotifications(e.target.checked)}
+                          checked={preferences.pushNotifications}
+                          onChange={(e) => updatePreference("pushNotifications", e.target.checked)}
                           className="sr-only peer"
                         />
                         <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                          {pushNotifications && (
+                          {preferences.pushNotifications && (
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
@@ -655,7 +667,7 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         placeholder="Ingresa tu contraseña actual"
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-500"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-500"
                       />
                     </div>
 
@@ -668,7 +680,7 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Ingresa tu nueva contraseña"
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-500"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-500"
                       />
                       <p className="text-gray-500 text-xs mt-1">
                         Mínimo 8 caracteres, incluyendo mayúsculas, minúsculas y números
@@ -684,7 +696,7 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Confirma tu nueva contraseña"
-                        className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-500"
+                        className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-500"
                       />
                     </div>
 

@@ -2717,7 +2717,7 @@ export function POS() {
                 <select
                   value={expenseTipo}
                   onChange={(e) => setExpenseTipo(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                 >
                   <option value="" className="bg-secondary">Seleccione tipo de gasto...</option>
                   <option value="Suministros" className="bg-secondary">Suministros</option>
@@ -2741,7 +2741,7 @@ export function POS() {
                   value={expenseConcepto}
                   onChange={(e) => setExpenseConcepto(e.target.value)}
                   placeholder="Descripción detallada del gasto..."
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                 />
               </div>
 
@@ -2757,7 +2757,7 @@ export function POS() {
                     placeholder="0.00"
                     step="0.01"
                     min="0"
-                    className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="w-full pl-8 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                   />
                 </div>
               </div>
@@ -2841,7 +2841,7 @@ export function POS() {
                 <select
                   value={expenseFilterTipo}
                   onChange={(e) => setExpenseFilterTipo(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                 >
                   <option value="todos" className="bg-secondary">Todos los tipos</option>
                   <option value="Suministros" className="bg-secondary">Suministros</option>

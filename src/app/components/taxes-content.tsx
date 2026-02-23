@@ -297,7 +297,7 @@ export function TaxesContent() {
           <select
             value={selectedSucursal}
             onChange={(e) => setSelectedSucursal(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
           >
             {SUCURSALES.map((sucursal) => (
               <option key={sucursal.id} value={sucursal.id}>
@@ -311,10 +311,10 @@ export function TaxesContent() {
           <label className="block text-white font-medium mb-3">Buscar impuesto</label>
           <input
             type="text"
-            placeholder="Nombre o código..."
+            placeholder="Buscar impuesto..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           />
         </div>
       </div>
@@ -511,10 +511,11 @@ export function TaxesContent() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Ej: IVA, ICE, IRBPNR..."
-                    value={formData.name || ""}
+                    value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    placeholder="Ej: IVA 12%, ICE, Retención..."
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    required
                   />
                 </div>
 
@@ -524,10 +525,11 @@ export function TaxesContent() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Ej: IVA-12, ICE-BA..."
-                    value={formData.code || ""}
+                    value={formData.code}
                     onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    placeholder="Ej: IVA12, ICE10..."
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    required
                   />
                 </div>
               </div>
@@ -539,9 +541,9 @@ export function TaxesContent() {
                     Tipo de impuesto
                   </label>
                   <select
-                    value={formData.type || "percentage"}
+                    value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   >
                     {TAX_TYPES.map((type) => (
                       <option key={type.id} value={type.id}>
@@ -563,7 +565,7 @@ export function TaxesContent() {
                     placeholder={formData.type === "percentage" ? "12" : "0.50"}
                     value={formData.rate || ""}
                     onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
               </div>
@@ -578,7 +580,7 @@ export function TaxesContent() {
                   placeholder="Ej: 2103-001"
                   value={formData.accountingAccount || ""}
                   onChange={(e) => setFormData({ ...formData, accountingAccount: e.target.value })}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
 
@@ -615,11 +617,11 @@ export function TaxesContent() {
                   Descripción
                 </label>
                 <textarea
-                  placeholder="Descripción opcional del impuesto..."
-                  value={formData.description || ""}
+                  value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Descripción del impuesto..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
                 />
               </div>
 

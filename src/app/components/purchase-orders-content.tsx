@@ -1050,7 +1050,7 @@ export function PurchaseOrdersContent() {
                     type="text"
                     value={formData.orderNumber || ""}
                     disabled
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-gray-500 font-mono"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-gray-500 text-sm font-mono"
                   />
                 </div>
 
@@ -1062,7 +1062,7 @@ export function PurchaseOrdersContent() {
                     type="date"
                     value={formData.date || ""}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
 
@@ -1074,7 +1074,7 @@ export function PurchaseOrdersContent() {
                     type="date"
                     value={formData.deliveryDate || ""}
                     onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
               </div>
@@ -1094,7 +1094,7 @@ export function PurchaseOrdersContent() {
                       supplierName: supplier?.name || "",
                     });
                   }}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 >
                   <option value="">Seleccionar proveedor</option>
                   {SUPPLIERS.map((supplier) => (
@@ -1265,7 +1265,7 @@ export function PurchaseOrdersContent() {
                   value={formData.notes || ""}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
                 />
               </div>
             </div>
@@ -1576,7 +1576,7 @@ export function PurchaseOrdersContent() {
                 <select
                   value={receivingWarehouse}
                   onChange={(e) => setReceivingWarehouse(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 >
                   {WAREHOUSES.map((warehouse) => (
                     <option key={warehouse.id} value={warehouse.id}>
@@ -1731,7 +1731,7 @@ export function PurchaseOrdersContent() {
                   value={receivingNotes}
                   onChange={(e) => setReceivingNotes(e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
                 />
               </div>
             </div>
