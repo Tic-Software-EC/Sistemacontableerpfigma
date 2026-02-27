@@ -119,7 +119,7 @@ export default function ModulesPage() {
       name: "Inventario",
       icon: Package,
       color: "from-orange-500 to-orange-600",
-      route: "/module-config-detail",
+      route: "/module-inventory-detail",
       description: "Control de inventario",
     },
     {
@@ -305,11 +305,16 @@ export default function ModulesPage() {
       return;
     }
 
+    // Módulo de Inventario
+    if (module.name === "Inventario") {
+      navigate("/module-inventory-detail");
+      return;
+    }
+
     // Módulos que deben usar el nuevo sistema de menús
     const modulesWithMenus = [
       "Configuración",
       "Ventas",
-      "Inventario",
       "Contabilidad",
       "Facturas",
       "Clientes",

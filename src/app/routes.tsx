@@ -9,6 +9,7 @@ import MenuManagementPage from "./pages/menu-management";
 import ModuleConfigurationPage from "./pages/module-configuration";
 import ModuleComprasDetail from "./pages/module-compras-detail";
 import ModulePosDetail from "./pages/module-pos-detail";
+import ModuleInventoryDetail from "./pages/module-inventory-detail";
 
 export const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
   {
     path: "/module-pos-detail",
     element: <ModulePosDetail />,
+  },
+  {
+    path: "/module-inventory-detail",
+    element: <ModuleInventoryDetail />,
   },
   {
     path: "*",
