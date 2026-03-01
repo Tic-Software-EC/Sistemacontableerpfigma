@@ -146,30 +146,30 @@ export default function SubscriptionsManagementPage() {
   const getPlanBadgeColor = (plan: string) => {
     switch (plan) {
       case "free":
-        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+        return "bg-gray-700 text-gray-300 border-gray-600";
       case "standard":
-        return "bg-primary/20 text-primary border-primary/30";
+        return "bg-[#3d2817] text-[#E8692E] border-[#E8692E]/40";
       case "custom":
-        return "bg-cyan-500/20 text-cyan-400 border-cyan-500/30";
+        return "bg-[#0d3d4a] text-cyan-400 border-cyan-500/40";
       default:
-        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+        return "bg-gray-700 text-gray-300 border-gray-600";
     }
   };
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
+        return "bg-[#0d3d2a] text-green-400 border-green-500/40";
       case "trial":
-        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+        return "bg-[#3d3417] text-yellow-400 border-yellow-500/40";
       case "suspended":
-        return "bg-red-500/20 text-red-400 border-red-500/30";
+        return "bg-[#3d1a1f] text-red-400 border-red-500/40";
       case "expired":
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
+        return "bg-gray-700 text-gray-400 border-gray-600";
       case "pending":
-        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+        return "bg-[#3d2817] text-orange-400 border-orange-500/40";
       default:
-        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+        return "bg-gray-700 text-gray-300 border-gray-600";
     }
   };
 

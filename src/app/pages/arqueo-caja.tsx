@@ -505,13 +505,13 @@ export function ArqueoCaja() {
           <div className="mb-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-white font-bold text-xl flex items-center gap-2">
-                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                    <Calculator className="w-5 h-5 text-primary" />
-                  </div>
-                  Arqueo de Caja
-                </h2>
-                <p className="text-gray-400 text-xs mt-1 ml-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <Calculator className="w-8 h-8 text-primary" />
+                  <h2 className="text-white font-bold text-3xl">
+                    Arqueo de Caja
+                  </h2>
+                </div>
+                <p className="text-gray-400 text-sm">
                   Conteo de efectivo y cierre de caja diario
                 </p>
               </div>

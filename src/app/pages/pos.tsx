@@ -999,6 +999,17 @@ export function POS() {
       <div className="p-4">
       <div className="max-w-[1800px] mx-auto">
         
+        {/* Título principal */}
+        <div className="mb-4">
+          <div className="flex items-center gap-3 mb-2">
+            <ShoppingCart className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold text-white">Punto de Venta</h1>
+          </div>
+          <p className="text-gray-400 text-sm">
+            Gestiona tus ventas de forma rápida y eficiente
+          </p>
+        </div>
+
         {/* Header reorganizado - Cliente a la izquierda, Caja a la derecha */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3 mb-2">
           {/* Sección de Cliente - Izquierda COMPACTA */}

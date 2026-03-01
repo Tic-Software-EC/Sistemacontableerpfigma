@@ -337,6 +337,17 @@ export function SalesHistory() {
     <div className="h-full bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] overflow-auto">
       <div className="p-6">
         <div className="max-w-[1800px] mx-auto">
+          {/* Título principal */}
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <Receipt className="w-8 h-8 text-primary" />
+              <h1 className="text-3xl font-bold text-white">Historial de Ventas</h1>
+            </div>
+            <p className="text-gray-400 text-sm">
+              Consulta y gestiona el historial completo de transacciones
+            </p>
+          </div>
+
           {/* Filtros y búsqueda */}
           <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-4 mb-4">
             <div className="flex flex-col lg:flex-row gap-3">

@@ -1,800 +1,1097 @@
-import { useNavigate } from "react-router";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import {
-  Settings,
-  Building2,
-  CreditCard,
-  LogOut,
+  Package,
+  Plus,
+  Edit,
+  Eye,
+  Trash2,
   X,
+  Save,
+  CheckCircle2,
   FileText,
   Users,
   ShoppingCart,
-  DollarSign,
-  Package,
-  Receipt,
-  ClipboardList,
-  Warehouse,
   BarChart3,
-  Calendar,
-  FileSpreadsheet,
-  UserCheck,
   Calculator,
-  BookOpen,
-  PieChart,
+  Receipt,
+  UserCheck,
   Layers,
+  CreditCard,
+  Search,
+  Pencil,
+  DollarSign,
+  ClipboardList,
+  Building,
+  Calendar,
+  UserPlus,
+  Book,
+  PieChart,
   Target,
   Briefcase,
   Activity,
-  Plus,
-  Edit3,
-  Trash2,
-  Save,
-  Check,
-  Menu,
   Home,
   TrendingUp,
-  CreditCard as CreditCardIcon,
   Truck,
-  ShieldCheck,
+  Shield,
   Globe,
   Zap,
   Database,
   Cloud,
   Bell,
   Mail,
-  MessageSquare,
-  Phone,
-  Video,
-  Image as ImageIcon,
-  Music,
-  Film,
-  Code,
-  Terminal,
-  Cpu,
-  HardDrive,
-  Server,
-  Smartphone,
-  Tablet,
-  Monitor,
-  Printer,
-  Headphones,
-  Camera,
-  Search,
 } from "lucide-react";
-import { AdminNavigation } from "../components/admin-navigation";
-import { ProfileModal } from "../components/profile-modal";
+import { AdminHeader } from "../components/admin-header";
+import { useTheme } from "../contexts/theme-context";
 
 interface Module {
   id: string;
   name: string;
-  icon: string;
+  icon: any;
   color: string;
   description: string;
+  isActive: boolean;
+  features: string[];
   order: number;
 }
 
-// Lista de íconos disponibles
-const availableIcons = [
-  { name: "FileText", icon: FileText, label: "Documento" },
-  { name: "Users", icon: Users, label: "Usuarios" },
-  { name: "ShoppingCart", icon: ShoppingCart, label: "Carrito" },
-  { name: "DollarSign", icon: DollarSign, label: "Dólar" },
-  { name: "Package", icon: Package, label: "Paquete" },
-  { name: "Receipt", icon: Receipt, label: "Recibo" },
-  { name: "ClipboardList", icon: ClipboardList, label: "Lista" },
-  { name: "Warehouse", icon: Warehouse, label: "Bodega" },
-  { name: "BarChart3", icon: BarChart3, label: "Gráfico" },
-  { name: "Calendar", icon: Calendar, label: "Calendario" },
-  { name: "FileSpreadsheet", icon: FileSpreadsheet, label: "Hoja" },
-  { name: "UserCheck", icon: UserCheck, label: "Usuario Check" },
-  { name: "Calculator", icon: Calculator, label: "Calculadora" },
-  { name: "BookOpen", icon: BookOpen, label: "Libro" },
-  { name: "PieChart", icon: PieChart, label: "Gráfico Pie" },
-  { name: "Layers", icon: Layers, label: "Capas" },
-  { name: "Target", icon: Target, label: "Objetivo" },
-  { name: "Briefcase", icon: Briefcase, label: "Maletín" },
-  { name: "Activity", icon: Activity, label: "Actividad" },
-  { name: "Home", icon: Home, label: "Inicio" },
-  { name: "TrendingUp", icon: TrendingUp, label: "Tendencia" },
-  { name: "CreditCard", icon: CreditCardIcon, label: "Tarjeta" },
-  { name: "Truck", icon: Truck, label: "Camión" },
-  { name: "ShieldCheck", icon: ShieldCheck, label: "Escudo" },
-  { name: "Globe", icon: Globe, label: "Globo" },
-  { name: "Zap", icon: Zap, label: "Rayo" },
-  { name: "Database", icon: Database, label: "Base de Datos" },
-  { name: "Cloud", icon: Cloud, label: "Nube" },
-  { name: "Bell", icon: Bell, label: "Campana" },
-  { name: "Mail", icon: Mail, label: "Correo" },
-  { name: "MessageSquare", icon: MessageSquare, label: "Mensaje" },
-  { name: "Phone", icon: Phone, label: "Teléfono" },
-  { name: "Video", icon: Video, label: "Video" },
-  { name: "Image", icon: ImageIcon, label: "Imagen" },
-  { name: "Music", icon: Music, label: "Música" },
-  { name: "Film", icon: Film, label: "Película" },
-  { name: "Code", icon: Code, label: "Código" },
-  { name: "Terminal", icon: Terminal, label: "Terminal" },
-  { name: "Cpu", icon: Cpu, label: "CPU" },
-  { name: "HardDrive", icon: HardDrive, label: "Disco Duro" },
-  { name: "Server", icon: Server, label: "Servidor" },
-  { name: "Smartphone", icon: Smartphone, label: "Móvil" },
-  { name: "Tablet", icon: Tablet, label: "Tablet" },
-  { name: "Monitor", icon: Monitor, label: "Monitor" },
-  { name: "Printer", icon: Printer, label: "Impresora" },
-  { name: "Headphones", icon: Headphones, label: "Audífonos" },
-  { name: "Camera", icon: Camera, label: "Cámara" },
-  { name: "Settings", icon: Settings, label: "Configuración" },
-];
-
-// Paleta de colores predefinidos
-const colorPalette = [
-  { name: "Azul", color: "#3B82F6" },
-  { name: "Verde", color: "#10B981" },
-  { name: "Naranja", color: "#F97316" },
-  { name: "Morado", color: "#A855F7" },
-  { name: "Rosa", color: "#EC4899" },
-  { name: "Cyan", color: "#06B6D4" },
-  { name: "Rojo", color: "#EF4444" },
-  { name: "Amarillo", color: "#FBBF24" },
-  { name: "Índigo", color: "#6366F1" },
-  { name: "Teal", color: "#14B8A6" },
-  { name: "Lima", color: "#84CC16" },
-  { name: "Amber", color: "#F59E0B" },
-];
-
 export default function ModuleConfigurationPage() {
   const navigate = useNavigate();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showModuleModal, setShowModuleModal] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const { theme } = useTheme();
+  const [showNewModuleModal, setShowNewModuleModal] = useState(false);
+  const [showEditModuleModal, setShowEditModuleModal] = useState(false);
+  const [showViewModuleModal, setShowViewModuleModal] = useState(false);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [successMessageType, setSuccessMessageType] = useState<"create" | "update" | "delete">("create");
-  const [showIconSelector, setShowIconSelector] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
   
-  // Estado para perfil de usuario
+  // Estados de filtros
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const [userProfile, setUserProfile] = useState({
     name: "Super Admin",
     email: "admin@ticsoftec.com",
     phone: "+593 99 123 4567",
-    role: "Administrador",
+    role: "Administrador de Sistema",
     avatar: "",
   });
-  const [iconSearchTerm, setIconSearchTerm] = useState("");
 
-  // Form state
-  const [moduleForm, setModuleForm] = useState({
+  const iconMap: { [key: string]: any } = {
+    FileText,
+    Users,
+    ShoppingCart,
+    DollarSign,
+    Package,
+    Calculator,
+    ClipboardList,
+    Building,
+    BarChart3,
+    Calendar,
+    Receipt,
+    UserPlus,
+    Book,
+    PieChart,
+    Layers,
+    Target,
+    Briefcase,
+    Activity,
+    Home,
+    TrendingUp,
+    CreditCard,
+    Truck,
+    Shield,
+    Globe,
+    Zap,
+    Database,
+    Cloud,
+    Bell,
+    Mail,
+  };
+
+  const [formData, setFormData] = useState({
     name: "",
     icon: "Package",
-    color: "#3B82F6",
+    color: "#E8692E",
     description: "",
+    isActive: true,
+    features: [] as string[],
     order: 1,
   });
 
-  // Módulos del sistema
+  const [featureInput, setFeatureInput] = useState("");
+  const [showIconSelector, setShowIconSelector] = useState(false);
+  const [customColor, setCustomColor] = useState(false);
+  const [iconSearchTerm, setIconSearchTerm] = useState("");
+
+  // Paleta de colores predefinidos
+  const colorPalette = [
+    "#3B82F6", // Azul
+    "#10B981", // Verde
+    "#F97316", // Naranja
+    "#A855F7", // Morado
+    "#EC4899", // Rosa
+    "#06B6D4", // Cyan
+    "#EF4444", // Rojo
+    "#F59E0B", // Amarillo
+    "#6366F1", // Indigo
+    "#14B8A6", // Teal
+    "#84CC16", // Lima
+    "#FB923C", // Naranja claro
+  ];
+
   const [modules, setModules] = useState<Module[]>([
     {
-      id: "facturas",
+      id: "1",
       name: "Facturas",
-      icon: "FileText",
+      icon: FileText,
       color: "#3B82F6",
       description: "Facturación electrónica completa",
+      isActive: true,
+      features: ["Emisión de Facturas", "Notas de Crédito", "Retenciones"],
       order: 1,
     },
     {
-      id: "clientes",
+      id: "2",
       name: "Clientes",
-      icon: "Users",
+      icon: Users,
       color: "#10B981",
       description: "Administración de clientes",
+      isActive: true,
+      features: ["Base de Clientes", "Historial de Compras", "Segmentación"],
       order: 2,
     },
     {
-      id: "reportes",
+      id: "3",
       name: "Reportes",
-      icon: "BarChart3",
+      icon: BarChart3,
       color: "#A855F7",
       description: "Análisis y reportes detallados",
+      isActive: true,
+      features: ["Dashboard Ejecutivo", "Reportes de Ventas", "Reportes Financieros"],
       order: 3,
     },
     {
-      id: "inventario",
+      id: "4",
       name: "Inventario",
-      icon: "Package",
+      icon: Package,
       color: "#F97316",
       description: "Control de stock y productos",
+      isActive: true,
+      features: ["Productos", "Categorías", "Kardex", "Transferencias"],
       order: 4,
     },
     {
-      id: "contabilidad",
+      id: "5",
       name: "Contabilidad",
-      icon: "Calculator",
+      icon: Calculator,
       color: "#EC4899",
       description: "Gestión contable completa",
+      isActive: true,
+      features: ["Libro Diario", "Libro Mayor", "Balance General", "Estado de Resultados"],
       order: 5,
     },
     {
-      id: "ventas",
+      id: "6",
       name: "Ventas",
-      icon: "ShoppingCart",
+      icon: ShoppingCart,
       color: "#06B6D4",
       description: "Gestión de ventas completa",
+      isActive: true,
+      features: ["Cotizaciones", "Pedidos", "POS", "Comisiones"],
       order: 6,
+    },
+    {
+      id: "7",
+      name: "Compras",
+      icon: ShoppingCart,
+      color: "#8B5CF6",
+      description: "Gestión de compras y proveedores",
+      isActive: true,
+      features: ["Órdenes de Compra", "Proveedores", "Recepción de Mercancía"],
+      order: 7,
+    },
+    {
+      id: "8",
+      name: "Gastos",
+      icon: Receipt,
+      color: "#EF4444",
+      description: "Control de gastos empresariales",
+      isActive: true,
+      features: ["Registro de Gastos", "Categorías de Gastos", "Aprobación de Gastos"],
+      order: 8,
+    },
+    {
+      id: "9",
+      name: "Empleados",
+      icon: UserCheck,
+      color: "#14B8A6",
+      description: "Recursos humanos y nómina",
+      isActive: true,
+      features: ["Registro de Empleados", "Nómina", "Asistencia", "Vacaciones"],
+      order: 9,
     },
   ]);
 
-  // Funciones de manejo de modal
-  const handleOpenCreateModal = () => {
-    setModalMode("create");
-    setModuleForm({
+  const handleOpenNewModal = () => {
+    setFormData({
       name: "",
       icon: "Package",
-      color: "#3B82F6",
+      color: "#E8692E",
       description: "",
+      isActive: true,
+      features: [],
       order: modules.length + 1,
     });
-    setShowModuleModal(true);
+    setShowNewModuleModal(true);
   };
 
-  const handleOpenEditModal = (module: Module) => {
-    setModalMode("edit");
+  const handleEditModule = (module: Module) => {
     setSelectedModule(module);
-    setModuleForm({
+    setFormData({
       name: module.name,
-      icon: module.icon,
+      icon: module.icon.name,
       color: module.color,
       description: module.description,
+      isActive: module.isActive,
+      features: [...module.features],
       order: module.order,
     });
-    setShowModuleModal(true);
+    setShowEditModuleModal(true);
   };
 
-  const handleCreateModule = () => {
-    if (!moduleForm.name.trim()) return;
-
-    const newModule: Module = {
-      id: `module-${Date.now()}`,
-      name: moduleForm.name,
-      icon: moduleForm.icon,
-      color: moduleForm.color,
-      description: moduleForm.description,
-      order: moduleForm.order,
-    };
-
-    setModules((prev) => [...prev, newModule].sort((a, b) => a.order - b.order));
-
-    setShowModuleModal(false);
-    setSuccessMessageType("create");
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3500);
+  const handleViewModule = (module: Module) => {
+    setSelectedModule(module);
+    setShowViewModuleModal(true);
   };
 
-  const handleUpdateModule = () => {
-    if (!selectedModule || !moduleForm.name.trim()) return;
-
-    setModules((prev) =>
-      prev
-        .map((module) => {
-          if (module.id !== selectedModule.id) return module;
-          return {
-            ...module,
-            name: moduleForm.name,
-            icon: moduleForm.icon,
-            color: moduleForm.color,
-            description: moduleForm.description,
-            order: moduleForm.order,
-          };
-        })
-        .sort((a, b) => a.order - b.order)
-    );
-
-    setShowModuleModal(false);
-    setSuccessMessageType("update");
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3500);
-  };
-
-  const handleDeleteModule = (moduleId: string) => {
-    if (!confirm("¿Estás seguro de eliminar este módulo? Esta acción no se puede deshacer.")) return;
-
-    setModules((prev) => prev.filter((module) => module.id !== moduleId));
-
-    setSuccessMessageType("delete");
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3500);
-  };
-
-  const getIconComponent = (iconName: string) => {
-    const iconData = availableIcons.find((i) => i.name === iconName);
-    return iconData ? iconData.icon : Package;
-  };
-
-  const filteredIcons = availableIcons.filter((icon) =>
-    icon.label.toLowerCase().includes(iconSearchTerm.toLowerCase())
-  );
-
-  const getSuccessMessage = () => {
-    switch (successMessageType) {
-      case "create":
-        return {
-          title: "¡Módulo Creado!",
-          message: "El nuevo módulo se ha creado correctamente",
-          bgColor: "bg-green-600",
-          borderColor: "border-green-500",
-        };
-      case "update":
-        return {
-          title: "¡Módulo Actualizado!",
-          message: "Los cambios del módulo se han guardado correctamente",
-          bgColor: "bg-blue-600",
-          borderColor: "border-blue-500",
-        };
-      case "delete":
-        return {
-          title: "¡Módulo Eliminado!",
-          message: "El módulo se ha eliminado correctamente",
-          bgColor: "bg-red-600",
-          borderColor: "border-red-500",
-        };
+  const handleDeleteModule = (module: Module) => {
+    if (confirm(`¿Estás seguro de eliminar el módulo "${module.name}"?`)) {
+      setModules(modules.filter(m => m.id !== module.id));
     }
   };
 
-  const successMsg = getSuccessMessage();
+  const handleSaveModule = () => {
+    const newModule: Module = {
+      id: Date.now().toString(),
+      name: formData.name,
+      icon: iconMap[formData.icon],
+      color: formData.color,
+      description: formData.description,
+      isActive: formData.isActive,
+      features: formData.features,
+      order: formData.order,
+    };
+    setModules([...modules, newModule]);
+    setShowNewModuleModal(false);
+  };
+
+  const handleUpdateModule = () => {
+    if (!selectedModule) return;
+    setModules(modules.map(m => m.id === selectedModule.id ? {
+      ...m,
+      name: formData.name,
+      icon: iconMap[formData.icon],
+      color: formData.color,
+      description: formData.description,
+      isActive: formData.isActive,
+      features: formData.features,
+      order: formData.order,
+    } : m));
+    setShowEditModuleModal(false);
+  };
+
+  const addFeature = () => {
+    if (featureInput.trim()) {
+      setFormData({ ...formData, features: [...formData.features, featureInput.trim()] });
+      setFeatureInput("");
+    }
+  };
+
+  const removeFeature = (index: number) => {
+    setFormData({ ...formData, features: formData.features.filter((_, i) => i !== index) });
+  };
+
+  const activeModules = modules.filter(m => m.isActive).length;
+  const freeModules = modules.filter(m => m.availableInFree).length;
+  const standardModules = modules.filter(m => m.availableInStandard).length;
+  const customModules = modules.filter(m => m.availableInCustom).length;
+
+  // Filtrado de módulos
+  const filteredModules = modules.filter(module => {
+    const nameMatch = module.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const statusMatch = statusFilter === "all" || (statusFilter === "active" ? module.isActive : !module.isActive);
+    return nameMatch && statusMatch;
+  });
 
   return (
-    <div className="min-h-screen bg-secondary">
+    <div className={`min-h-screen ${
+      theme === "light"
+        ? "bg-gradient-to-br from-gray-50 via-white to-gray-100"
+        : "bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]"
+    }`}>
       {/* Header */}
-      <header className="bg-secondary border-b border-white/10 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
-              </div>
+      <AdminHeader userProfile={userProfile} onProfileUpdate={setUserProfile} currentTab="module-configuration" />
+
+      {/* Main Content */}
+      <div className="p-6">
+        {/* Métricas compactas */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className={`border rounded-lg p-3 ${
+            theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+          }`}>
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-white font-semibold text-lg">TicSoftEc</h1>
-                <p className="text-gray-400 text-xs">Administrador de Suscripciones</p>
+                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Total Módulos</p>
+                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.length}</p>
+              </div>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Package className="w-4 h-4 text-primary" />
               </div>
             </div>
+          </div>
 
-            {/* Usuario */}
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 p-2 text-gray-400 hover:text-white transition-colors"
-              >
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">SA</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-white text-sm font-medium">Super Admin</p>
-                  <p className="text-gray-400 text-xs">Administrador</p>
-                </div>
-              </button>
+          <div className={`border rounded-lg p-3 ${
+            theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+          }`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Activos</p>
+                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.filter(m => m.isActive).length}</p>
+              </div>
+              <div className="p-2 bg-green-500/10 rounded-lg">
+                <CheckCircle2 className="w-4 h-4 text-green-400" />
+              </div>
+            </div>
+          </div>
 
-              {/* Menú de usuario */}
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-64 bg-[#3a3f4f] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
-                  <div className="px-4 py-3 border-b border-white/10">
-                    <p className="text-white font-medium text-sm">Super Admin</p>
-                    <p className="text-gray-400 text-xs">admin@ticsoftec.com</p>
-                  </div>
-                  <div className="py-2">
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        setShowProfileModal(true);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left"
-                    >
-                      <Settings className="w-4 h-4" />
-                      <span className="text-sm">Configuración</span>
-                    </button>
-                    <div className="border-t border-white/10 my-2"></div>
-                    <button
-                      onClick={() => navigate("/")}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors text-left"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span className="text-sm">Cerrar sesión</span>
-                    </button>
-                  </div>
-                </div>
-              )}
+          <div className={`border rounded-lg p-3 ${
+            theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+          }`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Inactivos</p>
+                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.filter(m => !m.isActive).length}</p>
+              </div>
+              <div className="p-2 bg-yellow-500/10 rounded-lg">
+                <Activity className="w-4 h-4 text-yellow-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className={`border rounded-lg p-3 ${
+            theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+          }`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Categorías</p>
+                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{new Set(modules.map(m => m.category)).size}</p>
+              </div>
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Layers className="w-4 h-4 text-blue-400" />
+              </div>
             </div>
           </div>
         </div>
-      </header>
 
-      {/* Navegación entre secciones */}
-      <div className="bg-secondary border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <AdminNavigation activeSection="modules" />
-        </div>
-      </div>
+        {/* Línea separadora */}
+        <div className={`border-t mb-4 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
 
-      {/* Contenido principal */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Título y botón de acción */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl font-semibold text-white mb-2">
-              Configuración de Módulos
-            </h2>
-            <p className="text-gray-400">
-              Gestiona los módulos del sistema ERP y sus características
-            </p>
+        {/* Filtros y Botón Nuevo Módulo */}
+        <div className="mb-4 flex items-center justify-between gap-4">
+          {/* Filtros */}
+          <div className="flex items-center gap-2">
+            {/* Búsqueda */}
+            <div className="relative">
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === "light" ? "text-gray-400" : "text-gray-500"}`} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                  theme === "light"
+                    ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                    : "bg-[#1a2332] border-white/10 text-white placeholder:text-gray-500"
+                }`}
+                placeholder="Buscar módulo..."
+              />
+            </div>
+
+            {/* Filtro por Estado */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                theme === "light"
+                  ? "bg-white border-gray-300 text-gray-900"
+                  : "bg-[#1a2332] border-white/10 text-white"
+              }`}
+            >
+              <option value="all">Todos los estados</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
+
+            {/* Limpiar filtros */}
+            {(searchTerm || statusFilter !== "all") && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("all");
+                }}
+                className={`px-3 py-2 border rounded-lg flex items-center gap-2 transition-colors text-sm font-medium ${
+                  theme === "light"
+                    ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                    : "bg-[#1a2332] border-white/10 text-gray-300 hover:bg-white/5"
+                }`}
+              >
+                <X className="w-4 h-4" />
+                Limpiar
+              </button>
+            )}
+
+            {/* Contador de resultados */}
+            {(searchTerm || statusFilter !== "all") && (
+              <span className={`text-sm ${
+                theme === "light" ? "text-gray-600" : "text-gray-400"
+              }`}>
+                {filteredModules.length} resultado{filteredModules.length !== 1 ? "s" : ""}
+              </span>
+            )}
           </div>
+
+          {/* Botón Nuevo Módulo */}
           <button
-            onClick={handleOpenCreateModal}
-            className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium"
+            onClick={handleOpenNewModal}
+            className="px-4 py-2 bg-primary hover:bg-primary/90 rounded-lg text-white font-medium flex items-center gap-2 transition-all text-sm shadow-lg shadow-primary/20"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             Nuevo Módulo
           </button>
         </div>
 
-        {/* Grid de módulos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map((module) => {
-            const IconComponent = getIconComponent(module.icon);
-            return (
-              <div
-                key={module.id}
-                className="bg-[#1e2530] border border-white/10 rounded-lg p-4 hover:border-white/20 transition-all"
-              >
-                {/* Header del módulo */}
-                <div className="flex items-start justify-between mb-3">
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: `${module.color}15` }}
-                  >
-                    <IconComponent className="w-5 h-5" style={{ color: module.color }} />
-                  </div>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => handleOpenEditModal(module)}
-                      className="p-1.5 text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors"
-                      title="Editar"
+        {/* Tabla de Módulos */}
+        <div className={`border rounded-xl overflow-hidden mb-6 ${
+          theme === "light" ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"
+        }`}>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className={`border-b ${
+                  theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#0f1621] border-white/10"
+                }`}>
+                  <th className={`px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wide ${
+                    theme === "light" ? "text-gray-600" : "text-gray-400"
+                  }`}>
+                    Módulo
+                  </th>
+                  <th className={`px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wide ${
+                    theme === "light" ? "text-gray-600" : "text-gray-400"
+                  }`}>
+                    Descripción
+                  </th>
+                  <th className={`px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wide ${
+                    theme === "light" ? "text-gray-600" : "text-gray-400"
+                  }`}>
+                    Estado
+                  </th>
+                  <th className={`px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wide ${
+                    theme === "light" ? "text-gray-600" : "text-gray-400"
+                  }`}>
+                    Orden
+                  </th>
+                  <th className={`px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wide ${
+                    theme === "light" ? "text-gray-600" : "text-gray-400"
+                  }`}>
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredModules.map((module, index) => {
+                  const Icon = module.icon;
+                  return (
+                    <tr
+                      key={module.id}
+                      className={`border-b transition-colors ${
+                        theme === "light"
+                          ? "border-gray-200 hover:bg-gray-50"
+                          : "border-white/5 hover:bg-white/5"
+                      }`}
                     >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteModule(module.id)}
-                      className="p-1.5 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
+                      {/* Módulo */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: `${module.color}20` }}
+                          >
+                            <Icon className="w-4 h-4" style={{ color: module.color }} />
+                          </div>
+                          <span className={`font-semibold text-sm ${
+                            theme === "light" ? "text-gray-900" : "text-white"
+                          }`}>
+                            {module.name}
+                          </span>
+                        </div>
+                      </td>
 
-                {/* Información del módulo */}
-                <h3 className="text-white font-semibold text-base mb-1.5">{module.name}</h3>
-                <p className="text-gray-400 text-xs mb-3 line-clamp-2">{module.description}</p>
+                      {/* Descripción */}
+                      <td className="px-4 py-3">
+                        <span className={`text-sm ${
+                          theme === "light" ? "text-gray-700" : "text-gray-300"
+                        }`}>
+                          {module.description}
+                        </span>
+                      </td>
 
-                {/* Footer con orden */}
-                <div className="flex items-center justify-between pt-3 border-t border-white/10">
-                  <span className="text-xs text-gray-500">Orden: {module.order}</span>
-                  <div
-                    className="px-2 py-0.5 rounded-full text-xs font-medium"
-                    style={{
-                      backgroundColor: `${module.color}20`,
-                      color: module.color,
-                    }}
-                  >
-                    {module.icon}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                      {/* Estado */}
+                      <td className="px-4 py-3">
+                        <div className="flex justify-center">
+                          <span className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold ${
+                            module.isActive 
+                              ? 'bg-[#166534] text-white' 
+                              : 'bg-[#713f12] text-white'
+                          }`}>
+                            {module.isActive ? "Activo" : "Inactivo"}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Orden */}
+                      <td className="px-4 py-3">
+                        <div className="flex justify-center">
+                          <span className={`text-sm ${
+                            theme === "light" ? "text-gray-700" : "text-gray-300"
+                          }`}>
+                            {module.order}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Acciones */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleViewModule(module)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              theme === "light"
+                                ? "text-blue-600 hover:bg-blue-50"
+                                : "text-blue-400 hover:bg-white/5"
+                            }`}
+                            title="Ver Detalles"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleEditModule(module)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              theme === "light"
+                                ? "text-orange-600 hover:bg-orange-50"
+                                : "text-orange-400 hover:bg-white/5"
+                            }`}
+                            title="Editar"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteModule(module)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              theme === "light"
+                                ? "text-red-600 hover:bg-red-50"
+                                : "text-red-400 hover:bg-white/5"
+                            }`}
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        {/* Empty state */}
-        {modules.length === 0 && (
-          <div className="bg-[#1e2530] border border-white/10 rounded-xl p-12 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/5 rounded-2xl mb-4">
-              <Package className="w-10 h-10 text-gray-400" />
-            </div>
-            <h3 className="text-white text-xl font-semibold mb-2">
-              No hay módulos configurados
-            </h3>
-            <p className="text-gray-400 text-sm mb-6">
-              Comienza creando el primer módulo del sistema
+        {filteredModules.length === 0 && (
+          <div className={`text-center py-12 border rounded-lg ${
+            theme === "light" ? "bg-blue-50 border-blue-200" : "bg-blue-500/10 border-blue-500/20"
+          }`}>
+            <Package className={`w-12 h-12 mx-auto mb-2 ${
+              theme === "light" ? "text-blue-600" : "text-blue-400"
+            }`} />
+            <p className={`text-sm ${
+              theme === "light" ? "text-blue-800" : "text-blue-300"
+            }`}>
+              No se encontraron módulos con los filtros aplicados
             </p>
-            <button
-              onClick={handleOpenCreateModal}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium"
-            >
-              <Plus className="w-4 h-4" />
-              Crear Primer Módulo
-            </button>
           </div>
         )}
-      </main>
+      </div>
 
-      {/* Modal Crear/Editar Módulo */}
-      {showModuleModal && (
+      {/* Modal Ver Módulo */}
+      {showViewModuleModal && selectedModule && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e2530] border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
-            {/* Header del modal - Diseño Compacto */}
-            <div className="flex items-center justify-between p-5 border-b border-white/10 sticky top-0 bg-[#1e2530] z-10">
-              <div className="flex items-center gap-2.5">
-                {modalMode === "create" ? (
-                  <Plus className="w-5 h-5 text-green-400" />
-                ) : (
-                  <Edit3 className="w-5 h-5 text-blue-400" />
-                )}
-                <h3 className="text-white font-bold text-lg">
-                  {modalMode === "create" ? "Crear Nuevo Módulo" : "Editar Módulo"}
-                </h3>
+          <div className={`w-full max-w-2xl border rounded-xl shadow-2xl ${
+            theme === "light"
+              ? "bg-white border-gray-200"
+              : "bg-secondary border-white/10"
+          }`}>
+            <div className={`flex items-center justify-between px-6 py-4 border-b ${
+              theme === "light" ? "border-gray-200" : "border-white/10"
+            }`}>
+              <h3 className={`font-bold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>Detalles del Módulo</h3>
+              <button onClick={() => setShowViewModuleModal(false)} className={`p-2 rounded-lg transition-colors ${
+                theme === "light"
+                  ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              }`}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-5">
+                {/* Nombre del Módulo */}
+                <div className="col-span-2">
+                  <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                    Nombre del Módulo
+                  </label>
+                  <div className={`px-3 py-2 rounded-lg border text-sm ${
+                    theme === "light"
+                      ? "bg-gray-50 border-gray-200 text-gray-900"
+                      : "bg-[#3d4f61] border-white/10 text-white"
+                  }`}>
+                    {selectedModule.name}
+                  </div>
+                </div>
+
+                {/* Descripción */}
+                <div className="col-span-2">
+                  <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                    Descripción
+                  </label>
+                  <div className={`px-3 py-2 rounded-lg border text-sm ${
+                    theme === "light"
+                      ? "bg-gray-50 border-gray-200 text-gray-900"
+                      : "bg-[#3d4f61] border-white/10 text-white"
+                  }`}>
+                    {selectedModule.description}
+                  </div>
+                </div>
+
+                {/* Ícono del Módulo */}
+                <div>
+                  <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                    Ícono del Módulo
+                  </label>
+                  <div className={`px-3 py-3 rounded-lg border flex items-center gap-3 ${
+                    theme === "light"
+                      ? "bg-gray-50 border-gray-200"
+                      : "bg-[#3d4f61] border-white/10"
+                  }`}>
+                    {(() => {
+                      const Icon = selectedModule.icon;
+                      return <Icon className={`w-5 h-5 ${theme === "light" ? "text-blue-600" : "text-blue-400"}`} />;
+                    })()}
+                    <span className={`text-sm font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                      {selectedModule.icon.name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Color del Módulo */}
+                <div>
+                  <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                    Color del Módulo
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-12 h-12 rounded-lg border-2"
+                      style={{ 
+                        backgroundColor: selectedModule.color,
+                        borderColor: theme === "light" ? "#d1d5db" : "#ffffff1a"
+                      }}
+                    ></div>
+                    <span className={`font-mono text-sm font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                      {selectedModule.color}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Orden de visualización */}
+                <div>
+                  <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                    Orden de visualización
+                  </label>
+                  <div className={`px-3 py-2 rounded-lg border text-sm ${
+                    theme === "light"
+                      ? "bg-gray-50 border-gray-200 text-gray-900"
+                      : "bg-[#3d4f61] border-white/10 text-white"
+                  }`}>
+                    {selectedModule.order}
+                  </div>
+                </div>
+
+                {/* Estado */}
+                <div>
+                  <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                    Estado
+                  </label>
+                  <div>
+                    <span className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold ${
+                      selectedModule.isActive 
+                        ? 'bg-green-500/10 text-green-400 border-2 border-green-500/20' 
+                        : 'bg-gray-500/10 text-gray-400 border-2 border-gray-500/20'
+                    }`}>
+                      <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                      {selectedModule.isActive ? "Módulo Activo" : "Módulo Inactivo"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Características */}
+                <div className="col-span-2">
+                  <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                    Características
+                  </label>
+                  <div className={`rounded-lg border p-4 ${
+                    theme === "light"
+                      ? "bg-gray-50 border-gray-200"
+                      : "bg-[#3d4f61] border-white/10"
+                  }`}>
+                    {selectedModule.features.length > 0 ? (
+                      <div className="space-y-2">
+                        {selectedModule.features.map((feature, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
+                            <span className={`text-sm ${theme === "light" ? "text-gray-700" : "text-white"}`}>{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className={`text-sm ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                        No hay características definidas
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
+            </div>
+            <div className={`flex items-center justify-end gap-3 px-6 py-4 border-t ${
+              theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#1a2332] border-white/10"
+            }`}>
+              <button onClick={() => setShowViewModuleModal(false)} className={`px-4 py-2 rounded-lg transition-colors text-sm ${
+                theme === "light"
+                  ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  : "bg-white/5 hover:bg-white/10 text-white"
+              }`}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Nueva/Editar Módulo */}
+      {(showNewModuleModal || showEditModuleModal) && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className={`w-full max-w-3xl border rounded-xl shadow-2xl my-8 ${
+            theme === "light" ? "bg-white border-gray-200" : "bg-[#2C3E50] border-white/10"
+          }`}>
+            {/* Header */}
+            <div className={`flex items-center gap-3 px-6 py-4 border-b ${
+              theme === "light" ? "border-gray-200" : "border-white/10"
+            }`}>
+              <Pencil className={`w-5 h-5 ${theme === "light" ? "text-blue-600" : "text-blue-400"}`} />
+              <h3 className={`font-bold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                {showNewModuleModal ? "Nuevo Módulo" : "Editar Módulo"}
+              </h3>
               <button
-                onClick={() => setShowModuleModal(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                onClick={() => {
+                  setShowNewModuleModal(false);
+                  setShowEditModuleModal(false);
+                  setShowIconSelector(false);
+                  setCustomColor(false);
+                }}
+                className={`ml-auto p-2 rounded-lg transition-colors ${
+                  theme === "light"
+                    ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                }`}
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Contenido del modal */}
-            <div className="p-5 space-y-5">
-              {/* Preview del módulo */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3.5">
-                <p className="text-gray-400 text-xs font-medium mb-2.5">VISTA PREVIA</p>
-                <div className="flex items-center gap-4">
-                  <div
-                    className="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: `${moduleForm.color}15` }}
-                  >
-                    {(() => {
-                      const IconComponent = getIconComponent(moduleForm.icon);
-                      return <IconComponent className="w-8 h-8" style={{ color: moduleForm.color }} />;
-                    })()}
-                  </div>
-                  <div>
-                    <h4 className="text-white font-semibold text-lg">
-                      {moduleForm.name || "Nombre del módulo"}
-                    </h4>
-                    <p className="text-gray-400 text-sm">
-                      {moduleForm.description || "Descripción del módulo"}
-                    </p>
+            <div className="p-6 space-y-5">
+              {/* Vista Previa */}
+              {showEditModuleModal && (
+                <div className={`rounded-lg p-5 mb-1 ${
+                  theme === "light" ? "bg-gray-50 border border-gray-200" : "bg-[#3d4f61]"
+                }`}>
+                  <p className={`text-xs uppercase mb-3 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>VISTA PREVIA</p>
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="w-14 h-14 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: formData.color }}
+                    >
+                      {(() => {
+                        const Icon = iconMap[formData.icon] || Package;
+                        return <Icon className="w-7 h-7 text-white" />;
+                      })()}
+                    </div>
+                    <div>
+                      <h4 className={`font-bold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                        {formData.name || "Nombre del módulo"}
+                      </h4>
+                      <p className={`text-sm ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
+                        {formData.description || "Descripción del módulo"}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Nombre del módulo */}
+              {/* Nombre del Módulo */}
               <div>
-                <label className="block text-gray-400 text-xs font-medium mb-1.5">
-                  Nombre del Módulo *
+                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                  Nombre del Módulo <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
-                  value={moduleForm.name}
-                  onChange={(e) => setModuleForm({ ...moduleForm, name: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                    theme === "light"
+                      ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
+                      : "bg-[#3d4f61] border-none text-white"
+                  }`}
                   placeholder="Ej: Facturación"
                 />
               </div>
 
               {/* Descripción */}
               <div>
-                <label className="block text-gray-400 text-xs font-medium mb-1.5">
+                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
                   Descripción
                 </label>
                 <textarea
-                  value={moduleForm.description}
-                  onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors resize-none"
-                  placeholder="Describe la funcionalidad de este módulo"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none ${
+                    theme === "light"
+                      ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
+                      : "bg-[#3d4f61] border-none text-white"
+                  }`}
                   rows={3}
+                  placeholder="Descripción del módulo..."
                 />
               </div>
 
-              {/* Selector de ícono */}
+              {/* Ícono del Módulo */}
               <div>
-                <label className="block text-gray-400 text-xs font-medium mb-1.5">
-                  Ícono del Módulo *
+                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                  Ícono del Módulo <span className="text-red-400">*</span>
                 </label>
-                <button
+                <div
                   onClick={() => setShowIconSelector(!showIconSelector)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2.5 text-left flex items-center justify-between hover:bg-white/10 transition-colors"
+                  className={`w-full px-3 py-3 rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
+                    theme === "light"
+                      ? "bg-white border border-gray-300 hover:bg-gray-50"
+                      : "bg-[#3d4f61] hover:bg-[#4a5f75]"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     {(() => {
-                      const IconComponent = getIconComponent(moduleForm.icon);
-                      return (
-                        <div
-                          className="w-10 h-10 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: `${moduleForm.color}15` }}
-                        >
-                          <IconComponent className="w-5 h-5" style={{ color: moduleForm.color }} />
-                        </div>
-                      );
+                      const Icon = iconMap[formData.icon] || Package;
+                      return <Icon className={`w-5 h-5 ${theme === "light" ? "text-blue-600" : "text-blue-400"}`} />;
                     })()}
                     <div>
-                      <p className="text-white font-medium text-sm">{moduleForm.icon}</p>
-                      <p className="text-gray-400 text-xs">Click para cambiar</p>
+                      <p className={`text-sm font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                        {formData.icon}
+                      </p>
+                      <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                        Click para cambiar
+                      </p>
                     </div>
                   </div>
-                  <Search className="w-4 h-4 text-gray-400" />
-                </button>
+                  <Search className={`w-4 h-4 ${theme === "light" ? "text-gray-400" : "text-gray-400"}`} />
+                </div>
 
-                {/* Grid de íconos */}
+                {/* Selector de iconos */}
                 {showIconSelector && (
-                  <div className="mt-3 bg-white/5 border border-white/10 rounded-lg p-4">
-                    {/* Búsqueda de íconos */}
-                    <div className="mb-3">
-                      <input
-                        type="text"
-                        value={iconSearchTerm}
-                        onChange={(e) => setIconSearchTerm(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-primary"
-                        placeholder="Buscar ícono..."
-                      />
-                    </div>
-
-                    {/* Grid de íconos */}
-                    <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
-                      {filteredIcons.map((iconData) => {
-                        const IconComp = iconData.icon;
-                        const isSelected = moduleForm.icon === iconData.name;
-                        return (
+                  <div className={`mt-2 rounded-lg p-4 space-y-3 ${
+                    theme === "light" ? "bg-gray-50 border border-gray-200" : "bg-[#3d4f61]"
+                  }`}>
+                    {/* Campo de búsqueda */}
+                    <input
+                      type="text"
+                      value={iconSearchTerm}
+                      onChange={(e) => setIconSearchTerm(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                        theme === "light"
+                          ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          : "bg-[#4a5f75] border-none text-white placeholder:text-gray-400"
+                      }`}
+                      placeholder="Buscar ícono..."
+                    />
+                    
+                    {/* Grid de iconos - 6 columnas */}
+                    <div className="grid grid-cols-6 gap-2 max-h-[300px] overflow-y-auto">
+                      {Object.entries(iconMap)
+                        .filter(([iconName]) => iconName.toLowerCase().includes(iconSearchTerm.toLowerCase()))
+                        .map(([iconName, IconComponent]) => (
                           <button
-                            key={iconData.name}
+                            key={iconName}
                             onClick={() => {
-                              setModuleForm({ ...moduleForm, icon: iconData.name });
+                              setFormData({ ...formData, icon: iconName });
                               setShowIconSelector(false);
                               setIconSearchTerm("");
                             }}
-                            className={`p-3 rounded-lg transition-all ${
-                              isSelected
-                                ? "bg-primary/20 border-2 border-primary"
-                                : "bg-white/5 border border-white/10 hover:bg-white/10"
+                            className={`p-4 rounded-lg transition-all flex items-center justify-center ${
+                              formData.icon === iconName
+                                ? theme === "light"
+                                  ? "bg-blue-100 border-2 border-blue-500"
+                                  : "bg-[#2C3E50] border-2 border-primary"
+                                : theme === "light"
+                                ? "bg-white border-2 border-gray-200 hover:bg-gray-100"
+                                : "bg-[#4a5f75] hover:bg-[#556f8a] border-2 border-transparent"
                             }`}
-                            title={iconData.label}
+                            title={iconName}
                           >
-                            <IconComp
-                              className="w-5 h-5 mx-auto"
-                              style={{ color: isSelected ? moduleForm.color : "#9CA3AF" }}
-                            />
+                            <IconComponent className={`w-6 h-6 ${
+                              theme === "light" ? "text-gray-700" : "text-gray-300"
+                            }`} />
                           </button>
-                        );
-                      })}
+                        ))}
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Selector de color */}
+              {/* Color del Módulo */}
               <div>
-                <label className="block text-gray-400 text-xs font-medium mb-1.5">
-                  Color del Módulo *
+                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                  Color del Módulo <span className="text-red-400">*</span>
                 </label>
                 <div className="grid grid-cols-6 gap-2">
-                  {colorPalette.map((colorData) => (
+                  {colorPalette.map((color) => (
                     <button
-                      key={colorData.color}
-                      onClick={() => setModuleForm({ ...moduleForm, color: colorData.color })}
-                      className={`h-10 rounded-lg transition-all ${
-                        moduleForm.color === colorData.color
-                          ? "ring-2 ring-white ring-offset-2 ring-offset-[#1e2530] scale-110"
+                      key={color}
+                      onClick={() => {
+                        setFormData({ ...formData, color });
+                        setCustomColor(false);
+                      }}
+                      className={`h-12 rounded-lg transition-all ${
+                        formData.color === color && !customColor
+                          ? "ring-4 ring-primary/30 scale-105"
                           : "hover:scale-105"
                       }`}
-                      style={{ backgroundColor: colorData.color }}
-                      title={colorData.name}
+                      style={{ backgroundColor: color }}
+                      title={color}
                     />
                   ))}
                 </div>
 
                 {/* Color personalizado */}
-                <div className="mt-3">
+                <div className="flex items-center gap-3 mt-3">
+                  <div
+                    className="w-10 h-10 rounded-lg border"
+                    style={{ 
+                      backgroundColor: customColor ? formData.color : "#E8692E",
+                      borderColor: theme === "light" ? "#d1d5db" : "#ffffff1a"
+                    }}
+                  />
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="color"
-                      value={moduleForm.color}
-                      onChange={(e) => setModuleForm({ ...moduleForm, color: e.target.value })}
-                      className="w-10 h-10 rounded-lg cursor-pointer"
+                      type="checkbox"
+                      checked={customColor}
+                      onChange={(e) => setCustomColor(e.target.checked)}
+                      className={`w-4 h-4 rounded ${
+                        theme === "light" ? "bg-white border-gray-300" : "bg-[#3d4f61] border-white/10"
+                      }`}
                     />
-                    <span className="text-gray-400 text-sm">Color personalizado</span>
+                    <span className={`text-sm ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                      Color personalizado
+                    </span>
                   </label>
+                  {customColor && (
+                    <input
+                      type="color"
+                      value={formData.color}
+                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                      className="ml-auto w-20 h-8 bg-transparent cursor-pointer"
+                    />
+                  )}
                 </div>
               </div>
 
-              {/* Orden */}
+              {/* Orden de visualización */}
               <div>
-                <label className="block text-gray-400 text-xs font-medium mb-1.5">
+                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
                   Orden de visualización
                 </label>
                 <input
                   type="number"
+                  value={formData.order}
+                  onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
                   min="1"
-                  value={moduleForm.order}
-                  onChange={(e) => setModuleForm({ ...moduleForm, order: parseInt(e.target.value) || 1 })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                  className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                    theme === "light"
+                      ? "bg-white border border-gray-300 text-gray-900"
+                      : "bg-[#3d4f61] border-none text-white"
+                  }`}
                   placeholder="1"
                 />
               </div>
+
+              {/* Estado del módulo */}
+              <div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    className={`w-4 h-4 rounded ${
+                      theme === "light" ? "bg-white border-gray-300" : "bg-[#3d4f61] border-white/10"
+                    }`}
+                  />
+                  <span className={`text-sm ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
+                    Módulo activo
+                  </span>
+                </label>
+              </div>
             </div>
 
-            {/* Footer del modal */}
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-white/10 bg-[#1e2530]">
+            {/* Footer */}
+            <div className={`flex items-center justify-end gap-3 px-6 py-4 border-t ${
+              theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#243342] border-white/10"
+            }`}>
               <button
-                onClick={() => setShowModuleModal(false)}
-                className="px-4 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                onClick={() => {
+                  setShowNewModuleModal(false);
+                  setShowEditModuleModal(false);
+                  setShowIconSelector(false);
+                  setCustomColor(false);
+                }}
+                className={`px-5 py-2.5 rounded-lg transition-colors text-sm ${
+                  theme === "light"
+                    ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    : "bg-white/5 hover:bg-white/10 text-white"
+                }`}
               >
                 Cancelar
               </button>
               <button
-                onClick={modalMode === "create" ? handleCreateModule : handleUpdateModule}
-                disabled={!moduleForm.name.trim()}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium ${
-                  !moduleForm.name.trim()
-                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                    : modalMode === "create"
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-primary hover:bg-primary/90 text-white"
-                }`}
+                onClick={showNewModuleModal ? handleSaveModule : handleUpdateModule}
+                className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors shadow-lg shadow-primary/20 text-sm font-medium"
               >
-                <Save className="w-4 h-4" />
-                {modalMode === "create" ? "Crear Módulo" : "Guardar Cambios"}
+                {showNewModuleModal ? "Crear Módulo" : "Guardar cambios"}
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Mensaje de éxito flotante */}
-      {showSuccessMessage && (
-        <div className="fixed top-4 right-4 z-[100]">
-          <div
-            className={`${successMsg.bgColor} border ${successMsg.borderColor} rounded-xl shadow-2xl p-4 flex items-center gap-3 min-w-[350px] animate-slide-in-right`}
-          >
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <Check className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="text-white font-semibold text-sm">{successMsg.title}</p>
-              <p className="text-white/90 text-xs mt-0.5">{successMsg.message}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <footer className="border-t border-white/10 mt-12">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <p className="text-center text-gray-500 text-xs">
-            TicSoftEc ERP v2.0 © 2024 - Configuración de Módulos
-          </p>
-        </div>
-      </footer>
-
-      {/* Modal de Configuración de Perfil */}
-      <ProfileModal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-        userProfile={userProfile}
-        onSave={(newProfile) => setUserProfile(newProfile)}
-      />
-
-      <style>{`
-        @keyframes slide-in-right {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        
-        .animate-slide-in-right {
-          animation: slide-in-right 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 }

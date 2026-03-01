@@ -1571,10 +1571,13 @@ export default function ModulesPage() {
       {/* Contenido principal */}
       <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-white mb-2">
-            Módulos del Sistema
-          </h2>
-          <p className="text-gray-400">
+          <div className="flex items-center gap-3 mb-2">
+            <Layers className="w-8 h-8 text-primary" />
+            <h2 className="text-3xl font-bold text-white">
+              Módulos del Sistema
+            </h2>
+          </div>
+          <p className="text-gray-400 text-sm">
             Accede a los módulos según tus permisos de usuario
           </p>
         </div>
