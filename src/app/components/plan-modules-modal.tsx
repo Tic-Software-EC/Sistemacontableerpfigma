@@ -1,4 +1,4 @@
-import { X, Package, Menu as MenuIcon } from "lucide-react";
+import { X, Package, Menu as MenuIcon, Sun, Moon } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { useState } from "react";
 
@@ -38,7 +38,7 @@ export function PlanModulesModal({
   onToggleModule,
   onToggleMenu,
 }: PlanModulesModalProps) {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<"modules" | "menus">("modules");
 
   if (!isOpen || !plan) return null;
@@ -84,16 +84,35 @@ export function PlanModulesModal({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-lg transition-colors ${
-              theme === "light"
-                ? "hover:bg-gray-200 text-gray-600"
-                : "hover:bg-white/10 text-gray-400"
-            }`}
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Toggle Theme */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg transition-all duration-300 ${
+                theme === "light"
+                  ? "hover:bg-gray-200 text-gray-600 hover:text-primary"
+                  : "hover:bg-white/10 text-gray-400 hover:text-primary"
+              }`}
+              title={theme === "light" ? "Modo Oscuro" : "Modo Claro"}
+            >
+              {theme === "light" ? (
+                <Moon className="w-5 h-5" />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
+            </button>
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-lg transition-colors ${
+                theme === "light"
+                  ? "hover:bg-gray-200 text-gray-600"
+                  : "hover:bg-white/10 text-gray-400"
+              }`}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -261,7 +280,11 @@ export function PlanModulesModal({
                                 onChange={() => onToggleModule(module.id)}
                                 className="sr-only peer"
                               />
-                              <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+                              <div className={`w-9 h-5 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500 ${
+                                theme === "light" 
+                                  ? "bg-gray-300 after:border-gray-300" 
+                                  : "bg-gray-600 after:border-gray-600"
+                              }`}></div>
                             </label>
                           </div>
                         </td>
@@ -403,7 +426,15 @@ export function PlanModulesModal({
                                     disabled={!module.isEnabled}
                                     className="sr-only peer"
                                   />
-                                  <div className={`w-9 h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-500 ${!module.isEnabled ? "opacity-50 cursor-not-allowed" : ""}`}></div>
+                                  <div className={`w-9 h-5 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500 ${
+                                    !module.isEnabled 
+                                      ? "opacity-50 cursor-not-allowed" 
+                                      : ""
+                                  } ${
+                                    theme === "light" 
+                                      ? "bg-gray-300 after:border-gray-300" 
+                                      : "bg-gray-600 after:border-gray-600"
+                                  }`}></div>
                                 </label>
                               </div>
                             </td>

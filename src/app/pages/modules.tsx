@@ -41,9 +41,12 @@ import {
   AlertCircle,
   Camera,
   Upload,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
+import { useTheme } from "../contexts/theme-context";
 
 interface Module {
   id: string;
@@ -56,6 +59,7 @@ interface Module {
 
 export default function ModulesPage() {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] =
     useState(false);
@@ -391,9 +395,9 @@ export default function ModulesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary">
+    <div className={`min-h-screen ${theme === "light" ? "bg-gray-50" : "bg-secondary"}`}>
       {/* Header */}
-      <header className="bg-secondary border-b border-white/10">
+      <header className={`${theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"} border-b`}>
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -403,7 +407,7 @@ export default function ModulesPage() {
                 </span>
               </div>
               <div>
-                <h1 className="text-white font-semibold text-lg">
+                <h1 className={`font-semibold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                   {companyName || "TicSoftEc"}
                 </h1>
                 <p className="text-gray-400 text-xs">
@@ -415,7 +419,7 @@ export default function ModulesPage() {
             {/* Iconos de navegación derecha */}
             <div className="flex items-center gap-4">
               {/* Notificaciones */}
-              <button className="relative p-2 text-gray-400 hover:text-white transition-colors">
+              <button className={`relative p-2 transition-colors ${theme === "light" ? "text-gray-600 hover:text-primary" : "text-gray-400 hover:text-white"}`}>
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -433,7 +437,7 @@ export default function ModulesPage() {
               </button>
 
               {/* Búsqueda */}
-              <button className="p-2 text-gray-400 hover:text-white transition-colors">
+              <button className={`p-2 transition-colors ${theme === "light" ? "text-gray-600 hover:text-primary" : "text-gray-400 hover:text-white"}`}>
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -449,16 +453,29 @@ export default function ModulesPage() {
                 </svg>
               </button>
 
-              {/* Idioma - Entre lupa y usuario */}
-              <button className="px-3 py-1 text-xs text-gray-400 hover:text-white border border-gray-700 rounded hover:border-gray-600 transition-colors">
+              {/* Idioma */}
+              <button className={`px-3 py-1 text-xs transition-colors rounded ${theme === "light" ? "text-gray-600 hover:text-primary border border-gray-300 hover:border-primary" : "text-gray-400 hover:text-white border border-gray-700 hover:border-gray-600"}`}>
                 ES
+              </button>
+
+              {/* Toggle Theme */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-gray-400 hover:text-primary transition-all duration-300"
+                title={theme === "light" ? "Modo Oscuro" : "Modo Claro"}
+              >
+                {theme === "light" ? (
+                  <Moon className="w-5 h-5" />
+                ) : (
+                  <Sun className="w-5 h-5" />
+                )}
               </button>
 
               {/* Usuario con menú desplegable */}
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 p-2 text-gray-400 hover:text-white transition-colors"
+                  className={`flex items-center gap-2 p-2 transition-colors ${theme === "light" ? "text-gray-600 hover:text-primary" : "text-gray-400 hover:text-white"}`}
                 >
                   <div className="relative">
                     {profilePhoto ? (
@@ -477,11 +494,11 @@ export default function ModulesPage() {
                       </div>
                     )}
                     <span
-                      className={`absolute bottom-0 right-0 w-3 h-3 ${getStatusInfo().color} border-2 border-secondary rounded-full`}
+                      className={`absolute bottom-0 right-0 w-3 h-3 ${getStatusInfo().color} border-2 ${theme === "light" ? "border-white" : "border-secondary"} rounded-full`}
                     ></span>
                   </div>
                   <div className="text-left">
-                    <p className="text-white text-sm font-medium">
+                    <p className={`text-sm font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                       Juan Pérez
                     </p>
                     <p className="text-gray-400 text-xs">
@@ -1573,7 +1590,7 @@ export default function ModulesPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Layers className="w-8 h-8 text-primary" />
-            <h2 className="text-3xl font-bold text-white">
+            <h2 className={`text-3xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>
               Módulos del Sistema
             </h2>
           </div>
@@ -1590,7 +1607,11 @@ export default function ModulesPage() {
               <button
                 key={module.id}
                 onClick={() => handleModuleClick(module)}
-                className="group relative bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/10 hover:border-primary/50 p-3 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/20 rounded-[10px]"
+                className={`group relative backdrop-blur-sm border p-3 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/20 rounded-[10px] ${
+                  theme === "light"
+                    ? "bg-white hover:bg-gray-50 border-gray-200 hover:border-primary/50"
+                    : "bg-white/5 hover:bg-white/10 border-white/10 hover:border-primary/50"
+                }`}
               >
                 <div className="flex flex-col items-center gap-2">
                   {/* Icono con gradiente */}
@@ -1601,7 +1622,9 @@ export default function ModulesPage() {
                   </div>
                   {/* Nombre del módulo */}
                   <div className="text-center">
-                    <h3 className="text-white text-xs font-medium group-hover:text-primary transition-colors leading-tight">
+                    <h3 className={`text-xs font-medium group-hover:text-primary transition-colors leading-tight ${
+                      theme === "light" ? "text-gray-900" : "text-white"
+                    }`}>
                       {module.name}
                     </h3>
                   </div>
@@ -1609,7 +1632,9 @@ export default function ModulesPage() {
 
                 {/* Tooltip en hover */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                  <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl">
+                  <div className={`text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl ${
+                    theme === "light" ? "bg-gray-900 text-white" : "bg-gray-900 text-white"
+                  }`}>
                     {module.description}
                     <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1">
                       <div className="w-2 h-2 bg-gray-900 rotate-45"></div>
@@ -1623,7 +1648,7 @@ export default function ModulesPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 mt-12">
+      <footer className={`border-t mt-12 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
         <div className="max-w-7xl mx-auto px-6 py-6">
           <p className="text-center text-gray-500 text-xs">
             TicSoftEc ERP v2.0 © 2024 - Sistema de Gestión
