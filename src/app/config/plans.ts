@@ -8,6 +8,7 @@ export interface PlanConfig {
   price: number;
   description: string;
   features: string[];
+  annualDiscountPercent?: number;
 }
 
 export const PLAN_CONFIGS: Record<"free" | "standard" | "custom", PlanConfig> = {
@@ -25,7 +26,8 @@ export const PLAN_CONFIGS: Record<"free" | "standard" | "custom", PlanConfig> = 
       "1 Caja",
       "Funcionalidades básicas",
       "Soporte por email"
-    ]
+    ],
+    annualDiscountPercent: 0
   },
   standard: {
     name: "standard",
@@ -41,7 +43,8 @@ export const PLAN_CONFIGS: Record<"free" | "standard" | "custom", PlanConfig> = 
       "Hasta 3 Cajas",
       "Todas las funcionalidades",
       "Soporte prioritario"
-    ]
+    ],
+    annualDiscountPercent: 15
   },
   custom: {
     name: "custom",
@@ -57,6 +60,7 @@ export const PLAN_CONFIGS: Record<"free" | "standard" | "custom", PlanConfig> = 
       "Hasta 15 Cajas",
       "Módulos personalizados",
       "Soporte 24/7 dedicado"
-    ]
+    ],
+    annualDiscountPercent: 20
   }
 };

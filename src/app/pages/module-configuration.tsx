@@ -42,6 +42,7 @@ import {
   Mail,
 } from "lucide-react";
 import { AdminHeader } from "../components/admin-header";
+import { IconSelector } from "../components/icon-selector";
 import { useTheme } from "../contexts/theme-context";
 
 interface Module {
@@ -632,7 +633,7 @@ export default function ModuleConfigurationPage() {
       {/* Modal Ver Módulo */}
       {showViewModuleModal && selectedModule && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-2xl border rounded-xl shadow-2xl ${
+          <div className={`w-full max-w-2xl border rounded-2xl shadow-2xl ${
             theme === "light"
               ? "bg-white border-gray-200"
               : "bg-secondary border-white/10"
@@ -795,17 +796,19 @@ export default function ModuleConfigurationPage() {
       {/* Modal Nueva/Editar Módulo */}
       {(showNewModuleModal || showEditModuleModal) && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className={`w-full max-w-3xl border rounded-xl shadow-2xl my-8 ${
+          <div className={`w-full max-w-lg border rounded-2xl shadow-2xl my-8 overflow-hidden ${
             theme === "light" ? "bg-white border-gray-200" : "bg-[#2C3E50] border-white/10"
           }`}>
             {/* Header */}
-            <div className={`flex items-center gap-3 px-6 py-4 border-b ${
-              theme === "light" ? "border-gray-200" : "border-white/10"
+            <div className={`flex items-center justify-between px-5 py-3 border-b ${
+              theme === "light" ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#232d3f]"
             }`}>
-              <Pencil className={`w-5 h-5 ${theme === "light" ? "text-blue-600" : "text-blue-400"}`} />
-              <h3 className={`font-bold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                {showNewModuleModal ? "Nuevo Módulo" : "Editar Módulo"}
-              </h3>
+              <div className="flex items-center gap-2">
+                <Plus className="w-5 h-5 text-primary" />
+                <h3 className={`font-bold text-base ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                  {showNewModuleModal ? "Nuevo Módulo" : "Editar Módulo"}
+                </h3>
+              </div>
               <button
                 onClick={() => {
                   setShowNewModuleModal(false);
@@ -813,38 +816,38 @@ export default function ModuleConfigurationPage() {
                   setShowIconSelector(false);
                   setCustomColor(false);
                 }}
-                className={`ml-auto p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-colors ${
                   theme === "light"
                     ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-5 space-y-4">
               {/* Vista Previa */}
               {showEditModuleModal && (
-                <div className={`rounded-lg p-5 mb-1 ${
+                <div className={`rounded-lg p-4 ${
                   theme === "light" ? "bg-gray-50 border border-gray-200" : "bg-[#3d4f61]"
                 }`}>
-                  <p className={`text-xs uppercase mb-3 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>VISTA PREVIA</p>
-                  <div className="flex items-center gap-4">
+                  <p className={`text-xs uppercase mb-2 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Vista Previa</p>
+                  <div className="flex items-center gap-3">
                     <div
-                      className="w-14 h-14 rounded-lg flex items-center justify-center"
+                      className="w-12 h-12 rounded-lg flex items-center justify-center"
                       style={{ backgroundColor: formData.color }}
                     >
                       {(() => {
                         const Icon = iconMap[formData.icon] || Package;
-                        return <Icon className="w-7 h-7 text-white" />;
+                        return <Icon className="w-6 h-6 text-white" />;
                       })()}
                     </div>
                     <div>
-                      <h4 className={`font-bold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                      <h4 className={`font-bold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                         {formData.name || "Nombre del módulo"}
                       </h4>
-                      <p className={`text-sm ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
+                      <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
                         {formData.description || "Descripción del módulo"}
                       </p>
                     </div>
@@ -852,47 +855,66 @@ export default function ModuleConfigurationPage() {
                 </div>
               )}
 
-              {/* Nombre del Módulo */}
+              {/* Información del Módulo */}
               <div>
-                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
-                  Nombre del Módulo <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                    theme === "light"
-                      ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
-                      : "bg-[#3d4f61] border-none text-white"
-                  }`}
-                  placeholder="Ej: Facturación"
-                />
+                <div className="flex items-center gap-2 mb-3">
+                  <Package className={`w-4 h-4 ${theme === "light" ? "text-gray-700" : "text-white"}`} />
+                  <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                    Información del Módulo
+                  </h4>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className={`block text-xs font-medium mb-1.5 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                      Nombre del Módulo <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                        theme === "light"
+                          ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          : "bg-[#3d4f61] border-none text-white"
+                      }`}
+                      placeholder="Ej: Facturación"
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`block text-xs font-medium mb-1.5 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                      Descripción
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none ${
+                        theme === "light"
+                          ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          : "bg-[#3d4f61] border-none text-white"
+                      }`}
+                      rows={2}
+                      placeholder="Descripción del módulo..."
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Descripción */}
+              {/* Personalización */}
               <div>
-                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
-                  Descripción
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none ${
-                    theme === "light"
-                      ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
-                      : "bg-[#3d4f61] border-none text-white"
-                  }`}
-                  rows={3}
-                  placeholder="Descripción del módulo..."
-                />
-              </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Layers className={`w-4 h-4 ${theme === "light" ? "text-gray-700" : "text-white"}`} />
+                  <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                    Personalización
+                  </h4>
+                </div>
 
-              {/* Ícono del Módulo */}
-              <div>
-                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
-                  Ícono del Módulo <span className="text-red-400">*</span>
-                </label>
+                <div className="space-y-3">
+                  <div>
+                    <label className={`block text-xs font-medium mb-1.5 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                      Ícono del Módulo <span className="text-red-400">*</span>
+                    </label>
                 <div
                   onClick={() => setShowIconSelector(!showIconSelector)}
                   className={`w-full px-3 py-3 rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
@@ -918,26 +940,26 @@ export default function ModuleConfigurationPage() {
                   <Search className={`w-4 h-4 ${theme === "light" ? "text-gray-400" : "text-gray-400"}`} />
                 </div>
 
-                {/* Selector de iconos */}
-                {showIconSelector && (
-                  <div className={`mt-2 rounded-lg p-4 space-y-3 ${
-                    theme === "light" ? "bg-gray-50 border border-gray-200" : "bg-[#3d4f61]"
-                  }`}>
-                    {/* Campo de búsqueda */}
-                    <input
-                      type="text"
-                      value={iconSearchTerm}
-                      onChange={(e) => setIconSearchTerm(e.target.value)}
-                      className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                        theme === "light"
-                          ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
-                          : "bg-[#4a5f75] border-none text-white placeholder:text-gray-400"
-                      }`}
-                      placeholder="Buscar ícono..."
-                    />
-                    
-                    {/* Grid de iconos - 6 columnas */}
-                    <div className="grid grid-cols-6 gap-2 max-h-[300px] overflow-y-auto">
+                    {/* Selector de iconos */}
+                    {showIconSelector && (
+                      <div className={`mt-2 rounded-lg p-3 space-y-2 ${
+                        theme === "light" ? "bg-gray-50 border border-gray-200" : "bg-[#3d4f61]"
+                      }`}>
+                        {/* Campo de búsqueda */}
+                        <input
+                          type="text"
+                          value={iconSearchTerm}
+                          onChange={(e) => setIconSearchTerm(e.target.value)}
+                          className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                            theme === "light"
+                              ? "bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400"
+                              : "bg-[#4a5f75] border-none text-white placeholder:text-gray-400"
+                          }`}
+                          placeholder="Buscar ícono..."
+                        />
+                        
+                        {/* Grid de iconos - 6 columnas */}
+                        <div className="grid grid-cols-6 gap-2 max-h-[250px] overflow-y-auto">
                       {Object.entries(iconMap)
                         .filter(([iconName]) => iconName.toLowerCase().includes(iconSearchTerm.toLowerCase()))
                         .map(([iconName, IconComponent]) => (
@@ -1026,45 +1048,47 @@ export default function ModuleConfigurationPage() {
                 </div>
               </div>
 
-              {/* Orden de visualización */}
-              <div>
-                <label className={`block text-sm mb-2 ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
-                  Orden de visualización
-                </label>
-                <input
-                  type="number"
-                  value={formData.order}
-                  onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
-                  min="1"
-                  className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                    theme === "light"
-                      ? "bg-white border border-gray-300 text-gray-900"
-                      : "bg-[#3d4f61] border-none text-white"
-                  }`}
-                  placeholder="1"
-                />
-              </div>
+                  {/* Orden de visualización */}
+                  <div>
+                    <label className={`block text-xs font-medium mb-1.5 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                      Orden de visualización
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.order}
+                      onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
+                      min="1"
+                      className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                        theme === "light"
+                          ? "bg-white border border-gray-300 text-gray-900"
+                          : "bg-[#3d4f61] border-none text-white"
+                      }`}
+                      placeholder="1"
+                    />
+                  </div>
 
-              {/* Estado del módulo */}
-              <div>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className={`w-4 h-4 rounded ${
-                      theme === "light" ? "bg-white border-gray-300" : "bg-[#3d4f61] border-white/10"
-                    }`}
-                  />
-                  <span className={`text-sm ${theme === "light" ? "text-gray-700" : "text-gray-400"}`}>
-                    Módulo activo
-                  </span>
-                </label>
+                  {/* Estado del módulo */}
+                  <div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isActive}
+                        onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                        className={`w-4 h-4 rounded ${
+                          theme === "light" ? "bg-white border-gray-300" : "bg-[#3d4f61] border-white/10"
+                        }`}
+                      />
+                      <span className={`text-xs ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                        Módulo activo
+                      </span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Footer */}
-            <div className={`flex items-center justify-end gap-3 px-6 py-4 border-t ${
+            <div className={`flex items-center justify-end gap-3 px-5 py-3 border-t ${
               theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#243342] border-white/10"
             }`}>
               <button
@@ -1074,9 +1098,9 @@ export default function ModuleConfigurationPage() {
                   setShowIconSelector(false);
                   setCustomColor(false);
                 }}
-                className={`px-5 py-2.5 rounded-lg transition-colors text-sm ${
+                className={`px-5 py-2 rounded-lg transition-colors text-sm font-medium ${
                   theme === "light"
-                    ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    ? "bg-gray-200 hover:bg-gray-300 text-gray-900"
                     : "bg-white/5 hover:bg-white/10 text-white"
                 }`}
               >
@@ -1084,9 +1108,10 @@ export default function ModuleConfigurationPage() {
               </button>
               <button
                 onClick={showNewModuleModal ? handleSaveModule : handleUpdateModule}
-                className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors shadow-lg shadow-primary/20 text-sm font-medium"
+                className="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors shadow-lg shadow-primary/20 text-sm font-medium flex items-center gap-2"
               >
-                {showNewModuleModal ? "Crear Módulo" : "Guardar cambios"}
+                {showNewModuleModal ? <Plus className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                {showNewModuleModal ? "Crear Módulo" : "Guardar Cambios"}
               </button>
             </div>
           </div>

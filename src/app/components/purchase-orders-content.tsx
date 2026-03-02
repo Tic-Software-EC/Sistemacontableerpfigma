@@ -1024,7 +1024,7 @@ export function PurchaseOrdersContent() {
       {/* Modal de crear/editar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-5xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
             {/* Header del modal */}
             <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
               <h3 className="text-white font-bold text-xl">
@@ -1292,7 +1292,7 @@ export function PurchaseOrdersContent() {
       {/* Modal de vista detallada */}
       {showViewModal && viewingOrder && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
             {/* Header del modal */}
             <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
               <div>
@@ -1527,7 +1527,7 @@ export function PurchaseOrdersContent() {
       {/* Modal de Recepción de Mercancía */}
       {showReceivingModal && receivingOrder && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-5xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
             {/* Header del modal */}
             <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
               <div>
@@ -1759,7 +1759,7 @@ export function PurchaseOrdersContent() {
       {/* Modal de Búsqueda de Productos */}
       {showProductSearchModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header del modal */}
             <div className="bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between">
               <div>

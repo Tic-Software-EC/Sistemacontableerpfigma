@@ -153,7 +153,7 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="w-full max-w-6xl bg-secondary border border-white/10 rounded-xl shadow-2xl my-8">
+      <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-xl shadow-2xl my-8">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <div>

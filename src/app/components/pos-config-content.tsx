@@ -945,7 +945,7 @@ export function PosConfigContent({ userPlan = "Plan Básico" }: PosConfigContent
       {/* Modal Agregar Sucursal - Diseño Compacto v2 */}
       {showAddBranchModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-3xl bg-secondary border border-white/10 rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
             {/* Header del modal */}
             <div className="flex items-center justify-between mb-5">
               <div>

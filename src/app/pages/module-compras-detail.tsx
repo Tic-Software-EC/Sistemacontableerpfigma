@@ -673,7 +673,7 @@ export default function ModuleComprasDetail() {
       {/* Modal de nueva orden */}
       {showNewOrderModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="w-full max-w-3xl bg-secondary border border-white/10 rounded-2xl p-6 my-8">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl p-6 my-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-white font-bold text-xl flex items-center gap-2">
                 <Plus className="w-6 h-6 text-primary" />
@@ -754,7 +754,7 @@ export default function ModuleComprasDetail() {
       {/* Modal de detalle de orden MEJORADO */}
       {showOrderDetailModal && selectedOrder && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="w-full max-w-6xl bg-secondary border border-white/10 rounded-2xl p-6 my-8 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl p-6 my-8 max-h-[90vh] overflow-y-auto">
             {/* Header del modal */}
             <div className="flex items-center justify-between mb-6 sticky top-0 bg-secondary pb-4 border-b border-white/10">
               <div>

@@ -8,13 +8,13 @@ import {
   Users,
   Building2,
   CreditCard,
+  Percent,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { PLAN_CONFIGS } from "../config/plans";
 import { PlanViewModal } from "./plan-view-modal";
 
 interface PlanData {
-  id: string;
   name: string;
   displayName: string;
   price: number;
@@ -22,6 +22,7 @@ interface PlanData {
   maxBranches: number;
   maxCashRegisters: number;
   description: string;
+  annualDiscountPercent?: number;
 }
 
 interface PlansManagerModalProps {
@@ -38,7 +39,6 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
   // Convertir PLAN_CONFIGS a array de planes
   const [plans, setPlans] = useState<PlanData[]>([
     {
-      id: "free",
       name: "free",
       displayName: PLAN_CONFIGS.free.displayName,
       price: PLAN_CONFIGS.free.price,
@@ -46,9 +46,9 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
       maxBranches: PLAN_CONFIGS.free.maxBranches,
       maxCashRegisters: PLAN_CONFIGS.free.maxCashRegisters,
       description: PLAN_CONFIGS.free.description,
+      annualDiscountPercent: PLAN_CONFIGS.free.annualDiscountPercent || 0,
     },
     {
-      id: "standard",
       name: "standard",
       displayName: PLAN_CONFIGS.standard.displayName,
       price: PLAN_CONFIGS.standard.price,
@@ -56,9 +56,9 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
       maxBranches: PLAN_CONFIGS.standard.maxBranches,
       maxCashRegisters: PLAN_CONFIGS.standard.maxCashRegisters,
       description: PLAN_CONFIGS.standard.description,
+      annualDiscountPercent: PLAN_CONFIGS.standard.annualDiscountPercent || 0,
     },
     {
-      id: "custom",
       name: "custom",
       displayName: PLAN_CONFIGS.custom.displayName,
       price: PLAN_CONFIGS.custom.price,
@@ -66,6 +66,7 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
       maxBranches: PLAN_CONFIGS.custom.maxBranches,
       maxCashRegisters: PLAN_CONFIGS.custom.maxCashRegisters,
       description: PLAN_CONFIGS.custom.description,
+      annualDiscountPercent: PLAN_CONFIGS.custom.annualDiscountPercent || 0,
     },
   ]);
 
@@ -83,7 +84,7 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
     if (!editFormData) return;
 
     setPlans(
-      plans.map((p) => (p.id === editFormData.id ? editFormData : p))
+      plans.map((p) => (p.name === editFormData.name ? editFormData : p))
     );
 
     // Aquí guardarías en localStorage o backend
@@ -113,7 +114,7 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
       {/* Modal Principal de Gestión de Planes */}
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div
-          className={`w-full max-w-5xl border rounded-xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col ${
+          className={`w-full max-w-2xl border rounded-xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col ${
             theme === "light"
               ? "bg-white border-gray-200"
               : "bg-[#1a2332] border-white/10"
@@ -165,7 +166,7 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {plans.map((plan) => (
                 <div
-                  key={plan.id}
+                  key={plan.name}
                   className={`border rounded-xl overflow-hidden ${
                     theme === "light"
                       ? "bg-white border-gray-200"
@@ -212,21 +213,38 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
                         </button>
                       </div>
                     </div>
-                    <div className="flex items-baseline gap-2">
-                      <span
-                        className={`text-3xl font-bold ${
-                          theme === "light" ? "text-gray-900" : "text-white"
-                        }`}
-                      >
-                        ${plan.price}
-                      </span>
-                      <span
-                        className={`text-sm ${
-                          theme === "light" ? "text-gray-600" : "text-gray-400"
-                        }`}
-                      >
-                        /mes
-                      </span>
+                    
+                    {/* Precio y Descuento en la misma línea */}
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <div className="flex items-baseline gap-2">
+                        <span
+                          className={`text-3xl font-bold ${
+                            theme === "light" ? "text-gray-900" : "text-white"
+                          }`}
+                        >
+                          ${plan.price}
+                        </span>
+                        <span
+                          className={`text-sm ${
+                            theme === "light" ? "text-gray-600" : "text-gray-400"
+                          }`}
+                        >
+                          /mes
+                        </span>
+                      </div>
+                      
+                      {plan.annualDiscountPercent && plan.annualDiscountPercent > 0 && (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/10 rounded-lg border border-green-500/20">
+                          <Percent className="w-3.5 h-3.5 text-green-500" />
+                          <span
+                            className={`text-xs font-semibold ${
+                              theme === "light" ? "text-green-700" : "text-green-400"
+                            }`}
+                          >
+                            {plan.annualDiscountPercent}% anual
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -410,41 +428,88 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
                 theme === "light" ? "bg-white" : "bg-[#232d3f]"
               }`}
             >
-              {/* Precio Mensual */}
-              <div>
-                <label
-                  className={`block text-sm font-medium mb-2 ${
-                    theme === "light" ? "text-gray-900" : "text-white"
-                  }`}
-                >
-                  Precio Mensual (USD)
-                </label>
-                <div className="relative">
-                  <span
-                    className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${
+              {/* Precio Mensual y Descuento Anual */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Precio Mensual */}
+                <div>
+                  <label
+                    className={`block text-sm font-medium mb-2 ${
+                      theme === "light" ? "text-gray-900" : "text-white"
+                    }`}
+                  >
+                    Precio Mensual (USD)
+                  </label>
+                  <div className="relative">
+                    <span
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${
+                        theme === "light" ? "text-gray-600" : "text-gray-400"
+                      }`}
+                    >
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editFormData.price}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          price: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                      className={`w-full pl-8 pr-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                        theme === "light"
+                          ? "bg-[#3d4f61] border-[#4a5f75] text-white placeholder:text-gray-400"
+                          : "bg-[#3d4f61] border-[#4a5f75] text-white placeholder:text-gray-500"
+                      }`}
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+
+                {/* Descuento Anual (>12 meses) */}
+                <div>
+                  <label
+                    className={`block text-sm font-medium mb-2 ${
+                      theme === "light" ? "text-gray-900" : "text-white"
+                    }`}
+                  >
+                    Descuento Anual (&gt;12 meses)
+                  </label>
+                  <div className="relative">
+                    <Percent
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
+                        theme === "light" ? "text-gray-600" : "text-gray-400"
+                      }`}
+                    />
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      max="100"
+                      value={editFormData.annualDiscountPercent || 0}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          annualDiscountPercent: parseInt(e.target.value) || 0,
+                        })
+                      }
+                      className={`w-full pl-10 pr-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                        theme === "light"
+                          ? "bg-[#3d4f61] border-[#4a5f75] text-white placeholder:text-gray-400"
+                          : "bg-[#3d4f61] border-[#4a5f75] text-white placeholder:text-gray-500"
+                      }`}
+                      placeholder="0"
+                    />
+                  </div>
+                  <p
+                    className={`text-xs mt-1.5 ${
                       theme === "light" ? "text-gray-600" : "text-gray-400"
                     }`}
                   >
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={editFormData.price}
-                    onChange={(e) =>
-                      setEditFormData({
-                        ...editFormData,
-                        price: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    className={`w-full pl-8 pr-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
-                      theme === "light"
-                        ? "bg-[#3d4f61] border-[#4a5f75] text-white placeholder:text-gray-400"
-                        : "bg-[#3d4f61] border-[#4a5f75] text-white placeholder:text-gray-500"
-                    }`}
-                    placeholder="0"
-                  />
+                    % para suscripciones anuales
+                  </p>
                 </div>
               </div>
 

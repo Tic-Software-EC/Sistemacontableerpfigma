@@ -761,7 +761,7 @@ export function RolesPermissionsContent() {
       {/* Modal Crear/Editar/Copiar */}
       {(showCreateModal || showEditModal || showCopyModal) && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="sticky top-0 bg-secondary border-b border-white/10 p-6 flex items-center justify-between">
               <h3 className="text-white font-bold text-xl">

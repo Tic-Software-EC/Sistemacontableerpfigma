@@ -92,7 +92,7 @@ export function CompanyViewModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className={`w-full max-w-3xl border rounded-xl shadow-2xl my-8 ${
+      <div className={`w-full max-w-2xl border rounded-xl shadow-2xl my-8 ${
         theme === "light"
           ? "bg-white border-gray-200"
           : "bg-[#1a2332] border-white/10"

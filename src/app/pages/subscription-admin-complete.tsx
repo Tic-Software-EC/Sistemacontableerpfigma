@@ -766,7 +766,7 @@ export default function SubscriptionAdminPage() {
       {/* Modal Ver Empresa */}
       {showViewModal && selectedCompany && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-3xl bg-secondary border border-white/10 rounded-xl shadow-2xl">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <h3 className="text-white font-bold text-lg">Detalles de la Empresa</h3>
               <button onClick={() => setShowViewModal(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
@@ -838,7 +838,7 @@ export default function SubscriptionAdminPage() {
       {/* Modal Nueva/Editar Empresa */}
       {(showNewModal || showEditModal) && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-xl shadow-2xl my-8">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl shadow-2xl my-8">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <h3 className="text-white font-bold text-lg">
                 {showNewModal ? "Nueva Empresa" : "Editar Empresa"}
@@ -1032,7 +1032,7 @@ export default function SubscriptionAdminPage() {
       {/* Modal de Credenciales */}
       {showCredentialsModal && generatedCredentials && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-xl shadow-2xl">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-500/10 rounded-lg">

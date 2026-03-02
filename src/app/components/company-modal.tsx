@@ -25,9 +25,11 @@ interface CompanyFormData {
   maxBranches: number;
   maxCashRegisters: number;
   admin: string;
+  adminUsername: string;
   adminEmail: string;
   adminPhone: string;
   adminPassword: string;
+  companyDomain: string;
   expiresAt: string;
   monthlyPrice: number;
   nextPayment: string;
@@ -63,7 +65,6 @@ export function CompanyModal({
   handlePlanChange,
 }: CompanyModalProps) {
   const [activeTab, setActiveTab] = useState<"general" | "subscription" | "personalization">("general");
-  const [logoError, setLogoError] = useState("");
   const { theme } = useTheme();
 
   if (!isOpen) return null;
@@ -147,37 +148,35 @@ export function CompanyModal({
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLogoError("");
     const file = e.target.files?.[0];
     if (!file) return;
 
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/svg+xml"];
     if (!validTypes.includes(file.type)) {
-      setLogoError("Formato no válido. Solo JPG, PNG, GIF o SVG");
+      setFormData({ ...formData, logo: "" });
       return;
     }
 
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      setLogoError("El archivo es muy grande. Tamaño máximo: 2MB");
+      setFormData({ ...formData, logo: "" });
       return;
     }
 
     const reader = new FileReader();
     reader.onloadend = () => {
       setFormData({ ...formData, logo: reader.result as string });
-      setLogoError("");
     };
     reader.readAsDataURL(file);
   };
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className={`w-full max-w-3xl border rounded-xl shadow-2xl my-8 ${
+      <div className={`w-full max-w-2xl border rounded-2xl shadow-2xl my-8 flex flex-col overflow-hidden ${
         theme === "light"
           ? "bg-white border-gray-200"
           : "bg-[#1a2332] border-white/10"
-      }`}>
+      }`} style={{ width: "672px", maxWidth: "calc(100vw - 2rem)" }}>
         {/* Header */}
         <div className={`flex items-center justify-between px-6 py-3.5 border-b ${
           theme === "light"
@@ -254,7 +253,7 @@ export function CompanyModal({
         </div>
 
         {/* Content */}
-        <div className={`p-6 space-y-5 h-[500px] overflow-y-auto ${
+        <div className={`p-6 space-y-5 max-h-[60vh] overflow-y-auto ${
           theme === "light" ? "bg-gray-50" : "bg-[#232d3f]"
         }`}>
           {/* Tab 1: Información General */}
@@ -337,6 +336,26 @@ export function CompanyModal({
                       placeholder="+593 99 123 4567"
                     />
                   </div>
+
+                  <div className="md:col-span-2">
+                    <label className={`block text-xs mb-2 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
+                      Dominio de la Empresa <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.companyDomain}
+                      onChange={(e) => setFormData({ ...formData, companyDomain: e.target.value.toLowerCase() })}
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                        theme === "light"
+                          ? "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400"
+                          : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-600"
+                      }`}
+                      placeholder="miempresa"
+                    />
+                    <p className={`text-xs mt-1.5 ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>
+                      Este dominio se usará para acceder al sistema: <span className="text-primary font-medium">{formData.companyDomain || "miempresa"}.ticsoftec.com</span>
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -363,6 +382,23 @@ export function CompanyModal({
                           : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-600"
                       }`}
                       placeholder="Juan Pérez"
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`block text-xs mb-2 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
+                      Username (Usuario) <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.adminUsername}
+                      onChange={(e) => setFormData({ ...formData, adminUsername: e.target.value.toLowerCase() })}
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                        theme === "light"
+                          ? "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400"
+                          : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-600"
+                      }`}
+                      placeholder="jperez"
                     />
                   </div>
 
@@ -681,60 +717,6 @@ export function CompanyModal({
           {/* Tab 3: Personalización */}
           {activeTab === "personalization" && (
             <>
-              {/* Logo de la Empresa */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className={`p-1.5 rounded-lg ${theme === "light" ? "bg-gray-200" : "bg-white/5"}`}>
-                    <Palette className={`w-4 h-4 ${theme === "light" ? "text-gray-900" : "text-white"}`} />
-                  </div>
-                  <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>Logo de la Empresa</h4>
-                </div>
-                
-                <div className="flex items-start gap-4">
-                  {/* Preview del Logo */}
-                  <div className={`w-40 h-40 border-2 border-dashed rounded-lg flex flex-col items-center justify-center ${
-                    theme === "light"
-                      ? "bg-white border-gray-300"
-                      : "bg-[#0f1621] border-white/10"
-                  }`}>
-                    {formData.logo ? (
-                      <img src={formData.logo} alt="Logo" className="w-full h-full object-contain rounded-lg" />
-                    ) : (
-                      <>
-                        <div className={`w-16 h-16 rounded-lg flex items-center justify-center mb-2 ${
-                          theme === "light" ? "bg-gray-100" : "bg-white/5"
-                        }`}>
-                          <Building2 className={`w-8 h-8 ${theme === "light" ? "text-gray-400" : "text-gray-600"}`} />
-                        </div>
-                        <span className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>Sin logo</span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Información y Botón */}
-                  <div className="flex-1">
-                    <p className={`text-xs mb-3 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                      El logo aparecerá en el sistema de la empresa. Formatos aceptados: PNG, JPG, GIF, SVG.
-                      <br />
-                      Tamaño máximo: 2MB.
-                    </p>
-                    <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all cursor-pointer text-sm font-medium shadow-lg shadow-primary/20">
-                      <Upload className="w-4 h-4" />
-                      Subir Logo
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/jpg,image/gif,image/svg+xml"
-                        onChange={handleLogoUpload}
-                        className="hidden"
-                      />
-                    </label>
-                    {logoError && (
-                      <p className="text-red-400 text-xs mt-2">{logoError}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
               {/* Color Primario */}
               <div>
                 <div className="flex items-center gap-2 mb-4">

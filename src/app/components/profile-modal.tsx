@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Camera, User, Mail, Lock, Save, Eye, EyeOff } from "lucide-react";
+import { useTheme } from "../contexts/theme-context";
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileModalProps) {
+  const { theme } = useTheme();
   const [editingProfile, setEditingProfile] = useState(userProfile);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -52,32 +54,44 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-2xl bg-gradient-to-br from-secondary to-[#1a1f2e] border border-white/10 rounded-2xl overflow-hidden">
+      <div className={`w-full max-w-2xl border rounded-2xl overflow-hidden ${
+        theme === "light" ? "bg-white border-gray-200" : "bg-gradient-to-br from-secondary to-[#1a1f2e] border-white/10"
+      }`}>
         {/* Header - Diseño Compacto */}
-        <div className="flex items-center justify-between p-5 border-b border-white/10">
+        <div className={`flex items-center justify-between p-5 border-b ${
+          theme === "light" ? "border-gray-200 bg-gray-50" : "border-white/10"
+        }`}>
           <div className="flex items-center gap-2.5">
             <User className="w-5 h-5 text-primary" />
             <div>
-              <h3 className="text-white font-bold text-lg">
+              <h3 className={`font-bold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                 Configuración de Perfil
               </h3>
-              <p className="text-gray-400 text-xs">
+              <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
                 Actualiza tu información personal
               </p>
             </div>
           </div>
           <button
             onClick={handleCancel}
-            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className={`p-2 rounded-lg transition-colors ${
+              theme === "light" 
+                ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100" 
+                : "text-gray-400 hover:text-white hover:bg-white/10"
+            }`}
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Contenido */}
-        <div className="p-5 max-h-[calc(85vh-120px)] overflow-y-auto">
+        <div className={`p-5 max-h-[calc(85vh-120px)] overflow-y-auto ${
+          theme === "light" ? "bg-white" : ""
+        }`}>
           {/* Foto de perfil */}
-          <div className="flex items-center gap-6 mb-8 p-6 bg-white/5 rounded-xl border border-white/10">
+          <div className={`flex items-center gap-6 mb-8 p-6 rounded-xl border ${
+            theme === "light" ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+          }`}>
             <div className="relative">
               <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center overflow-hidden">
                 {editingProfile.avatar ? (
@@ -99,13 +113,13 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
               </label>
             </div>
             <div className="flex-1">
-              <h4 className="text-white font-semibold text-lg mb-1">
+              <h4 className={`font-semibold text-lg mb-1 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                 Foto de Perfil
               </h4>
-              <p className="text-gray-400 text-sm mb-3">
+              <p className={`text-sm mb-3 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
                 Sube una foto para personalizar tu perfil
               </p>
-              <p className="text-gray-500 text-xs">
+              <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>
                 Formatos: JPG, PNG, GIF • Tamaño máximo: 2MB
               </p>
             </div>
@@ -115,7 +129,9 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-5">
             {/* Nombre completo */}
             <div className="md:col-span-2">
-              <label className="block text-white text-xs font-medium mb-1.5">
+              <label className={`block text-xs font-medium mb-1.5 ${
+                theme === "light" ? "text-gray-700" : "text-white"
+              }`}>
                 Nombre completo
               </label>
               <div className="relative">
@@ -126,7 +142,11 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
                   type="text"
                   value={editingProfile.name}
                   onChange={(e) => setEditingProfile(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 pl-10 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={`w-full border rounded-lg px-3.5 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                    theme === "light"
+                      ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                      : "bg-white/5 border-white/10 text-white placeholder-gray-500"
+                  }`}
                   placeholder="Tu nombre completo"
                 />
               </div>
@@ -134,7 +154,9 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
 
             {/* Email */}
             <div className="md:col-span-2">
-              <label className="block text-white text-xs font-medium mb-1.5">
+              <label className={`block text-xs font-medium mb-1.5 ${
+                theme === "light" ? "text-gray-700" : "text-white"
+              }`}>
                 Correo electrónico
               </label>
               <div className="relative">
@@ -145,7 +167,11 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
                   type="email"
                   value={editingProfile.email}
                   onChange={(e) => setEditingProfile(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 pl-10 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={`w-full border rounded-lg px-3.5 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                    theme === "light"
+                      ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                      : "bg-white/5 border-white/10 text-white placeholder-gray-500"
+                  }`}
                   placeholder="tu@email.com"
                 />
               </div>
@@ -153,41 +179,55 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
 
             {/* Teléfono */}
             <div>
-              <label className="block text-white text-xs font-medium mb-1.5">
+              <label className={`block text-xs font-medium mb-1.5 ${
+                theme === "light" ? "text-gray-700" : "text-white"
+              }`}>
                 Teléfono
               </label>
               <input
                 type="tel"
                 value={editingProfile.phone}
                 onChange={(e) => setEditingProfile(prev => ({ ...prev, phone: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={`w-full border rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                  theme === "light"
+                    ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                    : "bg-white/5 border-white/10 text-white placeholder-gray-500"
+                }`}
                 placeholder="+593 99 123 4567"
               />
             </div>
 
             {/* Rol */}
             <div>
-              <label className="block text-white text-xs font-medium mb-1.5">
+              <label className={`block text-xs font-medium mb-1.5 ${
+                theme === "light" ? "text-gray-700" : "text-white"
+              }`}>
                 Rol
               </label>
               <input
                 type="text"
                 value={editingProfile.role}
                 disabled
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-gray-400 text-sm cursor-not-allowed"
+                className={`w-full border rounded-lg px-3.5 py-2 text-sm cursor-not-allowed ${
+                  theme === "light"
+                    ? "bg-gray-100 border-gray-300 text-gray-500"
+                    : "bg-white/5 border-white/10 text-gray-400"
+                }`}
               />
             </div>
           </div>
 
           {/* Sección de contraseña */}
-          <div className="mb-5 p-4 bg-white/5 rounded-xl border border-white/10">
+          <div className={`mb-5 p-4 rounded-xl border ${
+            theme === "light" ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+          }`}>
             <div className="flex items-center gap-2.5 mb-3.5">
               <Lock className="w-4 h-4 text-primary" />
               <div>
-                <h4 className="text-white font-semibold text-sm">
+                <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                   Cambiar Contraseña
                 </h4>
-                <p className="text-gray-400 text-[11px]">
+                <p className={`text-[11px] ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
                   Actualiza tu contraseña periódicamente
                 </p>
               </div>
@@ -195,7 +235,9 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
 
             {/* Campo de contraseña actual */}
             <div className="mb-3.5">
-              <label className="block text-white text-xs font-medium mb-1.5">
+              <label className={`block text-xs font-medium mb-1.5 ${
+                theme === "light" ? "text-gray-700" : "text-white"
+              }`}>
                 Contraseña Actual
               </label>
               <div className="relative">
@@ -206,13 +248,19 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
                   type={showCurrentPassword ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 pl-10 pr-10 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={`w-full border rounded-lg px-3.5 py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                    theme === "light"
+                      ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                      : "bg-white/5 border-white/10 text-white placeholder-gray-500"
+                  }`}
                   placeholder="Ingresa tu contraseña actual"
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors"
+                  className={`absolute inset-y-0 right-0 pr-3 flex items-center transition-colors ${
+                    theme === "light" ? "text-gray-400 hover:text-gray-900" : "text-gray-400 hover:text-white"
+                  }`}
                 >
                   {showCurrentPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -225,7 +273,9 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
 
             {/* Campo de nueva contraseña */}
             <div>
-              <label className="block text-white text-xs font-medium mb-1.5">
+              <label className={`block text-xs font-medium mb-1.5 ${
+                theme === "light" ? "text-gray-700" : "text-white"
+              }`}>
                 Nueva Contraseña
               </label>
               <div className="relative">
@@ -236,13 +286,19 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
                   type={showNewPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 pl-10 pr-10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={`w-full border rounded-lg px-3.5 py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                    theme === "light"
+                      ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                      : "bg-white/5 border-white/10 text-white placeholder-gray-500"
+                  }`}
                   placeholder="Ingresa tu nueva contraseña"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors"
+                  className={`absolute inset-y-0 right-0 pr-3 flex items-center transition-colors ${
+                    theme === "light" ? "text-gray-400 hover:text-gray-900" : "text-gray-400 hover:text-white"
+                  }`}
                 >
                   {showNewPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -251,7 +307,7 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
                   )}
                 </button>
               </div>
-              <p className="text-gray-500 text-xs mt-2">
+              <p className={`text-xs mt-2 ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>
                 Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números
               </p>
             </div>
@@ -264,7 +320,11 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
           <div className="flex gap-3">
             <button
               onClick={handleCancel}
-              className="flex-1 px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 border border-white/10 rounded-lg transition-colors font-medium"
+              className={`flex-1 px-6 py-3 border rounded-lg transition-colors font-medium ${
+                theme === "light"
+                  ? "text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-300"
+                  : "text-gray-400 hover:text-white hover:bg-white/5 border-white/10"
+              }`}
             >
               Cancelar
             </button>

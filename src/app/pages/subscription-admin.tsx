@@ -151,9 +151,11 @@ export default function SubscriptionAdminPage() {
     maxBranches: PLAN_CONFIGS.standard.maxBranches,
     maxCashRegisters: PLAN_CONFIGS.standard.maxCashRegisters,
     admin: "",
+    adminUsername: "",
     adminEmail: "",
     adminPhone: "",
     adminPassword: "",
+    companyDomain: "",
     expiresAt: "",
     monthlyPrice: PLAN_CONFIGS.standard.price,
     nextPayment: "",
@@ -305,8 +307,11 @@ export default function SubscriptionAdminPage() {
       maxBranches: PLAN_CONFIGS.standard.maxBranches,
       maxCashRegisters: PLAN_CONFIGS.standard.maxCashRegisters,
       admin: "",
+      adminUsername: "",
       adminEmail: "",
+      adminPhone: "",
       adminPassword: "",
+      companyDomain: "",
       expiresAt: "",
       monthlyPrice: PLAN_CONFIGS.standard.price,
       nextPayment: "",
@@ -314,6 +319,7 @@ export default function SubscriptionAdminPage() {
       logo: "",
       primaryColor: "#E8692E",
       secondaryColor: "#0D1B2A",
+      subscriptionMonths: 1,
     });
     setShowNewModal(true);
   };
@@ -359,9 +365,11 @@ export default function SubscriptionAdminPage() {
       maxBranches: company.maxBranches,
       maxCashRegisters: company.maxCashRegisters,
       admin: company.admin,
+      adminUsername: (company as any).adminUsername || "",
       adminEmail: company.adminEmail,
       adminPhone: (company as any).adminPhone || "",
       adminPassword: "",
+      companyDomain: (company as any).companyDomain || "",
       expiresAt: company.expiresAt,
       monthlyPrice: company.monthlyPrice,
       nextPayment: company.nextPayment,
@@ -727,7 +735,7 @@ export default function SubscriptionAdminPage() {
       {/* Modal de Credenciales */}
       {showCredentialsModal && generatedCredentials && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-2xl border rounded-xl shadow-2xl ${
+          <div className={`w-full max-w-2xl border rounded-2xl shadow-2xl ${ 
             theme === "light"
               ? "bg-white border-gray-200"
               : "bg-secondary border-white/10"

@@ -10,7 +10,6 @@ import {
   Menu as MenuIcon,
   Plus,
   Edit,
-  Eye,
   Trash2,
   X,
   Save,
@@ -23,9 +22,42 @@ import {
   Sun,
   Moon,
   Layers,
+  ChevronRight,
+  Search,
+  List,
+  Upload,
+  Download,
+  Printer,
+  Mail,
+  Phone,
+  MapPin,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  PieChart,
+  Wallet,
+  Receipt,
+  Banknote,
+  Database,
+  HardDrive,
+  Server,
+  Activity,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Info,
+  Eye,
+  EyeOff,
+  Zap,
+  Cloud,
+  Target,
+  Briefcase,
+  Calendar,
+  Globe,
 } from "lucide-react";
-import { ProfileModal } from "../components/profile-modal";
 import { useTheme } from "../contexts/theme-context";
+import { IconSelector } from "../components/icon-selector";
+import { ProfileModal } from "../components/profile-modal";
 
 interface MenuItem {
   id: string;
@@ -37,7 +69,6 @@ interface MenuItem {
   order: number;
   isActive: boolean;
   module: string;
-  subMenuCount?: number;
 }
 
 export default function MenuManagementPage() {
@@ -49,6 +80,7 @@ export default function MenuManagementPage() {
   const [showEditMenuModal, setShowEditMenuModal] = useState(false);
   const [selectedModule, setSelectedModule] = useState("Facturas");
   const [selectedMenu, setSelectedMenu] = useState<MenuItem | null>(null);
+  const [activeModalTab, setActiveModalTab] = useState("basic");
 
   const [userProfile, setUserProfile] = useState({
     name: "Super Admin",
@@ -70,13 +102,13 @@ export default function MenuManagementPage() {
   });
 
   const modules = [
-    { id: "facturas", name: "Facturas", icon: FileText, count: 3 },
-    { id: "clientes", name: "Clientes", icon: Users, count: 2 },
-    { id: "inventario", name: "Inventario", icon: Package, count: 4 },
-    { id: "reportes", name: "Reportes", icon: BarChart3, count: 5 },
-    { id: "contabilidad", name: "Contabilidad", icon: Calculator, count: 3 },
-    { id: "compras", name: "Compras", icon: ShoppingCart, count: 2 },
-    { id: "configuracion", name: "Configuración", icon: SettingsIcon, count: 6 },
+    { id: "facturas", name: "Facturas", icon: FileText },
+    { id: "clientes", name: "Clientes", icon: Users },
+    { id: "inventario", name: "Inventario", icon: Package },
+    { id: "reportes", name: "Reportes", icon: BarChart3 },
+    { id: "contabilidad", name: "Contabilidad", icon: Calculator },
+    { id: "compras", name: "Compras", icon: ShoppingCart },
+    { id: "configuracion", name: "Configuración", icon: SettingsIcon },
   ];
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
@@ -90,7 +122,28 @@ export default function MenuManagementPage() {
       order: 1,
       isActive: true,
       module: "Facturas",
-      subMenuCount: 2,
+    },
+    {
+      id: "11",
+      name: "Nueva Factura",
+      description: "Crear factura electrónica",
+      path: "/facturas/emision/nueva",
+      icon: "Plus",
+      parent: "1",
+      order: 1,
+      isActive: true,
+      module: "Facturas",
+    },
+    {
+      id: "12",
+      name: "Consultar Facturas",
+      description: "Ver facturas emitidas",
+      path: "/facturas/emision/consultar",
+      icon: "Search",
+      parent: "1",
+      order: 2,
+      isActive: true,
+      module: "Facturas",
     },
     {
       id: "2",
@@ -102,43 +155,6 @@ export default function MenuManagementPage() {
       order: 2,
       isActive: true,
       module: "Facturas",
-      subMenuCount: 0,
-    },
-    {
-      id: "3",
-      name: "Notas de Débito",
-      description: "Cargos adicionales a facturas",
-      path: "/facturas/notas-debito",
-      icon: "FileText",
-      parent: null,
-      order: 3,
-      isActive: true,
-      module: "Facturas",
-      subMenuCount: 0,
-    },
-    {
-      id: "4",
-      name: "Gestión de Clientes",
-      description: "Administrar información de clientes",
-      path: "/clientes/gestion",
-      icon: "Users",
-      parent: null,
-      order: 1,
-      isActive: true,
-      module: "Clientes",
-      subMenuCount: 1,
-    },
-    {
-      id: "5",
-      name: "Grupos de Clientes",
-      description: "Clasificación y segmentación",
-      path: "/clientes/grupos",
-      icon: "Users",
-      parent: null,
-      order: 2,
-      isActive: true,
-      module: "Clientes",
-      subMenuCount: 0,
     },
     {
       id: "6",
@@ -150,54 +166,167 @@ export default function MenuManagementPage() {
       order: 1,
       isActive: true,
       module: "Inventario",
-      subMenuCount: 3,
     },
     {
-      id: "7",
-      name: "Categorías",
-      description: "Organización de productos",
-      path: "/inventario/categorias",
-      icon: "Package",
-      parent: null,
+      id: "61",
+      name: "Nuevo Producto",
+      description: "Registrar producto",
+      path: "/inventario/productos/nuevo",
+      icon: "Plus",
+      parent: "6",
+      order: 1,
+      isActive: true,
+      module: "Inventario",
+    },
+    {
+      id: "62",
+      name: "Listado de Productos",
+      description: "Ver productos",
+      path: "/inventario/productos/listado",
+      icon: "List",
+      parent: "6",
       order: 2,
       isActive: true,
       module: "Inventario",
-      subMenuCount: 0,
     },
     {
-      id: "8",
-      name: "Kardex",
-      description: "Historial de movimientos",
-      path: "/inventario/kardex",
-      icon: "Package",
-      parent: null,
+      id: "63",
+      name: "Importar Productos",
+      description: "Importación masiva",
+      path: "/inventario/productos/importar",
+      icon: "Upload",
+      parent: "6",
       order: 3,
       isActive: true,
       module: "Inventario",
-      subMenuCount: 0,
-    },
-    {
-      id: "9",
-      name: "Ajustes de Inventario",
-      description: "Correcciones y ajustes de stock",
-      path: "/inventario/ajustes",
-      icon: "Package",
-      parent: null,
-      order: 4,
-      isActive: true,
-      module: "Inventario",
-      subMenuCount: 0,
     },
   ]);
 
-  const handleOpenNewModal = () => {
+  const iconMap: Record<string, any> = {
+    FileText,
+    Plus,
+    Search,
+    List,
+    Upload,
+    Download,
+    Printer,
+    Mail,
+    Phone,
+    MapPin,
+    DollarSign,
+    TrendingUp,
+    TrendingDown,
+    PieChart,
+    Wallet,
+    Receipt,
+    Banknote,
+    Package,
+    Users,
+    Database,
+    HardDrive,
+    Server,
+    Activity,
+    AlertCircle,
+    CheckCircle,
+    XCircle,
+    Info,
+    Calculator,
+    BarChart3,
+    ShoppingCart,
+    SettingsIcon,
+    Bell,
+    Building2,
+    Edit,
+    Trash2,
+    Eye,
+    EyeOff,
+    Zap,
+    Cloud,
+    Target,
+    Briefcase,
+    Calendar,
+    Globe,
+  };
+
+  const getIconComponent = (iconName: string) => {
+    return iconMap[iconName] || FileText;
+  };
+
+  const availableIcons = [
+    { name: "FileText", label: "Documento" },
+    { name: "FilePlus", label: "Nuevo Documento" },
+    { name: "FileCheck", label: "Doc Verificado" },
+    { name: "FileMinus", label: "Doc Menos" },
+    { name: "FileSpreadsheet", label: "Hoja Cálculo" },
+    { name: "Plus", label: "Más" },
+    { name: "Search", label: "Buscar" },
+    { name: "List", label: "Lista" },
+    { name: "Upload", label: "Subir" },
+    { name: "Download", label: "Descargar" },
+    { name: "Printer", label: "Imprimir" },
+    { name: "Mail", label: "Correo" },
+    { name: "Phone", label: "Teléfono" },
+    { name: "MapPin", label: "Ubicación" },
+    { name: "DollarSign", label: "Dólar" },
+    { name: "Percent", label: "Porcentaje" },
+    { name: "TrendingUp", label: "Tendencia Arriba" },
+    { name: "TrendingDown", label: "Tendencia Abajo" },
+    { name: "PieChart", label: "Gráfico Circular" },
+    { name: "BarChart3", label: "Gráfico Barras" },
+    { name: "Wallet", label: "Billetera" },
+    { name: "Receipt", label: "Recibo" },
+    { name: "Banknote", label: "Billete" },
+    { name: "Package", label: "Paquete" },
+    { name: "Users", label: "Usuarios" },
+    { name: "Database", label: "Base Datos" },
+    { name: "HardDrive", label: "Disco Duro" },
+    { name: "Server", label: "Servidor" },
+    { name: "Activity", label: "Actividad" },
+    { name: "Calculator", label: "Calculadora" },
+    { name: "ShoppingCart", label: "Carrito" },
+    { name: "SettingsIcon", label: "Configuración" },
+    { name: "Settings", label: "Ajustes" },
+    { name: "Bell", label: "Campana" },
+    { name: "Building2", label: "Edificio" },
+    { name: "Edit", label: "Editar" },
+    { name: "Eye", label: "Ver" },
+    { name: "EyeOff", label: "Ocultar" },
+    { name: "AlertCircle", label: "Alerta" },
+    { name: "CheckCircle", label: "Verificado" },
+    { name: "XCircle", label: "Error" },
+    { name: "Info", label: "Información" },
+    { name: "Zap", label: "Rayo" },
+    { name: "Cloud", label: "Nube" },
+    { name: "Target", label: "Objetivo" },
+    { name: "Briefcase", label: "Maletín" },
+    { name: "Calendar", label: "Calendario" },
+    { name: "Globe", label: "Globo" },
+    { name: "Truck", label: "Camión" },
+    { name: "Star", label: "Estrella" },
+    { name: "Heart", label: "Corazón" },
+    { name: "Share2", label: "Compartir" },
+    { name: "MessageSquare", label: "Mensaje" },
+    { name: "Filter", label: "Filtro" },
+    { name: "RefreshCw", label: "Actualizar" },
+    { name: "MoreVertical", label: "Más Vertical" },
+    { name: "MoreHorizontal", label: "Más Horizontal" },
+    { name: "Copy", label: "Copiar" },
+  ];
+
+  const handleOpenNewModal = (parentMenu: MenuItem | null = null) => {
+    const moduleMenus = getModuleMenus(selectedModule);
+    const parentMenus = moduleMenus.filter((m) => !m.parent);
+    const nextOrder = parentMenu
+      ? getChildMenus(parentMenu.id).length + 1
+      : parentMenus.length + 1;
+
     setFormData({
       name: "",
       description: "",
       path: "",
       icon: "FileText",
-      parent: null,
-      order: getModuleMenus(selectedModule).length + 1,
+      parent: parentMenu ? parentMenu.id : null,
+      order: nextOrder,
       isActive: true,
       module: selectedModule,
     });
@@ -220,16 +349,26 @@ export default function MenuManagementPage() {
   };
 
   const handleDeleteMenu = (menu: MenuItem) => {
+    const hasChildren = menuItems.some((m) => m.parent === menu.id);
+    if (hasChildren) {
+      alert("No puedes eliminar un menú que tiene submenús. Elimina primero los submenús.");
+      return;
+    }
+
     if (confirm(`¿Estás seguro de eliminar el menú "${menu.name}"?`)) {
-      setMenuItems(menuItems.filter(m => m.id !== menu.id));
+      setMenuItems(menuItems.filter((m) => m.id !== menu.id));
     }
   };
 
   const handleSaveMenu = () => {
+    if (!formData.name.trim() || !formData.path.trim()) {
+      alert("El nombre y la ruta son obligatorios");
+      return;
+    }
+
     const newMenu: MenuItem = {
       id: Date.now().toString(),
       ...formData,
-      subMenuCount: 0,
     };
     setMenuItems([...menuItems, newMenu]);
     setShowNewMenuModal(false);
@@ -237,39 +376,67 @@ export default function MenuManagementPage() {
 
   const handleUpdateMenu = () => {
     if (!selectedMenu) return;
-    setMenuItems(menuItems.map(m => m.id === selectedMenu.id ? { ...m, ...formData } : m));
+
+    if (!formData.name.trim() || !formData.path.trim()) {
+      alert("El nombre y la ruta son obligatorios");
+      return;
+    }
+
+    setMenuItems(
+      menuItems.map((m) => (m.id === selectedMenu.id ? { ...m, ...formData } : m))
+    );
     setShowEditMenuModal(false);
   };
 
   const getModuleMenus = (moduleName: string) => {
-    return menuItems.filter(m => m.module === moduleName).sort((a, b) => a.order - b.order);
+    return menuItems.filter((m) => m.module === moduleName);
+  };
+
+  const getParentMenus = (moduleName: string) => {
+    return menuItems
+      .filter((m) => m.module === moduleName && !m.parent)
+      .sort((a, b) => a.order - b.order);
+  };
+
+  const getChildMenus = (parentId: string) => {
+    return menuItems
+      .filter((m) => m.parent === parentId)
+      .sort((a, b) => a.order - b.order);
+  };
+
+  const getModuleCount = (moduleName: string) => {
+    return menuItems.filter((m) => m.module === moduleName).length;
   };
 
   const getModuleDescription = (moduleName: string) => {
     const descriptions: Record<string, string> = {
-      "Facturas": "Facturación electrónica completa",
-      "Clientes": "Gestión de clientes y contactos",
-      "Inventario": "Control de productos y stock",
-      "Reportes": "Análisis y estadísticas",
-      "Contabilidad": "Gestión contable y financiera",
-      "Compras": "Gestión de compras y proveedores",
-      "Configuración": "Ajustes del sistema",
+      Facturas: "Facturación electrónica completa",
+      Clientes: "Gestión de clientes y contactos",
+      Inventario: "Control de productos y stock",
+      Reportes: "Análisis y estadísticas",
+      Contabilidad: "Gestión contable y financiera",
+      Compras: "Gestión de compras y proveedores",
+      Configuración: "Ajustes del sistema",
     };
     return descriptions[moduleName] || "";
   };
 
   return (
-    <div className={`min-h-screen ${
-      theme === "light"
-        ? "bg-gradient-to-br from-gray-50 via-white to-gray-100"
-        : "bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]"
-    }`}>
-      {/* Header */}
-      <header className={`border-b sticky top-0 z-40 ${
+    <div
+      className={`min-h-screen ${
         theme === "light"
-          ? "border-gray-200 bg-white/90 backdrop-blur-sm"
-          : "border-white/10 bg-secondary/50 backdrop-blur-sm"
-      }`}>
+          ? "bg-gradient-to-br from-gray-50 via-white to-gray-100"
+          : "bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]"
+      }`}
+    >
+      {/* Header */}
+      <header
+        className={`border-b sticky top-0 z-40 ${
+          theme === "light"
+            ? "border-gray-200 bg-white/90 backdrop-blur-sm"
+            : "border-white/10 bg-secondary/50 backdrop-blur-sm"
+        }`}
+      >
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
@@ -277,14 +444,17 @@ export default function MenuManagementPage() {
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className={`font-bold text-xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>TicSoftEc</h1>
-                <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Administrador de Suscripciones</p>
+                <h1 className={`font-bold text-xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                  TicSoftEc
+                </h1>
+                <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
+                  Administrador de Suscripciones
+                </p>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Botón de tema */}
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-lg transition-colors ${
@@ -294,18 +464,16 @@ export default function MenuManagementPage() {
               }`}
               title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
-              {theme === "dark" ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
+              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <button className={`p-2 rounded-lg transition-colors relative ${
-              theme === "light"
-                ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
-            }`}>
+            <button
+              className={`p-2 rounded-lg transition-colors relative ${
+                theme === "light"
+                  ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
             </button>
@@ -321,27 +489,39 @@ export default function MenuManagementPage() {
                   <div className="w-10 h-10 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">SA</span>
                   </div>
-                  <div className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 rounded-full ${
-                    theme === "light" ? "border-white" : "border-secondary"
-                  }`}></div>
+                  <div
+                    className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 rounded-full ${
+                      theme === "light" ? "border-white" : "border-secondary"
+                    }`}
+                  ></div>
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className={`text-sm font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
-                  <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>{userProfile.role}</p>
+                  <p className={`text-sm font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                    {userProfile.name}
+                  </p>
+                  <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
+                    {userProfile.role}
+                  </p>
                 </div>
               </button>
 
               {showUserMenu && (
-                <div className={`absolute right-0 mt-2 w-64 border rounded-xl shadow-2xl overflow-hidden z-50 ${
-                  theme === "light"
-                    ? "bg-white border-gray-200"
-                    : "bg-[#1a2332] border-white/10"
-                }`}>
-                  <div className={`px-4 py-3 border-b ${
-                    theme === "light" ? "border-gray-200" : "border-white/10"
-                  }`}>
-                    <p className={`font-medium text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
-                    <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>{userProfile.email}</p>
+                <div
+                  className={`absolute right-0 mt-2 w-64 border rounded-xl shadow-2xl overflow-hidden z-50 ${
+                    theme === "light" ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"
+                  }`}
+                >
+                  <div
+                    className={`px-4 py-3 border-b ${
+                      theme === "light" ? "border-gray-200" : "border-white/10"
+                    }`}
+                  >
+                    <p className={`font-medium text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                      {userProfile.name}
+                    </p>
+                    <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
+                      {userProfile.email}
+                    </p>
                   </div>
                   <div className="py-2">
                     <button
@@ -414,9 +594,7 @@ export default function MenuManagementPage() {
             <button
               onClick={() => navigate("/admin/menu-management")}
               className={`flex items-center gap-2 px-5 py-3 font-medium text-sm whitespace-nowrap border-b-2 border-primary transition-all ${
-                theme === "light"
-                  ? "text-primary bg-primary/5"
-                  : "text-white bg-primary/5"
+                theme === "light" ? "text-primary bg-primary/5" : "text-white bg-primary/5"
               }`}
             >
               <MenuIcon className={`w-4 h-4 ${theme === "light" ? "text-primary" : ""}`} />
@@ -431,11 +609,11 @@ export default function MenuManagementPage() {
         <div className="grid grid-cols-12 gap-6">
           {/* Panel izquierdo - Módulos */}
           <div className="col-span-12 lg:col-span-3">
-            <div className={`border rounded-xl p-4 ${
-              theme === "light"
-                ? "bg-white border-gray-200"
-                : "bg-secondary border-white/10"
-            }`}>
+            <div
+              className={`border rounded-xl p-4 ${
+                theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+              }`}
+            >
               <div className="flex items-center gap-2 mb-4">
                 <Layers className="w-5 h-5 text-primary" />
                 <h3 className={`font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>
@@ -446,6 +624,7 @@ export default function MenuManagementPage() {
                 {modules.map((module) => {
                   const Icon = module.icon;
                   const isSelected = selectedModule === module.name;
+                  const moduleCount = getModuleCount(module.name);
                   return (
                     <button
                       key={module.id}
@@ -460,31 +639,27 @@ export default function MenuManagementPage() {
                           : "bg-[#1a2332] border-2 border-transparent hover:border-white/10"
                       }`}
                     >
-                      <div className={`p-2 rounded-lg ${
-                        isSelected
-                          ? "bg-primary/20"
-                          : theme === "light"
-                          ? "bg-gray-200"
-                          : "bg-white/5"
-                      }`}>
-                        <Icon className={`w-4 h-4 ${
-                          isSelected ? "text-primary" : theme === "light" ? "text-gray-600" : "text-gray-400"
-                        }`} />
+                      <div
+                        className={`p-2 rounded-lg ${
+                          isSelected ? "bg-primary/20" : theme === "light" ? "bg-gray-200" : "bg-white/5"
+                        }`}
+                      >
+                        <Icon
+                          className={`w-4 h-4 ${
+                            isSelected ? "text-primary" : theme === "light" ? "text-gray-600" : "text-gray-400"
+                          }`}
+                        />
                       </div>
                       <div className="flex-1 text-left">
-                        <p className={`text-sm font-medium ${
-                          isSelected
-                            ? "text-primary"
-                            : theme === "light"
-                            ? "text-gray-900"
-                            : "text-white"
-                        }`}>
+                        <p
+                          className={`text-sm font-medium ${
+                            isSelected ? "text-primary" : theme === "light" ? "text-gray-900" : "text-white"
+                          }`}
+                        >
                           {module.name}
                         </p>
-                        <p className={`text-xs ${
-                          theme === "light" ? "text-gray-500" : "text-gray-500"
-                        }`}>
-                          {module.count} menús
+                        <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>
+                          {moduleCount} menú{moduleCount !== 1 ? "s" : ""}
                         </p>
                       </div>
                     </button>
@@ -496,15 +671,17 @@ export default function MenuManagementPage() {
 
           {/* Panel derecho - Menús del módulo seleccionado */}
           <div className="col-span-12 lg:col-span-9">
-            <div className={`border rounded-xl ${
-              theme === "light"
-                ? "bg-white border-gray-200"
-                : "bg-secondary border-white/10"
-            }`}>
+            <div
+              className={`border rounded-xl ${
+                theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+              }`}
+            >
               {/* Header del módulo */}
-              <div className={`flex items-center justify-between px-6 py-4 border-b ${
-                theme === "light" ? "border-gray-200" : "border-white/10"
-              }`}>
+              <div
+                className={`flex items-center justify-between px-6 py-4 border-b ${
+                  theme === "light" ? "border-gray-200" : "border-white/10"
+                }`}
+              >
                 <div>
                   <h2 className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                     {selectedModule}
@@ -514,7 +691,7 @@ export default function MenuManagementPage() {
                   </p>
                 </div>
                 <button
-                  onClick={handleOpenNewModal}
+                  onClick={() => handleOpenNewModal(null)}
                   className="px-4 py-2 bg-primary hover:bg-primary/90 rounded-lg text-white font-medium flex items-center gap-2 transition-all text-sm shadow-lg shadow-primary/20"
                 >
                   <Plus className="w-4 h-4" />
@@ -524,86 +701,182 @@ export default function MenuManagementPage() {
 
               {/* Lista de menús */}
               <div className="p-6 space-y-3">
-                {getModuleMenus(selectedModule).map((menu) => (
-                  <div
-                    key={menu.id}
-                    className={`border rounded-lg p-4 transition-all ${
-                      theme === "light"
-                        ? "bg-gray-50 border-gray-200 hover:border-primary/50"
-                        : "bg-[#1a2332] border-white/10 hover:border-primary/50"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1">
-                        <div className={`flex items-center gap-2 ${
-                          theme === "light" ? "text-gray-500" : "text-gray-500"
-                        }`}>
-                          <ArrowRight className="w-4 h-4" />
-                          <span className="text-sm font-medium">Orden: {menu.order}</span>
-                        </div>
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <FileText className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className={`font-semibold mb-1 ${
-                            theme === "light" ? "text-gray-900" : "text-white"
-                          }`}>
-                            {menu.name}
-                          </h4>
-                          <p className={`text-sm mb-2 ${
-                            theme === "light" ? "text-gray-600" : "text-gray-400"
-                          }`}>
-                            {menu.description}
-                          </p>
-                          <div className="flex items-center gap-4">
-                            <span className={`text-xs font-mono ${
-                              theme === "light" ? "text-blue-600" : "text-blue-400"
-                            }`}>
-                              {menu.path}
-                            </span>
-                            {menu.subMenuCount !== undefined && menu.subMenuCount > 0 && (
-                              <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded-md text-xs">
-                                {menu.subMenuCount} submenú{menu.subMenuCount > 1 ? 's' : ''}
-                              </span>
-                            )}
+                {getParentMenus(selectedModule).map((menu) => {
+                  const subMenus = getChildMenus(menu.id);
+                  const subMenuCount = subMenus.length;
+                  const MenuIcon = getIconComponent(menu.icon);
+
+                  return (
+                    <div key={menu.id} className="space-y-2">
+                      {/* Menú Padre */}
+                      <div
+                        className={`border rounded-lg p-4 transition-all ${
+                          theme === "light"
+                            ? "bg-gray-50 border-gray-200 hover:border-primary/50"
+                            : "bg-[#1a2332] border-white/10 hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-4 flex-1">
+                            <div
+                              className={`flex items-center gap-2 ${
+                                theme === "light" ? "text-gray-500" : "text-gray-500"
+                              }`}
+                            >
+                              <ArrowRight className="w-4 h-4" />
+                              <span className="text-sm font-medium">Orden: {menu.order}</span>
+                            </div>
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                              <MenuIcon className="w-5 h-5 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <h4
+                                className={`font-semibold mb-1 ${
+                                  theme === "light" ? "text-gray-900" : "text-white"
+                                }`}
+                              >
+                                {menu.name}
+                              </h4>
+                              <p
+                                className={`text-sm mb-2 ${
+                                  theme === "light" ? "text-gray-600" : "text-gray-400"
+                                }`}
+                              >
+                                {menu.description}
+                              </p>
+                              <div className="flex items-center gap-4">
+                                <span
+                                  className={`text-xs font-mono ${
+                                    theme === "light" ? "text-blue-600" : "text-blue-400"
+                                  }`}
+                                >
+                                  {menu.path}
+                                </span>
+                                {subMenuCount > 0 && (
+                                  <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded-md text-xs">
+                                    {subMenuCount} submenú{subMenuCount > 1 ? "s" : ""}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleOpenNewModal(menu)}
+                              className="p-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors"
+                              title="Agregar submenú"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEditMenu(menu)}
+                              className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+                              title="Editar"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteMenu(menu)}
+                              className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                              title="Eliminar"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleOpenNewModal()}
-                          className="p-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors"
-                          title="Agregar submenú"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleEditMenu(menu)}
-                          className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
-                          title="Editar"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteMenu(menu)}
-                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
 
-                {getModuleMenus(selectedModule).length === 0 && (
-                  <div className={`text-center py-12 ${
-                    theme === "light" ? "text-gray-500" : "text-gray-500"
-                  }`}>
+                      {/* Submenús */}
+                      {subMenus.map((subMenu) => {
+                        const SubMenuIcon = getIconComponent(subMenu.icon);
+                        return (
+                          <div
+                            key={subMenu.id}
+                            className={`border rounded-lg p-4 ml-12 transition-all ${
+                              theme === "light"
+                                ? "bg-white border-gray-200 hover:border-primary/30"
+                                : "bg-[#0f1621] border-white/5 hover:border-primary/30"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start gap-4 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <ChevronRight className="w-4 h-4 text-primary" />
+                                  <span
+                                    className={`text-xs font-medium ${
+                                      theme === "light" ? "text-gray-500" : "text-gray-500"
+                                    }`}
+                                  >
+                                    Orden: {subMenu.order}
+                                  </span>
+                                </div>
+                                <div
+                                  className={`p-2 rounded-lg ${
+                                    theme === "light" ? "bg-gray-100" : "bg-white/5"
+                                  }`}
+                                >
+                                  <SubMenuIcon
+                                    className={`w-4 h-4 ${
+                                      theme === "light" ? "text-gray-600" : "text-gray-400"
+                                    }`}
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <h5
+                                    className={`font-medium mb-1 text-sm ${
+                                      theme === "light" ? "text-gray-900" : "text-white"
+                                    }`}
+                                  >
+                                    {subMenu.name}
+                                  </h5>
+                                  <p
+                                    className={`text-xs mb-1 ${
+                                      theme === "light" ? "text-gray-600" : "text-gray-400"
+                                    }`}
+                                  >
+                                    {subMenu.description}
+                                  </p>
+                                  <span
+                                    className={`text-xs font-mono ${
+                                      theme === "light" ? "text-blue-600" : "text-blue-400"
+                                    }`}
+                                  >
+                                    {subMenu.path}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleEditMenu(subMenu)}
+                                  className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+                                  title="Editar"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteMenu(subMenu)}
+                                  className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                                  title="Eliminar"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+
+                {getParentMenus(selectedModule).length === 0 && (
+                  <div
+                    className={`text-center py-12 ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}
+                  >
                     <MenuIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p className="text-sm">No hay menús configurados para este módulo</p>
                     <button
-                      onClick={handleOpenNewModal}
+                      onClick={() => handleOpenNewModal(null)}
                       className="mt-4 px-4 py-2 bg-primary hover:bg-primary/90 rounded-lg text-white font-medium text-sm transition-all"
                     >
                       Crear primer menú
@@ -630,21 +903,30 @@ export default function MenuManagementPage() {
       {/* Modal Nuevo/Editar Menú */}
       {(showNewMenuModal || showEditMenuModal) && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className={`w-full max-w-2xl border rounded-xl shadow-2xl my-8 ${
-            theme === "light"
-              ? "bg-white border-gray-200"
-              : "bg-secondary border-white/10"
-          }`}>
-            <div className={`flex items-center justify-between px-6 py-4 border-b ${
-              theme === "light" ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#232d3f]"
-            }`}>
-              <h3 className={`font-bold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                {showNewMenuModal ? "Nuevo Menú" : "Editar Menú"}
+          <div
+            className={`w-full max-w-lg border rounded-2xl shadow-2xl my-8 overflow-hidden flex flex-col ${ 
+              theme === "light" ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"
+            }`}
+          >
+            {/* Header */}
+            <div
+              className={`flex items-center justify-between px-6 py-3.5 border-b ${
+                theme === "light" ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#232d3f]"
+              }`}
+            >
+              <h3 className={`font-bold text-lg flex items-center gap-3 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                <Plus className="w-5 h-5 text-primary" />
+                {showNewMenuModal
+                  ? formData.parent
+                    ? "Nuevo Submenú"
+                    : "Nuevo Menú Principal"
+                  : "Editar Menú"}
               </h3>
               <button
                 onClick={() => {
                   setShowNewMenuModal(false);
                   setShowEditMenuModal(false);
+                  setActiveModalTab("basic");
                 }}
                 className={`p-2 rounded-lg transition-colors ${
                   theme === "light"
@@ -656,143 +938,251 @@ export default function MenuManagementPage() {
               </button>
             </div>
 
-            <div className={`p-6 space-y-4 ${
-              theme === "light" ? "bg-white" : "bg-[#232d3f]"
-            }`}>
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  theme === "light" ? "text-gray-900" : "text-white"
-                }`}>
-                  Nombre del Menú <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                    theme === "light"
-                      ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                      : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                  }`}
-                  placeholder="Ej: Emisión de Facturas"
-                />
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  theme === "light" ? "text-gray-900" : "text-white"
-                }`}>
-                  Descripción
-                </label>
-                <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                    theme === "light"
-                      ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                      : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                  }`}
-                  placeholder="Descripción breve del menú"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${
-                    theme === "light" ? "text-gray-900" : "text-white"
-                  }`}>
-                    Ruta <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.path}
-                    onChange={(e) => setFormData({ ...formData, path: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono ${
-                      theme === "light"
-                        ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                        : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                    }`}
-                    placeholder="/facturas/emision"
-                  />
-                </div>
-
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${
-                    theme === "light" ? "text-gray-900" : "text-white"
-                  }`}>
-                    Orden
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.order}
-                    onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
-                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                      theme === "light"
-                        ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                        : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                    }`}
-                    min="1"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  theme === "light" ? "text-gray-900" : "text-white"
-                }`}>
-                  Módulo del Sistema
-                </label>
-                <select
-                  value={formData.module}
-                  onChange={(e) => setFormData({ ...formData, module: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                    theme === "light"
-                      ? "bg-white border-gray-300 text-gray-900"
-                      : "bg-[#0f1621] border-white/10 text-white"
-                  }`}
-                  disabled
-                >
-                  <option value={selectedModule}>{selectedModule}</option>
-                </select>
-                <p className={`text-xs mt-1.5 ${
-                  theme === "light" ? "text-gray-600" : "text-gray-400"
-                }`}>
-                  El módulo se asigna automáticamente según tu selección
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className={`w-4 h-4 rounded ${
-                    theme === "light"
-                      ? "bg-white border-gray-300"
-                      : "bg-[#1a2332] border-white/10"
-                  }`}
-                />
-                <label htmlFor="isActive" className={`text-sm ${
-                  theme === "light" ? "text-gray-900" : "text-white"
-                }`}>
-                  Menú activo
-                </label>
-              </div>
+            {/* Tabs */}
+            <div className={`flex gap-1 px-6 pt-4 ${theme === "light" ? "bg-white" : "bg-[#1a2332]"}`}>
+              <button
+                onClick={() => setActiveModalTab("basic")}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg transition-all text-sm font-medium ${
+                  activeModalTab === "basic"
+                    ? theme === "light"
+                      ? "bg-gray-50 text-gray-900 border-b-4 border-primary"
+                      : "bg-[#232d3f] text-white border-b-4 border-primary"
+                    : theme === "light"
+                    ? "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    : "bg-transparent text-gray-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Building2 className="w-4 h-4" />
+                Información General
+              </button>
+              <button
+                onClick={() => setActiveModalTab("config")}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg transition-all text-sm font-medium ${
+                  activeModalTab === "config"
+                    ? theme === "light"
+                      ? "bg-gray-50 text-gray-900 border-b-4 border-primary"
+                      : "bg-[#232d3f] text-white border-b-4 border-primary"
+                    : theme === "light"
+                    ? "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    : "bg-transparent text-gray-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <SettingsIcon className="w-4 h-4" />
+                Configuración
+              </button>
             </div>
 
-            <div className={`flex items-center justify-end gap-3 px-6 py-4 border-t ${
-              theme === "light"
-                ? "bg-gray-50 border-gray-200"
-                : "bg-[#1a2332] border-white/10"
-            }`}>
+            {/* Content */}
+            <div className={`p-6 space-y-5 max-h-[60vh] overflow-y-auto ${theme === "light" ? "bg-gray-50" : "bg-[#232d3f]"}`}>
+              {/* Tab: General */}
+              {activeModalTab === "basic" && (
+                <>
+                  {/* Sección: Datos del Menú */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <MenuIcon className={`w-4 h-4 ${theme === "light" ? "text-gray-700" : "text-white"}`} />
+                      <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                        Datos del Menú
+                      </h4>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label
+                          className={`block text-xs font-medium mb-1.5 ${
+                            theme === "light" ? "text-gray-700" : "text-gray-300"
+                          }`}
+                        >
+                          Nombre del Menú <span className="text-red-400">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                            theme === "light"
+                              ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                              : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
+                          }`}
+                          placeholder="Ej: Emisión de Facturas"
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          className={`block text-xs font-medium mb-1.5 ${
+                            theme === "light" ? "text-gray-700" : "text-gray-300"
+                          }`}
+                        >
+                          Descripción
+                        </label>
+                        <textarea
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          rows={2}
+                          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none ${
+                            theme === "light"
+                              ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                              : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
+                          }`}
+                          placeholder="Descripción breve del menú"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Tab: Configuración */}
+              {activeModalTab === "config" && (
+                <>
+                  {/* Sección: Configuración del Menú */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <SettingsIcon className={`w-4 h-4 ${theme === "light" ? "text-gray-700" : "text-white"}`} />
+                      <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                        Configuración del Menú
+                      </h4>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label
+                          className={`block text-xs font-medium mb-1.5 ${
+                            theme === "light" ? "text-gray-700" : "text-gray-300"
+                          }`}
+                        >
+                          Ícono del Menú <span className="text-red-400">*</span>
+                        </label>
+                        <IconSelector
+                          selectedIcon={formData.icon}
+                          onSelectIcon={(icon) => setFormData({ ...formData, icon })}
+                          label=""
+                          required={false}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label
+                            className={`block text-xs font-medium mb-1.5 ${
+                              theme === "light" ? "text-gray-700" : "text-gray-300"
+                            }`}
+                          >
+                            Ruta <span className="text-red-400">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.path}
+                            onChange={(e) => setFormData({ ...formData, path: e.target.value })}
+                            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono ${
+                              theme === "light"
+                                ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                                : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
+                            }`}
+                            placeholder="/ruta"
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            className={`block text-xs font-medium mb-1.5 ${
+                              theme === "light" ? "text-gray-700" : "text-gray-300"
+                            }`}
+                          >
+                            Orden
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.order}
+                            onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
+                            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                              theme === "light"
+                                ? "bg-white border-gray-300 text-gray-900"
+                                : "bg-[#0f1621] border-white/10 text-white"
+                            }`}
+                            min="1"
+                          />
+                        </div>
+                      </div>
+
+                      {showEditMenuModal && (
+                        <div>
+                          <label
+                            className={`block text-xs font-medium mb-1.5 ${
+                              theme === "light" ? "text-gray-700" : "text-gray-300"
+                            }`}
+                          >
+                            Menú Padre
+                          </label>
+                          <select
+                            value={formData.parent || ""}
+                            onChange={(e) => setFormData({ ...formData, parent: e.target.value || null })}
+                            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                              theme === "light"
+                                ? "bg-white border-gray-300 text-gray-900"
+                                : "bg-[#0f1621] border-white/10 text-white"
+                            }`}
+                          >
+                            <option value="">Ninguno (Menú Principal)</option>
+                            {getParentMenus(selectedModule)
+                              .filter((m) => (selectedMenu ? m.id !== selectedMenu.id : true))
+                              .map((menu) => (
+                                <option key={menu.id} value={menu.id}>
+                                  {menu.name}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {showNewMenuModal && formData.parent && (
+                        <div
+                          className={`p-2.5 rounded-lg border ${
+                            theme === "light" ? "bg-blue-50 border-blue-200" : "bg-blue-500/10 border-blue-500/20"
+                          }`}
+                        >
+                          <p className={`text-xs ${theme === "light" ? "text-blue-900" : "text-blue-300"}`}>
+                            <strong>Submenú de:</strong> {menuItems.find((m) => m.id === formData.parent)?.name}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="isActive"
+                          checked={formData.isActive}
+                          onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                          className={`w-4 h-4 rounded ${
+                            theme === "light" ? "bg-white border-gray-300" : "bg-[#1a2332] border-white/10"
+                          }`}
+                        />
+                        <label
+                          htmlFor="isActive"
+                          className={`text-xs ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}
+                        >
+                          Menú activo
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div
+              className={`flex items-center justify-end gap-3 px-5 py-3 border-t ${
+                theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#1a2332] border-white/10"
+              }`}
+            >
               <button
                 onClick={() => {
                   setShowNewMenuModal(false);
                   setShowEditMenuModal(false);
+                  setActiveModalTab("basic");
                 }}
-                className={`px-6 py-2.5 rounded-lg transition-colors text-sm font-medium ${
+                className={`px-5 py-2 rounded-lg transition-colors text-sm font-medium ${
                   theme === "light"
                     ? "bg-gray-200 hover:bg-gray-300 text-gray-900"
                     : "bg-white/5 hover:bg-white/10 text-white"
@@ -802,9 +1192,9 @@ export default function MenuManagementPage() {
               </button>
               <button
                 onClick={showNewMenuModal ? handleSaveMenu : handleUpdateMenu}
-                className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors shadow-lg shadow-primary/20 text-sm font-medium flex items-center gap-2"
+                className="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors shadow-lg shadow-primary/20 text-sm font-medium flex items-center gap-2"
               >
-                <Save className="w-4 h-4" />
+                {showNewMenuModal ? <Plus className="w-4 h-4" /> : <Save className="w-4 h-4" />}
                 {showNewMenuModal ? "Crear Menú" : "Guardar Cambios"}
               </button>
             </div>

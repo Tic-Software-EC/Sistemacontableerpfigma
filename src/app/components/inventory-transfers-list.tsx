@@ -258,7 +258,7 @@ export function InventoryTransfersList() {
       {/* Modal Detalle de Transferencia */}
       {showDetailModal && selectedTransfer && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-3xl bg-secondary border border-white/10 rounded-2xl p-6">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-white font-bold text-xl flex items-center gap-3">

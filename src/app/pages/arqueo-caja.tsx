@@ -786,7 +786,7 @@ export function ArqueoCaja() {
       {/* Modal de Detalle de Gastos - Diseño Compacto */}
       {showGastosModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+          <div className="w-full max-w-2xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             {/* Header */}
             <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-5 py-3.5">
               <div className="flex items-center justify-between">
@@ -892,7 +892,7 @@ export function ArqueoCaja() {
       {/* Modal de Detalle de Tarjetas - Diseño Compacto */}
       {showTarjetaModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+          <div className="w-full max-w-2xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             {/* Header */}
             <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-5 py-3.5">
               <div className="flex items-center justify-between">
@@ -998,7 +998,7 @@ export function ArqueoCaja() {
       {/* Modal de Detalle de Transferencias - Diseño Compacto */}
       {showTransferenciaModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+          <div className="w-full max-w-2xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             {/* Header */}
             <div className="bg-gradient-to-r from-red-500/10 to-transparent border-b border-white/10 px-5 py-3.5">
               <div className="flex items-center justify-between">

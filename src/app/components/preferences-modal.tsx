@@ -80,7 +80,7 @@ export function PreferencesModal({ isOpen, onClose }: PreferencesModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-[#1a2332] border border-white/10 rounded-2xl w-full max-w-5xl h-[600px] flex flex-col shadow-2xl">
+      <div className="bg-[#1a2332] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
           <h2 className="text-white font-bold text-2xl">Mis Preferencias</h2>

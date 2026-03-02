@@ -63,7 +63,7 @@ export function ArqueoModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-[#0D1B2A] to-[#1a2332] border border-white/10 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-auto shadow-2xl">
+      <div className="bg-gradient-to-br from-[#0D1B2A] to-[#1a2332] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto shadow-2xl">
         
         {/* Header */}
         <div className="sticky top-0 bg-[#1a2332] border-b border-white/10 px-5 py-3 backdrop-blur-sm z-10">

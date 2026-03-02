@@ -16,6 +16,7 @@ import {
   DollarSign,
   Building2,
   X,
+  Percent,
 } from "lucide-react";
 import { AdminHeader } from "../components/admin-header";
 import { useTheme } from "../contexts/theme-context";
@@ -24,7 +25,6 @@ import { PlanEditModal } from "../components/plan-edit-modal";
 import { PlanNewModal } from "../components/plan-new-modal";
 import { PlanModulesModal } from "../components/plan-modules-modal";
 import { PLAN_CONFIGS } from "../config/plans";
-import { Fragment } from "react";
 
 interface Module {
   id: string;
@@ -77,6 +77,7 @@ export default function PlanConfigurationPage() {
       buttonColor: "bg-gray-600",
       buttonText: "Configurar Módulos",
       cardBorder: "border-gray-700",
+      annualDiscountPercent: 0,
     },
     {
       id: "standard",
@@ -89,6 +90,7 @@ export default function PlanConfigurationPage() {
       buttonColor: "bg-primary",
       buttonText: "Configurar Módulos",
       cardBorder: "border-primary",
+      annualDiscountPercent: 15,
     },
     {
       id: "custom",
@@ -101,6 +103,7 @@ export default function PlanConfigurationPage() {
       buttonColor: "bg-cyan-500",
       buttonText: "Configurar Módulos",
       cardBorder: "border-cyan-600",
+      annualDiscountPercent: 20,
     },
   ]);
 
@@ -274,9 +277,16 @@ export default function PlanConfigurationPage() {
         p.id === selectedPlanForEdit?.id 
           ? {
               ...p,
-              name: updatedPlanData.name || updatedPlanData.displayName,
+              // NO modificamos el nombre, solo los demás campos
               price: updatedPlanData.price,
               description: updatedPlanData.description,
+              users: `${updatedPlanData.maxUsers} Usuario${updatedPlanData.maxUsers > 1 ? 's' : ''}`,
+              branches: `${updatedPlanData.maxBranches} Sucursal${updatedPlanData.maxBranches > 1 ? 'es' : ''}`,
+              cashRegisters: `${updatedPlanData.maxCashRegisters} Caja${updatedPlanData.maxCashRegisters > 1 ? 's' : ''}`,
+              buttonColor: updatedPlanData.buttonColor || p.buttonColor,
+              cardBorder: updatedPlanData.cardBorder || p.cardBorder,
+              annualDiscountPercent: updatedPlanData.annualDiscountPercent || 0,
+              durationMonths: updatedPlanData.durationMonths || 12,
             }
           : p
       )
@@ -477,28 +487,29 @@ export default function PlanConfigurationPage() {
               </thead>
               <tbody>
                 {filteredPlans.map((plan, index) => (
-                  <Fragment key={plan.id}>
-                    <tr
-                      className={`border-b transition-colors ${
-                        theme === "light"
-                          ? "border-gray-200 hover:bg-gray-50"
-                          : "border-white/5 hover:bg-white/5"
-                      } ${selectedPlanId === plan.id ? (theme === "light" ? "bg-blue-50" : "bg-white/10") : ""}`}
-                    >
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold ${
-                          plan.id === 'free'
-                            ? 'bg-[#4a5568] text-white'
-                            : plan.id === 'standard'
-                            ? 'bg-[#B8581C] text-white'
-                            : plan.id === 'custom'
-                            ? 'bg-[#0d6a74] text-white'
-                            : `${plan.buttonColor} text-white`
-                        }`}>
-                          {plan.name}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
+                  <tr
+                    key={plan.id}
+                    className={`border-b transition-colors ${
+                      theme === "light"
+                        ? "border-gray-200 hover:bg-gray-50"
+                        : "border-white/5 hover:bg-white/5"
+                    } ${selectedPlanId === plan.id ? (theme === "light" ? "bg-blue-50" : "bg-white/10") : ""}`}
+                  >
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold ${
+                        plan.id === 'free'
+                          ? 'bg-[#4a5568] text-white'
+                          : plan.id === 'standard'
+                          ? 'bg-[#B8581C] text-white'
+                          : plan.id === 'custom'
+                          ? 'bg-[#0d6a74] text-white'
+                          : `${plan.buttonColor} text-white`
+                      }`}>
+                        {plan.name}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
                         <span className={`font-semibold text-sm ${
                           theme === "light" ? "text-gray-900" : "text-white"
                         }`}>
@@ -509,76 +520,84 @@ export default function PlanConfigurationPage() {
                             /mes
                           </span>
                         </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-sm ${
-                          theme === "light" ? "text-gray-700" : "text-gray-300"
-                        }`}>
-                          {plan.users}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-sm ${
-                          theme === "light" ? "text-gray-700" : "text-gray-300"
-                        }`}>
-                          {plan.branches}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-sm ${
-                          theme === "light" ? "text-gray-700" : "text-gray-300"
-                        }`}>
-                          {plan.cashRegisters}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => {
-                              setSelectedPlanId(plan.id);
-                              setShowModulesModal(true);
-                            }}
-                            className={`p-2 rounded-lg transition-colors ${
-                              theme === "light"
-                                ? "text-blue-600 hover:bg-blue-50"
-                                : "text-blue-400 hover:bg-white/5"
-                            }`}
-                            title="Configurar Módulos"
-                          >
-                            <SettingsIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedPlanForEdit(plan);
-                              setShowEditModal(true);
-                            }}
-                            className={`p-2 rounded-lg transition-colors ${
-                              theme === "light"
-                                ? "text-orange-600 hover:bg-orange-50"
-                                : "text-orange-400 hover:bg-white/5"
-                            }`}
-                            title="Editar Plan"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedPlanForView(plan);
-                              setShowViewModal(true);
-                            }}
-                            className={`p-2 rounded-lg transition-colors ${
-                              theme === "light"
-                                ? "text-blue-600 hover:bg-blue-50"
-                                : "text-blue-400 hover:bg-white/5"
-                            }`}
-                            title="Ver Detalles"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </Fragment>
+                        {plan.annualDiscountPercent && plan.annualDiscountPercent > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/10 rounded border border-green-500/20 text-green-600">
+                            <Percent className="w-3 h-3" />
+                            <span className="text-[10px] font-semibold">
+                              {plan.annualDiscountPercent}%
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`text-sm ${
+                        theme === "light" ? "text-gray-700" : "text-gray-300"
+                      }`}>
+                        {plan.users}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`text-sm ${
+                        theme === "light" ? "text-gray-700" : "text-gray-300"
+                      }`}>
+                        {plan.branches}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`text-sm ${
+                        theme === "light" ? "text-gray-700" : "text-gray-300"
+                      }`}>
+                        {plan.cashRegisters}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedPlanId(plan.id);
+                            setShowModulesModal(true);
+                          }}
+                          className={`p-2 rounded-lg transition-colors ${
+                            theme === "light"
+                              ? "text-blue-600 hover:bg-blue-50"
+                              : "text-blue-400 hover:bg-white/5"
+                          }`}
+                          title="Configurar Módulos"
+                        >
+                          <SettingsIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedPlanForEdit(plan);
+                            setShowEditModal(true);
+                          }}
+                          className={`p-2 rounded-lg transition-colors ${
+                            theme === "light"
+                              ? "text-orange-600 hover:bg-orange-50"
+                              : "text-orange-400 hover:bg-white/5"
+                          }`}
+                          title="Editar Plan"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedPlanForView(plan);
+                            setShowViewModal(true);
+                          }}
+                          className={`p-2 rounded-lg transition-colors ${
+                            theme === "light"
+                              ? "text-blue-600 hover:bg-blue-50"
+                              : "text-blue-400 hover:bg-white/5"
+                          }`}
+                          title="Ver Detalles"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -621,8 +640,8 @@ export default function PlanConfigurationPage() {
         onSave={(newPlanData) => {
           // Convertir el formato del modal al formato de la lista de planes
           const newPlan = {
-            id: newPlanData.id,
-            name: newPlanData.displayName,
+            id: newPlanData.name.toLowerCase().replace(/\\s+/g, '-'),
+            name: newPlanData.name,
             price: newPlanData.price,
             description: newPlanData.description,
             users: `${newPlanData.maxUsers} Usuario${newPlanData.maxUsers > 1 ? 's' : ''}`,
@@ -631,6 +650,8 @@ export default function PlanConfigurationPage() {
             buttonColor: newPlanData.buttonColor,
             buttonText: "Configurar Módulos",
             cardBorder: newPlanData.cardBorder,
+            annualDiscountPercent: newPlanData.annualDiscountPercent || 0,
+            durationMonths: newPlanData.durationMonths || 12,
           };
           
           setPlans(prevPlans => [...prevPlans, newPlan]);

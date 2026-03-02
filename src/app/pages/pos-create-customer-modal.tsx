@@ -242,7 +242,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-4xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="w-full max-w-2xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-b border-white/10 px-6 py-4">
           <div className="flex items-center justify-between">

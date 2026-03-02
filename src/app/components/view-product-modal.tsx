@@ -133,7 +133,7 @@ export function ViewProductModal({ isOpen, onClose, product }: ViewProductModalP
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-xl p-5 my-8">
+      <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-xl p-5 my-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
           <div>

@@ -1588,7 +1588,7 @@ export function POS() {
       {/* Modal de pago - DISEÑO RENOVADO */}
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-6xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+          <div className="w-full max-w-2xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             
             {/* Header Compacto */}
             <div className="bg-[#1a2332] border-b border-white/10 px-4 py-3">
@@ -2250,7 +2250,7 @@ export function POS() {
       {/* Modal de impresión de tabla de amortización */}
       {showAmortizationPrintModal && lastSale && lastSale.creditInfo && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="w-full max-w-2xl bg-white rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
             {/* Header simple */}
             <div className="bg-[#0D1B2A] px-6 py-4 border-b-2 border-gray-300">
               <h3 className="text-white font-bold text-xl flex items-center gap-2">
@@ -2822,7 +2822,7 @@ export function POS() {
       {/* Modal Ver Gastos */}
       {showExpensesList && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-3xl bg-secondary border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-red-600/20 to-orange-600/20 border-b border-red-500/20 px-6 py-4">
               <div className="flex items-center justify-between">
@@ -2971,7 +2971,7 @@ export function POS() {
       {/* Modal de ventas en espera */}
       {showHeldSalesModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-secondary border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-blue-600/20 to-blue-800/20 border-b border-blue-500/20 px-6 py-4">
               <div className="flex items-center justify-between">

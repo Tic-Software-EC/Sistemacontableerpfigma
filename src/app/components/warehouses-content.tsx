@@ -431,7 +431,7 @@ export function WarehousesContent() {
       {/* Modal Crear/Editar Almacén */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a1628] rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto border border-white/10">
+          <div className="bg-[#0a1628] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto border border-white/10">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-[#0a1628] z-10">
               <div className="flex items-center gap-3">

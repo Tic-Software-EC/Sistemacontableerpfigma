@@ -522,7 +522,7 @@ export function SalesHistory() {
       {/* Modal de detalles de venta */}
       {selectedSale && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gradient-to-br from-[#1a1f2e] to-[#0D1B2A] border border-white/10 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-auto">
+          <div className="bg-gradient-to-br from-[#1a1f2e] to-[#0D1B2A] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
             {/* Header */}
             <div className="sticky top-0 bg-gradient-to-r from-primary/20 to-orange-600/20 border-b border-primary/20 px-6 py-4 backdrop-blur-sm">
               <div className="flex items-center justify-between">

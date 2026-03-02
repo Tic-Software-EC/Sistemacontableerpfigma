@@ -354,7 +354,7 @@ export function HolidaysContent() {
       {/* Modal Crear/Editar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0f1825] border border-white/10 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0f1825] border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-white font-bold text-2xl">
                 {modalMode === "create" ? "Crear Día Festivo" : "Editar Día Festivo"}
