@@ -281,27 +281,21 @@ export function CategoriesContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <FolderTree className="w-8 h-8 text-primary" />
-            Categorías
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Gestiona las categorías de productos para organizar tu inventario
-          </p>
-        </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 justify-center whitespace-nowrap"
-        >
-          <Plus className="w-5 h-5" />
-          Nueva Categoría
-        </button>
+      {/* Header: Título + subtítulo */}
+      <div>
+        <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+          <FolderTree className="w-8 h-8 text-primary" />
+          Categorías
+        </h2>
+        <p className="text-gray-400 text-sm">
+          Gestiona las categorías de productos para organizar tu inventario
+        </p>
       </div>
 
-      {/* Estadísticas */}
+      {/* Línea separatoria */}
+      <div className="border-t border-white/10"></div>
+
+      {/* Estadísticas primero */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-[#0a1628] border border-white/5 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
@@ -356,6 +350,18 @@ export function CategoriesContent() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Segunda línea separatoria + Botón */}
+      <div className="border-t border-white/10"></div>
+      <div className="flex justify-end">
+        <button
+          onClick={() => handleOpenModal()}
+          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20"
+        >
+          <Plus className="w-4 h-4" />
+          Nueva Categoría
+        </button>
       </div>
 
       {/* Búsqueda */}

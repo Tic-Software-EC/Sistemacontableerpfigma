@@ -1,1098 +1,473 @@
 import { useState } from "react";
-import { ShoppingCart, Lock, Building2, Edit2, Plus, Check, AlertTriangle, Info, X, ExternalLink } from "lucide-react";
-import { useNavigate } from "react-router";
+import {
+  ShoppingCart, Building2, Plus, Check, AlertTriangle, X, Search,
+  Eye, Trash2, Zap, Monitor, Printer, UserCheck, User,
+} from "lucide-react";
+import { useTheme } from "../contexts/theme-context";
 
-interface PosConfigContentProps {
-  userPlan?: string;
+interface PosConfigContentProps { userPlan?: string; }
+
+// Catálogo global de impresoras del sistema (creadas en la sección de Impresoras)
+const SYSTEM_PRINTERS = [
+  { id: "sp1", name: "EPSON TM-T20III",  type: "USB",       paperSize: "80mm", purpose: "Recibo / Ticket" },
+  { id: "sp2", name: "HP LaserJet M15w", type: "Red / IP",  paperSize: "80mm", purpose: "Factura" },
+  { id: "sp3", name: "BIXOLON SRP-350",  type: "Red / IP",  paperSize: "80mm", purpose: "Recibo / Ticket" },
+  { id: "sp4", name: "Star TSP100",      type: "Bluetooth", paperSize: "58mm", purpose: "Recibo / Ticket" },
+  { id: "sp5", name: "EPSON TM-U220",    type: "USB",       paperSize: "80mm", purpose: "Comanda / Cocina" },
+  { id: "sp6", name: "Samsung ML-2160",  type: "Red / IP",  paperSize: "80mm", purpose: "Factura" },
+  { id: "sp7", name: "Zebra ZD420",      type: "USB",       paperSize: "58mm", purpose: "Reporte" },
+];
+
+interface Caja {
+  id: string; code: string; name: string; branchId: string;
+  status: "active"; printerIds: string[]; employeeId: string | null;
 }
 
-interface BranchPOSConfig {
-  id: string;
-  branchName: string;
-  branchCode: string;
-  branchAddress: string;
-  branchPhone: string;
-  enablePOS: boolean;
-  autoOpenCashRegister: boolean;
-  printReceipt: boolean;
-  requireCustomer: boolean;
-  allowDiscount: boolean;
-  maxDiscount: string;
-  defaultPaymentMethod: string;
-  quickSale: boolean;
-  multiplePaymentMethods: boolean;
-  loyaltyProgram: boolean;
-  inventoryIntegration: boolean;
-  advancedReports: boolean;
+const BRANCHES = [
+  { id: "b1", code: "MTZ-001", name: "Matriz - Centro" },
+  { id: "b2", code: "NRT-002", name: "Sucursal Norte" },
+  { id: "b3", code: "SUR-003", name: "Sucursal Sur" },
+  { id: "b4", code: "VLL-004", name: "Sucursal Valle" },
+  { id: "b5", code: "CCA-005", name: "Sucursal C. Comercial" },
+];
+const EMPLOYEES = [
+  { id: "e1", code: "EMP-001", name: "Carlos Mendoza",  role: "Cajero",   branch: "b1" },
+  { id: "e2", code: "EMP-002", name: "Ana Torres",      role: "Cajero",   branch: "b1" },
+  { id: "e3", code: "EMP-003", name: "Luis Paredes",    role: "Vendedor", branch: "b1" },
+  { id: "e4", code: "EMP-004", name: "María Salazar",   role: "Cajero",   branch: "b2" },
+  { id: "e5", code: "EMP-005", name: "Jorge Ríos",      role: "Vendedor", branch: "b2" },
+  { id: "e6", code: "EMP-006", name: "Diana Castro",    role: "Cajero",   branch: "b3" },
+  { id: "e7", code: "EMP-007", name: "Roberto Vera",    role: "Cajero",   branch: "b4" },
+  { id: "e8", code: "EMP-008", name: "Sofía Mejía",     role: "Vendedor", branch: "b4" },
+];
+
+const initialCajas: Caja[] = [
+  { id: "c1", code: "CJ-001", name: "Caja Principal", branchId: "b1", status: "active", employeeId: "e1",  printerIds: ["sp1", "sp2"] },
+  { id: "c2", code: "CJ-002", name: "Caja Rápida",    branchId: "b1", status: "active", employeeId: "e2",  printerIds: ["sp3"] },
+  { id: "c3", code: "CJ-001", name: "Caja 1",         branchId: "b2", status: "active", employeeId: null,  printerIds: [] },
+  { id: "c4", code: "CJ-001", name: "Caja Principal", branchId: "b3", status: "active", employeeId: "e6",  printerIds: ["sp4", "sp5"] },
+  { id: "c5", code: "CJ-001", name: "Caja Express",   branchId: "b4", status: "active", employeeId: null,  printerIds: [] },
+];
+
+function Chk({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+  return (
+    <button type="button" onClick={onChange}
+      className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors flex-shrink-0 cursor-pointer ${checked ? "bg-primary border-primary" : "border-gray-400"}`}>
+      {checked && <Check className="w-3 h-3 text-white" />}
+    </button>
+  );
 }
-
-// Simulación de TODAS las sucursales parametrizadas en el sistema
-// En producción, esto vendría de una API o módulo de parametrización
-const getAllSystemBranches = () => {
-  const systemBranches = localStorage.getItem('allSystemBranches');
-  
-  if (systemBranches) {
-    return JSON.parse(systemBranches);
-  }
-
-  // Sucursales completas parametrizadas en el sistema (todas las que existen en la empresa)
-  const allBranches = [
-    {
-      id: "branch-1",
-      branchName: "Matriz - Centro",
-      branchCode: "MTZ-001",
-      branchAddress: "Av. Amazonas N24-03 y Colón",
-      branchPhone: "+593 2 234 5678",
-    },
-    {
-      id: "branch-2",
-      branchName: "Sucursal Norte",
-      branchCode: "NRT-002",
-      branchAddress: "Av. La Prensa N47-126 y De las Hortensias",
-      branchPhone: "+593 2 345 6789",
-    },
-    {
-      id: "branch-3",
-      branchName: "Sucursal Sur",
-      branchCode: "SUR-003",
-      branchAddress: "Av. Maldonado S14-59 y Rumipamba",
-      branchPhone: "+593 2 456 7890",
-    },
-    {
-      id: "branch-4",
-      branchName: "Sucursal Valle",
-      branchCode: "VLL-004",
-      branchAddress: "Av. Interoceánica Km 12.5",
-      branchPhone: "+593 2 567 8901",
-    },
-    {
-      id: "branch-5",
-      branchName: "Sucursal Centro Comercial",
-      branchCode: "CCA-005",
-      branchAddress: "CC El Recreo, Local 234",
-      branchPhone: "+593 2 678 9012",
-    },
-    {
-      id: "branch-6",
-      branchName: "Sucursal Cumbayá",
-      branchCode: "CMB-006",
-      branchAddress: "Av. San Juan de Cumbayá, Pasaje E10",
-      branchPhone: "+593 2 789 0123",
-    },
-    {
-      id: "branch-7",
-      branchName: "Sucursal Aeropuerto",
-      branchCode: "AER-007",
-      branchAddress: "Terminal Aeropuerto Mariscal Sucre, Local 45",
-      branchPhone: "+593 2 890 1234",
-    },
-    {
-      id: "branch-8",
-      branchName: "Sucursal Tumbaco",
-      branchCode: "TMB-008",
-      branchAddress: "Ruta Viva, Km 3.5",
-      branchPhone: "+593 2 901 2345",
-    },
-  ];
-
-  localStorage.setItem('allSystemBranches', JSON.stringify(allBranches));
-  return allBranches;
-};
-
-// Simulación de sucursales parametrizadas en el sistema
-// En producción, esto vendría de una API o contexto global
-const getParameterizedBranches = (): BranchPOSConfig[] => {
-  // Simular que se obtienen las sucursales desde localStorage o API
-  const storedBranches = localStorage.getItem('systemBranches');
-  
-  if (storedBranches) {
-    return JSON.parse(storedBranches);
-  }
-
-  // Datos iniciales de ejemplo (sucursales ya parametrizadas en el sistema CON configuración de POS)
-  const defaultBranches: BranchPOSConfig[] = [
-    {
-      id: "branch-1",
-      branchName: "Matriz - Centro",
-      branchCode: "MTZ-001",
-      branchAddress: "Av. Amazonas N24-03 y Colón",
-      branchPhone: "+593 2 234 5678",
-      enablePOS: true,
-      autoOpenCashRegister: true,
-      printReceipt: true,
-      requireCustomer: false,
-      allowDiscount: true,
-      maxDiscount: "20",
-      defaultPaymentMethod: "efectivo",
-      quickSale: true,
-      multiplePaymentMethods: true,
-      loyaltyProgram: false,
-      inventoryIntegration: true,
-      advancedReports: false,
-    },
-    {
-      id: "branch-2",
-      branchName: "Sucursal Norte",
-      branchCode: "NRT-002",
-      branchAddress: "Av. La Prensa N47-126 y De las Hortensias",
-      branchPhone: "+593 2 345 6789",
-      enablePOS: true,
-      autoOpenCashRegister: false,
-      printReceipt: true,
-      requireCustomer: true,
-      allowDiscount: true,
-      maxDiscount: "15",
-      defaultPaymentMethod: "tarjeta",
-      quickSale: true,
-      multiplePaymentMethods: false,
-      loyaltyProgram: false,
-      inventoryIntegration: true,
-      advancedReports: false,
-    },
-  ];
-
-  // Guardar en localStorage para persistencia temporal
-  localStorage.setItem('systemBranches', JSON.stringify(defaultBranches));
-  return defaultBranches;
-};
 
 export function PosConfigContent({ userPlan = "Plan Básico" }: PosConfigContentProps) {
-  const navigate = useNavigate();
-  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
-  const [editingBranch, setEditingBranch] = useState<string | null>(null);
-  const [showAddBranchModal, setShowAddBranchModal] = useState(false);
-  const [selectedBranchesIds, setSelectedBranchesIds] = useState<string[]>([]);
+  const { theme } = useTheme();
+  const posLimit = userPlan === "Plan Básico" ? 3 : userPlan === "Plan Profesional" ? 10 : 999;
 
-  // Determinar características disponibles por plan
-  const isProfessional = userPlan === "Plan Profesional" || userPlan === "Plan Empresarial";
-  const isEnterprise = userPlan === "Plan Empresarial";
+  const [cajas, setCajas] = useState<Caja[]>(initialCajas);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterBranch, setFilterBranch] = useState("all");
 
-  // Límites de POS por plan
-  const getPOSLimit = () => {
-    if (userPlan === "Plan Básico") return 2;
-    if (userPlan === "Plan Profesional") return 5;
-    if (userPlan === "Plan Empresarial") return 999; // Ilimitado
-    return 2;
+  // Modal crear caja
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ code: "", name: "", branchId: "b1" });
+
+  // Modal asignar impresoras (selector)
+  const [showPrinters, setShowPrinters] = useState(false);
+  const [printersCajaId, setPrintersCajaId] = useState<string | null>(null);
+  const [selPrinterIds, setSelPrinterIds] = useState<string[]>([]);
+  const [printerQ, setPrinterQ] = useState("");
+
+  // Modal empleado
+  const [showEmp, setShowEmp] = useState(false);
+  const [empCajaId, setEmpCajaId] = useState<string | null>(null);
+  const [selEmpId, setSelEmpId] = useState<string | null>(null);
+  const [empQ, setEmpQ] = useState("");
+
+  // Modal ver
+  const [showView, setShowView] = useState(false);
+  const [viewing, setViewing] = useState<Caja | null>(null);
+
+  const hasLimit = cajas.length >= posLimit;
+  const filtered = cajas.filter(c => {
+    const q = searchTerm.toLowerCase();
+    return (c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q))
+      && (filterBranch === "all" || c.branchId === filterBranch);
+  });
+
+  const getBranch = (id: string) => BRANCHES.find(b => b.id === id);
+  const getEmp    = (id: string | null) => id ? EMPLOYEES.find(e => e.id === id) ?? null : null;
+  const getPrinter = (id: string) => SYSTEM_PRINTERS.find(p => p.id === id);
+  const empBranchId = cajas.find(c => c.id === empCajaId)?.branchId;
+  const activeCaja  = cajas.find(c => c.id === printersCajaId);
+
+  // Caja CRUD
+  const saveForm = () => {
+    if (!form.code.trim() || !form.name.trim()) { alert("Código y nombre son obligatorios."); return; }
+    setCajas(p => [...p, { id: `c${Date.now()}`, ...form, status: "active", printerIds: [], employeeId: null }]);
+    setShowForm(false);
+  };
+  const deleteCaja = (id: string) => { if (!confirm("¿Eliminar esta caja?")) return; setCajas(p => p.filter(c => c.id !== id)); };
+
+  // Impresoras — solo selección
+  const openPrinters = (caja: Caja) => {
+    setPrintersCajaId(caja.id);
+    setSelPrinterIds([...caja.printerIds]);
+    setPrinterQ("");
+    setShowPrinters(true);
+  };
+  const togglePrinter = (pid: string) => setSelPrinterIds(prev => prev.includes(pid) ? prev.filter(x => x !== pid) : [...prev, pid]);
+  const savePrinters  = () => {
+    setCajas(prev => prev.map(c => c.id === printersCajaId ? { ...c, printerIds: selPrinterIds } : c));
+    setShowPrinters(false);
   };
 
-  const posLimit = getPOSLimit();
+  // Empleado
+  const openEmp = (caja: Caja) => { setEmpCajaId(caja.id); setSelEmpId(caja.employeeId); setEmpQ(""); setShowEmp(true); };
+  const saveEmp = () => { setCajas(prev => prev.map(c => c.id === empCajaId ? { ...c, employeeId: selEmpId } : c)); setShowEmp(false); };
 
-  // Lista de sucursales con configuración de POS
-  const [branches, setBranches] = useState<BranchPOSConfig[]>(getParameterizedBranches());
-
-  const [formData, setFormData] = useState<BranchPOSConfig | null>(null);
-
-  // Contador de POS activos
-  const activePOSCount = branches.filter(b => b.enablePOS).length;
-  const hasReachedLimit = activePOSCount >= posLimit;
-  const isNearLimit = activePOSCount >= posLimit - 1 && posLimit !== 999;
-
-  // Obtener todas las sucursales del sistema
-  const allSystemBranches = getAllSystemBranches();
-  
-  // Filtrar sucursales que ya tienen configuración de POS
-  const branchesWithoutPOS = allSystemBranches.filter(
-    (systemBranch) => !branches.find(b => b.id === systemBranch.id)
-  );
-
-  const handleEditBranch = (branch: BranchPOSConfig) => {
-    setEditingBranch(branch.id);
-    setFormData({ ...branch });
-    setSelectedBranch(branch.id);
-  };
-
-  const toggleBranchSelection = (branchId: string) => {
-    setSelectedBranchesIds((prev) => {
-      if (prev.includes(branchId)) {
-        return prev.filter(id => id !== branchId);
-      } else {
-        return [...prev, branchId];
-      }
-    });
-  };
-
-  const handleAddSelectedBranches = () => {
-    if (selectedBranchesIds.length === 0) {
-      alert("Por favor selecciona al menos una sucursal");
-      return;
-    }
-
-    // Verificar si se excedería el límite
-    const newActivePOSCount = activePOSCount + selectedBranchesIds.length;
-    if (newActivePOSCount > posLimit && posLimit !== 999) {
-      alert(`No puedes agregar ${selectedBranchesIds.length} sucursales. Tu plan permite máximo ${posLimit} POS y ya tienes ${activePOSCount} activos.`);
-      return;
-    }
-
-    // Crear configuración de POS para las sucursales seleccionadas
-    const newBranches = selectedBranchesIds.map((branchId) => {
-      const systemBranch = allSystemBranches.find(b => b.id === branchId);
-      if (!systemBranch) return null;
-
-      const newBranch: BranchPOSConfig = {
-        id: systemBranch.id,
-        branchName: systemBranch.branchName,
-        branchCode: systemBranch.branchCode,
-        branchAddress: systemBranch.branchAddress,
-        branchPhone: systemBranch.branchPhone,
-        enablePOS: false, // Por defecto inactivo
-        autoOpenCashRegister: false,
-        printReceipt: true,
-        requireCustomer: false,
-        allowDiscount: true,
-        maxDiscount: "10",
-        defaultPaymentMethod: "efectivo",
-        quickSale: true,
-        multiplePaymentMethods: false,
-        loyaltyProgram: false,
-        inventoryIntegration: false,
-        advancedReports: false,
-      };
-      return newBranch;
-    }).filter(Boolean) as BranchPOSConfig[];
-
-    setBranches([...branches, ...newBranches]);
-    
-    // Guardar en localStorage
-    localStorage.setItem('systemBranches', JSON.stringify([...branches, ...newBranches]));
-    
-    setShowAddBranchModal(false);
-    setSelectedBranchesIds([]);
-    alert(`${newBranches.length} sucursal(es) agregada(s) exitosamente. Puedes configurar su POS ahora.`);
-  };
-
-  const handleCloseModal = () => {
-    setShowAddBranchModal(false);
-    setSelectedBranchesIds([]);
-  };
-
-  const handleSaveBranch = () => {
-    if (formData) {
-      // Verificar si se está intentando activar un POS cuando ya se alcanzó el límite
-      const originalBranch = branches.find(b => b.id === formData.id);
-      if (formData.enablePOS && !originalBranch?.enablePOS && hasReachedLimit) {
-        alert(`Has alcanzado el límite de ${posLimit} POS activos para tu plan ${userPlan}. Desactiva un POS existente o actualiza tu plan.`);
-        return;
-      }
-
-      setBranches(branches.map(b => b.id === formData.id ? formData : b));
-      setEditingBranch(null);
-      setFormData(null);
-      alert("Configuración de POS guardada exitosamente");
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingBranch(null);
-    setFormData(null);
-    setSelectedBranch(null);
-  };
-
-  const updateFormData = (field: keyof BranchPOSConfig, value: any) => {
-    if (formData) {
-      setFormData({ ...formData, [field]: value });
-    }
-  };
-
-  const LockedFeature = ({ children }: { children: React.ReactNode }) => (
-    <div className="flex items-center gap-3 p-4 bg-[#0f1825]/30 rounded-xl opacity-50 cursor-not-allowed">
-      <div className="w-5 h-5 border-2 border-white/10 rounded flex items-center justify-center">
-        <Lock className="w-3 h-3 text-gray-500" />
-      </div>
-      {children}
-    </div>
-  );
+  // Estilos
+  const D  = `border-t ${theme === "light" ? "border-gray-200" : "border-white/10"}`;
+  const C  = `rounded-xl p-4 ${theme === "light" ? "bg-white border border-gray-200" : "bg-white/5 border border-white/10"}`;
+  const OB = "bg-[#0D1B2A]";
+  const IN = `w-full px-3 py-2 border rounded-lg text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${theme === "light" ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`;
+  const MB = theme === "light" ? "bg-white border border-gray-200" : "bg-[#0D1B2A] border border-white/10";
+  const txt = () => theme === "light" ? "text-gray-900" : "text-white";
+  const sub = () => theme === "light" ? "text-gray-500" : "text-gray-400";
 
   return (
-    <div className="space-y-8 max-w-7xl">
-      {/* Header con icono de 8x8 naranja, título en negrita 3xl, descripción en gris y línea separadora */}
+    <div className="space-y-6">
+
+      {/* TÍTULO */}
       <div>
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-1">
           <ShoppingCart className="w-8 h-8 text-primary" />
-          <h2 className="text-white font-bold text-3xl">Configurar POS</h2>
+          <h2 className={`font-bold text-3xl ${txt()}`}>Cajas POS</h2>
         </div>
-        <p className="text-gray-400 text-sm mb-6">
-          Gestiona la configuración del punto de venta por sucursal • <span className="text-primary font-medium">{userPlan}</span>
-        </p>
-        <div className="border-t border-white/10"></div>
+        <p className={`text-sm ${sub()}`}>Gestiona las cajas registradoras del sistema • <span className="text-primary font-medium">{userPlan}</span></p>
+      </div>
+      <div className={D} />
+
+      {/* MÉTRICAS */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Total Cajas",     value: cajas.length,                                             icon: <Monitor   className="w-5 h-5 text-primary" />,    bg: "bg-primary/20"    },
+          { label: "Con Empleado",    value: cajas.filter(c => c.employeeId).length,                   icon: <UserCheck className="w-5 h-5 text-green-400" />,  bg: "bg-green-500/20"  },
+          { label: "Con Impresora",   value: cajas.filter(c => c.printerIds.length > 0).length,        icon: <Printer   className="w-5 h-5 text-blue-400" />,   bg: "bg-blue-500/20"   },
+          { label: "Límite del Plan", value: posLimit === 999 ? "∞" : `${cajas.length}/${posLimit}`,   icon: <Zap       className="w-5 h-5 text-yellow-400" />, bg: "bg-yellow-500/20" },
+        ].map(m => (
+          <div key={m.label} className={C}>
+            <div className="flex items-center justify-between">
+              <div><p className={`text-xs mb-1 ${sub()}`}>{m.label}</p><p className={`font-bold text-2xl ${txt()}`}>{m.value}</p></div>
+              <div className={`w-10 h-10 ${m.bg} rounded-lg flex items-center justify-center`}>{m.icon}</div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Contador de POS activos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">POS Activos</p>
-              <p className="text-white font-bold text-2xl">{activePOSCount}</p>
-            </div>
-            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-              <ShoppingCart className="w-6 h-6 text-green-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Límite del Plan</p>
-              <p className="text-white font-bold text-2xl">
-                {posLimit === 999 ? "Ilimitado" : posLimit}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">POS Disponibles</p>
-              <p className={`font-bold text-2xl ${hasReachedLimit ? 'text-red-400' : 'text-white'}`}>
-                {posLimit === 999 ? "Ilimitado" : Math.max(0, posLimit - activePOSCount)}
-              </p>
-            </div>
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              hasReachedLimit ? 'bg-red-500/20' : 'bg-blue-500/20'
-            }`}>
-              {hasReachedLimit ? (
-                <AlertTriangle className="w-6 h-6 text-red-400" />
-              ) : (
-                <Info className="w-6 h-6 text-blue-400" />
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Alerta de límite alcanzado */}
-      {hasReachedLimit && posLimit !== 999 && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-red-400 font-medium text-sm">
-                Has alcanzado el límite de POS para tu plan
-              </p>
-              <p className="text-red-400/80 text-xs mt-1">
-                Tu plan {userPlan} permite hasta {posLimit} POS activos. Para activar más puntos de venta, actualiza tu plan o desactiva algún POS existente.
-              </p>
-            </div>
-          </div>
+      {hasLimit && posLimit !== 999 && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 flex items-start gap-3">
+          <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-red-400 text-sm">Límite de <strong>{posLimit}</strong> cajas alcanzado. Actualiza tu plan para agregar más.</p>
         </div>
       )}
 
-      {/* Alerta cerca del límite */}
-      {isNearLimit && !hasReachedLimit && (
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-yellow-400 font-medium text-sm">
-                Estás cerca del límite de POS
-              </p>
-              <p className="text-yellow-400/80 text-xs mt-1">
-                Solo puedes activar {posLimit - activePOSCount} POS más con tu plan actual. Considera actualizar tu plan para obtener más licencias.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className={D} />
 
-      {/* Lista de sucursales */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10 bg-white/5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-white font-bold text-xl">Sucursales ({branches.length})</h3>
-            <button 
-              onClick={() => setShowAddBranchModal(true)}
-              className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium text-sm flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Agregar Sucursal
-            </button>
-          </div>
-        </div>
+      {/* ACCIÓN */}
+      <div className="flex justify-end">
+        <button onClick={() => { setForm({ code: "", name: "", branchId: "b1" }); setShowForm(true); }} disabled={hasLimit}
+          className="px-5 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20">
+          <Plus className="w-4 h-4" /> Nueva Caja
+        </button>
+      </div>
 
+      {/* FILTROS */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 ${theme === "light" ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+          <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <input type="text" placeholder="Buscar por nombre o código..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+            className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-500 ${txt()}`} />
+        </div>
+        <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[180px] ${theme === "light" ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+          <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <select value={filterBranch} onChange={e => setFilterBranch(e.target.value)}
+            className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${sub()}`}>
+            <option value="all" className={OB}>Todas las sucursales</option>
+            {BRANCHES.map(b => <option key={b.id} value={b.id} className={OB}>{b.name}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* TABLA */}
+      <div className={`rounded-xl overflow-hidden border ${theme === "light" ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/10 bg-white/5">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Sucursal</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Estado POS</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Venta Rápida</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Impresión Auto</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Descuento Máx.</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Método Pago</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Acciones</th>
+              <tr className={`border-b text-xs font-semibold uppercase tracking-wider ${theme === "light" ? "bg-gray-50 border-gray-200 text-gray-500" : "bg-white/5 border-white/10 text-gray-400"}`}>
+                <th className="px-4 py-3 text-left whitespace-nowrap">Código</th>
+                <th className="px-4 py-3 text-left whitespace-nowrap">Nombre</th>
+                <th className="px-4 py-3 text-left whitespace-nowrap">Sucursal</th>
+                <th className="px-4 py-3 text-center whitespace-nowrap">Empleado Asignado</th>
+                <th className="px-4 py-3 text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
-              {branches.map((branch) => (
-                <tr key={branch.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
-                        <Building2 className="w-4 h-4 text-primary" />
+            <tbody className={`divide-y ${theme === "light" ? "divide-gray-100" : "divide-white/5"}`}>
+              {filtered.length > 0 ? filtered.map(caja => {
+                const emp = getEmp(caja.employeeId);
+                const br  = getBranch(caja.branchId);
+                return (
+                  <tr key={caja.id} className={`transition-colors ${theme === "light" ? "hover:bg-gray-50" : "hover:bg-white/[0.04]"}`}>
+                    <td className="px-4 py-3 whitespace-nowrap"><span className={`text-sm font-mono ${sub()}`}>{caja.code}</span></td>
+                    <td className="px-4 py-3 whitespace-nowrap"><span className={`text-sm font-medium ${txt()}`}>{caja.name}</span></td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-xs font-mono ${sub()}`}>{br?.code}</span>
+                        <span className={`text-sm ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>{br?.name}</span>
                       </div>
-                      <span className="text-white font-medium text-sm">{branch.branchName}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {branch.enablePOS ? (
-                      <span className="inline-flex items-center px-2.5 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">
-                        Activo
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-1 bg-gray-500/20 text-gray-400 rounded-full text-xs font-medium">
-                        Inactivo
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {branch.quickSale ? (
-                      <Check className="w-4 h-4 text-green-400 mx-auto" />
-                    ) : (
-                      <span className="text-gray-500 text-xs">—</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {branch.printReceipt ? (
-                      <Check className="w-4 h-4 text-green-400 mx-auto" />
-                    ) : (
-                      <span className="text-gray-500 text-xs">—</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className="text-white text-sm">{branch.maxDiscount}%</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className="text-gray-300 text-sm capitalize">{branch.defaultPaymentMethod}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <button
-                      onClick={() => handleEditBranch(branch)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-colors text-xs font-medium"
-                    >
-                      <Edit2 className="w-3 h-3" />
-                      Configurar
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {emp
+                        ? <span className={`text-sm ${txt()}`}>{emp.name}</span>
+                        : <span className={`text-xs ${sub()}`}>Sin asignar</span>}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-1">
+                        <button onClick={() => { setViewing(caja); setShowView(true); }} title="Ver"
+                          className={`p-1.5 rounded-lg transition-colors ${theme === "light" ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/10"}`}>
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => openEmp(caja)} title="Asignar empleado"
+                          className={`p-1.5 rounded-lg transition-colors ${theme === "light" ? "text-green-600 hover:bg-green-50" : "text-green-400 hover:bg-green-500/10"}`}>
+                          <UserCheck className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => openPrinters(caja)} title="Asignar impresoras"
+                          className={`p-1.5 rounded-lg transition-colors ${theme === "light" ? "text-blue-600 hover:bg-blue-50" : "text-blue-400 hover:bg-blue-500/10"}`}>
+                          <Printer className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => deleteCaja(caja.id)} title="Eliminar"
+                          className={`p-1.5 rounded-lg transition-colors ${theme === "light" ? "text-red-500 hover:bg-red-50" : "text-red-400 hover:bg-red-500/10"}`}>
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              }) : (
+                <tr><td colSpan={5} className="px-4 py-12 text-center">
+                  <Monitor className={`w-10 h-10 mx-auto mb-3 ${theme === "light" ? "text-gray-300" : "text-gray-600"}`} />
+                  <p className={`text-sm ${sub()}`}>No se encontraron cajas</p>
+                </td></tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Formulario de edición */}
-      {editingBranch && formData && (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-white font-bold text-xl">Configuración POS</h3>
-                <p className="text-gray-400 text-sm">{formData.branchName}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleCancelEdit}
-                className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg transition-colors font-medium text-sm"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSaveBranch}
-                className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium text-sm"
-              >
-                Guardar Cambios
-              </button>
-            </div>
-          </div>
-
-          {/* Configuración General */}
-          <div className="space-y-6">
-            <div>
-              <h4 className="text-white font-bold text-lg mb-4">Configuración General</h4>
-              <div className="space-y-5">
-                {/* Habilitar POS - Disponible en todos los planes pero con límite */}
-                <label className={`flex items-center gap-3 p-4 bg-[#0f1825]/50 rounded-xl transition-colors ${
-                  !formData.enablePOS && hasReachedLimit 
-                    ? 'opacity-50 cursor-not-allowed' 
-                    : 'cursor-pointer group hover:bg-[#0f1825]'
-                }`}>
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={formData.enablePOS}
-                      onChange={(e) => {
-                        if (!e.target.checked || !hasReachedLimit || formData.enablePOS) {
-                          updateFormData("enablePOS", e.target.checked);
-                        }
-                      }}
-                      disabled={!formData.enablePOS && hasReachedLimit}
-                      className="sr-only peer"
-                    />
-                    <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center peer-disabled:opacity-50">
-                      {formData.enablePOS && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-medium">Habilitar Punto de Venta</span>
-                      {!formData.enablePOS && hasReachedLimit && (
-                        <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded">Límite alcanzado</span>
-                      )}
-                    </div>
-                    <p className="text-gray-400 text-xs mt-0.5">
-                      {!formData.enablePOS && hasReachedLimit 
-                        ? `Has alcanzado el límite de ${posLimit} POS activos` 
-                        : 'Activa el módulo POS para esta sucursal'}
-                    </p>
-                  </div>
-                </label>
-
-                {/* Imprimir ticket - Disponible en todos los planes */}
-                <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={formData.printReceipt}
-                      onChange={(e) => updateFormData("printReceipt", e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                      {formData.printReceipt && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-white font-medium">Imprimir ticket automáticamente</span>
-                    <p className="text-gray-400 text-xs mt-0.5">Imprime el recibo después de cada venta</p>
-                  </div>
-                </label>
-
-                {/* Venta rápida - Disponible en todos los planes */}
-                <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={formData.quickSale}
-                      onChange={(e) => updateFormData("quickSale", e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                      {formData.quickSale && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-white font-medium">Modo venta rápida</span>
-                    <p className="text-gray-400 text-xs mt-0.5">Permite completar ventas con un solo clic</p>
-                  </div>
-                </label>
-
-                {/* Abrir caja automáticamente - Plan Profesional y Empresarial */}
-                {isProfessional ? (
-                  <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={formData.autoOpenCashRegister}
-                        onChange={(e) => updateFormData("autoOpenCashRegister", e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                        {formData.autoOpenCashRegister && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-white font-medium">Abrir caja de dinero automáticamente</span>
-                      <p className="text-gray-400 text-xs mt-0.5">La caja se abre al completar una venta</p>
-                    </div>
-                  </label>
-                ) : (
-                  <LockedFeature>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 font-medium">Abrir caja de dinero automáticamente</span>
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">Plan Profesional</span>
-                      </div>
-                      <p className="text-gray-500 text-xs mt-0.5">La caja se abre al completar una venta</p>
-                    </div>
-                  </LockedFeature>
-                )}
-
-                {/* Requerir cliente - Plan Profesional y Empresarial */}
-                {isProfessional ? (
-                  <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={formData.requireCustomer}
-                        onChange={(e) => updateFormData("requireCustomer", e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                        {formData.requireCustomer && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-white font-medium">Requerir cliente en cada venta</span>
-                      <p className="text-gray-400 text-xs mt-0.5">Obliga a seleccionar un cliente antes de finalizar</p>
-                    </div>
-                  </label>
-                ) : (
-                  <LockedFeature>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 font-medium">Requerir cliente en cada venta</span>
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">Plan Profesional</span>
-                      </div>
-                      <p className="text-gray-500 text-xs mt-0.5">Obliga a seleccionar un cliente antes de finalizar</p>
-                    </div>
-                  </LockedFeature>
-                )}
-
-                {/* Permitir descuentos - Disponible en todos los planes */}
-                <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={formData.allowDiscount}
-                      onChange={(e) => updateFormData("allowDiscount", e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                      {formData.allowDiscount && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-white font-medium">Permitir descuentos</span>
-                    <p className="text-gray-400 text-xs mt-0.5">Habilita la aplicación de descuentos en el POS</p>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Configuración de descuentos y pagos */}
-            <div>
-              <h4 className="text-white font-bold text-lg mb-4">Descuentos y Pagos</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-gray-300 text-sm mb-2 font-medium">
-                    Descuento máximo permitido (%)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.maxDiscount}
-                    onChange={(e) => updateFormData("maxDiscount", e.target.value)}
-                    min="0"
-                    max="100"
-                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
-                  />
-                  <p className="text-gray-500 text-xs mt-1">Porcentaje máximo de descuento por venta</p>
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 text-sm mb-2 font-medium">
-                    Método de pago predeterminado
-                  </label>
-                  <select
-                    value={formData.defaultPaymentMethod}
-                    onChange={(e) => updateFormData("defaultPaymentMethod", e.target.value)}
-                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
-                  >
-                    <option value="efectivo">Efectivo</option>
-                    <option value="tarjeta">Tarjeta de crédito/débito</option>
-                    <option value="transferencia">Transferencia bancaria</option>
-                    <option value="cheque">Cheque</option>
-                  </select>
-                  <p className="text-gray-500 text-xs mt-1">Método seleccionado por defecto en el POS</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Características Avanzadas */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-white font-bold text-lg">Características Avanzadas</h4>
-                {!isProfessional && (
-                  <span className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full font-medium">
-                    Requiere Plan Profesional o superior
-                  </span>
-                )}
-              </div>
-
-              <div className="space-y-5">
-                {/* Métodos de pago múltiples - Plan Profesional y Empresarial */}
-                {isProfessional ? (
-                  <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={formData.multiplePaymentMethods}
-                        onChange={(e) => updateFormData("multiplePaymentMethods", e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                        {formData.multiplePaymentMethods && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-white font-medium">Métodos de pago múltiples</span>
-                      <p className="text-gray-400 text-xs mt-0.5">Permite seleccionar múltiples métodos de pago por venta</p>
-                    </div>
-                  </label>
-                ) : (
-                  <LockedFeature>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 font-medium">Métodos de pago múltiples</span>
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">Plan Profesional</span>
-                      </div>
-                      <p className="text-gray-500 text-xs mt-0.5">Permite seleccionar múltiples métodos de pago por venta</p>
-                    </div>
-                  </LockedFeature>
-                )}
-
-                {/* Integración de inventario - Plan Profesional y Empresarial */}
-                {isProfessional ? (
-                  <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={formData.inventoryIntegration}
-                        onChange={(e) => updateFormData("inventoryIntegration", e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                        {formData.inventoryIntegration && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-white font-medium">Integración de inventario</span>
-                      <p className="text-gray-400 text-xs mt-0.5">Sincroniza el inventario con el POS para un seguimiento preciso</p>
-                    </div>
-                  </label>
-                ) : (
-                  <LockedFeature>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 font-medium">Integración de inventario</span>
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">Plan Profesional</span>
-                      </div>
-                      <p className="text-gray-500 text-xs mt-0.5">Sincroniza el inventario con el POS para un seguimiento preciso</p>
-                    </div>
-                  </LockedFeature>
-                )}
-
-                {/* Programa de lealtad - Plan Empresarial */}
-                {isEnterprise ? (
-                  <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={formData.loyaltyProgram}
-                        onChange={(e) => updateFormData("loyaltyProgram", e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                        {formData.loyaltyProgram && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-white font-medium">Programa de lealtad</span>
-                      <p className="text-gray-400 text-xs mt-0.5">Habilita un programa de lealtad para recompensar a los clientes</p>
-                    </div>
-                  </label>
-                ) : (
-                  <LockedFeature>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 font-medium">Programa de lealtad</span>
-                        <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">Plan Empresarial</span>
-                      </div>
-                      <p className="text-gray-500 text-xs mt-0.5">Habilita un programa de lealtad para recompensar a los clientes</p>
-                    </div>
-                  </LockedFeature>
-                )}
-
-                {/* Informes avanzados - Plan Empresarial */}
-                {isEnterprise ? (
-                  <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={formData.advancedReports}
-                        onChange={(e) => updateFormData("advancedReports", e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
-                        {formData.advancedReports && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-white font-medium">Informes avanzados</span>
-                      <p className="text-gray-400 text-xs mt-0.5">Genera informes detallados para análisis de ventas</p>
-                    </div>
-                  </label>
-                ) : (
-                  <LockedFeature>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 font-medium">Informes avanzados</span>
-                        <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">Plan Empresarial</span>
-                      </div>
-                      <p className="text-gray-500 text-xs mt-0.5">Genera informes detallados para análisis de ventas</p>
-                    </div>
-                  </LockedFeature>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Información adicional */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-        <p className="text-blue-400 text-sm">
-          <strong>Nota:</strong> La configuración de POS se aplica de forma independiente para cada sucursal. Los cambios se aplicarán de inmediato al guardar.
-        </p>
-      </div>
-
-      {/* Resumen de características por plan */}
-      {!isEnterprise && (
-        <div className="bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 rounded-xl p-6">
-          <h4 className="text-white font-bold text-lg mb-4">¿Necesitas más funcionalidades?</h4>
-          <div className="space-y-3">
-            {!isProfessional && (
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-primary text-xs font-bold">+</span>
-                </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Plan Profesional</p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    Desbloquea: 5 POS simultáneos, Caja automática, Cliente requerido, Múltiples métodos de pago, Integración de inventario
-                  </p>
-                </div>
-              </div>
-            )}
-            {!isEnterprise && (
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-purple-400 text-xs font-bold">★</span>
-                </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Plan Empresarial</p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    Incluye todo lo anterior más: POS ilimitados, Programa de lealtad, Informes avanzados, Soporte prioritario
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-          <button className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-primary to-purple-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
-            Actualizar Plan
-          </button>
-        </div>
-      )}
-
-      {/* Modal Agregar Sucursal - Diseño Compacto v2 */}
-      {showAddBranchModal && (
+      {/* ── MODAL VER ── */}
+      {showView && viewing && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
-            {/* Header del modal */}
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <div className="flex items-center gap-2.5 mb-1">
-                  <Building2 className="w-5 h-5 text-primary" />
-                  <h3 className="text-white font-bold text-lg">Seleccionar Sucursales</h3>
+          <div className={`w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden ${MB}`}>
+            <div className={`flex items-center justify-between px-5 py-4 border-b ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center"><Monitor className="w-4 h-4 text-primary" /></div>
+                <div>
+                  <p className={`font-bold text-sm ${txt()}`}>{viewing.name}</p>
+                  <p className={`text-xs font-mono ${sub()}`}>{viewing.code} · {getBranch(viewing.branchId)?.name}</p>
                 </div>
-                <p className="text-gray-400 text-xs">Selecciona las sucursales para configurar su Punto de Venta</p>
               </div>
-              <button
-                onClick={handleCloseModal}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <button onClick={() => setShowView(false)} className={`p-2 rounded-lg ${theme === "light" ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}><X className="w-4 h-4" /></button>
             </div>
-
-            {/* Información de límites */}
-            {branchesWithoutPOS.length > 0 && (
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3.5 mb-5">
-                <div className="flex items-start gap-2.5">
-                  <Info className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-blue-400 font-medium text-xs">
-                      {branchesWithoutPOS.length} {branchesWithoutPOS.length === 1 ? 'sucursal disponible' : 'sucursales disponibles'} para configurar POS
-                    </p>
-                    <p className="text-blue-400/80 text-[11px] mt-0.5">
-                      Tienes {activePOSCount} de {posLimit === 999 ? '∞' : posLimit} licencias de POS en uso
-                    </p>
-                  </div>
+            <div className="px-5 py-3 space-y-0">
+              {[
+                { label: "Estado",    value: "Activa", tag: true },
+                { label: "Sucursal",  value: getBranch(viewing.branchId)?.name ?? "—" },
+                { label: "Empleado",  value: getEmp(viewing.employeeId)?.name ?? "Sin asignar" },
+                { label: "Impresoras", value: viewing.printerIds.length > 0 ? `${viewing.printerIds.length} asignada(s)` : "Sin impresoras" },
+              ].map(r => (
+                <div key={r.label} className={`flex items-center justify-between py-2.5 border-b last:border-0 ${theme === "light" ? "border-gray-100" : "border-white/5"}`}>
+                  <span className={`text-xs ${sub()}`}>{r.label}</span>
+                  {r.tag
+                    ? <span className="text-xs font-medium px-2 py-0.5 rounded bg-green-500/20 text-green-400">{r.value}</span>
+                    : <span className={`text-sm font-medium ${txt()}`}>{r.value}</span>}
                 </div>
-              </div>
-            )}
-
-            {/* Lista de sucursales */}
-            {branchesWithoutPOS.length === 0 ? (
-              <div className="bg-white/5 rounded-xl p-10 text-center">
-                <div className="w-14 h-14 bg-gray-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Building2 className="w-7 h-7 text-gray-400" />
-                </div>
-                <h4 className="text-white font-bold text-base mb-1.5">No hay sucursales disponibles</h4>
-                <p className="text-gray-400 text-xs mb-4">
-                  Todas las sucursales parametrizadas ya tienen configuración de POS
-                </p>
-                <button
-                  onClick={handleCloseModal}
-                  className="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium text-xs"
-                >
-                  Entendido
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-2.5 mb-5 max-h-[380px] overflow-y-auto pr-1">
-                  {branchesWithoutPOS.map((branch) => {
-                    const isSelected = selectedBranchesIds.includes(branch.id);
-                    return (
-                      <div
-                        key={branch.id}
-                        onClick={() => toggleBranchSelection(branch.id)}
-                        className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-primary/10 border-primary/50'
-                            : 'bg-[#0f1825]/80 border-white/10 hover:bg-[#0f1825] hover:border-white/20'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="relative flex-shrink-0">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => toggleBranchSelection(branch.id)}
-                              className="sr-only peer"
-                            />
-                            <div className={`w-4 h-4 border-2 rounded transition-colors flex items-center justify-center ${
-                              isSelected ? 'bg-primary border-primary' : 'border-white/30'
-                            }`}>
-                              {isSelected && (
-                                <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            isSelected ? 'bg-primary/20' : 'bg-white/10'
-                          }`}>
-                            <Building2 className={`w-4 h-4 ${isSelected ? 'text-primary' : 'text-gray-400'}`} />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <h4 className="text-white font-medium text-sm">{branch.branchName}</h4>
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                                isSelected ? 'bg-primary/20 text-primary' : 'bg-white/10 text-gray-400'
-                              }`}>
-                                {branch.branchCode}
-                              </span>
-                            </div>
-                            <p className="text-gray-400 text-[11px] mb-0.5 truncate">{branch.branchAddress}</p>
-                            <p className="text-gray-500 text-[10px]">{branch.branchPhone}</p>
-                          </div>
+              ))}
+              {viewing.printerIds.length > 0 && (
+                <div className="pt-1 pb-2 space-y-1.5">
+                  {viewing.printerIds.map(pid => {
+                    const p = getPrinter(pid);
+                    return p ? (
+                      <div key={pid} className={`flex items-center justify-between px-3 py-2 rounded-lg ${theme === "light" ? "bg-gray-50" : "bg-white/5"}`}>
+                        <div>
+                          <p className={`text-xs font-medium ${txt()}`}>{p.name}</p>
+                          <p className={`text-xs ${sub()}`}>{p.purpose} · {p.type}</p>
                         </div>
+                        <span className={`text-xs px-2 py-0.5 rounded ${theme === "light" ? "bg-blue-100 text-blue-600" : "bg-blue-500/20 text-blue-300"}`}>{p.paperSize}</span>
                       </div>
-                    );
+                    ) : null;
                   })}
                 </div>
+              )}
+            </div>
+            <div className="px-5 pb-5 pt-2">
+              <button onClick={() => setShowView(false)} className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${theme === "light" ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-white/5 hover:bg-white/10 text-white"}`}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                {selectedBranchesIds.length > 0 && (
-                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-3.5 mb-5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white font-medium text-xs">
-                          {selectedBranchesIds.length} {selectedBranchesIds.length === 1 ? 'sucursal seleccionada' : 'sucursales seleccionadas'}
-                        </p>
-                        <p className="text-gray-400 text-[11px] mt-0.5">
-                          {posLimit === 999 ? 'Sin límite de POS' : `Quedarán ${Math.max(0, posLimit - activePOSCount - selectedBranchesIds.length)} licencias disponibles`}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => setSelectedBranchesIds([])}
-                        className="text-[11px] text-gray-400 hover:text-white transition-colors"
-                      >
-                        Limpiar
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-3 pt-5 border-t border-white/10">
-                  <button
-                    onClick={handleCloseModal}
-                    className="flex-1 px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg transition-colors font-medium text-sm"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleAddSelectedBranches}
-                    disabled={selectedBranchesIds.length === 0}
-                    className="flex-1 px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Agregar {selectedBranchesIds.length > 0 && `(${selectedBranchesIds.length})`}
-                  </button>
+      {/* ── MODAL CREAR CAJA ── */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden ${MB}`}>
+            <div className={`flex items-center justify-between px-5 py-4 border-b ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center"><Plus className="w-4 h-4 text-primary" /></div>
+                <p className={`font-bold text-base ${txt()}`}>Nueva Caja</p>
+              </div>
+              <button onClick={() => setShowForm(false)} className={`p-2 rounded-lg ${theme === "light" ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`block mb-1.5 text-xs font-medium ${sub()}`}>Código <span className="text-red-400">*</span></label>
+                  <input type="text" value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} placeholder="CJ-001" className={IN} />
                 </div>
-              </>
-            )}
+                <div>
+                  <label className={`block mb-1.5 text-xs font-medium ${sub()}`}>Nombre <span className="text-red-400">*</span></label>
+                  <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Caja Principal" className={IN} />
+                </div>
+              </div>
+              <div>
+                <label className={`block mb-1.5 text-xs font-medium ${sub()}`}>Sucursal <span className="text-red-400">*</span></label>
+                <select value={form.branchId} onChange={e => setForm(f => ({ ...f, branchId: e.target.value }))} className={IN}>
+                  {BRANCHES.map(b => <option key={b.id} value={b.id} className={OB}>{b.code} — {b.name}</option>)}
+                </select>
+              </div>
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${theme === "light" ? "bg-green-50" : "bg-green-500/10"}`}>
+                <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                <p className="text-green-600 text-xs">La caja se creará en estado <strong>Activa</strong> automáticamente</p>
+              </div>
+              <div className={`flex gap-3 pt-1 border-t ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+                <button onClick={() => setShowForm(false)} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${theme === "light" ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-white/5 hover:bg-white/10 text-white"}`}>Cancelar</button>
+                <button onClick={saveForm} className="flex-1 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">Crear Caja</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL ASIGNAR IMPRESORAS (solo selección) ── */}
+      {showPrinters && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-sm rounded-2xl shadow-2xl max-h-[85vh] flex flex-col ${MB}`}>
+            <div className={`flex items-center justify-between px-5 py-4 border-b flex-shrink-0 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center"><Printer className="w-4 h-4 text-primary" /></div>
+                <div>
+                  <p className={`font-bold text-base ${txt()}`}>Asignar Impresoras</p>
+                  <p className={`text-xs ${sub()}`}>{activeCaja?.name}</p>
+                </div>
+              </div>
+              <button onClick={() => setShowPrinters(false)} className={`p-2 rounded-lg ${theme === "light" ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}><X className="w-4 h-4" /></button>
+            </div>
+
+            {/* Búsqueda */}
+            <div className={`px-4 pt-3 pb-2 flex-shrink-0`}>
+              <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 ${theme === "light" ? "bg-white border-gray-300" : "bg-[#0f1825] border-white/10"}`}>
+                <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <input type="text" placeholder="Buscar impresora..." value={printerQ} onChange={e => setPrinterQ(e.target.value)}
+                  className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-500 ${txt()}`} />
+              </div>
+              <p className={`text-xs mt-2 ${sub()}`}>{selPrinterIds.length} seleccionada(s)</p>
+            </div>
+
+            {/* Lista de impresoras del catálogo */}
+            <div className="flex-1 overflow-y-auto px-4 pb-2 space-y-1.5">
+              {SYSTEM_PRINTERS
+                .filter(p => p.name.toLowerCase().includes(printerQ.toLowerCase()) || p.purpose.toLowerCase().includes(printerQ.toLowerCase()))
+                .map(p => {
+                  const selected = selPrinterIds.includes(p.id);
+                  return (
+                    <button key={p.id} type="button" onClick={() => togglePrinter(p.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left ${selected ? "border-primary bg-primary/10" : theme === "light" ? "border-gray-200 hover:border-gray-300 bg-gray-50" : "border-white/10 hover:border-white/20 bg-white/5"}`}>
+                      <Chk checked={selected} onChange={() => togglePrinter(p.id)} />
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${selected ? "bg-primary/20" : theme === "light" ? "bg-blue-100" : "bg-blue-500/15"}`}>
+                        <Printer className={`w-4 h-4 ${selected ? "text-primary" : "text-blue-400"}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-medium truncate ${selected ? "text-primary" : txt()}`}>{p.name}</p>
+                        <p className={`text-xs ${sub()}`}>{p.purpose} · {p.type} · {p.paperSize}</p>
+                      </div>
+                      {selected && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                    </button>
+                  );
+                })}
+            </div>
+
+            <div className={`px-4 py-3 border-t flex gap-3 flex-shrink-0 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+              <button onClick={() => setShowPrinters(false)} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${theme === "light" ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-white/5 hover:bg-white/10 text-white"}`}>Cancelar</button>
+              <button onClick={savePrinters} className="flex-1 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL ASIGNAR EMPLEADO ── */}
+      {showEmp && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden ${MB}`}>
+            <div className={`flex items-center justify-between px-5 py-4 border-b ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center"><UserCheck className="w-4 h-4 text-primary" /></div>
+                <div>
+                  <p className={`font-bold text-base ${txt()}`}>Asignar Empleado</p>
+                  <p className={`text-xs ${sub()}`}>{cajas.find(c => c.id === empCajaId)?.name} · {getBranch(empBranchId ?? "")?.name}</p>
+                </div>
+              </div>
+              <button onClick={() => setShowEmp(false)} className={`p-2 rounded-lg ${theme === "light" ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 ${theme === "light" ? "bg-white border-gray-300" : "bg-[#0f1825] border-white/10"}`}>
+                <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <input type="text" placeholder="Buscar empleado..." value={empQ} onChange={e => setEmpQ(e.target.value)}
+                  className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-500 ${txt()}`} />
+              </div>
+
+              <button onClick={() => setSelEmpId(null)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${selEmpId === null ? "border-primary bg-primary/10" : theme === "light" ? "border-gray-200 hover:border-gray-300 bg-gray-50" : "border-white/10 hover:border-white/20 bg-white/5"}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${theme === "light" ? "bg-gray-200" : "bg-white/10"}`}><User className="w-4 h-4 text-gray-400" /></div>
+                <div className="text-left">
+                  <p className={`text-sm font-medium ${selEmpId === null ? "text-primary" : theme === "light" ? "text-gray-700" : "text-gray-300"}`}>Sin asignar</p>
+                  <p className={`text-xs ${sub()}`}>Ningún empleado en esta caja</p>
+                </div>
+                {selEmpId === null && <Check className="w-4 h-4 text-primary ml-auto" />}
+              </button>
+
+              <div className="space-y-1.5 max-h-52 overflow-y-auto">
+                {EMPLOYEES
+                  .filter(e => e.branch === empBranchId && (e.name.toLowerCase().includes(empQ.toLowerCase()) || e.code.toLowerCase().includes(empQ.toLowerCase())))
+                  .map(emp => {
+                    const active = selEmpId === emp.id;
+                    return (
+                      <button key={emp.id} onClick={() => setSelEmpId(emp.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${active ? "border-primary bg-primary/10" : theme === "light" ? "border-gray-200 hover:border-gray-300 bg-gray-50" : "border-white/10 hover:border-white/20 bg-white/5"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${active ? "bg-primary text-white" : theme === "light" ? "bg-gray-200 text-gray-600" : "bg-white/10 text-gray-300"}`}>
+                          {emp.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                        </div>
+                        <div className="text-left flex-1 min-w-0">
+                          <p className={`text-sm font-medium truncate ${active ? "text-primary" : txt()}`}>{emp.name}</p>
+                          <p className={`text-xs ${sub()}`}>{emp.role} · {emp.code}</p>
+                        </div>
+                        {active && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                      </button>
+                    );
+                  })}
+              </div>
+
+              <div className={`flex gap-3 pt-2 border-t ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+                <button onClick={() => setShowEmp(false)} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${theme === "light" ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-white/5 hover:bg-white/10 text-white"}`}>Cancelar</button>
+                <button onClick={saveEmp} className="flex-1 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">Guardar</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

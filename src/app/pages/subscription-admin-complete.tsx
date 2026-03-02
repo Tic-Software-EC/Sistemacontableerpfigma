@@ -545,17 +545,75 @@ export default function SubscriptionAdminPage() {
 
       {/* Main Content */}
       <div className="p-6">
-        {/* Título y botón de acción */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Building2 className="w-8 h-8 text-primary" />
-              <h2 className="text-white font-bold text-3xl">Gestión de Empresas</h2>
-            </div>
-            <p className="text-gray-400 text-sm">
-              Administra las empresas suscritas y sus configuraciones
-            </p>
+        {/* Título */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-1">
+            <Building2 className="w-8 h-8 text-primary" />
+            <h2 className="text-white font-bold text-3xl">Gestión de Empresas</h2>
           </div>
+          <p className="text-gray-400 text-sm pl-11">
+            Administra las empresas suscritas y sus configuraciones
+          </p>
+        </div>
+
+        {/* 1. Estadísticas primero */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-secondary border border-white/10 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Total Empresas</p>
+                <p className="text-white text-2xl font-bold">{companies.length}</p>
+              </div>
+              <div className="p-2 bg-green-500/10 rounded-lg">
+                <Building2 className="w-5 h-5 text-green-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-secondary border border-white/10 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Activas</p>
+                <p className="text-white text-2xl font-bold">{companies.filter(c => c.status === 'active').length}</p>
+              </div>
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Check className="w-5 h-5 text-blue-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-secondary border border-white/10 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Prueba</p>
+                <p className="text-white text-2xl font-bold">{companies.filter(c => c.status === 'trial').length}</p>
+              </div>
+              <div className="p-2 bg-yellow-500/10 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-yellow-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-secondary border border-white/10 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Ingresos/Mes</p>
+                <p className="text-white text-2xl font-bold">
+                  ${companies.reduce((sum, c) => sum + c.monthlyPrice, 0).toFixed(0)}
+                </p>
+              </div>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <CreditCard className="w-5 h-5 text-primary" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Línea separatoria */}
+        <div className="border-t border-white/10 mb-4"></div>
+
+        {/* 3. Botón de acción alineado a la derecha */}
+        <div className="flex justify-end mb-4">
           <button
             onClick={handleOpenNewModal}
             className="px-6 py-2.5 bg-primary hover:bg-primary/90 rounded-lg text-white font-medium flex items-center gap-2 transition-all text-sm shadow-lg shadow-primary/20"
@@ -563,55 +621,6 @@ export default function SubscriptionAdminPage() {
             <Plus className="w-4 h-4" />
             Nueva Empresa
           </button>
-        </div>
-
-        {/* Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-secondary border border-white/10 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-green-500/10 rounded-lg">
-                <Building2 className="w-4 h-4 text-green-400" />
-              </div>
-              <p className="text-gray-400 text-xs">Total Empresas</p>
-            </div>
-            <p className="text-white text-2xl font-bold">{companies.length}</p>
-            <p className="text-gray-500 text-xs mt-1">Activas: {companies.filter(c => c.status === 'active').length}</p>
-          </div>
-
-          <div className="bg-secondary border border-white/10 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <Users className="w-4 h-4 text-blue-400" />
-              </div>
-              <p className="text-gray-400 text-xs">Usuarios Totales</p>
-            </div>
-            <p className="text-white text-2xl font-bold">{companies.reduce((sum, c) => sum + c.users, 0)}</p>
-            <p className="text-gray-500 text-xs mt-1">En {companies.length} empresas</p>
-          </div>
-
-          <div className="bg-secondary border border-white/10 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <CreditCard className="w-4 h-4 text-primary" />
-              </div>
-              <p className="text-gray-400 text-xs">Ingresos Mensuales</p>
-            </div>
-            <p className="text-white text-2xl font-bold">
-              ${companies.reduce((sum, c) => sum + c.monthlyPrice, 0).toFixed(2)}
-            </p>
-            <p className="text-gray-500 text-xs mt-1">USD/mes</p>
-          </div>
-
-          <div className="bg-secondary border border-white/10 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-yellow-500/10 rounded-lg">
-                <AlertCircle className="w-4 h-4 text-yellow-400" />
-              </div>
-              <p className="text-gray-400 text-xs">En Prueba</p>
-            </div>
-            <p className="text-white text-2xl font-bold">{companies.filter(c => c.status === 'trial').length}</p>
-            <p className="text-gray-500 text-xs mt-1">Empresas</p>
-          </div>
         </div>
 
         {/* Filtros */}

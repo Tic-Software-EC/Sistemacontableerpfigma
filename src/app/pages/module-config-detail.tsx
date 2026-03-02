@@ -32,11 +32,14 @@ import {
   DollarSign,
   AlertCircle,
   Database,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 // Modales
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
+import { useTheme } from "../contexts/theme-context";
 
 // Componentes de contenido
 import { WarehousesContent } from "../components/warehouses-content";
@@ -63,7 +66,7 @@ import { PurchasesConfigContent } from "../components/purchases-config-content";
 import { PosConfigContent } from "../components/pos-config-content";
 
 // Componente de Seguridad
-function SecurityContent() {
+function SecurityContent({ theme }: { theme: string }) {
   const [twoFactorAuth, setTwoFactorAuth] = useState(false);
   const [sessionTimeout, setSessionTimeout] = useState("30");
   const [passwordExpiry, setPasswordExpiry] = useState("90");
@@ -79,7 +82,7 @@ function SecurityContent() {
     <div className="space-y-8 max-w-6xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-white font-bold text-3xl mb-2">
+          <h2 className={`font-bold text-3xl mb-2 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
             Configuración de Seguridad
           </h2>
           <p className="text-gray-400 text-sm">
@@ -95,18 +98,18 @@ function SecurityContent() {
       </div>
 
       {/* Separador */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
 
       {/* Autenticación */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+      <div className={`border rounded-2xl p-6 ${theme === "light" ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
         <div className="flex items-center gap-2 mb-6">
           <Shield className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold text-xl">Autenticación</h3>
+          <h3 className={`font-bold text-xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>Autenticación</h3>
         </div>
 
         <div className="space-y-5">
           {/* Autenticación de dos factores */}
-          <label className="flex items-center gap-3 cursor-pointer group p-4 bg-[#0f1825]/50 rounded-xl hover:bg-[#0f1825] transition-colors">
+          <label className={`flex items-center gap-3 cursor-pointer group p-4 rounded-xl transition-colors ${theme === "light" ? "bg-gray-50 hover:bg-gray-100" : "bg-[#0f1825]/50 hover:bg-[#0f1825]"}`}>
             <div className="relative">
               <input
                 type="checkbox"
@@ -114,7 +117,7 @@ function SecurityContent() {
                 onChange={(e) => setTwoFactorAuth(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
+              <div className={`w-5 h-5 border-2 rounded transition-colors flex items-center justify-center ${theme === "light" ? "border-gray-300 peer-checked:bg-primary peer-checked:border-primary" : "border-white/20 peer-checked:bg-primary peer-checked:border-primary"}`}>
                 {twoFactorAuth && (
                   <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -123,45 +126,45 @@ function SecurityContent() {
               </div>
             </div>
             <div>
-              <span className="text-white font-medium">Autenticación de Dos Factores</span>
+              <span className={`font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>Autenticación de Dos Factores</span>
               <p className="text-gray-400 text-xs mt-0.5">Seguridad adicional para tu cuenta</p>
             </div>
           </label>
 
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-gray-300 text-sm mb-2 font-medium">
+              <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
                 Tiempo de sesión (minutos)
               </label>
               <input
                 type="number"
                 value={sessionTimeout}
                 onChange={(e) => setSessionTimeout(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${theme === "light" ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`}
               />
             </div>
 
             <div>
-              <label className="block text-gray-300 text-sm mb-2 font-medium">
+              <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
                 Expiración de contraseña (días)
               </label>
               <input
                 type="number"
                 value={passwordExpiry}
                 onChange={(e) => setPasswordExpiry(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${theme === "light" ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`}
               />
             </div>
 
             <div>
-              <label className="block text-gray-300 text-sm mb-2 font-medium">
+              <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
                 Intentos de login permitidos
               </label>
               <input
                 type="number"
                 value={loginAttempts}
                 onChange={(e) => setLoginAttempts(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${theme === "light" ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`}
               />
             </div>
 
@@ -505,6 +508,7 @@ const planAccess: Record<string, any> = {
 export default function ModuleConfigDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
   const { moduleName, moduleColor, userPlan } = location.state || {
     moduleName: "Configuración",
     moduleColor: "#E8692E",
@@ -575,15 +579,15 @@ export default function ModuleConfigDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]">
+    <div className={`min-h-screen ${theme === "light" ? "bg-gray-50" : "bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]"}`}>
       {/* Header */}
-      <header className="border-b border-white/10 bg-secondary/50 backdrop-blur-sm sticky top-0 z-40">
+      <header className={`border-b sticky top-0 z-40 ${theme === "light" ? "bg-white/95 border-gray-200" : "border-white/10 bg-secondary/50"} backdrop-blur-sm`}>
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             {/* Botón volver */}
             <button
               onClick={() => navigate("/modules")}
-              className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              className={`p-2 rounded-lg transition-colors ${theme === "light" ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -591,7 +595,7 @@ export default function ModuleConfigDetailPage() {
             {/* Toggle sidebar en móvil */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              className={`lg:hidden p-2 rounded-lg transition-colors ${theme === "light" ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
             >
               <MenuIcon className="w-5 h-5" />
             </button>
@@ -614,7 +618,7 @@ export default function ModuleConfigDetailPage() {
                 )}
               </div>
               <div>
-                <h1 className="text-white font-bold text-xl">
+                <h1 className={`font-bold text-xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                   {companyName || "TicSoftEc"}
                 </h1>
                 <p className="text-gray-400 text-xs">{moduleName}</p>
@@ -625,26 +629,39 @@ export default function ModuleConfigDetailPage() {
           {/* Derecha */}
           <div className="flex items-center gap-3">
             {/* Notificaciones */}
-            <button className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors relative">
+            <button className={`p-2 rounded-lg transition-colors relative ${theme === "light" ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+            </button>
+
+            {/* Toggle Theme */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg transition-all duration-300 ${theme === "light" ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-primary hover:bg-white/5"}`}
+              title={theme === "light" ? "Modo Oscuro" : "Modo Claro"}
+            >
+              {theme === "light" ? (
+                <Moon className="w-5 h-5" />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
             </button>
 
             {/* Usuario */}
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${theme === "light" ? "hover:bg-gray-100" : "hover:bg-white/5"}`}
               >
                 <div className="relative">
                   <div className="w-10 h-10 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">JP</span>
                   </div>
                   {/* Indicador de estado online */}
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-secondary rounded-full"></div>
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 rounded-full ${theme === "light" ? "border-white" : "border-secondary"}`}></div>
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-white text-sm font-medium">{userProfile.name}</p>
+                  <p className={`text-sm font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
                   <p className="text-gray-400 text-xs">{userProfile.role}</p>
                 </div>
               </button>
@@ -807,16 +824,18 @@ export default function ModuleConfigDetailPage() {
       <div className="flex h-[calc(100vh-73px)]">
         {/* Sidebar */}
         <aside
-          className={`${
+          className={`${ 
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-30 w-72 bg-secondary/80 backdrop-blur-sm border-r border-white/10 transition-transform duration-300 overflow-y-auto`}
+          } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-30 w-72 backdrop-blur-sm border-r transition-transform duration-300 overflow-y-auto ${
+            theme === "light" ? "bg-white border-gray-200" : "bg-secondary/80 border-white/10"
+          }`}
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-white font-bold text-lg">Menús</h2>
+              <h2 className={`font-bold text-lg ${theme === "light" ? "text-gray-900" : "text-white"}`}>Menús</h2>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="lg:hidden p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`lg:hidden p-2 rounded-lg transition-colors ${theme === "light" ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -835,8 +854,12 @@ export default function ModuleConfigDetailPage() {
                       onClick={() => hasSubmenus ? toggleMenu(menu.id) : setSelectedMenu(menu.id)}
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
                         selectedMenu === menu.id || isExpanded
-                          ? "bg-primary/10 text-white"
-                          : "text-gray-300 hover:bg-white/5 hover:text-white"
+                          ? theme === "light" 
+                            ? "bg-primary/10 text-primary" 
+                            : "bg-primary/10 text-white"
+                          : theme === "light"
+                            ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                            : "text-gray-300 hover:bg-white/5 hover:text-white"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -854,7 +877,7 @@ export default function ModuleConfigDetailPage() {
 
                     {/* Submenús */}
                     {hasSubmenus && isExpanded && (
-                      <div className="ml-4 mt-1 space-y-1 border-l-2 border-white/10 pl-4">
+                      <div className={`ml-4 mt-1 space-y-1 border-l-2 pl-4 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
                         {menu.submenus.map((submenu: any) => {
                           const SubIcon = submenu.icon;
                           return (
@@ -863,8 +886,12 @@ export default function ModuleConfigDetailPage() {
                               onClick={() => handleSubmenuClick(submenu)}
                               className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                                 selectedMenu === submenu.id
-                                  ? "bg-primary/20 text-white font-medium"
-                                  : "text-gray-400 hover:bg-white/5 hover:text-white"
+                                  ? theme === "light"
+                                    ? "bg-primary/20 text-primary font-medium"
+                                    : "bg-primary/20 text-white font-medium"
+                                  : theme === "light"
+                                    ? "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    : "text-gray-400 hover:bg-white/5 hover:text-white"
                               }`}
                             >
                               <SubIcon className="w-4 h-4" />
@@ -890,7 +917,7 @@ export default function ModuleConfigDetailPage() {
               ) : selectedMenu === "regional-config" ? (
                 <RegionalConfigContent />
               ) : selectedMenu === "security" ? (
-                <SecurityContent />
+                <SecurityContent theme={theme} />
               ) : selectedMenu === "notifications" ? (
                 <NotificationsContent />
               ) : selectedMenu === "communications" ? (
@@ -935,14 +962,14 @@ export default function ModuleConfigDetailPage() {
                 <PosConfigContent userPlan={userPlan} />
               ) : (
                 <>
-                  <h2 className="text-white font-bold text-2xl mb-6">
+                  <h2 className={`font-bold text-2xl mb-6 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                     {availableMenus
                       .flatMap((m: any) => m.submenus)
                       .find((s: any) => s?.id === selectedMenu)?.name || "Contenido"}
                   </h2>
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-8">
+                  <div className={`border rounded-xl p-8 ${theme === "light" ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
                     <p className="text-gray-400">
-                      Contenido del submenú: <span className="text-white font-semibold">{selectedMenu}</span>
+                      Contenido del submenú: <span className={`font-semibold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{selectedMenu}</span>
                     </p>
                     <p className="text-gray-500 text-sm mt-4">
                       Aquí se mostrará el contenido específico de esta sección.
@@ -957,7 +984,7 @@ export default function ModuleConfigDetailPage() {
                 <div className="w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Settings className="w-10 h-10 text-primary" />
                 </div>
-                <h3 className="text-white font-bold text-xl mb-2">
+                <h3 className={`font-bold text-xl mb-2 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
                   Selecciona un menú
                 </h3>
                 <p className="text-gray-400 text-sm">

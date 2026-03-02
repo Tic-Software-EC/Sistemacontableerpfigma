@@ -466,28 +466,81 @@ export function UserListContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <Users className="w-8 h-8 text-primary" />
-            Lista de Usuarios
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Gestiona los usuarios y sus credenciales de acceso al sistema
-          </p>
+      {/* Header: Título + subtítulo */}
+      <div>
+        <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+          <Users className="w-8 h-8 text-primary" />
+          Lista de Usuarios
+        </h2>
+        <p className="text-gray-400 text-sm">
+          Gestiona los usuarios y sus credenciales de acceso al sistema
+        </p>
+      </div>
+
+      {/* Línea separatoria */}
+      <div className="border-t border-white/10"></div>
+
+      {/* Métricas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-xs mb-1">Total Usuarios</p>
+              <p className="text-white font-bold text-2xl">{users.length}</p>
+            </div>
+            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-primary" />
+            </div>
+          </div>
         </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-xs mb-1">Activos</p>
+              <p className="text-white font-bold text-2xl">{users.filter(u => u.status === "active").length}</p>
+            </div>
+            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <UserCheck className="w-5 h-5 text-green-400" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-xs mb-1">Inactivos</p>
+              <p className="text-white font-bold text-2xl">{users.filter(u => u.status === "inactive").length}</p>
+            </div>
+            <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
+              <User className="w-5 h-5 text-red-400" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-xs mb-1">Admins</p>
+              <p className="text-white font-bold text-2xl">{users.filter(u => u.role === "admin_empresa" || u.role === "super_admin").length}</p>
+            </div>
+            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+              <Crown className="w-5 h-5 text-blue-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Segunda línea separatoria */}
+      <div className="border-t border-white/10"></div>
+
+      {/* Botón de acción */}
+      <div className="flex justify-end">
         <button
           onClick={handleOpenCreateModal}
-          className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium flex items-center gap-2 justify-center"
+          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           Nuevo Usuario
         </button>
       </div>
-
-      {/* Separador */}
-      <div className="border-t border-white/10"></div>
 
       {/* Barra de búsqueda y filtro */}
       <div className="bg-white/5 border border-white/10 rounded-xl p-4">
@@ -649,47 +702,6 @@ export function UserListContent() {
               )}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-gray-400 text-xs">Total Usuarios</p>
-              <p className="text-white font-bold text-2xl">{users.length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-green-400" />
-            </div>
-            <div>
-              <p className="text-gray-400 text-xs">Usuarios Activos</p>
-              <p className="text-white font-bold text-2xl">
-                {users.filter((u) => u.status === "active").length}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-gray-400 text-xs">Administradores</p>
-              <p className="text-white font-bold text-2xl">
-                {users.filter((u) => u.role === "admin_empresa" || u.role === "super_admin").length}
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 

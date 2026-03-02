@@ -17,6 +17,9 @@ import {
   ChevronRight,
   Copy,
   CheckCircle2,
+  Users,
+  Lock,
+  Settings,
 } from "lucide-react";
 
 interface Permission {
@@ -476,39 +479,92 @@ export function RolesPermissionsContent() {
   };
 
   const stats = {
-    total: roles.length,
-    predefined: roles.filter((r) => r.type === "predefined").length,
-    custom: roles.filter((r) => r.type === "custom").length,
+    totalRoles: roles.length,
+    predefinedRoles: roles.filter((r) => r.type === "predefined").length,
+    customRoles: roles.filter((r) => r.type === "custom").length,
     totalUsers: roles.reduce((sum, r) => sum + r.usersCount, 0),
   };
 
   return (
     <div className="space-y-6 max-w-7xl">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <Shield className="w-8 h-8 text-primary" />
-            Roles y Permisos
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Gestiona los roles de usuario y sus permisos en el sistema
-          </p>
+      {/* Header: Título + subtítulo */}
+      <div>
+        <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+          <Shield className="w-8 h-8 text-primary" />
+          Roles y Permisos
+        </h2>
+        <p className="text-gray-400 text-sm">
+          Gestiona los roles de usuario y sus permisos en el sistema
+        </p>
+      </div>
+
+      {/* Línea separatoria */}
+      <div className="border-t border-white/10"></div>
+
+      {/* Métricas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-xs mb-1">Total Roles</p>
+              <p className="text-white font-bold text-2xl">{stats.totalRoles}</p>
+            </div>
+            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+              <Shield className="w-5 h-5 text-primary" />
+            </div>
+          </div>
         </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-xs mb-1">Usuarios</p>
+              <p className="text-white font-bold text-2xl">{stats.totalUsers}</p>
+            </div>
+            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-blue-400" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-xs mb-1">Predefinidos</p>
+              <p className="text-white font-bold text-2xl">{stats.predefinedRoles}</p>
+            </div>
+            <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+              <Lock className="w-5 h-5 text-yellow-400" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-xs mb-1">Personalizados</p>
+              <p className="text-white font-bold text-2xl">{stats.customRoles}</p>
+            </div>
+            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <Settings className="w-5 h-5 text-green-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Segunda línea separatoria */}
+      <div className="border-t border-white/10"></div>
+
+      {/* Botón de acción */}
+      <div className="flex justify-end">
         <button
           onClick={() => {
             resetForm();
             setShowCreateModal(true);
           }}
-          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium flex items-center gap-2 w-fit"
+          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           Nuevo Rol
         </button>
       </div>
-
-      {/* Separador */}
-      <div className="border-t border-white/10"></div>
 
       {/* Buscador */}
       <div className="relative">
@@ -701,61 +757,6 @@ export function RolesPermissionsContent() {
             </p>
           </div>
         )}
-      </div>
-
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Total de Roles</p>
-              <p className="text-white font-bold text-2xl">{stats.total}</p>
-            </div>
-            <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
-              <Shield className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Predefinidos</p>
-              <p className="text-white font-bold text-2xl">
-                {stats.predefined}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-              <UserCheck className="w-6 h-6 text-blue-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Personalizados</p>
-              <p className="text-white font-bold text-2xl">{stats.custom}</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-              <Edit className="w-6 h-6 text-purple-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Usuarios Totales</p>
-              <p className="text-white font-bold text-2xl">
-                {stats.totalUsers}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-              <UserCheck className="w-6 h-6 text-green-400" />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Modal Crear/Editar/Copiar */}
