@@ -185,12 +185,6 @@ export default function ModulesPage() {
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
 
-              {/* Búsqueda */}
-              
-
-              {/* Idioma */}
-              
-
               {/* Toggle Theme */}
               <button onClick={toggleTheme} className="p-2 text-gray-400 hover:text-primary transition-all duration-300" title={theme === "light" ? "Modo Oscuro" : "Modo Claro"}>
                 {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}

@@ -252,6 +252,9 @@ export function ArqueoCaja() {
       <div className="p-4 print:hidden">
         <div className="max-w-[1400px] mx-auto">
 
+          {/* Espaciado superior igual al del Punto de Venta */}
+          <div className="mb-4"></div>
+
           {/*
             Layout de 2 columnas:
             [Conteo de efectivo (billetes + monedas)] | [Panel de resumen]
