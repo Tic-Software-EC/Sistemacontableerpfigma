@@ -17,6 +17,7 @@ import {
   Copy,
   Key,
   Package,
+  ChevronDown,
 } from "lucide-react";
 import { PLAN_CONFIGS } from "../config/plans";
 import { AdminHeader } from "../components/admin-header";
@@ -455,69 +456,69 @@ export default function SubscriptionAdminPage() {
       {/* Main Content */}
       <div className="p-6">
         {/* Métricas compactas */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className={`border rounded-lg p-3 ${
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className={`border rounded-lg p-4 ${
             theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Total Empresas</p>
-                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{stats.totalCompanies}</p>
+                <p className="text-gray-400 text-xs mb-1">Total Empresas</p>
+                <p className={`text-2xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{stats.totalCompanies}</p>
               </div>
               <div className="p-2 bg-primary/10 rounded-lg">
-                <Building2 className="w-4 h-4 text-primary" />
+                <Building2 className="w-5 h-5 text-primary" />
               </div>
             </div>
           </div>
 
-          <div className={`border rounded-lg p-3 ${
+          <div className={`border rounded-lg p-4 ${
             theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Activas</p>
-                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{stats.activeCompanies}</p>
+                <p className="text-gray-400 text-xs mb-1">Activas</p>
+                <p className={`text-2xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{stats.activeCompanies}</p>
               </div>
               <div className="p-2 bg-green-500/10 rounded-lg">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
               </div>
             </div>
           </div>
 
-          <div className={`border rounded-lg p-3 ${
+          <div className={`border rounded-lg p-4 ${
             theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Prueba</p>
-                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{stats.trialCompanies}</p>
+                <p className="text-gray-400 text-xs mb-1">Prueba</p>
+                <p className={`text-2xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{stats.trialCompanies}</p>
               </div>
               <div className="p-2 bg-yellow-500/10 rounded-lg">
-                <AlertCircle className="w-4 h-4 text-yellow-400" />
+                <AlertCircle className="w-5 h-5 text-yellow-400" />
               </div>
             </div>
           </div>
 
-          <div className={`border rounded-lg p-3 ${
+          <div className={`border rounded-lg p-4 ${
             theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Ingresos/Mes</p>
-                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>${stats.totalRevenue.toFixed(0)}</p>
+                <p className="text-gray-400 text-xs mb-1">Ingresos/Mes</p>
+                <p className={`text-2xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>${stats.totalRevenue.toFixed(0)}</p>
               </div>
               <div className="p-2 bg-blue-500/10 rounded-lg">
-                <CreditCard className="w-4 h-4 text-blue-400" />
+                <CreditCard className="w-5 h-5 text-blue-400" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Línea separadora */}
-        <div className={`border-t mb-6 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
+        <div className={`border-t mb-4 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
 
         {/* Botón Nueva Empresa */}
-        <div className="mb-6 flex items-center justify-end">
+        <div className="flex justify-end mb-4">
           <button
             onClick={handleOpenNewModal}
             className="px-6 py-2.5 bg-primary hover:bg-primary/90 rounded-lg text-white font-medium flex items-center gap-2 transition-all text-sm shadow-lg shadow-primary/20"
@@ -528,67 +529,62 @@ export default function SubscriptionAdminPage() {
         </div>
 
         {/* Filtros */}
-        <div className="mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <div className="md:col-span-2">
-              <div className="relative">
-                <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
-                  theme === "light" ? "text-gray-500" : "text-gray-400"
-                }`} />
-                <input
-                  type="text"
-                  placeholder="Buscar orden..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={`w-full pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/30 ${
-                    theme === "light"
-                      ? "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400"
-                      : "bg-[#0f1824] border-white/5 text-white placeholder-gray-500"
-                  }`}
-                />
-              </div>
-            </div>
+        <div className="flex items-center gap-3 mb-6">
+          {/* Búsqueda */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Buscar empresa, RUC, administrador..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                theme === "light"
+                  ? "bg-white border-gray-200 text-gray-900 placeholder-gray-400"
+                  : "bg-secondary border-white/10 text-white placeholder-gray-500"
+              }`}
+            />
+          </div>
 
-            <div className="relative">
-              <Filter className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
-                theme === "light" ? "text-gray-500" : "text-gray-400"
-              }`} />
-              <select
-                value={filterPlan}
-                onChange={(e) => setFilterPlan(e.target.value as any)}
-                className={`w-full pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/30 appearance-none ${
-                  theme === "light"
-                    ? "bg-gray-50 border-gray-300 text-gray-900"
-                    : "bg-[#0f1824] border-white/5 text-white"
-                }`}
-              >
-                <option value="all">Todos los planes</option>
-                <option value="free">Gratuito</option>
-                <option value="standard">Estándar</option>
-                <option value="custom">Personalizado</option>
-              </select>
-            </div>
+          {/* Filtro Plan */}
+          <div className="relative flex items-center">
+            <Filter className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${theme === "light" ? "text-gray-400" : "text-gray-500"}`} />
+            <select
+              value={filterPlan}
+              onChange={(e) => setFilterPlan(e.target.value as any)}
+              className={`pl-9 pr-8 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 appearance-none ${
+                theme === "light"
+                  ? "bg-white border-gray-200 text-gray-700"
+                  : "bg-secondary border-white/10 text-white"
+              }`}
+            >
+              <option value="all">Todos los planes</option>
+              <option value="free">Gratuito</option>
+              <option value="standard">Estándar</option>
+              <option value="custom">Personalizado</option>
+            </select>
+            <ChevronDown className={`absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none ${theme === "light" ? "text-gray-400" : "text-gray-500"}`} />
+          </div>
 
-            <div className="relative">
-              <Filter className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
-                theme === "light" ? "text-gray-500" : "text-gray-400"
-              }`} />
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value as any)}
-                className={`w-full pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/30 appearance-none ${
-                  theme === "light"
-                    ? "bg-gray-50 border-gray-300 text-gray-900"
-                    : "bg-[#0f1824] border-white/5 text-white"
-                }`}
-              >
-                <option value="all">Todos los estados</option>
-                <option value="active">Activa</option>
-                <option value="trial">Prueba</option>
-                <option value="suspended">Suspendida</option>
-                <option value="expired">Expirada</option>
-              </select>
-            </div>
+          {/* Filtro Estado */}
+          <div className="relative flex items-center">
+            <Filter className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${theme === "light" ? "text-gray-400" : "text-gray-500"}`} />
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value as any)}
+              className={`pl-9 pr-8 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 appearance-none ${
+                theme === "light"
+                  ? "bg-white border-gray-200 text-gray-700"
+                  : "bg-secondary border-white/10 text-white"
+              }`}
+            >
+              <option value="all">Todos los estados</option>
+              <option value="active">Activa</option>
+              <option value="trial">Prueba</option>
+              <option value="suspended">Suspendida</option>
+              <option value="expired">Expirada</option>
+            </select>
+            <ChevronDown className={`absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none ${theme === "light" ? "text-gray-400" : "text-gray-500"}`} />
           </div>
         </div>
 
@@ -598,29 +594,15 @@ export default function SubscriptionAdminPage() {
         }`}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className={theme === "light" ? "bg-gray-100" : "bg-[#151f2e]"}>
+              <thead className={`border-b ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
                 <tr>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
-                    theme === "light" ? "text-gray-700" : "text-gray-400"
-                  }`}>Empresa</th>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
-                    theme === "light" ? "text-gray-700" : "text-gray-400"
-                  }`}>Administrador</th>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
-                    theme === "light" ? "text-gray-700" : "text-gray-400"
-                  }`}>Plan</th>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
-                    theme === "light" ? "text-gray-700" : "text-gray-400"
-                  }`}>Estado</th>
-                  <th className={`px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider ${
-                    theme === "light" ? "text-gray-700" : "text-gray-400"
-                  }`}>Usuarios</th>
-                  <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
-                    theme === "light" ? "text-gray-700" : "text-gray-400"
-                  }`}>Vigencia</th>
-                  <th className={`px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider ${
-                    theme === "light" ? "text-gray-700" : "text-gray-400"
-                  }`}>Acciones</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Empresa</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Administrador</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Plan</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuarios</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vigencia</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${theme === "light" ? "divide-gray-200" : "divide-white/5"}`}>
@@ -650,31 +632,31 @@ export default function SubscriptionAdminPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-1">
+                      <div className="flex items-center justify-center gap-3">
                         <button
                           onClick={() => handleViewCompany(company)}
-                          className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-md transition-colors"
+                          className="text-gray-400 hover:text-blue-400 transition-colors"
                           title="Ver detalles"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleEditCompany(company)}
-                          className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition-colors"
+                          className="text-gray-400 hover:text-yellow-400 transition-colors"
                           title="Editar"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => toast.info(`Enviar email a: ${company.adminEmail}`)}
-                          className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-md transition-colors"
+                          className="text-gray-400 hover:text-blue-400 transition-colors"
                           title="Enviar email"
                         >
                           <Mail className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteCompany(company)}
-                          className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-md transition-colors"
+                          className="text-gray-400 hover:text-red-400 transition-colors"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />

@@ -773,14 +773,14 @@ export default function MenuManagementPage() {
                             </button>
                             <button
                               onClick={() => handleEditMenu(menu)}
-                              className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+                              className="text-gray-400 hover:text-yellow-400 transition-colors"
                               title="Editar"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteMenu(menu)}
-                              className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                              className="text-gray-400 hover:text-red-400 transition-colors"
                               title="Eliminar"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -851,14 +851,14 @@ export default function MenuManagementPage() {
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => handleEditMenu(subMenu)}
-                                  className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+                                  className="text-gray-400 hover:text-yellow-400 transition-colors"
                                   title="Editar"
                                 >
                                   <Edit className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteMenu(subMenu)}
-                                  className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                                  className="text-gray-400 hover:text-red-400 transition-colors"
                                   title="Eliminar"
                                 >
                                   <Trash2 className="w-4 h-4" />

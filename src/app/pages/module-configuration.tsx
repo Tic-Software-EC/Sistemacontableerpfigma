@@ -40,10 +40,13 @@ import {
   Cloud,
   Bell,
   Mail,
+  Filter,
+  ChevronDown,
 } from "lucide-react";
 import { AdminHeader } from "../components/admin-header";
 import { IconSelector } from "../components/icon-selector";
 import { useTheme } from "../contexts/theme-context";
+import { Pagination } from "../components/pagination";
 
 interface Module {
   id: string;
@@ -67,6 +70,10 @@ export default function ModuleConfigurationPage() {
   // Estados de filtros
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [userProfile, setUserProfile] = useState({
     name: "Super Admin",
@@ -323,6 +330,21 @@ export default function ModuleConfigurationPage() {
     return nameMatch && statusMatch;
   });
 
+  // Paginación
+  const totalPages = Math.ceil(filteredModules.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedModules = filteredModules.slice(startIndex, startIndex + itemsPerPage);
+
+  // Resetear página al filtrar
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className={`min-h-screen ${
       theme === "light"
@@ -335,59 +357,59 @@ export default function ModuleConfigurationPage() {
       {/* Main Content */}
       <div className="p-6">
         {/* Métricas compactas */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className={`border rounded-lg p-3 ${
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className={`border rounded-lg p-4 ${
             theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Total Módulos</p>
-                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.length}</p>
+                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>Total Módulos</p>
+                <p className={`text-2xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.length}</p>
               </div>
               <div className="p-2 bg-primary/10 rounded-lg">
-                <Package className="w-4 h-4 text-primary" />
+                <Package className="w-5 h-5 text-primary" />
               </div>
             </div>
           </div>
 
-          <div className={`border rounded-lg p-3 ${
+          <div className={`border rounded-lg p-4 ${
             theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Activos</p>
-                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.filter(m => m.isActive).length}</p>
+                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>Activos</p>
+                <p className={`text-2xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.filter(m => m.isActive).length}</p>
               </div>
               <div className="p-2 bg-green-500/10 rounded-lg">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
               </div>
             </div>
           </div>
 
-          <div className={`border rounded-lg p-3 ${
+          <div className={`border rounded-lg p-4 ${
             theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Inactivos</p>
-                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.filter(m => !m.isActive).length}</p>
+                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>Inactivos</p>
+                <p className={`text-2xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{modules.filter(m => !m.isActive).length}</p>
               </div>
               <div className="p-2 bg-yellow-500/10 rounded-lg">
-                <Activity className="w-4 h-4 text-yellow-400" />
+                <Activity className="w-5 h-5 text-yellow-400" />
               </div>
             </div>
           </div>
 
-          <div className={`border rounded-lg p-3 ${
+          <div className={`border rounded-lg p-4 ${
             theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Categorías</p>
-                <p className={`text-xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{new Set(modules.map(m => m.category)).size}</p>
+                <p className={`text-xs mb-1 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>Categorías</p>
+                <p className={`text-2xl font-bold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{new Set(modules.map(m => m.category)).size}</p>
               </div>
               <div className="p-2 bg-blue-500/10 rounded-lg">
-                <Layers className="w-4 h-4 text-blue-400" />
+                <Layers className="w-5 h-5 text-blue-400" />
               </div>
             </div>
           </div>
@@ -396,138 +418,110 @@ export default function ModuleConfigurationPage() {
         {/* Línea separadora */}
         <div className={`border-t mb-4 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
 
-        {/* Filtros y Botón Nuevo Módulo */}
-        <div className="mb-4 flex items-center justify-between gap-4">
-          {/* Filtros */}
-          <div className="flex items-center gap-2">
-            {/* Búsqueda */}
-            <div className="relative">
-              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === "light" ? "text-gray-400" : "text-gray-500"}`} />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={`pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                  theme === "light"
-                    ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                    : "bg-[#1a2332] border-white/10 text-white placeholder:text-gray-500"
-                }`}
-                placeholder="Buscar módulo..."
-              />
-            </div>
-
-            {/* Filtro por Estado */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                theme === "light"
-                  ? "bg-white border-gray-300 text-gray-900"
-                  : "bg-[#1a2332] border-white/10 text-white"
-              }`}
-            >
-              <option value="all">Todos los estados</option>
-              <option value="active">Activos</option>
-              <option value="inactive">Inactivos</option>
-            </select>
-
-            {/* Limpiar filtros */}
-            {(searchTerm || statusFilter !== "all") && (
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("all");
-                }}
-                className={`px-3 py-2 border rounded-lg flex items-center gap-2 transition-colors text-sm font-medium ${
-                  theme === "light"
-                    ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                    : "bg-[#1a2332] border-white/10 text-gray-300 hover:bg-white/5"
-                }`}
-              >
-                <X className="w-4 h-4" />
-                Limpiar
-              </button>
-            )}
-
-            {/* Contador de resultados */}
-            {(searchTerm || statusFilter !== "all") && (
-              <span className={`text-sm ${
-                theme === "light" ? "text-gray-600" : "text-gray-400"
-              }`}>
-                {filteredModules.length} resultado{filteredModules.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-
-          {/* Botón Nuevo Módulo */}
+        {/* Botón Nuevo Módulo - fila propia */}
+        <div className="flex justify-end mb-4">
           <button
             onClick={handleOpenNewModal}
-            className="px-4 py-2 bg-primary hover:bg-primary/90 rounded-lg text-white font-medium flex items-center gap-2 transition-all text-sm shadow-lg shadow-primary/20"
+            className="px-6 py-2.5 bg-primary hover:bg-primary/90 rounded-lg text-white font-medium flex items-center gap-2 transition-all text-sm shadow-lg shadow-primary/20"
           >
             <Plus className="w-4 h-4" />
             Nuevo Módulo
           </button>
         </div>
 
+        {/* Filtros inline */}
+        <div className="flex items-center gap-3 mb-6">
+          {/* Búsqueda */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className={`w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                theme === "light"
+                  ? "bg-white border-gray-200 text-gray-900 placeholder-gray-400"
+                  : "bg-secondary border-white/10 text-white placeholder-gray-500"
+              }`}
+              placeholder="Buscar módulo..."
+            />
+          </div>
+
+          {/* Filtro por Estado */}
+          <div className="relative flex items-center">
+            <Filter className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${theme === "light" ? "text-gray-400" : "text-gray-500"}`} />
+            <select
+              value={statusFilter}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className={`pl-9 pr-8 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 appearance-none ${
+                theme === "light"
+                  ? "bg-white border-gray-200 text-gray-700"
+                  : "bg-secondary border-white/10 text-white"
+              }`}
+            >
+              <option value="all">Todos los estados</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
+            <ChevronDown className={`absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none ${theme === "light" ? "text-gray-400" : "text-gray-500"}`} />
+          </div>
+
+          {/* Limpiar filtros */}
+          {(searchTerm || statusFilter !== "all") && (
+            <button
+              onClick={() => { setSearchTerm(""); setStatusFilter("all"); }}
+              className={`px-3 py-2 border rounded-lg flex items-center gap-2 transition-colors text-sm ${
+                theme === "light"
+                  ? "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                  : "bg-secondary border-white/10 text-gray-400 hover:bg-white/5"
+              }`}
+            >
+              <X className="w-4 h-4" />
+              Limpiar
+            </button>
+          )}
+        </div>
+
         {/* Tabla de Módulos */}
-        <div className={`border rounded-xl overflow-hidden mb-6 ${
-          theme === "light" ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"
+        <div className={`border rounded-xl overflow-hidden ${
+          theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"
         }`}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
-                <tr className={`border-b ${
-                  theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#0f1621] border-white/10"
-                }`}>
-                  <th className={`px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wide ${
-                    theme === "light" ? "text-gray-600" : "text-gray-400"
-                  }`}>
+              <thead className={`border-b ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Módulo
                   </th>
-                  <th className={`px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wide ${
-                    theme === "light" ? "text-gray-600" : "text-gray-400"
-                  }`}>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Descripción
                   </th>
-                  <th className={`px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wide ${
-                    theme === "light" ? "text-gray-600" : "text-gray-400"
-                  }`}>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Estado
                   </th>
-                  <th className={`px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wide ${
-                    theme === "light" ? "text-gray-600" : "text-gray-400"
-                  }`}>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Orden
                   </th>
-                  <th className={`px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wide ${
-                    theme === "light" ? "text-gray-600" : "text-gray-400"
-                  }`}>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredModules.map((module, index) => {
+              <tbody className={`divide-y ${theme === "light" ? "divide-gray-100" : "divide-white/5"}`}>
+                {paginatedModules.map((module, index) => {
                   const Icon = module.icon;
                   return (
                     <tr
                       key={module.id}
-                      className={`border-b transition-colors ${
-                        theme === "light"
-                          ? "border-gray-200 hover:bg-gray-50"
-                          : "border-white/5 hover:bg-white/5"
+                      className={`transition-colors ${
+                        theme === "light" ? "hover:bg-gray-50" : "hover:bg-white/[0.02]"
                       }`}
                     >
                       {/* Módulo */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div
-                            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: `${module.color}20` }}
-                          >
-                            <Icon className="w-4 h-4" style={{ color: module.color }} />
-                          </div>
-                          <span className={`font-semibold text-sm ${
+                          
+                          <span className={`text-sm font-medium ${
                             theme === "light" ? "text-gray-900" : "text-white"
                           }`}>
                             {module.name}
@@ -538,7 +532,7 @@ export default function ModuleConfigurationPage() {
                       {/* Descripción */}
                       <td className="px-4 py-3">
                         <span className={`text-sm ${
-                          theme === "light" ? "text-gray-700" : "text-gray-300"
+                          theme === "light" ? "text-gray-600" : "text-gray-400"
                         }`}>
                           {module.description}
                         </span>
@@ -547,10 +541,10 @@ export default function ModuleConfigurationPage() {
                       {/* Estado */}
                       <td className="px-4 py-3">
                         <div className="flex justify-center">
-                          <span className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold ${
-                            module.isActive 
-                              ? 'bg-[#166534] text-white' 
-                              : 'bg-[#713f12] text-white'
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                            module.isActive
+                              ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
                           }`}>
                             {module.isActive ? "Activo" : "Inactivo"}
                           </span>
@@ -561,7 +555,7 @@ export default function ModuleConfigurationPage() {
                       <td className="px-4 py-3">
                         <div className="flex justify-center">
                           <span className={`text-sm ${
-                            theme === "light" ? "text-gray-700" : "text-gray-300"
+                            theme === "light" ? "text-gray-700" : "text-gray-400"
                           }`}>
                             {module.order}
                           </span>
@@ -570,36 +564,24 @@ export default function ModuleConfigurationPage() {
 
                       {/* Acciones */}
                       <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-center gap-3">
                           <button
                             onClick={() => handleViewModule(module)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              theme === "light"
-                                ? "text-blue-600 hover:bg-blue-50"
-                                : "text-blue-400 hover:bg-white/5"
-                            }`}
+                            className="text-gray-400 hover:text-blue-400 transition-colors"
                             title="Ver Detalles"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleEditModule(module)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              theme === "light"
-                                ? "text-orange-600 hover:bg-orange-50"
-                                : "text-orange-400 hover:bg-white/5"
-                            }`}
+                            className="text-gray-400 hover:text-yellow-400 transition-colors"
                             title="Editar"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteModule(module)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              theme === "light"
-                                ? "text-red-600 hover:bg-red-50"
-                                : "text-red-400 hover:bg-white/5"
-                            }`}
+                            className="text-gray-400 hover:text-red-400 transition-colors"
                             title="Eliminar"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -613,6 +595,20 @@ export default function ModuleConfigurationPage() {
             </table>
           </div>
         </div>
+
+        {/* Paginación */}
+        {filteredModules.length > itemsPerPage && (
+          <div className="mt-4">
+            <Pagination
+              totalItems={filteredModules.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(1); }}
+            />
+          </div>
+        )}
 
         {filteredModules.length === 0 && (
           <div className={`text-center py-12 border rounded-lg ${

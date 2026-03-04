@@ -394,39 +394,31 @@ export default function SubscriptionAdminPage() {
   };
 
   const getPlanBadge = (plan: string) => {
-    const planStyles = {
-      free: "bg-gray-700 text-gray-300 border border-gray-600",
-      standard: "bg-[#3d2817] text-[#E8692E] border border-[#E8692E]/40",
-      custom: "bg-[#0d3d4a] text-cyan-400 border border-cyan-500/40",
+    const configs = {
+      free:     { bg: "bg-gray-500/10 text-gray-400 border border-gray-500/20",    label: "Free" },
+      standard: { bg: "bg-primary/10 text-primary border border-primary/20",       label: "Standard" },
+      custom:   { bg: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20",    label: "Custom" },
     };
-    const planNames = {
-      free: "Free",
-      standard: "Standard",
-      custom: "Custom",
-    };
+    const c = configs[plan as keyof typeof configs] || configs.free;
     return (
-      <span className={`px-3 py-1 rounded-lg text-xs font-medium ${planStyles[plan as keyof typeof planStyles]}`}>
-        {planNames[plan as keyof typeof planNames]}
+      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${c.bg}`}>
+        {c.label}
       </span>
     );
   };
 
   const getStatusBadge = (status: string) => {
-    const statusStyles = {
-      active: "bg-[#0d3d2a] text-green-400 border border-green-500/40",
-      trial: "bg-[#3d3417] text-yellow-400 border border-yellow-500/40",
-      suspended: "bg-[#3d1a1f] text-red-400 border border-red-500/40",
-      expired: "bg-gray-700 text-gray-400 border border-gray-600",
+    const configs = {
+      active:    { bg: "bg-green-500/10 text-green-400 border border-green-500/20",   label: "Activa",      icon: "⊙" },
+      trial:     { bg: "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20", label: "Prueba",     icon: "◷" },
+      suspended: { bg: "bg-red-500/10 text-red-400 border border-red-500/20",         label: "Suspendida",  icon: "×" },
+      expired:   { bg: "bg-gray-500/10 text-gray-400 border border-gray-500/20",      label: "Expirada",    icon: "○" },
     };
-    const statusNames = {
-      active: "Activo",
-      trial: "Prueba",
-      suspended: "Suspendido",
-      expired: "Expirado",
-    };
+    const c = configs[status as keyof typeof configs] || configs.expired;
     return (
-      <span className={`px-3 py-1 rounded-lg text-xs font-medium ${statusStyles[status as keyof typeof statusStyles]}`}>
-        {statusNames[status as keyof typeof statusNames]}
+      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${c.bg}`}>
+        <span>{c.icon}</span>
+        {c.label}
       </span>
     );
   };
@@ -620,68 +612,60 @@ export default function SubscriptionAdminPage() {
           </button>
         </div>
 
-        {/* Filtros */}
-        <div className="bg-secondary border border-white/10 rounded-lg p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            {/* Búsqueda */}
-            <div className="md:col-span-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar por nombre, RUC o administrador..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50"
-                />
-              </div>
-            </div>
-
-            {/* Filtro por plan */}
-            <div>
-              <select
-                value={selectedPlan}
-                onChange={(e) => setSelectedPlan(e.target.value as any)}
-                className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
-              >
-                <option value="all">Todos los planes</option>
-                <option value="free">Gratuito</option>
-                <option value="standard">Estándar</option>
-                <option value="custom">Personalizado</option>
-              </select>
-            </div>
-
-            {/* Filtro por estado */}
-            <div>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value as any)}
-                className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="active">Activa</option>
-                <option value="trial">Prueba</option>
-                <option value="suspended">Suspendida</option>
-                <option value="expired">Expirada</option>
-              </select>
-            </div>
+        {/* 4. Filtros inline */}
+        <div className="flex items-center gap-3 mb-6">
+          {/* Búsqueda */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre, RUC o administrador..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-3 py-2.5 bg-secondary border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50"
+            />
           </div>
+
+          {/* Filtro por plan */}
+          <select
+            value={selectedPlan}
+            onChange={(e) => setSelectedPlan(e.target.value as any)}
+            className="px-3 py-2.5 bg-secondary border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
+          >
+            <option value="all">Todos los planes</option>
+            <option value="free">Gratuito</option>
+            <option value="standard">Estándar</option>
+            <option value="custom">Personalizado</option>
+          </select>
+
+          {/* Filtro por estado */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value as any)}
+            className="px-3 py-2.5 bg-secondary border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
+          >
+            <option value="all">Todos los estados</option>
+            <option value="active">Activa</option>
+            <option value="trial">Prueba</option>
+            <option value="suspended">Suspendida</option>
+            <option value="expired">Expirada</option>
+          </select>
         </div>
 
         {/* Tabla de empresas */}
         <div className="bg-secondary border border-white/10 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-[#151f2e]">
+              <thead className={`border-b ${`border-white/10`}`}>
                 <tr>
-                  <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Empresa</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">RUC</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Plan</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-                  <th className="px-4 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Usuarios</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Administrador</th>
-                  <th className="px-4 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Precio/Mes</th>
-                  <th className="px-4 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Empresa</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">RUC</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Plan</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuarios</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Administrador</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Precio/Mes</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -708,24 +692,24 @@ export default function SubscriptionAdminPage() {
                       <span className="text-white text-sm font-semibold">${company.monthlyPrice.toFixed(2)}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-1">
+                      <div className="flex items-center justify-center gap-3">
                         <button
                           onClick={() => handleViewCompany(company)}
-                          className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-md transition-colors"
+                          className="text-gray-400 hover:text-blue-400 transition-colors"
                           title="Ver detalles"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleEditCompany(company)}
-                          className="p-1.5 text-yellow-400 hover:bg-yellow-500/10 rounded-md transition-colors"
+                          className="text-gray-400 hover:text-yellow-400 transition-colors"
                           title="Editar"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteCompany(company)}
-                          className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-md transition-colors"
+                          className="text-gray-400 hover:text-red-400 transition-colors"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
