@@ -11,6 +11,7 @@ import ModuleConfigurationPage from "./pages/module-configuration";
 import ModuleComprasDetail from "./pages/module-compras-detail";
 import ModulePosDetail from "./pages/module-pos-detail";
 import ModuleInventoryDetail from "./pages/module-inventory-detail";
+import ModuleAccountingDetail from "./pages/module-accounting-detail";
 import AdminLayout from "./components/admin-layout";
 import AdminWelcomePage from "./pages/admin-welcome";
 import { RouteError } from "./components/route-error";
@@ -68,6 +69,9 @@ export const router = createBrowserRouter([
       // ── Inventario ─────────────────────────────────────────────────────────
       { path: "/module-inventory-detail/:tab", element: <ModuleInventoryDetail /> },
 
+      // ── Contabilidad ───────────────────────────────────────────────────────
+      { path: "/module-accounting-detail/:tab", element: <ModuleAccountingDetail /> },
+
       // ── Redirects para URLs base sin parámetros obligatorios ───────────────
       {
         path: "/module-config-detail",
@@ -84,6 +88,10 @@ export const router = createBrowserRouter([
       {
         path: "/module-inventory-detail",
         element: <Navigate to="/module-inventory-detail/stock" replace />,
+      },
+      {
+        path: "/module-accounting-detail",
+        element: <Navigate to="/module-accounting-detail/journal" replace />,
       },
 
       // ── Catch-all: cualquier ruta desconocida → login ──────────────────────

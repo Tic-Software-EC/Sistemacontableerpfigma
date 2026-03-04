@@ -124,6 +124,7 @@ export default function ModulesPage() {
     if (module.name === "Compras")        { navigate("/module-compras-detail/orders"); return; }
     if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }
     if (module.name === "Inventario")     { navigate("/module-inventory-detail/stock"); return; }
+    if (module.name === "Contabilidad")   { navigate("/module-accounting-detail/journal"); return; }
 
     // Primer menuId de cada módulo — define el grupo que se abre por defecto
     // URL resultante: /module-config-detail/{menuId}
