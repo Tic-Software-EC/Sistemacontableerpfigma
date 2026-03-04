@@ -173,7 +173,9 @@ export function NewRetentionModal({ onClose }: NewRetentionModalProps) {
       totals: calculateTotals()
     });
 
-    alert("Retención registrada exitosamente");
+    import("sonner").then(({ toast }) => {
+      toast.success("Retención registrada exitosamente");
+    });
     onClose();
   };
 

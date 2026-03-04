@@ -482,20 +482,21 @@ export default function ModuleComprasDetail() {
 
         {/* Tabs horizontales */}
         <div className="px-6 border-t border-white/10">
-          <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="flex items-center gap-0 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-5 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition-all ${
-                    activeTab === tab.id
-                      ? "border-primary text-white bg-primary/5"
-                      : "border-transparent text-gray-400 hover:text-white hover:bg-white/5"
+                  className={`flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${
+                    isActive
+                      ? "border-primary text-primary"
+                      : "border-transparent text-gray-500 hover:text-gray-300"
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-gray-500"}`} />
                   {tab.name}
                 </button>
               );

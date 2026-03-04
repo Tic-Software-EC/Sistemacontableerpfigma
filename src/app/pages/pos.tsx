@@ -463,7 +463,7 @@ export function POS() {
     
     // Aquí iría la lógica para actualizar el cliente en la base de datos
     // Por ahora solo mostramos un mensaje de confirmación
-    alert(`Datos actualizados para ${customerName}\nRUC: ${customerRuc}\nTeléfono: ${customerPhone}\nEmail: ${customerEmail}\nDirección: ${customerAddress}`);
+    toast.success("Datos del cliente actualizados");
     
     // Actualizar el foundCustomer con los nuevos datos
     setFoundCustomer({
@@ -547,7 +547,7 @@ export function POS() {
   const createNewCustomer = () => {
     // Validar que tenga nombre y RUC
     if (!customerName.trim() || !customerRuc.trim()) {
-      alert("El nombre y RUC/Cédula son obligatorios");
+      toast.error("El nombre y RUC/Cédula son obligatorios"); 
       return;
     }
 
@@ -632,7 +632,7 @@ export function POS() {
   const handleOpenCaja = () => {
     const monto = parseFloat(montoInicial);
     if (isNaN(monto) || monto < 0) {
-      alert("Ingresa un monto inicial válido");
+      toast.error("Ingresa un monto inicial válido");
       return;
     }
 
@@ -664,23 +664,23 @@ export function POS() {
   // Función para registrar gasto
   const handleAddExpense = () => {
     if (!expenseTipo) {
-      alert("Debes seleccionar un tipo de gasto");
+      toast.error("Debes seleccionar un tipo de gasto");
       return;
     }
 
     if (!expenseConcepto.trim()) {
-      alert("Debes ingresar un concepto para el gasto");
+      toast.error("Debes ingresar un concepto para el gasto");
       return;
     }
 
     const monto = parseFloat(expenseMonto);
     if (isNaN(monto) || monto <= 0) {
-      alert("El monto debe ser un número mayor a 0");
+      toast.error("El monto debe ser un número mayor a 0");
       return;
     }
 
     if (!isCajaOpen) {
-      alert("Debes abrir la caja antes de registrar gastos");
+      toast.error("Debes abrir la caja antes de registrar gastos");
       return;
     }
 
@@ -711,7 +711,7 @@ export function POS() {
   // Agregar producto al carrito
   const addToCart = (product: Product) => {
     if (!isCajaOpen) {
-      alert("Debes abrir la caja antes de realizar ventas");
+      toast.error("Debes abrir la caja antes de realizar ventas");
       return;
     }
     
@@ -727,7 +727,7 @@ export function POS() {
 
     if (existingItem) {
       if (existingItem.quantity >= product.stock) {
-        alert(`Solo quedan ${product.stock} unidades de ${product.name}`);
+        toast.error(`Solo quedan ${product.stock} unidades de ${product.name}`);
         return;
       }
       updateQuantity(product.code, existingItem.quantity + 1);
@@ -751,7 +751,7 @@ export function POS() {
 
     const item = cart.find((item) => item.product.code === productCode);
     if (item && newQuantity > item.product.stock) {
-      alert("No hay suficiente stock disponible");
+      toast.error("No hay suficiente stock disponible");
       return;
     }
 
@@ -867,25 +867,25 @@ export function POS() {
   // Procesar pago
   const processSale = () => {
     if (cart.length === 0) {
-      alert("Agrega productos antes de procesar el pago");
+      toast.error("Agrega productos antes de procesar el pago");
       return;
     }
 
     // Validar que ventas a crédito requieren cliente
     if (paymentType === "credit" && !customerName.trim() && !foundCustomer) {
-      alert("Las ventas a crédito requieren seleccionar un cliente");
+      toast.error("Las ventas a crédito requieren seleccionar un cliente");
       return;
     }
 
     // Validar referencia para pagos no efectivo
     if (paymentMethod !== "cash" && !paymentReference.trim()) {
-      alert("Debes ingresar la referencia o número de comprobante del pago");
+      toast.error("Debes ingresar la referencia o número de comprobante del pago");
       return;
     }
 
     const paidAmount = parseFloat(amountPaid) || 0;
     if (paymentMethod === "cash" && paymentType === "cash" && paidAmount < totals.total) {
-      alert(`Monto insuficiente. Falta: $${(totals.total - paidAmount).toFixed(2)}`);
+      toast.error(`Monto insuficiente. Falta: $${(totals.total - paidAmount).toFixed(2)}`);
       return;
     }
 
@@ -974,12 +974,12 @@ export function POS() {
 
   const openPaymentModal = () => {
     if (!isCajaOpen) {
-      alert("Debes abrir la caja antes de procesar pagos");
+      toast.error("Debes abrir la caja antes de procesar pagos");
       return;
     }
 
     if (cart.length === 0) {
-      alert("Agrega productos antes de procesar el pago");
+      toast.error("Agrega productos antes de procesar el pago");
       return;
     }
     

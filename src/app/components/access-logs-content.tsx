@@ -18,6 +18,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+import { toast } from "sonner";
+
 interface AccessLog {
   id: string;
   userId: string;
@@ -319,7 +321,7 @@ export function AccessLogsContent() {
   };
 
   const handleExport = () => {
-    alert("Exportando registros de accesos...");
+    toast.info("Exportando registros de accesos...");
   };
 
   const getStatusIcon = (status: string) => {
@@ -545,10 +547,10 @@ export function AccessLogsContent() {
                   <td className="px-4 py-2.5 text-center">
                     <button
                       onClick={() => handleViewDetails(log)}
-                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors group inline-flex"
+                      className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                       title="Ver detalles"
                     >
-                      <Eye className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
+                      <Eye className="w-4 h-4" />
                     </button>
                   </td>
                 </tr>

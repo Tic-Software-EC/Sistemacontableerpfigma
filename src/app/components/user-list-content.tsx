@@ -1,702 +1,357 @@
 import { useState } from "react";
 import {
-  Users,
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  X,
-  Eye,
-  EyeOff,
-  Mail,
-  User,
-  Lock,
-  Shield,
-  UserCheck,
-  Crown,
-  CheckCircle2,
-  Wallet,
-  Package,
-  ShoppingCart,
-  Calculator,
-  Send,
-  KeyRound,
-  UserPlus,
-  IdCard,
-  Phone,
-  Building,
-  Building2,
-  Briefcase,
-  Calendar,
+  Users, Search, Plus, Edit, Trash2, X, Eye, EyeOff,
+  Mail, User, Shield, UserCheck, Crown, CheckCircle2,
+  Wallet, Package, ShoppingCart, Calculator, Send, KeyRound,
+  Building2, Filter, Info, AlertCircle, RefreshCw, Copy, Clock,
 } from "lucide-react";
+import { useTheme } from "../contexts/theme-context";
+import { useRoles } from "../contexts/roles-context";
+import { toast } from "sonner";
 
 interface UserData {
   id: string;
   username: string;
   email: string;
   fullName: string;
-  role: "super_admin" | "admin_empresa" | "contador" | "cajero" | "bodeguero" | "vendedor" | "comprador";
-  branch: string; // ID de la sucursal
+  roleId: string;
+  branch: string;
   status: "active" | "inactive";
+  mustChangePassword: boolean;
   createdAt: string;
   lastLogin: string;
 }
 
-interface EmployeeData {
-  id: string;
-  cedula: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  department: string;
-  position: string;
-  branch: string; // ID de la sucursal
-  hireDate: string;
-  status: "active" | "inactive";
+const BRANCHES = [
+  { id: "sucursal1", name: "Sucursal Principal - Centro" },
+  { id: "sucursal2", name: "Sucursal Norte" },
+  { id: "sucursal3", name: "Sucursal Guayaquil" },
+  { id: "sucursal4", name: "Sucursal Sur" },
+];
+
+// Genera una contraseña segura aleatoria
+function generatePassword(length = 10): string {
+  const upper   = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower   = "abcdefghjkmnpqrstuvwxyz";
+  const numbers = "23456789";
+  const special = "@#$%&*!";
+  const all     = upper + lower + numbers + special;
+  let pwd = [
+    upper  [Math.floor(Math.random() * upper.length)],
+    lower  [Math.floor(Math.random() * lower.length)],
+    numbers[Math.floor(Math.random() * numbers.length)],
+    special[Math.floor(Math.random() * special.length)],
+  ];
+  for (let i = 4; i < length; i++) {
+    pwd.push(all[Math.floor(Math.random() * all.length)]);
+  }
+  return pwd.sort(() => Math.random() - 0.5).join("");
 }
 
+const INITIAL_USERS: UserData[] = [
+  { id: "1", username: "admin",      email: "admin@empresa.com",      fullName: "Administrador Principal", roleId: "2", branch: "sucursal1", status: "active",   mustChangePassword: false, createdAt: "2024-01-15", lastLogin: "2026-02-17 09:30" },
+  { id: "2", username: "jperez",     email: "jperez@empresa.com",     fullName: "Juan Pérez García",       roleId: "5", branch: "sucursal1", status: "active",   mustChangePassword: false, createdAt: "2024-02-20", lastLogin: "2026-02-16 15:20" },
+  { id: "3", username: "mrodriguez", email: "mrodriguez@empresa.com", fullName: "María Rodríguez López",   roleId: "3", branch: "sucursal1", status: "active",   mustChangePassword: false, createdAt: "2024-03-10", lastLogin: "2026-02-17 08:15" },
+  { id: "4", username: "lmartinez",  email: "lmartinez@empresa.com",  fullName: "Luis Martínez Ruiz",      roleId: "4", branch: "sucursal1", status: "inactive", mustChangePassword: true,  createdAt: "2024-04-05", lastLogin: "Nunca" },
+];
+
 export function UserListContent() {
-  // Lista de sucursales disponibles
-  const branches = [
-    { id: "sucursal1", name: "Sucursal Principal - Centro" },
-    { id: "sucursal2", name: "Sucursal Norte" },
-    { id: "sucursal3", name: "Sucursal Guayaquil" },
-    { id: "sucursal4", name: "Sucursal Sur" },
-  ];
+  const { theme }    = useTheme();
+  const { roles }    = useRoles();
+  const isLight      = theme === "light";
 
-  // Maestro de personas
-  const [persons] = useState<EmployeeData[]>([
-    {
-      id: "p1",
-      cedula: "1234567890",
-      fullName: "Carlos Alberto Gómez Sánchez",
-      email: "cgomez@empresa.com",
-      phone: "0987654321",
-      department: "Contabilidad",
-      position: "Contador",
-      branch: "sucursal1", // ID de la sucursal
-      hireDate: "2023-01-15",
-      status: "active",
-    },
-    {
-      id: "p2",
-      cedula: "0987654321",
-      fullName: "Ana María Torres Vega",
-      email: "atorres@empresa.com",
-      phone: "0912345678",
-      department: "Ventas",
-      position: "Vendedora",
-      branch: "sucursal1", // ID de la sucursal
-      hireDate: "2023-02-20",
-      status: "active",
-    },
-    {
-      id: "p3",
-      cedula: "1122334455",
-      fullName: "Pedro José Ramírez Castro",
-      email: "pramirez@empresa.com",
-      phone: "0998877665",
-      department: "Bodega",
-      position: "Bodeguero",
-      branch: "sucursal1", // ID de la sucursal
-      hireDate: "2023-03-10",
-      status: "active",
-    },
-    {
-      id: "p4",
-      cedula: "5544332211",
-      fullName: "Laura Patricia Moreno Díaz",
-      email: "lmoreno@empresa.com",
-      phone: "0965432109",
-      department: "Caja",
-      position: "Cajera",
-      branch: "sucursal1", // ID de la sucursal
-      hireDate: "2023-04-05",
-      status: "active",
-    },
-    {
-      id: "p5",
-      cedula: "6677889900",
-      fullName: "Roberto Carlos Jiménez Flores",
-      email: "rjimenez@empresa.com",
-      phone: "0923456789",
-      department: "Compras",
-      position: "Comprador",
-      branch: "sucursal1", // ID de la sucursal
-      hireDate: "2023-05-15",
-      status: "active",
-    },
-    {
-      id: "p6",
-      cedula: "9988776655",
-      fullName: "Sofía Elena Vargas Mendoza",
-      email: "svargas@empresa.com",
-      phone: "0934567890",
-      department: "Ventas",
-      position: "Vendedora",
-      branch: "sucursal1", // ID de la sucursal
-      hireDate: "2023-06-20",
-      status: "active",
-    },
-  ]);
+  const txt      = isLight ? "text-gray-900"  : "text-white";
+  const sub      = isLight ? "text-gray-500"  : "text-gray-400";
+  const lbl      = isLight ? "text-gray-600"  : "text-gray-300";
+  const divB     = isLight ? "border-gray-200" : "border-white/10";
+  const card     = `rounded-xl border ${isLight ? "bg-white border-gray-200 shadow-sm" : "bg-white/5 border-white/10"}`;
+  const modalCls = `rounded-2xl border shadow-2xl ${isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10"}`;
+  const IN       = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400" : "bg-[#0f1825] border-white/10 text-white placeholder-gray-500"}`;
+  const INpl     = `w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400" : "bg-[#0f1825] border-white/10 text-white placeholder-gray-500"}`;
+  const OB       = isLight ? "" : "bg-[#0D1B2A]";
+  const thCls    = `px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ${sub}`;
+  const hoverRow = isLight ? "hover:bg-gray-50" : "hover:bg-white/[0.02]";
 
-  const [users, setUsers] = useState<UserData[]>([
-    {
-      id: "1",
-      username: "admin",
-      email: "admin@empresa.com",
-      fullName: "Administrador Principal",
-      role: "admin_empresa",
-      branch: "sucursal1", // ID de la sucursal
-      status: "active",
-      createdAt: "2024-01-15",
-      lastLogin: "2026-02-17 09:30",
-    },
-    {
-      id: "2",
-      username: "jperez",
-      email: "jperez@empresa.com",
-      fullName: "Juan Pérez García",
-      role: "vendedor",
-      branch: "sucursal1", // ID de la sucursal
-      status: "active",
-      createdAt: "2024-02-20",
-      lastLogin: "2026-02-16 15:20",
-    },
-    {
-      id: "3",
-      username: "mrodriguez",
-      email: "mrodriguez@empresa.com",
-      fullName: "María Rodríguez López",
-      role: "contador",
-      branch: "sucursal1", // ID de la sucursal
-      status: "active",
-      createdAt: "2024-03-10",
-      lastLogin: "2026-02-17 08:15",
-    },
-    {
-      id: "4",
-      username: "lmartinez",
-      email: "lmartinez@empresa.com",
-      fullName: "Luis Martínez Ruiz",
-      role: "bodeguero",
-      branch: "sucursal1", // ID de la sucursal
-      status: "inactive",
-      createdAt: "2024-04-05",
-      lastLogin: "2026-01-30 14:45",
-    },
-  ]);
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [branchFilter, setBranchFilter] = useState("all"); // Filtro por sucursal
-  const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [users, setUsers]               = useState<UserData[]>(INITIAL_USERS);
+  const [searchTerm, setSearchTerm]     = useState("");
+  const [branchFilter, setBranchFilter] = useState("all");
+  const [showModal, setShowModal]       = useState(false);
+  const [modalMode, setModalMode]       = useState<"create" | "edit">("create");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  
-  // Estados para búsqueda de personas
-  const [showPersonModal, setShowPersonModal] = useState(false);
-  const [personSearchTerm, setPersonSearchTerm] = useState("");
-  const [personBranchFilter, setPersonBranchFilter] = useState("all"); // Filtro por sucursal en modal de personas
-  
-  // Estados para resetear contraseña
-  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
-  const [resetPasswordData, setResetPasswordData] = useState({
-    newPassword: "",
-    confirmPassword: "",
-  });
+  const [showGenPwd, setShowGenPwd]     = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetData, setResetData]       = useState({ newPassword: "", confirmPassword: "" });
+  const [showResetPwd, setShowResetPwd] = useState(false);
 
-  // Form states
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     fullName: "",
-    password: "",
-    confirmPassword: "",
-    role: "cajero" as "super_admin" | "admin_empresa" | "contador" | "cajero" | "bodeguero" | "vendedor" | "comprador",
-    branch: "sucursal1", // ID de la sucursal
+    roleId: "",
+    branch: "sucursal1",
     status: "active" as "active" | "inactive",
+    generatedPassword: "",
   });
 
-  const handleOpenCreateModal = () => {
-    setShowPersonModal(true);
+  const getBranchName = (id: string) => BRANCHES.find(b => b.id === id)?.name ?? "Sin asignar";
+  const getRoleName   = (id: string) => roles.find(r => r.id === id)?.name ?? "Sin rol";
+
+  const filteredUsers = users.filter(u => {
+    const term = searchTerm.toLowerCase();
+    return (u.username.toLowerCase().includes(term) || u.email.toLowerCase().includes(term) || u.fullName.toLowerCase().includes(term))
+      && (branchFilter === "all" || u.branch === branchFilter);
+  });
+
+  const newGeneratedPwd = () => {
+    const pwd = generatePassword();
+    setFormData(f => ({ ...f, generatedPassword: pwd }));
   };
 
-  const handleSelectPerson = (person: EmployeeData) => {
-    setShowPersonModal(false);
+  const openCreate = () => {
     setModalMode("create");
-    setFormData({
-      username: "",
-      email: person.email,
-      fullName: person.fullName,
-      password: "",
-      confirmPassword: "",
-      role: "cajero",
-      branch: person.branch, // ID de la sucursal
-      status: "active",
-    });
-    setShowModal(true);
-  };
-
-  const handleOpenEditModal = (user: UserData) => {
-    setModalMode("edit");
-    setSelectedUser(user);
-    setFormData({
-      username: user.username,
-      email: user.email,
-      fullName: user.fullName,
-      password: "",
-      confirmPassword: "",
-      role: user.role,
-      branch: user.branch, // ID de la sucursal
-      status: user.status,
-    });
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
     setSelectedUser(null);
-    setShowPassword(false);
+    const pwd = generatePassword();
+    setFormData({ username: "", email: "", fullName: "", roleId: "", branch: "sucursal1", status: "active", generatedPassword: pwd });
+    setShowGenPwd(false);
+    setShowModal(true);
   };
 
-  const handleClosePersonModal = () => {
-    setShowPersonModal(false);
-    setPersonSearchTerm("");
-    setPersonBranchFilter("all");
+  const openEdit = (u: UserData) => {
+    setModalMode("edit");
+    setSelectedUser(u);
+    setFormData({ username: u.username, email: u.email, fullName: u.fullName, roleId: u.roleId, branch: u.branch, status: u.status, generatedPassword: "" });
+    setShowGenPwd(false);
+    setShowModal(true);
+  };
+
+  const closeModal = () => { setShowModal(false); setSelectedUser(null); };
+
+  const copyPwd = () => {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = formData.generatedPassword;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      toast.success("Contraseña copiada al portapapeles");
+    } catch {
+      toast.error("No se pudo copiar. Cópiala manualmente.");
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validaciones
-    if (formData.password !== formData.confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
-
-    if (modalMode === "create" && !formData.password) {
-      alert("La contraseña es obligatoria");
-      return;
-    }
-
+    if (!formData.username.trim()) { toast.error("El nombre de usuario es obligatorio"); return; }
+    if (!formData.email.trim())    { toast.error("El email es obligatorio"); return; }
+    if (!formData.roleId)          { toast.error("Debes seleccionar un rol"); return; }
     if (modalMode === "create") {
-      // Crear nuevo usuario
-      const newUser: UserData = {
-        id: String(users.length + 1),
+      const roleName = getRoleName(formData.roleId);
+      setUsers(prev => [...prev, {
+        id: String(Date.now()),
         username: formData.username,
         email: formData.email,
-        fullName: formData.fullName,
-        role: formData.role,
-        branch: formData.branch, // ID de la sucursal
-        status: formData.status,
+        fullName: formData.fullName || formData.username,
+        roleId: formData.roleId,
+        branch: formData.branch,
+        status: "active",
+        mustChangePassword: true,
         createdAt: new Date().toISOString().split("T")[0],
         lastLogin: "Nunca",
-      };
-      setUsers([...users, newUser]);
-      alert("Usuario creado exitosamente");
+      }]);
+      toast.success(`✅ Usuario "${formData.username}" creado como ${roleName}. Contraseña temporal enviada a ${formData.email}.`);
     } else {
-      // Editar usuario existente
-      setUsers(
-        users.map((user) =>
-          user.id === selectedUser?.id
-            ? {
-                ...user,
-                username: formData.username,
-                email: formData.email,
-                fullName: formData.fullName,
-                role: formData.role,
-                branch: formData.branch, // ID de la sucursal
-                status: formData.status,
-              }
-            : user
-        )
-      );
-      alert("Usuario actualizado exitosamente");
+      setUsers(prev => prev.map(u => u.id === selectedUser?.id
+        ? { ...u, username: formData.username, email: formData.email, fullName: formData.fullName, roleId: formData.roleId, branch: formData.branch, status: formData.status }
+        : u
+      ));
+      toast.success("Usuario actualizado exitosamente");
     }
-
-    handleCloseModal();
+    closeModal();
   };
 
-  const handleDeleteUser = (userId: string) => {
-    if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      setUsers(users.filter((user) => user.id !== userId));
-      alert("Usuario eliminado exitosamente");
+  const handleDelete = (id: string) => {
+    if (confirm("¿Eliminar este usuario?")) {
+      setUsers(prev => prev.filter(u => u.id !== id));
+      toast.success("Usuario eliminado");
     }
   };
-
-  const handleToggleStatus = (userId: string) => {
-    setUsers(
-      users.map((user) =>
-        user.id === userId
-          ? {
-              ...user,
-              status: user.status === "active" ? "inactive" : "active",
-            }
-          : user
-      )
-    );
+  const toggleStatus = (id: string) => {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, status: u.status === "active" ? "inactive" : "active" } : u));
+    const u = users.find(x => x.id === id);
+    toast.success(u?.status === "active" ? "Usuario desactivado" : "Usuario activado");
   };
-
-  const handleSendCredentials = (user: UserData) => {
-    alert(
-      `Credenciales enviadas exitosamente a:\n\nUsuario: ${user.username}\nEmail: ${user.email}\n\nEl usuario recibirá un correo con sus credenciales de acceso.`
-    );
+  const sendCredentials = (u: UserData) => toast.success(`Credenciales enviadas a ${u.email}`);
+  const openReset = (u: UserData) => {
+    setSelectedUser(u);
+    setResetData({ newPassword: "", confirmPassword: "" });
+    setShowResetModal(true);
   };
-
-  const handleOpenResetPassword = (user: UserData) => {
-    setSelectedUser(user);
-    setResetPasswordData({
-      newPassword: "",
-      confirmPassword: "",
-    });
-    setShowResetPasswordModal(true);
-  };
-
-  const handleCloseResetPassword = () => {
-    setShowResetPasswordModal(false);
-    setSelectedUser(null);
-    setResetPasswordData({
-      newPassword: "",
-      confirmPassword: "",
-    });
-    setShowPassword(false);
-  };
-
-  const handleResetPasswordSubmit = (e: React.FormEvent) => {
+  const closeReset = () => { setShowResetModal(false); setSelectedUser(null); setShowResetPwd(false); };
+  const handleReset = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (resetPasswordData.newPassword !== resetPasswordData.confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
-
-    if (resetPasswordData.newPassword.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-
-    alert(`Contraseña reseteada exitosamente para el usuario: ${selectedUser?.username}`);
-    handleCloseResetPassword();
+    if (resetData.newPassword !== resetData.confirmPassword) { toast.error("Las contraseñas no coinciden"); return; }
+    if (resetData.newPassword.length < 6) { toast.error("Mínimo 6 caracteres"); return; }
+    toast.success(`Contraseña actualizada para ${selectedUser?.username}`);
+    closeReset();
   };
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.fullName.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesBranch = branchFilter === "all" || user.branch === branchFilter;
-    
-    return matchesSearch && matchesBranch;
-  });
-
-  const filteredPersons = persons.filter((person) => {
-    const matchesSearch =
-      person.cedula.includes(personSearchTerm) ||
-      person.fullName.toLowerCase().includes(personSearchTerm.toLowerCase()) ||
-      person.email.toLowerCase().includes(personSearchTerm.toLowerCase()) ||
-      person.department.toLowerCase().includes(personSearchTerm.toLowerCase());
-    
-    const matchesBranch = personBranchFilter === "all" || person.branch === personBranchFilter;
-    
-    return matchesSearch && matchesBranch;
-  });
-
-  const getRoleBadge = (role: string) => {
-    switch (role) {
-      case "super_admin":
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg text-xs font-medium">
-            <Crown className="w-3 h-3" />
-            Super Admin
-          </span>
-        );
-      case "admin_empresa":
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/20 text-blue-300 rounded-lg text-xs font-medium">
-            <Shield className="w-3 h-3" />
-            Admin
-          </span>
-        );
-      case "contador":
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg text-xs font-medium">
-            <Calculator className="w-3 h-3" />
-            Contador
-          </span>
-        );
-      case "cajero":
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-500/20 text-amber-300 rounded-lg text-xs font-medium">
-            <Wallet className="w-3 h-3" />
-            Cajero
-          </span>
-        );
-      case "bodeguero":
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-lg text-xs font-medium">
-            <Package className="w-3 h-3" />
-            Bodeguero
-          </span>
-        );
-      case "vendedor":
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/20 text-green-300 rounded-lg text-xs font-medium">
-            <ShoppingCart className="w-3 h-3" />
-            Vendedor
-          </span>
-        );
-      case "comprador":
-        return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-lg text-xs font-medium">
-            <ShoppingCart className="w-3 h-3" />
-            Comprador
-          </span>
-        );
-      default:
-        return null;
-    }
+  const getRoleBadge = (roleId: string) => {
+    const role = roles.find(r => r.id === roleId);
+    if (!role) return (
+      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${isLight ? "bg-gray-100 text-gray-400" : "bg-white/10 text-gray-500"}`}>
+        — Sin asignar
+      </span>
+    );
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium"
+        style={{ backgroundColor: role.color + "22", color: role.color }}>
+        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: role.color }} />
+        {role.name}
+      </span>
+    );
   };
 
-  const getBranchName = (branchId: string) => {
-    const branch = branches.find((b) => b.id === branchId);
-    return branch ? branch.name : "Sin asignar";
-  };
+  const metrics = [
+    { label: "Total Usuarios", val: users.length,                                        icon: <Users     className="w-5 h-5 text-primary"   />, bg: "bg-primary/20"   },
+    { label: "Activos",        val: users.filter(u => u.status === "active").length,      icon: <UserCheck className="w-5 h-5 text-green-400" />, bg: "bg-green-500/20" },
+    { label: "Inactivos",      val: users.filter(u => u.status === "inactive").length,    icon: <User      className="w-5 h-5 text-red-400"   />, bg: "bg-red-500/20"   },
+    { label: "1er Acceso",     val: users.filter(u => u.mustChangePassword).length,       icon: <Clock     className="w-5 h-5 text-amber-400" />, bg: "bg-amber-500/20" },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header: Título + subtítulo */}
+    <div className="space-y-6 w-full">
+
+      {/* Header */}
       <div>
-        <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+        <h2 className={`font-bold text-3xl mb-1 flex items-center gap-3 ${txt}`}>
           <Users className="w-8 h-8 text-primary" />
           Lista de Usuarios
         </h2>
-        <p className="text-gray-400 text-sm">
-          Gestiona los usuarios y sus credenciales de acceso al sistema
-        </p>
+        <p className={`text-sm ${sub}`}>Gestiona los usuarios y sus credenciales de acceso al sistema</p>
       </div>
 
-      {/* Línea separatoria */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${divB}`} />
 
       {/* Métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Total Usuarios</p>
-              <p className="text-white font-bold text-2xl">{users.length}</p>
-            </div>
-            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-primary" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Activos</p>
-              <p className="text-white font-bold text-2xl">{users.filter(u => u.status === "active").length}</p>
-            </div>
-            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <UserCheck className="w-5 h-5 text-green-400" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {metrics.map(m => (
+          <div key={m.label} className={`${card} p-4`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-xs mb-1 ${sub}`}>{m.label}</p>
+                <p className={`font-bold text-2xl ${txt}`}>{m.val}</p>
+              </div>
+              <div className={`w-10 h-10 ${m.bg} rounded-lg flex items-center justify-center`}>{m.icon}</div>
             </div>
           </div>
-        </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Inactivos</p>
-              <p className="text-white font-bold text-2xl">{users.filter(u => u.status === "inactive").length}</p>
-            </div>
-            <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
-              <User className="w-5 h-5 text-red-400" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Admins</p>
-              <p className="text-white font-bold text-2xl">{users.filter(u => u.role === "admin_empresa" || u.role === "super_admin").length}</p>
-            </div>
-            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <Crown className="w-5 h-5 text-blue-400" />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Segunda línea separatoria */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${divB}`} />
 
-      {/* Botón de acción */}
+      {/* Botón acción */}
       <div className="flex justify-end">
-        <button
-          onClick={handleOpenCreateModal}
-          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20"
-        >
-          <Plus className="w-4 h-4" />
-          Nuevo Usuario
+        <button onClick={openCreate} className="inline-flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-primary/20">
+          <Plus className="w-4 h-4" /> Nuevo Usuario
         </button>
       </div>
 
-      {/* Barra de búsqueda y filtro */}
-      <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Búsqueda */}
-          <div className="relative lg:col-span-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar por usuario, email o nombre..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-            />
-          </div>
-          
-          {/* Filtro por Sucursal */}
-          <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <select
-              value={branchFilter}
-              onChange={(e) => setBranchFilter(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
-            >
-              <option value="all">Todas las sucursales</option>
-              {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {branch.name}
-                </option>
-              ))}
-            </select>
-          </div>
+      {/* Búsqueda + filtros */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className={`flex items-center gap-2 flex-1 px-3 py-2 rounded-lg border text-sm ${isLight ? "bg-white border-gray-300" : "bg-[#0f1825] border-white/10"}`}>
+          <Search className={`w-4 h-4 flex-shrink-0 ${sub}`} />
+          <input type="text" placeholder="Buscar por usuario, email o nombre..." value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className={`flex-1 bg-transparent outline-none text-sm ${txt} placeholder:text-gray-500`} />
+        </div>
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${isLight ? "bg-white border-gray-300" : "bg-[#0f1825] border-white/10"}`}>
+          <Filter className={`w-4 h-4 ${sub}`} />
+          <select value={branchFilter} onChange={e => setBranchFilter(e.target.value)} className={`bg-transparent outline-none text-sm ${txt}`}>
+            <option value="all" className={OB}>Todas las sucursales</option>
+            {BRANCHES.map(b => <option key={b.id} value={b.id} className={OB}>{b.name}</option>)}
+          </select>
         </div>
       </div>
 
-      {/* Tabla de usuarios */}
-      <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+      {/* Tabla */}
+      <div className={`${card} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-white/5 border-b border-white/10">
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Usuario
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Nombre Completo
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Rol
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Sucursal
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  Acciones
-                </th>
+              <tr className={`border-b ${divB} ${isLight ? "bg-gray-50" : "bg-white/[0.03]"}`}>
+                {["Usuario", "Nombre Completo", "Rol", "Sucursal", "Estado", "Acciones"].map(h => (
+                  <th key={h} className={thCls}>{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-white/5 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                          <User className="w-5 h-5 text-primary" />
-                        </div>
+            <tbody className={`divide-y ${divB}`}>
+              {filteredUsers.length > 0 ? filteredUsers.map(u => (
+                <tr key={u.id} className={`transition-colors ${hoverRow}`}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      
+                      <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-white font-medium">
-                            {user.username}
-                          </span>
-                          <span className="text-gray-400 text-xs">
-                            {user.email}
-                          </span>
+                          <p className={`text-sm font-medium ${txt}`}>{u.username}</p>
+                          {u.mustChangePassword && (
+                            null
+                          )}
                         </div>
+                        
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-300">{user.fullName}</td>
-                    <td className="px-6 py-4">{getRoleBadge(user.role)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-gray-300 text-sm">
-                        <Building2 className="w-4 h-4 text-gray-400" />
-                        {getBranchName(user.branch)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleToggleStatus(user.id)}
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                          user.status === "active"
-                            ? "bg-green-500/20 text-green-300 hover:bg-green-500/30"
-                            : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
-                        }`}
-                      >
-                        {user.status === "active" ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3" />
-                            Activo
-                          </>
-                        ) : (
-                          <>
-                            <X className="w-3 h-3" />
-                            Inactivo
-                          </>
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleSendCredentials(user)}
-                          className="p-2 text-green-400 hover:bg-green-500/20 rounded-lg transition-colors"
-                          title="Reenviar Credenciales"
-                        >
-                          <Send className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleOpenResetPassword(user)}
-                          className="p-2 text-orange-400 hover:bg-orange-500/20 rounded-lg transition-colors"
-                          title="Resetear Contraseña"
-                        >
-                          <KeyRound className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleOpenEditModal(user)}
-                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
-                          title="Editar"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Users className="w-12 h-12 text-gray-600" />
-                      <p className="text-gray-400">
-                        No se encontraron usuarios
-                      </p>
                     </div>
+                  </td>
+                  <td className={`px-4 py-3 text-sm ${lbl}`}>{u.fullName || <span className={sub}>—</span>}</td>
+                  <td className="px-4 py-3">{getRoleBadge(u.roleId)}</td>
+                  <td className="px-4 py-3">
+                    <div className={`flex items-center gap-1.5 text-sm ${lbl}`}>
+                      <Building2 className={`w-3.5 h-3.5 ${sub}`} />
+                      {getBranchName(u.branch)}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => toggleStatus(u.id)}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                        u.status === "active"
+                          ? isLight ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
+                          : isLight ? "bg-red-100 text-red-700 hover:bg-red-200"       : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                      }`}>
+                      {u.status === "active"
+                        ? <><CheckCircle2 className="w-3 h-3" />Activo</>
+                        : <><X className="w-3 h-3" />Inactivo</>}
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => sendCredentials(u)} title="Reenviar credenciales"
+                        className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-400 hover:text-green-600 hover:bg-green-50" : "text-gray-500 hover:text-green-400 hover:bg-green-500/10"}`}>
+                        <Send className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => openReset(u)} title="Resetear contraseña"
+                        className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-400 hover:text-orange-600 hover:bg-orange-50" : "text-gray-500 hover:text-orange-400 hover:bg-orange-500/10"}`}>
+                        <KeyRound className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => openEdit(u)} title="Editar"
+                        className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-400 hover:text-primary hover:bg-primary/10" : "text-gray-500 hover:text-primary hover:bg-primary/10"}`}>
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDelete(u.id)} title="Eliminar"
+                        className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-400 hover:text-red-600 hover:bg-red-50" : "text-gray-500 hover:text-red-400 hover:bg-red-500/10"}`}>
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center">
+                    <Users className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                    <p className={`text-sm font-medium ${txt}`}>No se encontraron usuarios</p>
+                    <p className={`text-xs mt-1 ${sub}`}>Intenta con otros términos o crea un nuevo usuario</p>
                   </td>
                 </tr>
               )}
@@ -705,538 +360,247 @@ export function UserListContent() {
         </div>
       </div>
 
-      {/* Modal Búsqueda de Personas */}
-      {showPersonModal && (
+      {/* ══════════════════════════════════════════════════
+          MODAL: Crear / Editar Usuario
+      ══════════════════════════════════════════════════ */}
+      {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-secondary border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`w-full max-w-md ${modalCls} flex flex-col max-h-[92vh]`}>
+
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-secondary z-10">
+            <div className={`flex items-center justify-between px-6 py-4 border-b ${divB} flex-shrink-0`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <UserPlus className="w-5 h-5 text-primary" />
+                <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center">
+                  {modalMode === "create" ? <Plus className="w-4 h-4 text-primary" /> : <Edit className="w-4 h-4 text-primary" />}
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-xl">
-                    Seleccionar Empleado
+                  <h3 className={`font-bold text-base ${txt}`}>
+                    {modalMode === "create" ? "Nuevo Usuario" : "Editar Usuario"}
                   </h3>
-                  <p className="text-gray-400 text-sm">
-                    Busca y selecciona un empleado de la empresa para crear un usuario
+                  <p className={`text-xs ${sub}`}>
+                    {modalMode === "create" ? "Datos básicos de acceso al sistema" : `Editando: ${selectedUser?.username}`}
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleClosePersonModal}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-              >
+              <button onClick={closeModal} className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Separador */}
-            <div className="border-t border-white/10"></div>
-
-            {/* Búsqueda y Filtro */}
-            <div className="p-6 border-b border-white/10">
-              <div className="space-y-4">
-                {/* Búsqueda */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Buscar por cédula, nombre, email o departamento..."
-                    value={personSearchTerm}
-                    onChange={(e) => setPersonSearchTerm(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                  />
+            {/* Aviso — solo al crear */}
+            {modalMode === "create" && (
+              <div className={`mx-6 mt-5 flex items-start gap-3 px-4 py-3 rounded-xl border text-xs ${isLight ? "bg-blue-50 border-blue-200 text-blue-700" : "bg-blue-500/10 border-blue-500/20 text-blue-300"}`}>
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold mb-0.5">Solo datos de acceso</p>
+                  <p className={isLight ? "text-blue-600" : "text-blue-400/90"}>
+                    Completa los datos personales (cédula, teléfono, cargo, etc.) en el módulo de{" "}
+                    <strong>Empleados</strong>. El usuario deberá cambiar su contraseña en el primer acceso.
+                  </p>
                 </div>
-                
-                {/* Filtro por Sucursal */}
+              </div>
+            )}
+
+            {/* Formulario */}
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+
+              {/* Usuario */}
+              <div>
+                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>
+                  Nombre de usuario <span className="text-red-400">*</span>
+                </label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <select
-                    value={personBranchFilter}
-                    onChange={(e) => setPersonBranchFilter(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="all">Todas las sucursales</option>
-                    {branches.map((branch) => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
+                  <UserCheck className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${sub}`} />
+                  <input type="text" value={formData.username}
+                    onChange={e => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/\s/g, "") })}
+                    placeholder="jperez" className={INpl} required />
+                </div>
+                <p className={`text-xs mt-1 ${sub}`}>Sin espacios · solo minúsculas</p>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>
+                  Correo electrónico <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${sub}`} />
+                  <input type="email" value={formData.email}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="usuario@empresa.com" className={INpl} required />
+                </div>
+              </div>
+
+              {/* Contraseña autogenerada — solo al crear */}
+              {modalMode === "create" && (
+                <div>
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>
+                    Contraseña temporal autogenerada
+                  </label>
+                  <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${isLight ? "bg-gray-50 border-gray-300" : "bg-[#0f1825] border-white/10"}`}>
+                    {/* Contraseña oculta o visible */}
+                    <span className={`flex-1 font-mono text-sm tracking-widest ${txt}`}>
+                      {showGenPwd ? formData.generatedPassword : "•".repeat(formData.generatedPassword.length)}
+                    </span>
+                    <button type="button" onClick={() => setShowGenPwd(!showGenPwd)} title="Ver / ocultar"
+                      className={`p-1 rounded transition-colors ${sub} hover:text-primary`}>
+                      {showGenPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                    <button type="button" onClick={copyPwd} title="Copiar contraseña"
+                      className={`p-1 rounded transition-colors ${sub} hover:text-primary`}>
+                      <Copy className="w-4 h-4" />
+                    </button>
+                    <button type="button" onClick={newGeneratedPwd} title="Regenerar contraseña"
+                      className={`p-1 rounded transition-colors ${sub} hover:text-primary`}>
+                      <RefreshCw className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {/* Aviso de envío */}
+                  <div className={`flex items-center gap-2 mt-2 px-3 py-2 rounded-lg text-xs ${isLight ? "bg-green-50 border border-green-200 text-green-700" : "bg-green-500/10 border border-green-500/20 text-green-400"}`}>
+                    <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>Esta contraseña se enviará automáticamente al correo del usuario al crear la cuenta.</span>
+                  </div>
+                  {/* Indicador de cambio obligatorio */}
+                  <div className={`flex items-center gap-2 mt-1.5 px-3 py-2 rounded-lg text-xs ${isLight ? "bg-amber-50 border border-amber-200 text-amber-700" : "bg-amber-500/10 border border-amber-500/20 text-amber-400"}`}>
+                    <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>El usuario <strong>deberá cambiar la contraseña</strong> en su primer inicio de sesión.</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Rol — dinámico desde RolesContext */}
+              <div>
+                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>
+                  Rol del sistema <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <Shield className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${sub}`} />
+                  <select value={formData.roleId}
+                    onChange={e => setFormData({ ...formData, roleId: e.target.value })}
+                    className={`${INpl} appearance-none`} required>
+                    <option value="" className={OB}>— Seleccionar rol —</option>
+                    {roles.map(r => (
+                      <option key={r.id} value={r.id} className={OB}>{r.name}</option>
                     ))}
                   </select>
                 </div>
-              </div>
-            </div>
-
-            {/* Lista de empleados */}
-            <div className="p-6 space-y-3 max-h-[500px] overflow-y-auto">
-              {filteredPersons.length > 0 ? (
-                filteredPersons.map((person) => (
-                  <button
-                    key={person.id}
-                    onClick={() => handleSelectPerson(person)}
-                    className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-5 transition-all text-left group"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors flex-shrink-0">
-                        <Briefcase className="w-7 h-7 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <div className="flex-1">
-                            <h4 className="text-white font-semibold text-lg mb-1">
-                              {person.fullName}
-                            </h4>
-                            <div className="flex items-center gap-2 text-sm">
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-500/20 text-blue-300 rounded-lg text-xs font-medium">
-                                <Briefcase className="w-3 h-3" />
-                                {person.position}
-                              </span>
-                              <span
-                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${
-                                  person.status === "active"
-                                    ? "bg-green-500/20 text-green-300"
-                                    : "bg-red-500/20 text-red-300"
-                                }`}
-                              >
-                                {person.status === "active" ? "Activo" : "Inactivo"}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            <UserPlus className="w-6 h-6 text-primary" />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                          <div className="flex items-center gap-2 text-gray-400 text-sm">
-                            <IdCard className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="truncate">{person.cedula}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-400 text-sm">
-                            <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="truncate">{person.email}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-400 text-sm">
-                            <Building className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="truncate">{person.department}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-400 text-sm">
-                            <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="truncate">Desde {person.hireDate}</span>
-                          </div>
-                        </div>
-                      </div>
+                {/* Descripción del rol seleccionado */}
+                {formData.roleId && (() => {
+                  const r = roles.find(x => x.id === formData.roleId);
+                  return r ? (
+                    <div className={`flex items-start gap-2 mt-2 px-3 py-2 rounded-lg text-xs border ${isLight ? "bg-gray-50 border-gray-200 text-gray-600" : "bg-white/[0.04] border-white/10 text-gray-400"}`}>
+                      <span className="w-2 h-2 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: r.color }} />
+                      <span><strong className={txt}>{r.name}:</strong> {r.description}</span>
                     </div>
-                  </button>
-                ))
-              ) : (
-                <div className="text-center py-12">
-                  <Briefcase className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-400">No se encontraron empleados</p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Intenta con otros términos de búsqueda
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Crear/Editar Usuario */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-secondary border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-secondary z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  {modalMode === "create" ? (
-                    <Plus className="w-5 h-5 text-primary" />
-                  ) : (
-                    <Edit className="w-5 h-5 text-primary" />
-                  )}
-                </div>
-                <h3 className="text-white font-bold text-xl">
-                  {modalMode === "create" ? "Nuevo Usuario" : "Editar Usuario"}
-                </h3>
-              </div>
-              <button
-                onClick={handleCloseModal}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Nombre Completo */}
-              <div>
-                <label className="block text-white mb-2 font-medium text-sm">
-                  Nombre Completo
-                  <span className="text-red-400 ml-1">*</span>
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, fullName: e.target.value })
-                    }
-                    placeholder="Ej: Juan Pérez García"
-                    className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                    required
-                    readOnly={modalMode === "create"}
-                  />
-                </div>
-                {modalMode === "create" && (
-                  <p className="text-gray-500 text-xs mt-1">
-                    Dato importado del maestro de personas
-                  </p>
-                )}
-              </div>
-
-              {/* Usuario y Email en dos columnas */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Usuario */}
-                <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Nombre de Usuario
-                    <span className="text-red-400 ml-1">*</span>
-                  </label>
-                  <div className="relative">
-                    <UserCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.username}
-                      onChange={(e) =>
-                        setFormData({ ...formData, username: e.target.value })
-                      }
-                      placeholder="usuario"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Correo Electrónico
-                    <span className="text-red-400 ml-1">*</span>
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      placeholder="usuario@empresa.com"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                      required
-                      readOnly={modalMode === "create"}
-                    />
-                  </div>
-                  {modalMode === "create" && (
-                    <p className="text-gray-500 text-xs mt-1">
-                      Dato importado del maestro de personas
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Contraseña y Confirmar Contraseña */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Contraseña */}
-                <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Contraseña
-                    {modalMode === "create" && (
-                      <span className="text-red-400 ml-1">*</span>
-                    )}
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      placeholder="••••••••"
-                      className="w-full pl-10 pr-10 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                      required={modalMode === "create"}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                  {modalMode === "edit" && (
-                    <p className="text-gray-500 text-xs mt-1">
-                      Dejar en blanco para mantener la contraseña actual
-                    </p>
-                  )}
-                </div>
-
-                {/* Confirmar Contraseña */}
-                <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Confirmar Contraseña
-                    {modalMode === "create" && (
-                      <span className="text-red-400 ml-1">*</span>
-                    )}
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          confirmPassword: e.target.value,
-                        })
-                      }
-                      placeholder="••••••••"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                      required={modalMode === "create"}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Rol y Estado */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Rol */}
-                <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Rol
-                    <span className="text-red-400 ml-1">*</span>
-                  </label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        role: e.target.value as "super_admin" | "admin_empresa" | "contador" | "cajero" | "bodeguero" | "vendedor" | "comprador",
-                      })
-                    }
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                    required
-                  >
-                    <option value="cajero">Cajero</option>
-                    <option value="vendedor">Vendedor</option>
-                    <option value="comprador">Comprador</option>
-                    <option value="bodeguero">Bodeguero</option>
-                    <option value="contador">Contador</option>
-                    <option value="admin_empresa">Admin Empresa</option>
-                    <option value="super_admin">Super Admin</option>
-                  </select>
-                </div>
-
-                {/* Estado */}
-                <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Estado
-                    <span className="text-red-400 ml-1">*</span>
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        status: e.target.value as "active" | "inactive",
-                      })
-                    }
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                    required
-                  >
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
-                  </select>
-                </div>
+                  ) : null;
+                })()}
               </div>
 
               {/* Sucursal */}
               <div>
-                <label className="block text-white mb-2 font-medium text-sm">
-                  Sucursal
-                  <span className="text-red-400 ml-1">*</span>
+                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>
+                  Sucursal asignada <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <select
-                    value={formData.branch}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        branch: e.target.value,
-                      })
-                    }
-                    className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                    required
-                  >
-                    {branches.map((branch) => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
-                    ))}
+                  <Building2 className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${sub}`} />
+                  <select value={formData.branch} onChange={e => setFormData({ ...formData, branch: e.target.value })}
+                    className={`${INpl} appearance-none`}>
+                    {BRANCHES.map(b => <option key={b.id} value={b.id} className={OB}>{b.name}</option>)}
                   </select>
                 </div>
-                <p className="text-gray-500 text-xs mt-1">
-                  Selecciona la sucursal donde trabajará el usuario
-                </p>
               </div>
 
-              {/* Botones */}
-              <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="flex-1 px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium"
-                >
-                  {modalMode === "create" ? "Crear Usuario" : "Guardar Cambios"}
-                </button>
-              </div>
+              {/* Estado — solo al editar */}
+              {modalMode === "edit" && (
+                <div>
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Estado</label>
+                  <select value={formData.status}
+                    onChange={e => setFormData({ ...formData, status: e.target.value as "active" | "inactive" })}
+                    className={IN}>
+                    <option value="active"   className={OB}>Activo</option>
+                    <option value="inactive" className={OB}>Inactivo</option>
+                  </select>
+                </div>
+              )}
             </form>
+
+            {/* Footer */}
+            <div className={`flex items-center justify-end gap-3 px-6 py-4 border-t flex-shrink-0 ${divB} ${isLight ? "bg-gray-50" : "bg-white/[0.02]"}`}>
+              <button type="button" onClick={closeModal}
+                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-700 hover:bg-gray-100" : "border-white/15 text-gray-300 hover:bg-white/10"}`}>
+                Cancelar
+              </button>
+              <button onClick={handleSubmit as any}
+                disabled={!formData.username || !formData.email || !formData.roleId}
+                className="inline-flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors">
+                {modalMode === "create" ? <><Send className="w-4 h-4" />Crear y enviar credenciales</> : "Guardar Cambios"}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Modal Resetear Contraseña */}
-      {showResetPasswordModal && (
+      {/* ══════════════════════════════════════════════════
+          MODAL: Resetear contraseña
+      ══════════════════════════════════════════════════ */}
+      {showResetModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-secondary border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <div className={`w-full max-w-sm ${modalCls}`}>
+            <div className={`flex items-center justify-between px-6 py-4 border-b ${divB}`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                  <KeyRound className="w-5 h-5 text-orange-400" />
+                <div className="w-9 h-9 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                  <KeyRound className="w-4 h-4 text-orange-500" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg">
-                    Resetear Contraseña
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    {selectedUser?.fullName}
-                  </p>
+                  <h3 className={`font-bold text-base ${txt}`}>Resetear Contraseña</h3>
+                  <p className={`text-xs ${sub}`}>{selectedUser?.username}</p>
                 </div>
               </div>
-              <button
-                onClick={handleCloseResetPassword}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-              >
+              <button onClick={closeReset} className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
                 <X className="w-5 h-5" />
               </button>
             </div>
-
-            {/* Form */}
-            <form onSubmit={handleResetPasswordSubmit} className="p-6 space-y-5">
-              {/* Nueva Contraseña */}
+            <form onSubmit={handleReset} className="p-6 space-y-4">
+              <div className={`flex items-start gap-2 px-3 py-2.5 rounded-lg text-xs border ${isLight ? "bg-amber-50 border-amber-200 text-amber-700" : "bg-amber-500/10 border-amber-500/20 text-amber-300"}`}>
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Se enviará la nueva contraseña al correo del usuario y se solicitará cambiarla en el siguiente acceso.</span>
+              </div>
               <div>
-                <label className="block text-white mb-2 font-medium text-sm">
-                  Nueva Contraseña
-                  <span className="text-red-400 ml-1">*</span>
-                </label>
+                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Nueva contraseña <span className="text-red-400">*</span></label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={resetPasswordData.newPassword}
-                    onChange={(e) =>
-                      setResetPasswordData({
-                        ...resetPasswordData,
-                        newPassword: e.target.value,
-                      })
-                    }
-                    placeholder="••••••••"
-                    className="w-full pl-10 pr-10 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
+                  <KeyRound className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${sub}`} />
+                  <input type={showResetPwd ? "text" : "password"} value={resetData.newPassword}
+                    onChange={e => setResetData({ ...resetData, newPassword: e.target.value })}
+                    placeholder="••••••••" className={`${INpl} pr-9`} required />
+                  <button type="button" onClick={() => setShowResetPwd(!showResetPwd)}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 ${sub} hover:text-primary`}>
+                    {showResetPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
-
-              {/* Confirmar Nueva Contraseña */}
               <div>
-                <label className="block text-white mb-2 font-medium text-sm">
-                  Confirmar Nueva Contraseña
-                  <span className="text-red-400 ml-1">*</span>
-                </label>
+                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Confirmar contraseña <span className="text-red-400">*</span></label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={resetPasswordData.confirmPassword}
-                    onChange={(e) =>
-                      setResetPasswordData({
-                        ...resetPasswordData,
-                        confirmPassword: e.target.value,
-                      })
-                    }
-                    placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                    required
-                  />
+                  <KeyRound className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${sub}`} />
+                  <input type="password" value={resetData.confirmPassword}
+                    onChange={e => setResetData({ ...resetData, confirmPassword: e.target.value })}
+                    placeholder="••••••••" className={INpl} required />
                 </div>
               </div>
-
-              {/* Nota */}
-              <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
-                <p className="text-orange-300 text-sm">
-                  <strong>Nota:</strong> La nueva contraseña será enviada automáticamente al correo del usuario.
-                </p>
-              </div>
-
-              {/* Botones */}
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={handleCloseResetPassword}
-                  className="flex-1 px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
-                >
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button type="button" onClick={closeReset}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-700 hover:bg-gray-100" : "border-white/15 text-gray-300 hover:bg-white/10"}`}>
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl transition-colors font-medium"
-                >
-                  Resetear Contraseña
+                <button type="submit" className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors">
+                  <Send className="w-4 h-4" /> Actualizar y notificar
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
     </div>
   );
 }

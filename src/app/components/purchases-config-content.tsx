@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Settings, Building2, Save, Package, DollarSign, FileText, Truck, Calendar, Check, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 const SUCURSALES = [
   { id: "suc-001", name: "Sucursal Principal - Centro" },
@@ -178,7 +179,7 @@ export function PurchasesConfigContent() {
   const handleSave = () => {
     console.log("Guardando configuración de compras...", currentConfig);
     setHasUnsavedChanges(false);
-    alert("Configuración guardada exitosamente");
+    toast.success("Configuración guardada exitosamente");
   };
 
   const toggleDocument = (docId: string) => {
@@ -911,6 +912,24 @@ export function PurchasesConfigContent() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* Separador */}
+      <div className="border-t border-white/10"></div>
+
+      <div className="flex justify-end">
+        <button
+          disabled={!hasUnsavedChanges}
+          onClick={handleSave}
+          className={`px-6 py-2.5 rounded-lg transition-all font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20 ${
+            hasUnsavedChanges
+              ? "bg-primary hover:bg-primary/90 text-white"
+              : "bg-gray-600 text-gray-400 cursor-not-allowed"
+          }`}
+        >
+          <Save className="w-5 h-5" />
+          Guardar Cambios
+        </button>
       </div>
     </div>
   );

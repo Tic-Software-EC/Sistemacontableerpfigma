@@ -1,20 +1,16 @@
 import { useState } from "react";
 import {
-  Warehouse,
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  X,
-  MapPin,
-  Building2,
-  User,
-  Hash,
-  CheckCircle2,
-  Package,
-  Boxes,
-  Archive,
+  Warehouse, Search, Plus, Edit, Eye, X,
+  MapPin, Building2, Hash, Package, Boxes,
+  Archive, SlidersHorizontal, CheckCircle2,
+  XCircle, Pencil, Trash2, AlertCircle,
 } from "lucide-react";
+import { useTheme } from "../contexts/theme-context";
+import { toast } from "sonner";
+
+/* ─── tipos ────────────────────────────────────────────── */
+type WType  = "general" | "refrigerado" | "materias_primas" | "productos_terminados";
+type Status = "active" | "inactive";
 
 interface WarehouseData {
   id: string;
@@ -22,710 +18,490 @@ interface WarehouseData {
   name: string;
   branchId: string;
   branchName: string;
-  type: "general" | "refrigerado" | "materias_primas" | "productos_terminados";
+  type: WType;
   location: string;
   capacity: string;
   manager: string;
-  status: "active" | "inactive";
+  status: Status;
+  description?: string;
 }
 
+const EMPTY: Omit<WarehouseData, "id" | "branchName"> = {
+  code: "", name: "", branchId: "", type: "general",
+  location: "", capacity: "", manager: "", status: "active", description: "",
+};
+
+const BRANCHES = [
+  { id: "1", name: "Sucursal Principal - Centro" },
+  { id: "2", name: "Sucursal Norte" },
+  { id: "3", name: "Sucursal Guayaquil" },
+  { id: "4", name: "Sucursal Sur" },
+];
+
+const EMPLOYEES = [
+  { id: "1", name: "Luis Rodríguez",  branchId: "1" },
+  { id: "2", name: "María Fernández", branchId: "1" },
+  { id: "3", name: "Ana Torres",      branchId: "1" },
+  { id: "4", name: "Pedro Gómez",     branchId: "2" },
+  { id: "5", name: "Diana Ruiz",      branchId: "2" },
+  { id: "6", name: "Carlos Morales",  branchId: "3" },
+  { id: "7", name: "Jorge Sánchez",   branchId: "3" },
+  { id: "8", name: "Patricia López",  branchId: "4" },
+];
+
+const TYPE_CFG: Record<WType, { label: string; dark: string; light: string }> = {
+  general:             { label: "General",          dark: "bg-blue-500/15 text-blue-400 border-blue-500/30",    light: "bg-blue-50 text-blue-600 border-blue-200"    },
+  refrigerado:         { label: "Refrigerado",      dark: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",    light: "bg-cyan-50 text-cyan-600 border-cyan-200"    },
+  materias_primas:     { label: "Mat. Primas",      dark: "bg-purple-500/15 text-purple-400 border-purple-500/30", light: "bg-purple-50 text-purple-600 border-purple-200" },
+  productos_terminados:{ label: "Prod. Terminados", dark: "bg-green-500/15 text-green-400 border-green-500/30", light: "bg-green-50 text-green-600 border-green-200" },
+};
+
+function TypeBadge({ type, isLight }: { type: WType; isLight: boolean }) {
+  const cfg = TYPE_CFG[type];
+  return (
+    <span className={`px-2.5 py-0.5 rounded-md text-xs font-medium border ${isLight ? cfg.light : cfg.dark}`}>
+      {cfg.label}
+    </span>
+  );
+}
+
+/* ─── componente ────────────────────────────────────────── */
 export function WarehousesContent() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
+  const txt   = isLight ? "text-gray-900"   : "text-white";
+  const sub   = isLight ? "text-gray-500"   : "text-gray-400";
+  const lbl   = isLight ? "text-gray-600"   : "text-gray-300";
+  const divB  = isLight ? "border-gray-200" : "border-white/10";
+  const tHead = isLight ? "bg-gray-50 border-gray-200 text-gray-500" : "bg-white/5 border-white/10 text-gray-400";
+  const tDiv  = isLight ? "divide-gray-100" : "divide-white/5";
+  const tWrap = isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10";
+  const rowHv = isLight ? "hover:bg-gray-50" : "hover:bg-white/[0.04]";
+  const MB    = isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10";
+  const IN    = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400" : "bg-[#0f1825] border-white/10 text-white placeholder:text-gray-500"}`;
+  const TA    = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all resize-none ${isLight ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400" : "bg-[#0f1825] border-white/10 text-white placeholder:text-gray-500"}`;
+  const OB    = "bg-[#0D1B2A]";
+
+  /* data */
   const [warehouses, setWarehouses] = useState<WarehouseData[]>([
-    {
-      id: "1",
-      code: "ALM-001",
-      name: "Almacén Principal Centro",
-      branchId: "1",
-      branchName: "Sucursal Principal - Centro",
-      type: "general",
-      location: "Planta Baja - Sector A",
-      capacity: "500 m²",
-      manager: "Luis Rodríguez",
-      status: "active",
-    },
-    {
-      id: "2",
-      code: "ALM-002",
-      name: "Cámara Fría Centro",
-      branchId: "1",
-      branchName: "Sucursal Principal - Centro",
-      type: "refrigerado",
-      location: "Sótano - Sector B",
-      capacity: "150 m²",
-      manager: "María Fernández",
-      status: "active",
-    },
-    {
-      id: "3",
-      code: "ALM-003",
-      name: "Almacén Norte Principal",
-      branchId: "2",
-      branchName: "Sucursal Norte",
-      type: "general",
-      location: "Planta Baja",
-      capacity: "350 m²",
-      manager: "Pedro Gómez",
-      status: "active",
-    },
-    {
-      id: "4",
-      code: "ALM-004",
-      name: "Bodega Materias Primas",
-      branchId: "1",
-      branchName: "Sucursal Principal - Centro",
-      type: "materias_primas",
-      location: "Planta Alta - Sector C",
-      capacity: "200 m²",
-      manager: "Ana Torres",
-      status: "active",
-    },
-    {
-      id: "5",
-      code: "ALM-005",
-      name: "Almacén Guayaquil",
-      branchId: "3",
-      branchName: "Sucursal Guayaquil",
-      type: "general",
-      location: "Planta Baja",
-      capacity: "400 m²",
-      manager: "Carlos Morales",
-      status: "active",
-    },
-    {
-      id: "6",
-      code: "ALM-006",
-      name: "Almacén Productos Terminados",
-      branchId: "2",
-      branchName: "Sucursal Norte",
-      type: "productos_terminados",
-      location: "Planta Alta",
-      capacity: "300 m²",
-      manager: "Diana Ruiz",
-      status: "inactive",
-    },
+    { id:"1", code:"ALM-001", name:"Almacén Principal Centro",     branchId:"1", branchName:"Sucursal Principal - Centro", type:"general",             location:"Planta Baja - Sector A", capacity:"500 m²",  manager:"Luis Rodríguez",  status:"active"   },
+    { id:"2", code:"ALM-002", name:"Cámara Fría Centro",           branchId:"1", branchName:"Sucursal Principal - Centro", type:"refrigerado",          location:"Sótano - Sector B",      capacity:"150 m²",  manager:"María Fernández", status:"active"   },
+    { id:"3", code:"ALM-003", name:"Almacén Norte Principal",      branchId:"2", branchName:"Sucursal Norte",              type:"general",             location:"Planta Baja",            capacity:"350 m²",  manager:"Pedro Gómez",     status:"active"   },
+    { id:"4", code:"ALM-004", name:"Bodega Materias Primas",       branchId:"1", branchName:"Sucursal Principal - Centro", type:"materias_primas",      location:"Planta Alta - Sector C", capacity:"200 m²",  manager:"Ana Torres",      status:"active"   },
+    { id:"5", code:"ALM-005", name:"Almacén Guayaquil",            branchId:"3", branchName:"Sucursal Guayaquil",          type:"general",             location:"Planta Baja",            capacity:"400 m²",  manager:"Carlos Morales",  status:"active"   },
+    { id:"6", code:"ALM-006", name:"Almacén Prod. Terminados",     branchId:"2", branchName:"Sucursal Norte",              type:"productos_terminados", location:"Planta Alta",            capacity:"300 m²",  manager:"Diana Ruiz",      status:"inactive" },
   ]);
 
-  const [searchTerm, setSearchTerm] = useState("");
+  /* filtros */
+  const [search,       setSearch]       = useState("");
+  const [branchFilter, setBranchFilter] = useState("all");
+  const [typeFilter,   setTypeFilter]   = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  /* modal */
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [selectedWarehouse, setSelectedWarehouse] = useState<WarehouseData | null>(null);
-  const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>("all");
+  const [viewW,     setViewW]     = useState<WarehouseData | null>(null);
+  const [editingW,  setEditingW]  = useState<WarehouseData | null>(null);
+  const [formData,  setFormData]  = useState({ ...EMPTY });
 
-  // Mock data de sucursales para el selector
-  const branches = [
-    { id: "1", name: "Sucursal Principal - Centro" },
-    { id: "2", name: "Sucursal Norte" },
-    { id: "3", name: "Sucursal Guayaquil" },
-    { id: "4", name: "Sucursal Sur" },
-  ];
+  const empForBranch = EMPLOYEES.filter(e => e.branchId === formData.branchId);
+  const branchName   = (id: string) => BRANCHES.find(b => b.id === id)?.name ?? "";
 
-  // Mock data de empleados por sucursal
-  const employees = [
-    { id: "1", name: "Luis Rodríguez", branchId: "1", position: "Jefe de Almacén" },
-    { id: "2", name: "María Fernández", branchId: "1", position: "Supervisora" },
-    { id: "3", name: "Ana Torres", branchId: "1", position: "Coordinadora" },
-    { id: "4", name: "Pedro Gómez", branchId: "2", position: "Jefe de Almacén" },
-    { id: "5", name: "Diana Ruiz", branchId: "2", position: "Supervisora" },
-    { id: "6", name: "Carlos Morales", branchId: "3", position: "Jefe de Almacén" },
-    { id: "7", name: "Jorge Sánchez", branchId: "3", position: "Coordinador" },
-    { id: "8", name: "Patricia López", branchId: "4", position: "Jefa de Almacén" },
-  ];
-
-  // Form states
-  const [formData, setFormData] = useState({
-    code: "",
-    name: "",
-    branchId: "",
-    type: "general" as "general" | "refrigerado" | "materias_primas" | "productos_terminados",
-    location: "",
-    capacity: "",
-    manager: "",
-    status: "active" as "active" | "inactive",
-  });
-
-  // Filtrar empleados por sucursal seleccionada
-  const availableEmployees = employees.filter(
-    (emp) => emp.branchId === formData.branchId
-  );
-
-  const handleOpenCreateModal = () => {
-    setModalMode("create");
-    setFormData({
-      code: "",
-      name: "",
-      branchId: "",
-      type: "general",
-      location: "",
-      capacity: "",
-      manager: "",
-      status: "active",
-    });
+  const openCreate = () => {
+    setModalMode("create"); setEditingW(null);
+    setFormData({ ...EMPTY }); setShowModal(true);
+  };
+  const openEdit = (w: WarehouseData) => {
+    setModalMode("edit"); setEditingW(w);
+    setFormData({ code: w.code, name: w.name, branchId: w.branchId, type: w.type,
+      location: w.location, capacity: w.capacity, manager: w.manager,
+      status: w.status, description: w.description ?? "" });
     setShowModal(true);
   };
+  const closeModal = () => { setShowModal(false); setEditingW(null); };
 
-  const handleOpenEditModal = (warehouse: WarehouseData) => {
-    setModalMode("edit");
-    setSelectedWarehouse(warehouse);
-    setFormData({
-      code: warehouse.code,
-      name: warehouse.name,
-      branchId: warehouse.branchId,
-      type: warehouse.type,
-      location: warehouse.location,
-      capacity: warehouse.capacity,
-      manager: warehouse.manager,
-      status: warehouse.status,
-    });
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedWarehouse(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const selectedBranch = branches.find((b) => b.id === formData.branchId);
-
+  const handleSave = () => {
+    if (!formData.code.trim() || !formData.name.trim() || !formData.branchId || !formData.location.trim() || !formData.capacity.trim() || !formData.manager) {
+      toast.error("Todos los campos obligatorios deben completarse"); return;
+    }
+    const bn = branchName(formData.branchId);
     if (modalMode === "create") {
-      const newWarehouse: WarehouseData = {
-        id: String(warehouses.length + 1),
-        ...formData,
-        branchName: selectedBranch?.name || "",
-      };
-      setWarehouses([...warehouses, newWarehouse]);
-      alert("Almacén creado exitosamente");
-    } else {
-      setWarehouses(
-        warehouses.map((warehouse) =>
-          warehouse.id === selectedWarehouse?.id
-            ? {
-                ...warehouse,
-                ...formData,
-                branchName: selectedBranch?.name || warehouse.branchName,
-              }
-            : warehouse
-        )
-      );
-      alert("Almacén actualizado exitosamente");
+      setWarehouses(p => [...p, { id: String(Date.now()), ...formData, branchName: bn }]);
+      toast.success("Almacén creado exitosamente");
+    } else if (editingW) {
+      setWarehouses(p => p.map(w => w.id === editingW.id ? { ...editingW, ...formData, branchName: bn } : w));
+      toast.success("Almacén actualizado exitosamente");
     }
-
-    handleCloseModal();
+    closeModal();
   };
 
-  const handleDeleteWarehouse = (warehouseId: string) => {
-    if (confirm("¿Estás seguro de que deseas eliminar este almacén?")) {
-      setWarehouses(warehouses.filter((warehouse) => warehouse.id !== warehouseId));
-      alert("Almacén eliminado exitosamente");
-    }
+  const handleDelete = (id: string) => {
+    if (!confirm("¿Eliminar este almacén?")) return;
+    setWarehouses(p => p.filter(w => w.id !== id));
+    toast.success("Almacén eliminado");
   };
 
-  const handleToggleStatus = (warehouseId: string) => {
-    setWarehouses(
-      warehouses.map((warehouse) =>
-        warehouse.id === warehouseId
-          ? {
-              ...warehouse,
-              status: warehouse.status === "active" ? "inactive" : "active",
-            }
-          : warehouse
-      )
-    );
-  };
-
-  const filteredWarehouses = warehouses.filter((warehouse) => {
-    const matchesSearch =
-      warehouse.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      warehouse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      warehouse.branchName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      warehouse.manager.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesBranch = selectedBranchFilter === "all" || warehouse.branchId === selectedBranchFilter;
-
-    return matchesSearch && matchesBranch;
+  const filtered = warehouses.filter(w => {
+    const q = search.toLowerCase();
+    const ms = !q || w.code.toLowerCase().includes(q) || w.name.toLowerCase().includes(q) || w.branchName.toLowerCase().includes(q) || w.manager.toLowerCase().includes(q);
+    const mb = branchFilter === "all" || w.branchId === branchFilter;
+    const mt = typeFilter   === "all" || w.type      === typeFilter;
+    const me = statusFilter === "all" || w.status    === statusFilter;
+    return ms && mb && mt && me;
   });
 
-  const getTypeLabel = (type: string) => {
-    const types: Record<string, string> = {
-      general: "General",
-      refrigerado: "Refrigerado",
-      materias_primas: "Materias Primas",
-      productos_terminados: "Productos Terminados",
-    };
-    return types[type] || type;
-  };
+  /* métricas */
+  const metrics = [
+    { label: "Total Almacenes", value: warehouses.length,                               icon: <Warehouse    className="w-5 h-5 text-primary"    />, bg: "bg-primary/15"     },
+    { label: "Activos",         value: warehouses.filter(w => w.status==="active").length,   icon: <CheckCircle2 className="w-5 h-5 text-green-500" />, bg: "bg-green-500/15"  },
+    { label: "Inactivos",       value: warehouses.filter(w => w.status==="inactive").length, icon: <XCircle     className="w-5 h-5 text-red-500"   />, bg: "bg-red-500/15"    },
+    { label: "Sucursales",      value: [...new Set(warehouses.map(w => w.branchId))].length, icon: <Building2   className="w-5 h-5 text-blue-500"  />, bg: "bg-blue-500/15"   },
+  ];
 
-  const getTypeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      general: "bg-blue-500",
-      refrigerado: "bg-cyan-500",
-      materias_primas: "bg-purple-500",
-      productos_terminados: "bg-green-500",
-    };
-    return colors[type] || "bg-gray-500";
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "refrigerado":
-        return <Archive className="w-5 h-5 text-white" />;
-      case "materias_primas":
-        return <Package className="w-5 h-5 text-white" />;
-      case "productos_terminados":
-        return <Boxes className="w-5 h-5 text-white" />;
-      default:
-        return <Warehouse className="w-5 h-5 text-white" />;
-    }
-  };
-
+  /* ── render ── */
   return (
-    <div className="space-y-6">
-      {/* Header: Título + subtítulo */}
+    <div className="space-y-6 w-full">
+
+      {/* TÍTULO */}
       <div>
-        <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+        <h2 className={`font-bold text-3xl mb-1 flex items-center gap-3 ${txt}`}>
           <Warehouse className="w-8 h-8 text-primary" />
-          Almacenes por Sucursal
+          Almacenes
         </h2>
-        <p className="text-gray-400 text-sm">
-          Gestiona los almacenes disponibles por sucursal
-        </p>
+        <p className={`text-sm ${sub}`}>Gestiona los almacenes disponibles por sucursal</p>
       </div>
 
-      {/* Línea separatoria */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${divB}`} />
 
-      {/* Métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="flex items-center justify-between">
+      {/* MÉTRICAS */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {metrics.map(m => (
+          <div key={m.label} className={`rounded-xl border p-4 flex items-center justify-between ${isLight ? "bg-white border-gray-200 shadow-sm" : "bg-white/5 border-white/10"}`}>
             <div>
-              <p className="text-gray-400 text-xs mb-1">Total Almacenes</p>
-              <p className="text-white font-bold text-2xl">{warehouses.length}</p>
+              <p className={`text-xs mb-1 ${sub}`}>{m.label}</p>
+              <p className={`font-bold text-2xl ${txt}`}>{m.value}</p>
             </div>
-            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-              <Warehouse className="w-5 h-5 text-primary" />
-            </div>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${m.bg}`}>{m.icon}</div>
           </div>
-        </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Activos</p>
-              <p className="text-white font-bold text-2xl">{warehouses.filter(w => w.status === "active").length}</p>
-            </div>
-            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-green-400" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Inactivos</p>
-              <p className="text-white font-bold text-2xl">{warehouses.filter(w => w.status === "inactive").length}</p>
-            </div>
-            <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
-              <Package className="w-5 h-5 text-red-400" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Sucursales</p>
-              <p className="text-white font-bold text-2xl">{[...new Set(warehouses.map(w => w.branchId))].length}</p>
-            </div>
-            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <Boxes className="w-5 h-5 text-blue-400" />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Segunda línea separatoria */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${divB}`} />
 
-      {/* Botón de acción */}
+      {/* BOTÓN */}
       <div className="flex justify-end">
-        <button
-          onClick={handleOpenCreateModal}
-          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20"
-        >
-          <Plus className="w-4 h-4" />
-          Nuevo Almacén
+        <button onClick={openCreate}
+          className="inline-flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-primary/20">
+          <Plus className="w-4 h-4" /> Nuevo Almacén
         </button>
       </div>
 
-      {/* Filtros */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Filtro por Sucursal */}
-        <div className="bg-[#0f1825]/50 border border-white/5 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Building2 className="w-5 h-5 text-primary" />
-            <span className="text-white font-medium">Sucursal</span>
-          </div>
-          <select
-            value={selectedBranchFilter}
-            onChange={(e) => setSelectedBranchFilter(e.target.value)}
-            className="w-full px-4 py-2.5 bg-[#0a1628] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none"
-          >
-            <option value="all">Sucursal Principal - Centro</option>
-            {branches.map((branch) => (
-              <option key={branch.id} value={branch.id}>
-                {branch.name}
-              </option>
-            ))}
+      {/* FILTROS */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        {/* Búsqueda */}
+        <div className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+          <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <input type="text" placeholder="Buscar almacén..." value={search}
+            onChange={e => setSearch(e.target.value)}
+            className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-500 ${txt}`} />
+        </div>
+        {/* Sucursal */}
+        <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[190px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+          <SlidersHorizontal className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <select value={branchFilter} onChange={e => setBranchFilter(e.target.value)}
+            className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${sub}`}>
+            <option value="all" className={OB}>Todas las sucursales</option>
+            {BRANCHES.map(b => <option key={b.id} value={b.id} className={OB}>{b.name}</option>)}
           </select>
         </div>
-
-        {/* Búsqueda */}
-        <div className="bg-[#0f1825]/50 border border-white/5 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Search className="w-5 h-5 text-primary" />
-            <span className="text-white font-medium">Buscar almacén</span>
-          </div>
-          <input
-            type="text"
-            placeholder="Nombre del almacén..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2.5 bg-[#0a1628] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-          />
+        {/* Tipo */}
+        <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[170px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+          <SlidersHorizontal className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+            className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${sub}`}>
+            <option value="all"              className={OB}>Todos los tipos</option>
+            <option value="general"          className={OB}>General</option>
+            <option value="refrigerado"      className={OB}>Refrigerado</option>
+            <option value="materias_primas"  className={OB}>Materias Primas</option>
+            <option value="productos_terminados" className={OB}>Prod. Terminados</option>
+          </select>
+        </div>
+        {/* Estado */}
+        <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[150px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+          <SlidersHorizontal className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+            className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${sub}`}>
+            <option value="all"      className={OB}>Todos los estados</option>
+            <option value="active"   className={OB}>Activo</option>
+            <option value="inactive" className={OB}>Inactivo</option>
+          </select>
         </div>
       </div>
 
-      {/* Grid de almacenes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {filteredWarehouses.length > 0 ? (
-          filteredWarehouses.map((warehouse) => (
-            <div
-              key={warehouse.id}
-              className="bg-[#0a1628] border border-white/5 rounded-xl p-6 hover:border-white/10 transition-all"
-            >
-              {/* Header de la card */}
-              <div className="flex items-start justify-between mb-5">
-                <div className="flex items-start gap-3">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${getTypeColor(warehouse.type)}`}>
-                    {getTypeIcon(warehouse.type)}
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold text-base mb-0.5">
-                      {warehouse.name}
-                    </h3>
-                    <p className="text-gray-400 text-sm">{getTypeLabel(warehouse.type)}</p>
-                  </div>
-                </div>
-                
-                {/* Toggle Switch */}
-                <button
-                  onClick={() => handleToggleStatus(warehouse.id)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    warehouse.status === "active" ? "bg-primary" : "bg-gray-600"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      warehouse.status === "active" ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-              </div>
-
-              {/* Información del almacén */}
-              <div className="space-y-3 mb-5">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Cuenta contable:</span>
-                  <span className="text-white text-sm font-medium">{warehouse.code}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Sucursal:</span>
-                  <span className="text-white text-sm font-medium">{warehouse.branchName}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Ubicación:</span>
-                  <span className="text-white text-sm font-medium">{warehouse.location}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Capacidad:</span>
-                  <span className="text-white text-sm font-medium">{warehouse.capacity}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Responsable:</span>
-                  <span className="text-white text-sm font-medium">{warehouse.manager}</span>
-                </div>
-              </div>
-
-              {/* Acciones */}
-              <div className="flex items-center gap-3 pt-5 border-t border-white/5">
-                <button
-                  onClick={() => handleOpenEditModal(warehouse)}
-                  className="flex-1 px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
-                >
-                  <Edit className="w-4 h-4" />
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDeleteWarehouse(warehouse.id)}
-                  className="flex-1 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="col-span-2 bg-[#0a1628] border border-white/5 rounded-xl p-12 text-center">
-            <Warehouse className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-            <p className="text-gray-400">No se encontraron almacenes</p>
-          </div>
-        )}
+      {/* TABLA */}
+      <div className={`rounded-xl overflow-hidden border ${tWrap}`}>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className={`border-b text-xs font-semibold uppercase tracking-wider ${tHead}`}>
+                <th className="px-4 py-3 text-left">Código</th>
+                <th className="px-4 py-3 text-left">Almacén</th>
+                <th className="px-4 py-3 text-left">Sucursal</th>
+                <th className="px-4 py-3 text-center">Tipo</th>
+                <th className="px-4 py-3 text-center">Estado</th>
+                <th className="px-4 py-3 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${tDiv}`}>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-14 text-center">
+                    <Warehouse className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                    <p className={`text-sm ${sub}`}>No se encontraron almacenes</p>
+                  </td>
+                </tr>
+              ) : filtered.map(w => (
+                <tr key={w.id} className={`transition-colors ${rowHv}`}>
+                  {/* Código */}
+                  <td className="px-4 py-3">
+                    <span className={`text-sm font-mono font-medium ${isLight ? "text-gray-600" : "text-gray-300"}`}>{w.code}</span>
+                  </td>
+                  {/* Nombre */}
+                  <td className="px-4 py-3">
+                    <p className={`text-sm font-semibold ${txt}`}>{w.name}</p>
+                  </td>
+                  {/* Sucursal */}
+                  <td className="px-4 py-3">
+                    <span className={`text-sm ${sub}`}>{w.branchName}</span>
+                  </td>
+                  {/* Tipo */}
+                  <td className="px-4 py-3 text-center">
+                    <TypeBadge type={w.type} isLight={isLight} />
+                  </td>
+                  {/* Estado */}
+                  <td className="px-4 py-3 text-center">
+                    {w.status === "active" ? (
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${isLight ? "bg-green-100 text-green-700" : "bg-green-500/15 text-green-400"}`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />Activo
+                      </span>
+                    ) : (
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${isLight ? "bg-gray-100 text-gray-500" : "bg-white/5 text-gray-500"}`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />Inactivo
+                      </span>
+                    )}
+                  </td>
+                  {/* Acciones */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-center gap-1">
+                      <button onClick={() => setViewW(w)} title="Ver detalle"
+                        className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/10"}`}>
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => openEdit(w)} title="Editar"
+                        className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-400 hover:text-primary hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}>
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDelete(w.id)} title="Eliminar"
+                        className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-400 hover:text-red-600 hover:bg-red-50" : "text-gray-400 hover:text-red-400 hover:bg-white/10"}`}>
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Modal Crear/Editar Almacén */}
+      {/* INFO */}
+      <div className={`rounded-xl border p-4 flex gap-3 ${isLight ? "bg-blue-50 border-blue-200" : "bg-blue-500/5 border-blue-500/20"}`}>
+        <AlertCircle className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+        <ul className={`text-xs space-y-1 ${isLight ? "text-blue-700" : "text-gray-400"}`}>
+          <li>• Cada almacén pertenece a una sucursal y tiene un responsable asignado</li>
+          <li>• Puede activar o desactivar almacenes sin eliminarlos del sistema</li>
+        </ul>
+      </div>
+
+      {/* ═══════════════════════════════════
+          MODAL VER DETALLE
+      ════════════════════════════════════ */}
+      {viewW && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`w-full max-w-md rounded-2xl shadow-2xl border ${MB}`}>
+            <div className={`flex items-center justify-between px-5 py-4 border-b ${divB}`}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <Warehouse className="w-4 h-4 text-primary" />
+                </div>
+                <p className={`font-bold text-base ${txt}`}>{viewW.name}</p>
+              </div>
+              <button onClick={() => setViewW(null)} className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              {/* Badges */}
+              <div className="flex gap-2 flex-wrap">
+                <TypeBadge type={viewW.type} isLight={isLight} />
+                {viewW.status === "active"
+                  ? <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium border ${isLight ? "bg-green-50 text-green-700 border-green-200" : "bg-green-500/15 text-green-400 border-green-500/30"}`}><span className="w-1.5 h-1.5 rounded-full bg-green-500" />Activo</span>
+                  : <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium border ${isLight ? "bg-gray-100 text-gray-500 border-gray-200" : "bg-white/5 text-gray-400 border-white/10"}`}><span className="w-1.5 h-1.5 rounded-full bg-gray-400" />Inactivo</span>
+                }
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: "Código",      value: viewW.code       },
+                  { label: "Sucursal",    value: viewW.branchName },
+                  { label: "Ubicación",   value: viewW.location   },
+                  { label: "Capacidad",   value: viewW.capacity   },
+                ].map(r => (
+                  <div key={r.label} className={`rounded-lg p-3 border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                    <p className={`text-xs mb-1 ${sub}`}>{r.label}</p>
+                    <p className={`text-sm font-semibold ${txt}`}>{r.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className={`rounded-lg p-3 border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                <p className={`text-xs mb-1 ${sub}`}>Responsable</p>
+                <p className={`text-sm font-semibold ${txt}`}>{viewW.manager}</p>
+              </div>
+
+              {viewW.description && (
+                <div className={`rounded-lg p-3 border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                  <p className={`text-xs mb-1 ${sub}`}>Descripción</p>
+                  <p className={`text-sm ${lbl}`}>{viewW.description}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════
+          MODAL CREAR / EDITAR
+      ════════════════════════════════════ */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a1628] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto border border-white/10">
+          <div className={`w-full max-w-lg rounded-2xl shadow-2xl max-h-[92vh] flex flex-col border ${MB}`}>
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-[#0a1628] z-10">
+            <div className={`flex items-center justify-between px-5 py-4 border-b flex-shrink-0 ${divB}`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  {modalMode === "create" ? (
-                    <Plus className="w-5 h-5 text-primary" />
-                  ) : (
-                    <Edit className="w-5 h-5 text-primary" />
-                  )}
+                <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <Warehouse className="w-4 h-4 text-primary" />
                 </div>
-                <h3 className="text-white font-bold text-xl">
-                  {modalMode === "create" ? "Nuevo Almacén" : "Editar Almacén"}
-                </h3>
+                <p className={`font-bold text-base ${txt}`}>{modalMode === "create" ? "Nuevo Almacén" : "Editar Almacén"}</p>
               </div>
-              <button
-                onClick={handleCloseModal}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
+              <button onClick={closeModal} className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Código y Nombre */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Código
-                    <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <div className="relative">
-                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.code}
-                      onChange={(e) =>
-                        setFormData({ ...formData, code: e.target.value })
-                      }
-                      placeholder="ALM-001"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                      required
-                    />
-                  </div>
-                </div>
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
 
-                <div className="md:col-span-2">
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Nombre del Almacén
-                    <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <div className="relative">
-                    <Warehouse className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      placeholder="Ej: Almacén Principal"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                      required
-                    />
-                  </div>
+              {/* Código + Nombre */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Código <span className="text-red-400">*</span></label>
+                  <input type="text" placeholder="ALM-001" value={formData.code}
+                    onChange={e => setFormData(p => ({ ...p, code: e.target.value }))} className={IN} />
+                </div>
+                <div className="col-span-2">
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Nombre <span className="text-red-400">*</span></label>
+                  <input type="text" placeholder="Ej: Almacén Principal" value={formData.name}
+                    onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} className={IN} />
                 </div>
               </div>
 
-              {/* Sucursal */}
-              <div>
-                <label className="block text-white mb-2 font-medium text-sm">
-                  Sucursal
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <select
-                    value={formData.branchId}
-                    onChange={(e) =>
-                      setFormData({ ...formData, branchId: e.target.value, manager: "" })
-                    }
-                    className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none"
-                    required
-                  >
-                    <option value="">Seleccionar sucursal</option>
-                    {branches.map((branch) => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
-                    ))}
+              {/* Sucursal + Tipo */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Sucursal <span className="text-red-400">*</span></label>
+                  <select value={formData.branchId}
+                    onChange={e => setFormData(p => ({ ...p, branchId: e.target.value, manager: "" }))}
+                    className={IN}>
+                    <option value="" className={OB}>— Selecciona —</option>
+                    {BRANCHES.map(b => <option key={b.id} value={b.id} className={OB}>{b.name}</option>)}
                   </select>
                 </div>
-                {formData.branchId && availableEmployees.length === 0 && (
-                  <p className="text-yellow-400 text-xs mt-2">
-                    No hay empleados disponibles en esta sucursal
-                  </p>
-                )}
-              </div>
-
-              {/* Tipo y Estado */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Tipo de Almacén
-                    <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        type: e.target.value as "general" | "refrigerado" | "materias_primas" | "productos_terminados",
-                      })
-                    }
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                    required
-                  >
-                    <option value="general">General</option>
-                    <option value="refrigerado">Refrigerado</option>
-                    <option value="materias_primas">Materias Primas</option>
-                    <option value="productos_terminados">Productos Terminados</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Estado
-                    <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        status: e.target.value as "active" | "inactive",
-                      })
-                    }
-                    className="w-full px-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                    required
-                  >
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Tipo <span className="text-red-400">*</span></label>
+                  <select value={formData.type}
+                    onChange={e => setFormData(p => ({ ...p, type: e.target.value as WType }))}
+                    className={IN}>
+                    <option value="general"             className={OB}>General</option>
+                    <option value="refrigerado"         className={OB}>Refrigerado</option>
+                    <option value="materias_primas"     className={OB}>Materias Primas</option>
+                    <option value="productos_terminados"className={OB}>Productos Terminados</option>
                   </select>
                 </div>
               </div>
 
-              {/* Ubicación y Capacidad */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Ubicación + Capacidad */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Ubicación Física
-                    <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.location}
-                      onChange={(e) =>
-                        setFormData({ ...formData, location: e.target.value })
-                      }
-                      placeholder="Ej: Planta Baja - Sector A"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                      required
-                    />
-                  </div>
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Ubicación Física <span className="text-red-400">*</span></label>
+                  <input type="text" placeholder="Ej: Planta Baja - Sector A" value={formData.location}
+                    onChange={e => setFormData(p => ({ ...p, location: e.target.value }))} className={IN} />
                 </div>
-
                 <div>
-                  <label className="block text-white mb-2 font-medium text-sm">
-                    Capacidad
-                    <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <div className="relative">
-                    <Boxes className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.capacity}
-                      onChange={(e) =>
-                        setFormData({ ...formData, capacity: e.target.value })
-                      }
-                      placeholder="Ej: 500 m²"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                      required
-                    />
-                  </div>
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Capacidad <span className="text-red-400">*</span></label>
+                  <input type="text" placeholder="Ej: 500 m²" value={formData.capacity}
+                    onChange={e => setFormData(p => ({ ...p, capacity: e.target.value }))} className={IN} />
                 </div>
               </div>
 
               {/* Responsable */}
               <div>
-                <label className="block text-white mb-2 font-medium text-sm">
-                  Responsable
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <select
-                    value={formData.manager}
-                    onChange={(e) =>
-                      setFormData({ ...formData, manager: e.target.value })
-                    }
-                    className="w-full pl-10 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
-                    required
-                    disabled={!formData.branchId || availableEmployees.length === 0}
-                  >
-                    <option value="">
-                      {!formData.branchId 
-                        ? "Primero selecciona una sucursal" 
-                        : availableEmployees.length === 0 
-                        ? "No hay empleados disponibles"
-                        : "Seleccionar responsable"}
-                    </option>
-                    {availableEmployees.map((emp) => (
-                      <option key={emp.id} value={emp.name}>
-                        {emp.name} - {emp.position}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Responsable <span className="text-red-400">*</span></label>
+                <select value={formData.manager}
+                  onChange={e => setFormData(p => ({ ...p, manager: e.target.value }))}
+                  className={IN} disabled={!formData.branchId}>
+                  <option value="" className={OB}>{formData.branchId ? "— Selecciona responsable —" : "— Primero selecciona la sucursal —"}</option>
+                  {empForBranch.map(e => <option key={e.id} value={e.name} className={OB}>{e.name}</option>)}
+                </select>
+                {formData.branchId && empForBranch.length === 0 && (
+                  <p className="text-yellow-400 text-xs mt-1">No hay empleados registrados en esta sucursal</p>
+                )}
               </div>
 
-              {/* Botones */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="flex-1 px-6 py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg transition-colors font-medium"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium"
-                >
-                  {modalMode === "create" ? "Crear Almacén" : "Guardar Cambios"}
-                </button>
+              {/* Descripción */}
+              <div>
+                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Descripción <span className={sub}>(opcional)</span></label>
+                <textarea rows={2} placeholder="Observaciones del almacén..." value={formData.description ?? ""}
+                  onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} className={TA} />
               </div>
-            </form>
+
+              {/* Estado — solo edición */}
+              {modalMode === "edit" && (
+                <div>
+                  <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Estado</label>
+                  <select value={formData.status}
+                    onChange={e => setFormData(p => ({ ...p, status: e.target.value as Status }))}
+                    className={IN}>
+                    <option value="active"   className={OB}>Activo</option>
+                    <option value="inactive" className={OB}>Inactivo</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className={`flex gap-3 px-5 py-4 border-t flex-shrink-0 ${divB}`}>
+              <button onClick={closeModal}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${isLight ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-white/5 hover:bg-white/10 text-white"}`}>
+                Cancelar
+              </button>
+              <button onClick={handleSave}
+                className="flex-1 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-primary/20">
+                {modalMode === "create" ? "Crear Almacén" : "Guardar Cambios"}
+              </button>
+            </div>
           </div>
         </div>
       )}

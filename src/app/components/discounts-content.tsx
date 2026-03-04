@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DollarSign, Building2, Plus, Pencil, Trash2, Percent, Tag, Calendar, Check, X, Users, Package } from "lucide-react";
+import { toast } from "sonner";
 
 const SUCURSALES = [
   { id: "suc-001", name: "Sucursal Principal - Centro" },
@@ -230,7 +231,7 @@ export function DiscountsContent() {
 
   const handleSave = () => {
     if (!formData.name || !formData.code || !formData.value) {
-      alert("Por favor completa todos los campos obligatorios");
+      toast.error("Por favor completa todos los campos obligatorios");
       return;
     }
 

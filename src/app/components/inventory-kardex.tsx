@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, FileText, Calendar, Package, TrendingUp, Download, Filter, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface KardexEntry {
   id: string;
@@ -195,11 +196,11 @@ export function InventoryKardex() {
   };
 
   const handleExportPDF = () => {
-    alert("Exportar a PDF - Función en desarrollo");
+    toast.info("Exportar a PDF - Función en desarrollo");
   };
 
   const handleExportExcel = () => {
-    alert("Exportar a Excel - Función en desarrollo");
+    toast.info("Exportar a Excel - Función en desarrollo");
   };
 
   const totalEntries = filteredEntries.reduce((sum, entry) => entry.quantity > 0 ? sum + entry.quantity : sum, 0);

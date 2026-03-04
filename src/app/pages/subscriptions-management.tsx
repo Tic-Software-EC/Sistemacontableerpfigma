@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Pagination } from "../components/pagination";
 import { ProfileModal } from "../components/profile-modal";
+import { toast } from "sonner";
 
 interface Subscription {
   id: string;
@@ -352,7 +353,7 @@ export default function SubscriptionsManagementPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => alert("Exportar reporte - En desarrollo")}
+                onClick={() => toast.info("Exportar reporte - En desarrollo")}
                 className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
               >
                 <Download className="w-5 h-5" />
@@ -539,14 +540,14 @@ export default function SubscriptionsManagementPage() {
                     <td className="px-4 py-2.5">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => alert(`Ver detalles de suscripción ${sub.companyName}`)}
+                          onClick={() => toast.info(`Ver detalles de suscripción ${sub.companyName}`)}
                           className="p-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                           title="Ver detalles"
                         >
                           <FileText className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => alert(`Renovar suscripción de ${sub.companyName}`)}
+                          onClick={() => toast.success(`Renovar suscripción de ${sub.companyName}`)}
                           className="p-1.5 text-green-400 hover:text-green-300 hover:bg-green-500/10 rounded-lg transition-colors"
                           title="Renovar"
                         >
@@ -554,7 +555,7 @@ export default function SubscriptionsManagementPage() {
                         </button>
                         {sub.status === "pending" && (
                           <button
-                            onClick={() => alert(`Registrar pago de ${sub.companyName}`)}
+                            onClick={() => toast.success(`Registrar pago de ${sub.companyName}`)}
                             className="p-2 text-primary hover:text-primary/80 hover:bg-primary/10 rounded-lg transition-colors"
                             title="Registrar pago"
                           >

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Calculator, Building2, Plus, Pencil, Trash2, Percent, DollarSign, Check, X } from "lucide-react";
+import { toast } from "sonner";
 
 const SUCURSALES = [
   { id: "suc-001", name: "Sucursal Principal - Centro" },
@@ -213,7 +214,7 @@ export function TaxesContent() {
 
   const handleSave = () => {
     if (!formData.name || !formData.code || !formData.rate || !formData.accountingAccount) {
-      alert("Por favor completa todos los campos obligatorios");
+      toast.error("Por favor completa todos los campos obligatorios");
       return;
     }
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Package, Search, Calendar, Eye, CheckCircle, XCircle, Clock, AlertTriangle, Filter, Plus, X, Printer, Download, Truck, User, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Warehouse, ShoppingCart, Save, Edit } from "lucide-react";
+import { toast } from "sonner";
 
 // Usuario logueado (esto vendría del contexto de autenticación)
 const LOGGED_USER = {
@@ -260,12 +261,12 @@ export function MerchandiseReceptionContent() {
     const allReceivedProductsHaveWarehouse = itemsToReceive.every(item => item.warehouse !== "");
     
     if (itemsToReceive.length === 0) {
-      alert("⚠️ Debes recibir al menos un producto para procesar la recepción.");
+      toast.error("Debes recibir al menos un producto para procesar la recepción.");
       return;
     }
     
     if (!allReceivedProductsHaveWarehouse) {
-      alert("⚠️ Todos los productos con cantidad recibida mayor a 0 deben tener una bodega asignada.");
+      toast.error("Todos los productos con cantidad recibida mayor a 0 deben tener una bodega asignada.");
       return;
     }
     
@@ -310,7 +311,7 @@ export function MerchandiseReceptionContent() {
       ? `\\n\\n⚠️ Productos pendientes o parciales:\\n${pendingItems.map(item => `  • ${item.productName}: Faltante ${item.orderedQty - item.receivedQty} ${item.unit}`).join('\\n')}`
       : '';
     
-    alert(`${receptionStatus}\\n📦 Productos ingresados a las siguientes bodegas:\\n${warehousesSummary.map(w => `  • ${w}`).join('\\n')}${pendingMessage}\\n\\nLa mercadería ha sido registrada en el inventario.`);
+    toast.success("Recepción procesada exitosamente. La mercadería ha sido registrada en el inventario.");
     setShowNewReceptionModal(false);
   };
 

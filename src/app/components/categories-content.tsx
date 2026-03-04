@@ -1,724 +1,450 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import {
-  FolderTree,
-  Plus,
-  Search,
-  Edit2,
-  Trash2,
-  X,
-  Save,
-  Palette,
-  FolderOpen,
-  Tag,
+  FolderTree, Search, Plus, Edit, Trash2, X,
+  Filter, Tag, FolderOpen, Palette, Save, ChevronDown, ChevronRight, Settings,
 } from "lucide-react";
+import { useTheme } from "../contexts/theme-context";
+import { toast } from "sonner";
 
 interface Category {
   id: string;
   name: string;
   description: string;
-  color: string;
-  icon: string;
   parent: string | null;
-  productsCount: number;
   active: boolean;
 }
 
-const predefinedColors = [
-  "#E8692E", // Naranja primario
-  "#3B82F6", // Azul
-  "#10B981", // Verde
-  "#F59E0B", // Amarillo
-  "#EF4444", // Rojo
-  "#8B5CF6", // Morado
-  "#EC4899", // Rosa
-  "#06B6D4", // Cyan
-  "#84CC16", // Lima
-  "#F97316", // Naranja oscuro
-];
-
-const iconOptions = [
-  { value: "package", label: "Paquete", icon: "📦" },
-  { value: "laptop", label: "Tecnología", icon: "💻" },
-  { value: "shirt", label: "Ropa", icon: "👕" },
-  { value: "utensils", label: "Alimentos", icon: "🍽️" },
-  { value: "tools", label: "Herramientas", icon: "🔧" },
-  { value: "home", label: "Hogar", icon: "🏠" },
-  { value: "heart", label: "Salud", icon: "❤️" },
-  { value: "book", label: "Educación", icon: "📚" },
-  { value: "car", label: "Vehículos", icon: "🚗" },
-  { value: "gamepad", label: "Entretenimiento", icon: "🎮" },
-  { value: "sofa", label: "Muebles", icon: "🛋️" },
-  { value: "motorcycle", label: "Motocicletas", icon: "🏍️" },
-  { value: "toy", label: "Juguetes", icon: "🧸" },
-  { value: "basket", label: "Bazar", icon: "🧺" },
+const INITIAL: Category[] = [
+  { id:"1", name:"Electrónica",  description:"Productos electrónicos y tecnológicos",  parent:null, active:true  },
+  { id:"2", name:"Computadoras", description:"Laptops, desktops y accesorios",         parent:"1",  active:true  },
+  { id:"3", name:"Celulares",    description:"Smartphones y accesorios móviles",        parent:"1",  active:true  },
+  { id:"4", name:"Ropa",         description:"Vestimenta y accesorios",                parent:null, active:true  },
+  { id:"5", name:"Camisas",      description:"Camisas formales e informales",           parent:"4",  active:true  },
+  { id:"6", name:"Pantalones",   description:"Pantalones de todo tipo",                 parent:"4",  active:false },
+  { id:"7", name:"Alimentos",    description:"Productos alimenticios",                 parent:null, active:true  },
+  { id:"8", name:"Herramientas", description:"Herramientas manuales y eléctricas",     parent:null, active:true  },
+  { id:"9", name:"Muebles",      description:"Muebles para hogar y oficina",           parent:null, active:true  },
 ];
 
 export function CategoriesContent() {
-  const [categories, setCategories] = useState<Category[]>([
-    {
-      id: "1",
-      name: "Electrónica",
-      description: "Productos electrónicos y tecnológicos",
-      color: "#3B82F6",
-      icon: "laptop",
-      parent: null,
-      productsCount: 45,
-      active: true,
-    },
-    {
-      id: "2",
-      name: "Computadoras",
-      description: "Laptops, desktops y accesorios",
-      color: "#3B82F6",
-      icon: "laptop",
-      parent: "1",
-      productsCount: 28,
-      active: true,
-    },
-    {
-      id: "3",
-      name: "Ropa",
-      description: "Vestimenta y accesorios",
-      color: "#EC4899",
-      icon: "shirt",
-      parent: null,
-      productsCount: 120,
-      active: true,
-    },
-    {
-      id: "4",
-      name: "Alimentos",
-      description: "Productos alimenticios",
-      color: "#10B981",
-      icon: "utensils",
-      parent: null,
-      productsCount: 85,
-      active: true,
-    },
-    {
-      id: "5",
-      name: "Herramientas",
-      description: "Herramientas manuales y eléctricas",
-      color: "#F59E0B",
-      icon: "tools",
-      parent: null,
-      productsCount: 32,
-      active: true,
-    },
-    {
-      id: "6",
-      name: "Muebles",
-      description: "Muebles para hogar y oficina",
-      color: "#8B5CF6",
-      icon: "sofa",
-      parent: null,
-      productsCount: 68,
-      active: true,
-    },
-    {
-      id: "7",
-      name: "Motocicletas",
-      description: "Motos y accesorios para motocicletas",
-      color: "#EF4444",
-      icon: "motorcycle",
-      parent: null,
-      productsCount: 24,
-      active: true,
-    },
-    {
-      id: "8",
-      name: "Juguetes",
-      description: "Juguetes y artículos para niños",
-      color: "#06B6D4",
-      icon: "toy",
-      parent: null,
-      productsCount: 156,
-      active: true,
-    },
-    {
-      id: "9",
-      name: "Bazar",
-      description: "Artículos diversos y decoración",
-      color: "#84CC16",
-      icon: "basket",
-      parent: null,
-      productsCount: 92,
-      active: true,
-    },
-  ]);
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [categories,   setCategories]   = useState<Category[]>(INITIAL);
+  const [searchTerm,   setSearchTerm]   = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [expandedId,   setExpandedId]   = useState<string | null>(null);
+
+  // Inline child form
+  const [addingChildTo, setAddingChildTo] = useState<string | null>(null);
+  const [childForm,     setChildForm]     = useState({ name:"", description:"", active:true });
+
+  // Modal crear/editar
   const [showModal, setShowModal] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    color: "#E8692E",
-    icon: "package",
-    parent: "",
-    active: true,
+  const [modalMode, setModalMode] = useState<"create"|"edit">("create");
+  const [editingCat, setEditingCat] = useState<Category | null>(null);
+  const emptyForm = { name:"", description:"", parent:"", active:true };
+  const [formData, setFormData] = useState(emptyForm);
+
+  // ── helpers ──────────────────────────────────────────
+  const parentCats = () => categories.filter(c => c.parent === null);
+  const children   = (id: string) => categories.filter(c => c.parent === id);
+
+  // ── filtered (solo padres) ────────────────────────────
+  const filtered = categories.filter(c => {
+    const q = searchTerm.toLowerCase();
+    const matchQ = c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q);
+    const matchS = filterStatus === "all" ? true : filterStatus === "active" ? c.active : !c.active;
+    return c.parent === null && matchQ && matchS;
   });
 
-  const handleOpenModal = (category?: Category) => {
-    if (category) {
-      setEditingCategory(category);
-      setFormData({
-        name: category.name,
-        description: category.description,
-        color: category.color,
-        icon: category.icon,
-        parent: category.parent || "",
-        active: category.active,
-      });
-    } else {
-      setEditingCategory(null);
-      setFormData({
-        name: "",
-        description: "",
-        color: "#E8692E",
-        icon: "package",
-        parent: "",
-        active: true,
-      });
-    }
+  // ── toggle expand ─────────────────────────────────────
+  const toggleExpand = (id: string) => {
+    if (expandedId === id) { setExpandedId(null); setAddingChildTo(null); }
+    else { setExpandedId(id); setAddingChildTo(null); }
+    setChildForm({ name:"", description:"", active:true });
+  };
+
+  // ── handlers crear/editar ─────────────────────────────
+  const openCreate = () => { setModalMode("create"); setEditingCat(null); setFormData(emptyForm); setShowModal(true); };
+  const openEdit   = (c: Category) => {
+    setModalMode("edit"); setEditingCat(c);
+    setFormData({ name:c.name, description:c.description, parent:c.parent||"", active:c.active });
     setShowModal(true);
   };
+  const closeModal = () => { setShowModal(false); setEditingCat(null); };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setEditingCategory(null);
-    setFormData({
-      name: "",
-      description: "",
-      color: "#E8692E",
-      icon: "package",
-      parent: "",
-      active: true,
-    });
-  };
-
-  const handleSaveCategory = () => {
-    if (!formData.name.trim()) {
-      alert("El nombre de la categoría es obligatorio");
-      return;
-    }
-
-    if (editingCategory) {
-      setCategories(
-        categories.map((cat) =>
-          cat.id === editingCategory.id
-            ? {
-                ...cat,
-                name: formData.name,
-                description: formData.description,
-                color: formData.color,
-                icon: formData.icon,
-                parent: formData.parent || null,
-                active: formData.active,
-              }
-            : cat
-        )
-      );
-      alert("Categoría actualizada exitosamente");
+  const handleSave = () => {
+    if (!formData.name.trim()) { toast.error("El nombre es obligatorio"); return; }
+    if (modalMode === "create") {
+      setCategories([...categories, { id: Date.now().toString(), name:formData.name, description:formData.description, parent:formData.parent||null, active:formData.active }]);
+      toast.success("Categoría creada exitosamente");
     } else {
-      const newCategory: Category = {
-        id: Date.now().toString(),
-        name: formData.name,
-        description: formData.description,
-        color: formData.color,
-        icon: formData.icon,
-        parent: formData.parent || null,
-        productsCount: 0,
-        active: formData.active,
-      };
-      setCategories([...categories, newCategory]);
-      alert("Categoría creada exitosamente");
+      setCategories(categories.map(c => c.id === editingCat?.id ? { ...c, ...formData, parent:formData.parent||null } : c));
+      toast.success("Categoría actualizada exitosamente");
     }
-
-    handleCloseModal();
+    closeModal();
   };
 
-  const handleDeleteCategory = (id: string) => {
-    const category = categories.find((cat) => cat.id === id);
-    const hasChildren = categories.some((cat) => cat.parent === id);
-
-    if (hasChildren) {
-      alert("No puedes eliminar una categoría que tiene subcategorías");
-      return;
-    }
-
-    if (category && category.productsCount > 0) {
-      if (
-        !confirm(
-          `Esta categoría tiene ${category.productsCount} productos asociados. ¿Deseas continuar?`
-        )
-      ) {
-        return;
-      }
-    }
-
-    if (confirm("¿Estás seguro de eliminar esta categoría?")) {
-      setCategories(categories.filter((cat) => cat.id !== id));
-      alert("Categoría eliminada exitosamente");
+  const handleDelete = (id: string) => {
+    if (categories.some(c => c.parent === id)) { toast.error("No puedes eliminar una categoría con subcategorías"); return; }
+    if (confirm("¿Eliminar esta categoría?")) {
+      setCategories(categories.filter(c => c.id !== id));
+      if (expandedId === id) setExpandedId(null);
+      toast.success("Categoría eliminada");
     }
   };
 
-  const getParentCategories = () => {
-    return categories.filter((cat) => cat.parent === null);
+  const handleDeleteChild = (id: string) => {
+    if (confirm("¿Eliminar esta subcategoría?")) {
+      setCategories(prev => prev.filter(c => c.id !== id));
+      toast.success("Subcategoría eliminada");
+    }
   };
 
-  const getChildCategories = (parentId: string) => {
-    return categories.filter((cat) => cat.parent === parentId);
+  const handleToggleStatus = (id: string) => {
+    const cat = categories.find(c => c.id === id);
+    setCategories(categories.map(c => c.id === id ? { ...c, active: !c.active } : c));
+    toast.success(cat?.active ? "Desactivada" : "Activada");
   };
 
-  const filteredCategories = categories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const getIconEmoji = (iconValue: string) => {
-    return iconOptions.find((opt) => opt.value === iconValue)?.icon || "📦";
+  const handleSaveChild = (parentId: string) => {
+    if (!childForm.name.trim()) { toast.error("El nombre es obligatorio"); return; }
+    setCategories(prev => [...prev, { id: Date.now().toString(), name:childForm.name, description:childForm.description, parent:parentId, active:childForm.active }]);
+    setChildForm({ name:"", description:"", active:true });
+    setAddingChildTo(null);
+    toast.success("Subcategoría agregada");
   };
+
+  // ── styles ────────────────────────────────────────────
+  const txt     = isLight ? "text-gray-900" : "text-white";
+  const divider = `border-t ${isLight ? "border-gray-200" : "border-white/10"}`;
+  const card    = `rounded-xl p-4 ${isLight ? "bg-white border border-gray-200" : "bg-white/5 border border-white/10"}`;
+  const optBg   = "bg-[#0D1B2A]";
+  const ic      = `w-full px-3 py-2 border rounded-lg text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`;
+  const lbl     = `block mb-1.5 text-sm font-medium ${isLight ? "text-gray-700" : "text-white"}`;
 
   return (
     <div className="space-y-6">
-      {/* Header: Título + subtítulo */}
+
+      {/* Header */}
       <div>
-        <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-1">
           <FolderTree className="w-8 h-8 text-primary" />
-          Categorías
-        </h2>
+          <h2 className={`font-bold text-3xl ${txt}`}>Categorías</h2>
+        </div>
         <p className="text-gray-400 text-sm">
-          Gestiona las categorías de productos para organizar tu inventario
+          Gestiona las categorías principales y sus subcategorías. Haz clic en el engranaje para ver y administrar los hijos.
         </p>
       </div>
 
-      {/* Línea separatoria */}
-      <div className="border-t border-white/10"></div>
+      <div className={divider} />
 
-      {/* Estadísticas primero */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-[#0a1628] border border-white/5 rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-              <FolderTree className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-gray-400 text-xs">Total Categorías</p>
-              <p className="text-white font-bold text-2xl">{categories.length}</p>
+      {/* Métricas */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label:"Total",         value: categories.length,                             icon:<FolderTree className="w-5 h-5 text-primary" />,   bg:"bg-primary/20"    },
+          { label:"Principales",   value: categories.filter(c=>c.parent===null).length, icon:<FolderOpen className="w-5 h-5 text-blue-400" />,  bg:"bg-blue-500/20"   },
+          { label:"Subcategorías", value: categories.filter(c=>c.parent!==null).length, icon:<Tag        className="w-5 h-5 text-green-400" />,  bg:"bg-green-500/20"  },
+          { label:"Activas",       value: categories.filter(c=>c.active).length,        icon:<Palette    className="w-5 h-5 text-purple-400" />, bg:"bg-purple-500/20" },
+        ].map(m => (
+          <div key={m.label} className={card}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">{m.label}</p>
+                <p className={`font-bold text-2xl ${txt}`}>{m.value}</p>
+              </div>
+              <div className={`w-10 h-10 ${m.bg} rounded-lg flex items-center justify-center`}>{m.icon}</div>
             </div>
           </div>
-        </div>
-
-        <div className="bg-[#0a1628] border border-white/5 rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <FolderOpen className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-gray-400 text-xs">Principales</p>
-              <p className="text-white font-bold text-2xl">
-                {getParentCategories().length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#0a1628] border border-white/5 rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <Tag className="w-5 h-5 text-green-400" />
-            </div>
-            <div>
-              <p className="text-gray-400 text-xs">Subcategorías</p>
-              <p className="text-white font-bold text-2xl">
-                {categories.filter((cat) => cat.parent !== null).length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#0a1628] border border-white/5 rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <Palette className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="text-gray-400 text-xs">Activas</p>
-              <p className="text-white font-bold text-2xl">
-                {categories.filter((cat) => cat.active).length}
-              </p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Segunda línea separatoria + Botón */}
-      <div className="border-t border-white/10"></div>
+      <div className={divider} />
+
+      {/* Acción */}
       <div className="flex justify-end">
-        <button
-          onClick={() => handleOpenModal()}
-          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20"
-        >
-          <Plus className="w-4 h-4" />
-          Nueva Categoría
+        <button onClick={openCreate}
+          className="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 text-sm shadow-lg shadow-primary/20">
+          <Plus className="w-4 h-4" /> Nueva Categoría
         </button>
       </div>
 
-      {/* Búsqueda */}
-      <div className="bg-[#0f1825]/50 border border-white/5 rounded-xl p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Search className="w-5 h-5 text-primary" />
-          <span className="text-white font-medium">Buscar categoría</span>
+      {/* Búsqueda + filtros */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+          <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <input type="text" placeholder="Buscar categorías principales…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+            className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-500 ${isLight ? "text-gray-900" : "text-white"}`} />
         </div>
-        <input
-          type="text"
-          placeholder="Nombre de la categoría..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2.5 bg-[#0a1628] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-        />
+        <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[160px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+          <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
+            className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+            <option value="all"      className={optBg}>Todos los estados</option>
+            <option value="active"   className={optBg}>Activas</option>
+            <option value="inactive" className={optBg}>Inactivas</option>
+          </select>
+        </div>
       </div>
 
-      {/* Lista de categorías */}
-      <div className="space-y-3">
-        {filteredCategories.filter((cat) => cat.parent === null).map((category) => (
-          <div key={category.id} className="space-y-2">
-            {/* Categoría principal */}
-            <div className="bg-[#0a1628] border border-white/5 rounded-xl p-5 hover:border-white/10 transition-all">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
-                  <div
-                    className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
-                    style={{ backgroundColor: `${category.color}20` }}
-                  >
-                    {getIconEmoji(category.icon)}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-white font-semibold text-lg">
-                        {category.name}
-                      </h3>
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: category.color }}
-                      ></div>
-                      {!category.active && (
-                        <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full">
-                          Inactiva
+      {/* Tabla con filas expandibles */}
+      <div className={`rounded-xl overflow-hidden border ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className={`border-b text-xs font-semibold uppercase tracking-wider ${isLight ? "bg-gray-50 border-gray-200 text-gray-500" : "bg-white/5 border-white/10 text-gray-400"}`}>
+                <th className="px-4 py-3 text-left w-8"></th>
+                <th className="px-4 py-3 text-left">Nombre</th>
+                <th className="px-4 py-3 text-left">Descripción</th>
+                <th className="px-4 py-3 text-center">Subcategorías</th>
+                <th className="px-4 py-3 text-center">Estado</th>
+                <th className="px-4 py-3 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length > 0 ? filtered.map(cat => {
+                const kids = children(cat.id);
+                const isExpanded = expandedId === cat.id;
+                return (
+                  <Fragment key={cat.id}>
+                    {/* Fila padre */}
+                    <tr key={cat.id}
+                      className={`border-b transition-colors ${
+                        isExpanded
+                          ? isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20"
+                          : isLight ? "hover:bg-gray-50 border-gray-100" : "hover:bg-white/[0.04] border-white/5"
+                      }`}>
+                      {/* Toggle expand */}
+                      <td className="px-3 py-3">
+                        <button onClick={() => toggleExpand(cat.id)}
+                          className={`p-1 rounded transition-colors ${isExpanded ? "text-primary" : isLight ? "text-gray-400 hover:text-gray-600" : "text-gray-500 hover:text-gray-300"}`}>
+                          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                        </button>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <FolderOpen className={`w-4 h-4 flex-shrink-0 ${isExpanded ? "text-primary" : "text-gray-400"}`} />
+                          <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{cat.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 max-w-[200px]">
+                        <span className={`text-sm truncate block ${isLight ? "text-gray-500" : "text-gray-400"}`}>{cat.description || "—"}</span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+                          kids.length > 0
+                            ? isLight ? "bg-blue-100 text-blue-700" : "bg-blue-500/20 text-blue-300"
+                            : isLight ? "bg-gray-100 text-gray-500" : "bg-white/5 text-gray-500"
+                        }`}>
+                          <Tag className="w-3 h-3" />{kids.length}
                         </span>
-                      )}
-                    </div>
-                    <p className="text-gray-400 text-sm mb-3">
-                      {category.description}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="text-gray-500">
-                        <span className="text-primary font-semibold">
-                          {category.productsCount}
-                        </span>{" "}
-                        productos
-                      </span>
-                      {getChildCategories(category.id).length > 0 && (
-                        <span className="text-gray-500">
-                          <span className="text-blue-400 font-semibold">
-                            {getChildCategories(category.id).length}
-                          </span>{" "}
-                          subcategorías
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button onClick={() => handleToggleStatus(cat.id)}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                            cat.active
+                              ? isLight ? "bg-green-100 text-green-700 border border-green-200 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
+                              : isLight ? "bg-red-100 text-red-700 border border-red-200 hover:bg-red-200"         : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                          }`}>
+                          {cat.active ? "Activa" : "Inactiva"}
+                        </button>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1">
+                          <button onClick={() => toggleExpand(cat.id)} title="Gestionar subcategorías"
+                            className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "text-primary bg-primary/10" : `text-gray-400 ${isLight ? "hover:text-primary hover:bg-primary/10" : "hover:text-primary hover:bg-primary/10"}`}`}>
+                            <Settings className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => openEdit(cat)} title="Editar"
+                            className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}>
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete(cat.id)} title="Eliminar"
+                            className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-red-600 hover:bg-red-50" : "hover:text-red-400 hover:bg-red-500/10"}`}>
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleOpenModal(category)}
-                    className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                    title="Editar"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCategory(category.id)}
-                    className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+                    {/* Panel expandido de subcategorías */}
+                    {isExpanded && (
+                      <tr key={`${cat.id}-expanded`}>
+                        <td colSpan={6} className={`px-0 py-0 border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
+                          <div className={`${isLight ? "bg-primary/[0.03]" : "bg-primary/[0.06]"}`}>
 
-            {/* Subcategorías */}
-            {getChildCategories(category.id).map((subCategory) => (
-              <div
-                key={subCategory.id}
-                className="bg-[#0f1825]/50 border border-white/5 rounded-xl p-4 ml-8 hover:border-white/10 transition-all"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                      style={{ backgroundColor: `${subCategory.color}20` }}
-                    >
-                      {getIconEmoji(subCategory.icon)}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-white font-medium">
-                          {subCategory.name}
-                        </h4>
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: subCategory.color }}
-                        ></div>
-                        {!subCategory.active && (
-                          <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full">
-                            Inactiva
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-gray-400 text-sm mb-2">
-                        {subCategory.description}
-                      </p>
-                      <span className="text-gray-500 text-xs">
-                        <span className="text-primary font-semibold">
-                          {subCategory.productsCount}
-                        </span>{" "}
-                        productos
-                      </span>
-                    </div>
-                  </div>
+                            {/* Sub-tabla de hijos */}
+                            {kids.length > 0 && (
+                              <div className={`border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
+                                <table className="w-full">
+                                  <thead>
+                                    <tr className={`text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-400 bg-primary/5" : "text-gray-500 bg-primary/5"}`}>
+                                      <th className="pl-14 pr-4 py-2 text-left">Subcategoría</th>
+                                      <th className="px-4 py-2 text-left">Descripción</th>
+                                      <th className="px-4 py-2 text-center">Estado</th>
+                                      <th className="px-4 py-2 text-center">Acciones</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {kids.map((child, idx) => (
+                                      <tr key={child.id}
+                                        className={`transition-colors ${idx < kids.length - 1 ? (isLight ? "border-b border-primary/5" : "border-b border-primary/5") : ""} ${isLight ? "hover:bg-primary/5" : "hover:bg-primary/5"}`}>
+                                        <td className="pl-14 pr-4 py-2.5">
+                                          <div className="flex items-center gap-2">
+                                            <div className={`w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0`} />
+                                            <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-200"}`}>{child.name}</span>
+                                          </div>
+                                        </td>
+                                        <td className="px-4 py-2.5 max-w-[180px]">
+                                          <span className={`text-xs truncate block ${isLight ? "text-gray-400" : "text-gray-500"}`}>{child.description || "—"}</span>
+                                        </td>
+                                        <td className="px-4 py-2.5 text-center">
+                                          <button onClick={() => handleToggleStatus(child.id)}
+                                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                                              child.active
+                                                ? isLight ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
+                                                : isLight ? "bg-red-100 text-red-700 hover:bg-red-200"       : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                                            }`}>
+                                            {child.active ? "Activa" : "Inactiva"}
+                                          </button>
+                                        </td>
+                                        <td className="px-4 py-2.5">
+                                          <div className="flex items-center justify-center gap-1">
+                                            <button onClick={() => openEdit(child)} title="Editar"
+                                              className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}>
+                                              <Edit className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button onClick={() => handleDeleteChild(child.id)} title="Eliminar"
+                                              className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-red-600 hover:bg-red-50" : "hover:text-red-400 hover:bg-red-500/10"}`}>
+                                              <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleOpenModal(subCategory)}
-                      className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                      title="Editar"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCategory(subCategory.id)}
-                      className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-
-        {filteredCategories.length === 0 && (
-          <div className="bg-[#0a1628] border border-white/5 rounded-xl p-12 text-center">
-            <FolderTree className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-400 text-sm">
-              No se encontraron categorías
-            </p>
-          </div>
-        )}
+                            {/* Formulario agregar hijo */}
+                            {addingChildTo === cat.id ? (
+                              <div className="pl-14 pr-4 py-3 flex items-center gap-3">
+                                <input autoFocus type="text" value={childForm.name}
+                                  onChange={e => setChildForm({...childForm, name:e.target.value})}
+                                  placeholder="Nombre de la subcategoría"
+                                  className={`${ic} max-w-[220px]`}
+                                  onKeyDown={e => { if (e.key === "Enter") handleSaveChild(cat.id); if (e.key === "Escape") { setAddingChildTo(null); setChildForm({name:"", description:"", active:true}); } }}
+                                />
+                                <input type="text" value={childForm.description}
+                                  onChange={e => setChildForm({...childForm, description:e.target.value})}
+                                  placeholder="Descripción (opcional)"
+                                  className={`${ic} max-w-[200px]`}
+                                />
+                                <label className={`flex items-center gap-1.5 text-xs cursor-pointer flex-shrink-0 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                                  <input type="checkbox" checked={childForm.active}
+                                    onChange={e => setChildForm({...childForm, active:e.target.checked})}
+                                    className="w-3.5 h-3.5 accent-primary" />
+                                  Activa
+                                </label>
+                                <button onClick={() => handleSaveChild(cat.id)}
+                                  className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors flex-shrink-0">
+                                  <Save className="w-3.5 h-3.5" /> Guardar
+                                </button>
+                                <button onClick={() => { setAddingChildTo(null); setChildForm({name:"", description:"", active:true}); }}
+                                  className={`p-2 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:bg-gray-100 hover:text-gray-600" : "hover:bg-white/10 hover:text-gray-200"}`}>
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="pl-14 pr-4 py-2.5">
+                                <button
+                                  onClick={() => setAddingChildTo(cat.id)}
+                                  className={`flex items-center gap-1.5 text-xs font-medium transition-colors text-primary hover:text-primary/80`}>
+                                  <Plus className="w-3.5 h-3.5" /> Agregar subcategoría
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              }) : (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center">
+                    <FolderTree className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                    <p className="text-gray-400 text-sm">No se encontraron categorías</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Modal de crear/editar */}
+      {/* ══════════════════════════════════════════════════
+          MODAL CREAR / EDITAR
+      ══════════════════════════════════════════════════ */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-[#0a1628] border border-white/10 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            {/* Header del modal */}
-            <div className="sticky top-0 bg-[#0a1628] border-b border-white/10 p-6 flex items-center justify-between">
+          <div className={`w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto ${isLight ? "bg-white border border-gray-200" : "bg-[#0D1B2A] border border-white/10"}`}>
+            <div className={`flex items-center justify-between px-5 py-4 border-b sticky top-0 z-10 ${isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10"}`}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <FolderTree className="w-5 h-5 text-primary" />
+                  {modalMode === "create" ? <Plus className="w-5 h-5 text-primary" /> : <Edit className="w-5 h-5 text-primary" />}
                 </div>
-                <div>
-                  <h3 className="text-white font-bold text-xl">
-                    {editingCategory ? "Editar Categoría" : "Nueva Categoría"}
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    {editingCategory
-                      ? "Actualiza los datos de la categoría"
-                      : "Completa la información de la nueva categoría"}
-                  </p>
-                </div>
+                <h3 className={`font-bold text-xl ${isLight ? "text-gray-900" : "text-white"}`}>
+                  {modalMode === "create" ? "Nueva Categoría" : "Editar Categoría"}
+                </h3>
               </div>
-              <button
-                onClick={handleCloseModal}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-              >
+              <button onClick={closeModal} className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Contenido del modal */}
-            <div className="p-6 space-y-5">
-              {/* Nombre */}
+            <div className="p-5 space-y-4">
               <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">
-                  Nombre de la categoría *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="Ej: Electrónica"
-                  className="w-full px-4 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                />
+                <label className={lbl}>Nombre <span className="text-red-400">*</span></label>
+                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name:e.target.value})}
+                  placeholder="Ej: Electrónica" className={ic} />
               </div>
-
-              {/* Descripción */}
               <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">
-                  Descripción
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Descripción breve de la categoría..."
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all resize-none"
-                />
+                <label className={lbl}>Descripción</label>
+                <textarea value={formData.description} onChange={e => setFormData({...formData, description:e.target.value})}
+                  placeholder="Descripción breve de la categoría…" rows={3} className={`${ic} resize-none`} />
               </div>
-
-              {/* Categoría padre */}
               <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">
-                  Categoría padre (opcional)
-                </label>
-                <select
-                  value={formData.parent}
-                  onChange={(e) =>
-                    setFormData({ ...formData, parent: e.target.value })
-                  }
-                  className="w-full px-4 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                >
-                  <option value="">Sin categoría padre</option>
-                  {getParentCategories()
-                    .filter((cat) => cat.id !== editingCategory?.id)
-                    .map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
+                <label className={lbl}>Categoría padre <span className={`font-normal text-xs ${isLight ? "text-gray-400" : "text-gray-500"}`}>(opcional)</span></label>
+                <select value={formData.parent} onChange={e => setFormData({...formData, parent:e.target.value})} className={ic}>
+                  <option value="" className={optBg}>Sin categoría padre (principal)</option>
+                  {parentCats().filter(c => c.id !== editingCat?.id).map(c => (
+                    <option key={c.id} value={c.id} className={optBg}>{c.name}</option>
+                  ))}
                 </select>
-                <p className="text-gray-500 text-xs mt-1">
-                  Selecciona una categoría padre para crear una subcategoría
-                </p>
               </div>
-
-              {/* Icono */}
-              <div>
-                <label className="block text-gray-300 text-sm font-medium mb-3">
-                  Icono
-                </label>
-                <div className="grid grid-cols-5 gap-3">
-                  {iconOptions.map((iconOption) => (
-                    <button
-                      key={iconOption.value}
-                      type="button"
-                      onClick={() =>
-                        setFormData({ ...formData, icon: iconOption.value })
-                      }
-                      className={`p-4 rounded-lg border-2 transition-all text-2xl ${
-                        formData.icon === iconOption.value
-                          ? "border-primary bg-primary/10"
-                          : "border-white/10 bg-[#0f1825] hover:border-white/20"
-                      }`}
-                      title={iconOption.label}
-                    >
-                      {iconOption.icon}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Color */}
-              <div>
-                <label className="block text-gray-300 text-sm font-medium mb-3">
-                  Color
-                </label>
-                <div className="grid grid-cols-10 gap-2">
-                  {predefinedColors.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, color })}
-                      className={`w-10 h-10 rounded-lg transition-all ${
-                        formData.color === color
-                          ? "ring-2 ring-white ring-offset-2 ring-offset-[#0a1628]"
-                          : "hover:scale-110"
-                      }`}
-                      style={{ backgroundColor: color }}
-                      title={color}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Estado */}
-              <div className="flex items-start gap-4 p-4 bg-[#0f1825]/50 rounded-lg border border-white/5">
-                <div className="relative mt-0.5">
-                  <input
-                    type="checkbox"
-                    checked={formData.active}
-                    onChange={(e) =>
-                      setFormData({ ...formData, active: e.target.checked })
-                    }
-                    className="sr-only peer"
-                    id="categoryActive"
-                  />
-                  <label
-                    htmlFor="categoryActive"
-                    className="w-5 h-5 border-2 border-white/20 rounded peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center cursor-pointer"
-                  >
-                    {formData.active && (
-                      <svg
-                        className="w-3 h-3 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
-                  </label>
-                </div>
-                <div className="flex-1">
-                  <label
-                    htmlFor="categoryActive"
-                    className="text-white font-medium text-sm block mb-1 cursor-pointer"
-                  >
-                    Categoría activa
-                  </label>
-                  <p className="text-gray-400 text-xs">
-                    Solo las categorías activas se pueden asignar a productos
-                  </p>
+              <div className={`flex items-center gap-4 p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-[#0f1825]/50 border-white/5"}`}>
+                <input type="checkbox" checked={formData.active} id="catActive"
+                  onChange={e => setFormData({...formData, active:e.target.checked})}
+                  className="w-4 h-4 accent-primary" />
+                <div>
+                  <label htmlFor="catActive" className={`text-sm font-medium cursor-pointer ${isLight ? "text-gray-900" : "text-white"}`}>Categoría activa</label>
+                  <p className="text-gray-400 text-xs mt-0.5">Solo las categorías activas pueden asignarse a productos</p>
                 </div>
               </div>
             </div>
 
-            {/* Footer del modal */}
-            <div className="border-t border-white/10 p-6 flex justify-end gap-3">
-              <button
-                onClick={handleCloseModal}
-                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg transition-colors font-medium"
-              >
+            <div className={`border-t px-5 py-4 flex justify-end gap-3 ${isLight ? "border-gray-200" : "border-white/10"}`}>
+              <button onClick={closeModal}
+                className={`px-5 py-2 rounded-lg text-sm font-medium border transition-colors ${isLight ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50" : "bg-white/5 border-white/10 text-white hover:bg-white/10"}`}>
                 Cancelar
               </button>
-              <button
-                onClick={handleSaveCategory}
-                className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2"
-              >
+              <button onClick={handleSave}
+                className="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
                 <Save className="w-4 h-4" />
-                {editingCategory ? "Actualizar" : "Crear"} Categoría
+                {modalMode === "create" ? "Crear Categoría" : "Actualizar"}
               </button>
             </div>
           </div>

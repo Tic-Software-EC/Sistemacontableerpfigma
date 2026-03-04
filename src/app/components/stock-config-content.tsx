@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   Settings,
   Check,
@@ -48,7 +49,7 @@ export function StockConfigContent() {
   };
 
   const handleSave = () => {
-    alert("Configuración de stock guardada exitosamente");
+    toast.success("Configuración de stock guardada exitosamente");
     setHasChanges(false);
   };
 

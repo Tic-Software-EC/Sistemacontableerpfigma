@@ -26,6 +26,7 @@ import { PlanEditModal } from "../components/plan-edit-modal";
 import { PlansManagerModal } from "../components/plans-manager-modal";
 import { Pagination } from "../components/pagination";
 import { useTheme } from "../contexts/theme-context";
+import { toast } from "sonner";
 
 interface Company {
   id: string;
@@ -386,7 +387,7 @@ export default function SubscriptionAdminPage() {
     console.log("Actualizando empresa:", selectedCompany?.id);
     console.log("Datos actualizados:", formData);
     // Aquí iría la lógica para actualizar en el backend/localStorage
-    alert(`✓ Empresa "${formData.name}" actualizada exitosamente`);
+    toast.success(`Empresa "${formData.name}" actualizada exitosamente`);
     setShowEditModal(false);
     setSelectedCompany(null);
   };
@@ -665,7 +666,7 @@ export default function SubscriptionAdminPage() {
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => alert(`Enviar email a: ${company.adminEmail}`)}
+                          onClick={() => toast.info(`Enviar email a: ${company.adminEmail}`)}
                           className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-md transition-colors"
                           title="Enviar email"
                         >

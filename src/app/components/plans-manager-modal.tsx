@@ -13,6 +13,7 @@ import {
 import { useTheme } from "../contexts/theme-context";
 import { PLAN_CONFIGS } from "../config/plans";
 import { PlanViewModal } from "./plan-view-modal";
+import { toast } from "sonner";
 
 interface PlanData {
   name: string;
@@ -89,7 +90,7 @@ export function PlansManagerModal({ isOpen, onClose }: PlansManagerModalProps) {
 
     // Aquí guardarías en localStorage o backend
     console.log("Plan actualizado:", editFormData);
-    alert(`✓ Plan "${editFormData.displayName}" actualizado exitosamente`);
+    toast.success(`Plan "${editFormData.displayName}" actualizado exitosamente`);
 
     setShowEditModal(false);
     setEditFormData(null);

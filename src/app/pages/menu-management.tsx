@@ -58,6 +58,7 @@ import {
 import { useTheme } from "../contexts/theme-context";
 import { IconSelector } from "../components/icon-selector";
 import { ProfileModal } from "../components/profile-modal";
+import { toast } from "sonner";
 
 interface MenuItem {
   id: string;
@@ -351,7 +352,7 @@ export default function MenuManagementPage() {
   const handleDeleteMenu = (menu: MenuItem) => {
     const hasChildren = menuItems.some((m) => m.parent === menu.id);
     if (hasChildren) {
-      alert("No puedes eliminar un menú que tiene submenús. Elimina primero los submenús.");
+      toast.error("No puedes eliminar un menú que tiene submenús. Elimina primero los submenús.");
       return;
     }
 
@@ -362,7 +363,7 @@ export default function MenuManagementPage() {
 
   const handleSaveMenu = () => {
     if (!formData.name.trim() || !formData.path.trim()) {
-      alert("El nombre y la ruta son obligatorios");
+      toast.error("El nombre y la ruta son obligatorios");
       return;
     }
 
@@ -378,7 +379,7 @@ export default function MenuManagementPage() {
     if (!selectedMenu) return;
 
     if (!formData.name.trim() || !formData.path.trim()) {
-      alert("El nombre y la ruta son obligatorios");
+      toast.error("El nombre y la ruta son obligatorios");
       return;
     }
 

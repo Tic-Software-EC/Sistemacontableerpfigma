@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Save, Plus, Trash2, FileText, Calendar, Truck, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface NewInvoiceItem {
   productName: string;
@@ -289,22 +290,12 @@ export function NewSupplierInvoiceModal({ onClose }: NewSupplierInvoiceModalProp
   };
 
   const handleSave = () => {
-    // Aquí se implementaría la lógica para guardar la factura
     console.log("Guardando factura...", {
-      supplier,
-      supplierRuc,
-      invoiceNumber,
-      invoiceDate,
-      dueDate,
-      paymentTerms,
-      purchaseOrder,
-      receptionNumber,
-      items,
-      notes,
+      supplier, supplierRuc, invoiceNumber, invoiceDate, dueDate,
+      paymentTerms, purchaseOrder, receptionNumber, items, notes,
       totals: calculateTotals()
     });
-    
-    alert("Factura registrada exitosamente");
+    toast.success("Factura registrada exitosamente");
     onClose();
   };
 

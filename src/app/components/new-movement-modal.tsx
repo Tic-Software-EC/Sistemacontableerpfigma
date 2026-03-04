@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Plus, Trash2, Package, TrendingUp, FileText, Search, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface NewMovementModalProps {
   isOpen: boolean;
@@ -77,7 +78,7 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
     e.preventDefault();
     
     if (products.length === 0) {
-      alert("Debe agregar al menos un producto al movimiento");
+      toast.error("Debe agregar al menos un producto al movimiento");
       return;
     }
 
@@ -116,7 +117,7 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
   const addProduct = (product: typeof AVAILABLE_PRODUCTS[0]) => {
     // Verificar si el producto ya está agregado
     if (products.find(p => p.productCode === product.code)) {
-      alert("Este producto ya está en la lista");
+      toast.error("Este producto ya está en la lista");
       return;
     }
 

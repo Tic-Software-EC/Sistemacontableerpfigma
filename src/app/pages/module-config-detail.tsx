@@ -40,6 +40,13 @@ import {
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { useTheme } from "../contexts/theme-context";
+import { SysTabBar, SysTab } from "../components/ui/sys-tab-bar";
+
+const SECURITY_TABS: SysTab[] = [
+  { id: "auth",     label: "Autenticación", icon: Shield },
+  { id: "sessions", label: "Sesiones",      icon: Clock  },
+  { id: "password", label: "Contraseñas",   icon: Shield },
+];
 
 // Componentes de contenido
 import { WarehousesContent } from "../components/warehouses-content";
@@ -58,6 +65,7 @@ import { BranchListContent } from "../components/branch-list-content";
 import { RolesPermissionsContent } from "../components/roles-permissions-content";
 import { HolidaysContent } from "../components/holidays-content";
 import { SalesConfigContent } from "../components/sales-config-content";
+import { PuntoEmisionContent } from "../components/punto-emision-content";
 import { PaymentMethodsContent } from "../components/payment-methods-content";
 import { WorkScheduleContent } from "../components/work-schedule-content";
 import { TaxesContent } from "../components/taxes-content";
@@ -67,111 +75,185 @@ import { PosConfigContent } from "../components/pos-config-content";
 
 // Componente de Seguridad
 function SecurityContent({ theme }: { theme: string }) {
-  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
-  const [sessionTimeout, setSessionTimeout] = useState("30");
-  const [passwordExpiry, setPasswordExpiry] = useState("90");
-  const [loginAttempts, setLoginAttempts] = useState("3");
-  const [ipWhitelist, setIpWhitelist] = useState("");
+  const [activeTab,        setActiveTab]        = useState("auth");
+  const [twoFactorAuth,    setTwoFactorAuth]    = useState(false);
+  const [sessionTimeout,   setSessionTimeout]   = useState("30");
+  const [passwordExpiry,   setPasswordExpiry]   = useState("90");
+  const [loginAttempts,    setLoginAttempts]    = useState("3");
+  const [lockoutDuration,  setLockoutDuration]  = useState("15");
+  const [minPassLength,    setMinPassLength]    = useState("8");
+  const [requireUppercase, setRequireUppercase] = useState(true);
+  const [requireNumbers,   setRequireNumbers]   = useState(true);
+  const [requireSymbols,   setRequireSymbols]   = useState(false);
+  const [ipWhitelist,      setIpWhitelist]      = useState("");
+  const [saved,            setSaved]            = useState(false);
 
-  const handleSave = () => {
-    console.log("Guardando configuración de seguridad...");
-    alert("Configuración de seguridad guardada exitosamente");
-  };
+  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2500); };
+
+  const isLight = theme === "light";
+  const txt  = isLight ? "text-gray-900" : "text-white";
+  const sub  = isLight ? "text-gray-500" : "text-gray-400";
+  const lbl  = isLight ? "text-gray-600" : "text-gray-300";
+  const D    = `border-t ${isLight ? "border-gray-200" : "border-white/10"}`;
+  const card = `rounded-2xl p-6 border ${isLight ? "bg-white border-gray-200 shadow-sm" : "bg-white/5 border-white/10"}`;
+  const sec  = `rounded-xl p-4 border mb-5 ${isLight ? "border-gray-100 bg-gray-50" : "border-white/8 bg-white/[0.03]"}`;
+  const SH   = `text-xs font-semibold uppercase tracking-wide mb-3 ${isLight ? "text-gray-400" : "text-gray-500"}`;
+  const IN   = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`;
+
+  const CheckRow = ({ checked, onChange, label, desc }: { checked: boolean; onChange: (v: boolean) => void; label: string; desc: string }) => (
+    <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-lg transition-colors ${isLight ? "bg-gray-50 hover:bg-gray-100" : "bg-[#0f1825]/50 hover:bg-[#0f1825]"}`}>
+      <div className="flex-shrink-0">
+        <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} className="sr-only" />
+        <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${checked ? "bg-primary border-primary" : isLight ? "border-gray-300" : "border-white/20"}`}>
+          {checked && (
+            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          )}
+        </div>
+      </div>
+      <div>
+        <span className={`text-sm font-medium ${txt}`}>{label}</span>
+        <p className={`text-xs mt-0.5 ${sub}`}>{desc}</p>
+      </div>
+    </label>
+  );
+
+  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <div>
+      <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>{label}</label>
+      {children}
+    </div>
+  );
 
   return (
-    <div className="space-y-8 max-w-6xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className={`font-bold text-3xl mb-2 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-            Configuración de Seguridad
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Gestiona las opciones de seguridad de tu cuenta
-          </p>
+    <div className="space-y-6 w-full">
+
+      {/* TÍTULO */}
+      <div>
+        <div className="flex items-center gap-3 mb-1">
+          <Shield className="w-8 h-8 text-primary" />
+          <h2 className={`font-bold text-3xl ${txt}`}>Configuración de Seguridad</h2>
         </div>
+        <p className={`text-sm ${sub}`}>Gestiona las opciones de seguridad de tu cuenta</p>
+      </div>
+
+      <div className={D} />
+
+      {/* BOTÓN GUARDAR */}
+      <div className="flex justify-end">
         <button
           onClick={handleSave}
-          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium"
+          className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-primary/20 ${saved ? "bg-green-500" : "bg-primary hover:bg-primary/90"} text-white`}
         >
-          Guardar Cambios
+          {saved
+            ? <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg> Guardado</>
+            : "Guardar Cambios"
+          }
         </button>
       </div>
 
-      {/* Separador */}
-      <div className={`border-t ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
+      <SysTabBar tabs={SECURITY_TABS} active={activeTab} onChange={setActiveTab} />
 
-      {/* Autenticación */}
-      <div className={`border rounded-2xl p-6 ${theme === "light" ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
-        <div className="flex items-center gap-2 mb-6">
-          <Shield className="w-5 h-5 text-primary" />
-          <h3 className={`font-bold text-xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>Autenticación</h3>
-        </div>
-
-        <div className="space-y-5">
-          {/* Autenticación de dos factores */}
-          <label className={`flex items-center gap-3 cursor-pointer group p-4 rounded-xl transition-colors ${theme === "light" ? "bg-gray-50 hover:bg-gray-100" : "bg-[#0f1825]/50 hover:bg-[#0f1825]"}`}>
-            <div className="relative">
-              <input
-                type="checkbox"
-                checked={twoFactorAuth}
-                onChange={(e) => setTwoFactorAuth(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className={`w-5 h-5 border-2 rounded transition-colors flex items-center justify-center ${theme === "light" ? "border-gray-300 peer-checked:bg-primary peer-checked:border-primary" : "border-white/20 peer-checked:bg-primary peer-checked:border-primary"}`}>
-                {twoFactorAuth && (
-                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </div>
+      {/* ══ AUTENTICACIÓN ══ */}
+      {activeTab === "auth" && (
+        <div className={card}>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+              <Shield className="w-4 h-4 text-primary" />
             </div>
-            <div>
-              <span className={`font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>Autenticación de Dos Factores</span>
-              <p className="text-gray-400 text-xs mt-0.5">Seguridad adicional para tu cuenta</p>
-            </div>
-          </label>
-
-          <div className="grid grid-cols-2 gap-5">
-            <div>
-              <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
-                Tiempo de sesión (minutos)
-              </label>
-              <input
-                type="number"
-                value={sessionTimeout}
-                onChange={(e) => setSessionTimeout(e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${theme === "light" ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`}
-              />
-            </div>
-
-            <div>
-              <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
-                Expiración de contraseña (días)
-              </label>
-              <input
-                type="number"
-                value={passwordExpiry}
-                onChange={(e) => setPasswordExpiry(e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${theme === "light" ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`}
-              />
-            </div>
-
-            <div>
-              <label className={`block text-sm mb-2 font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
-                Intentos de login permitidos
-              </label>
-              <input
-                type="number"
-                value={loginAttempts}
-                onChange={(e) => setLoginAttempts(e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${theme === "light" ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`}
-              />
-            </div>
-
-            
+            <h3 className={`font-bold text-base ${txt}`}>Autenticación</h3>
+          </div>
+          <div className="space-y-3">
+            <CheckRow
+              checked={twoFactorAuth}
+              onChange={setTwoFactorAuth}
+              label="Autenticación de Dos Factores (2FA)"
+              desc="Requiere un código adicional al iniciar sesión"
+            />
           </div>
         </div>
-      </div>
+      )}
+
+      {/* ══ SESIONES ══ */}
+      {activeTab === "sessions" && (
+        <div className={card}>
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+              <Clock className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className={`font-bold text-base ${txt}`}>Control de Sesiones</h3>
+          </div>
+          <div className={sec} style={{ marginBottom: 0 }}>
+            <p className={SH}>Límites de sesión</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Tiempo de inactividad (minutos)">
+                <input type="number" value={sessionTimeout} onChange={e => setSessionTimeout(e.target.value)} className={IN} />
+              </Field>
+              <Field label="Intentos de login permitidos">
+                <input type="number" value={loginAttempts} onChange={e => setLoginAttempts(e.target.value)} className={IN} />
+              </Field>
+              <Field label="Duración del bloqueo (minutos)">
+                <input type="number" value={lockoutDuration} onChange={e => setLockoutDuration(e.target.value)} className={IN} />
+              </Field>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ CONTRASEÑAS ══ */}
+      {activeTab === "password" && (
+        <div className={card}>
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+              <Shield className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className={`font-bold text-base ${txt}`}>Política de Contraseñas</h3>
+          </div>
+          <div className={sec}>
+            <p className={SH}>Requisitos de longitud</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Longitud mínima">
+                <input type="number" value={minPassLength} onChange={e => setMinPassLength(e.target.value)} className={IN} />
+              </Field>
+              <Field label="Expiración (días)">
+                <input type="number" value={passwordExpiry} onChange={e => setPasswordExpiry(e.target.value)} className={IN} />
+              </Field>
+            </div>
+          </div>
+          <div className={sec} style={{ marginBottom: 0 }}>
+            <p className={SH}>Requisitos de complejidad</p>
+            <div className="space-y-2">
+              <CheckRow checked={requireUppercase} onChange={setRequireUppercase} label="Requerir mayúsculas" desc="La contraseña debe incluir al menos una letra mayúscula" />
+              <CheckRow checked={requireNumbers}   onChange={setRequireNumbers}   label="Requerir números"   desc="La contraseña debe incluir al menos un número" />
+              <CheckRow checked={requireSymbols}   onChange={setRequireSymbols}   label="Requerir símbolos"  desc="La contraseña debe incluir caracteres especiales (!@#$%)" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ ACCESO POR IP ══ */}
+      {activeTab === "ip" && (
+        <div className={card}>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+              <Shield className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className={`font-bold text-base ${txt}`}>Control de Acceso por IP</h3>
+          </div>
+          <div>
+            <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>IPs permitidas (una por línea — dejar vacío para permitir todas)</label>
+            <textarea
+              value={ipWhitelist}
+              onChange={e => setIpWhitelist(e.target.value)}
+              rows={5}
+              placeholder={"192.168.1.0/24\n10.0.0.1"}
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all resize-none ${isLight ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400" : "bg-[#0f1825] border-white/10 text-white placeholder:text-gray-600"}`}
+            />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
@@ -184,7 +266,7 @@ function NotificationsContent() {
 
   const handleSave = () => {
     console.log("Guardando configuración de notificaciones...");
-    alert("Configuración de notificaciones guardada exitosamente");
+    toast.success("Configuración de notificaciones guardada exitosamente");
   };
 
   return (
@@ -296,9 +378,10 @@ const moduleMenus: Record<string, any> = {
       name: "Ajustes generales",
       icon: Settings,
       submenus: [
-        { id: "company-info", name: "Empresa", icon: Building2 },
-        { id: "branches", name: "Sucursales", icon: Building2 },
-        { id: "pos-config", name: "Configurar POS", icon: ShoppingCart },
+        { id: "company-info",  name: "Empresa",          icon: Building2     },
+        { id: "branches",      name: "Sucursales",        icon: Building2     },
+        { id: "punto-emision", name: "Puntos de Emisión", icon: Printer       },
+        { id: "pos-config",    name: "Configurar POS",    icon: ShoppingCart  },
         { id: "regional-config", name: "Config. Regional", icon: Globe },
         { id: "security", name: "Seguridad", icon: Shield },
         { id: "communications", name: "Comunicaciones", icon: Mail },
@@ -310,19 +393,8 @@ const moduleMenus: Record<string, any> = {
       name: "Usuarios",
       icon: Users,
       submenus: [
-        { id: "user-list", name: "Lista de usuarios", icon: Users },
         { id: "roles", name: "Roles y permisos", icon: UserCheck },
-      ]
-    },
-    {
-      id: "sales",
-      name: "Ventas",
-      icon: ShoppingCart,
-      submenus: [
-        { id: "sales-config", name: "Configurar", icon: Settings },
-        { id: "payment-methods", name: "Métodos de pago", icon: CreditCard },
-        { id: "taxes", name: "Impuestos", icon: Calculator },
-        { id: "discounts", name: "Descuentos", icon: DollarSign },
+        { id: "user-list", name: "Lista de usuarios", icon: Users },
       ]
     },
     {
@@ -335,20 +407,11 @@ const moduleMenus: Record<string, any> = {
       ]
     },
     {
-      id: "purchases",
-      name: "Compras",
-      icon: ShoppingCart,
-      submenus: [
-        { id: "purchase-config", name: "Configurar", icon: Settings },
-      ]
-    },
-    {
       id: "inventory",
       name: "Inventario",
       icon: Package,
       submenus: [
         { id: "warehouses", name: "Almacenes", icon: Building2 },
-        { id: "stock-config", name: "Configuración de stock", icon: Boxes },
         { id: "categories", name: "Categorías", icon: Boxes },
         { id: "units", name: "Unidades de medida", icon: Calculator },
       ]
@@ -938,6 +1001,8 @@ export default function ModuleConfigDetailPage() {
                 <HolidaysContent />
               ) : selectedMenu === "sales-config" ? (
                 <SalesConfigContent />
+              ) : selectedMenu === "punto-emision" ? (
+                <PuntoEmisionContent />
               ) : selectedMenu === "payment-methods" ? (
                 <PaymentMethodsContent />
               ) : selectedMenu === "taxes" ? (

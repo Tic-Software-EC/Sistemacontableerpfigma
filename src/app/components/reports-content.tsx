@@ -147,7 +147,7 @@ export function ReportsContent() {
   ];
 
   const handleExport = (format: string) => {
-    alert(`Exportando reporte en formato ${format.toUpperCase()}...`);
+    toast.info(`Exportando reporte en formato ${format.toUpperCase()}...`);
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ShoppingCart, Plus, Pencil, Trash2, Search, Eye, CheckCircle, Clock, XCircle, FileText, Package, DollarSign, Calendar, Truck, X, Check, Filter, Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PackageCheck, AlertCircle, Warehouse } from "lucide-react";
+import { toast } from "sonner";
 
 interface OrderItem {
   id: string;
@@ -411,7 +412,7 @@ export function PurchaseOrdersContent() {
 
   const addItem = () => {
     if (!formData.supplierId) {
-      alert("Primero debes seleccionar un proveedor");
+      toast.error("Primero debes seleccionar un proveedor");
       return;
     }
     setProductSearchTerm("");
@@ -422,7 +423,7 @@ export function PurchaseOrdersContent() {
     // Verificar si el producto ya existe en la lista
     const existingItem = formData.items?.find(item => item.productCode === product.code);
     if (existingItem) {
-      alert("Este producto ya está agregado a la orden");
+      toast.error("Este producto ya está agregado a la orden");
       return;
     }
 
@@ -527,14 +528,14 @@ export function PurchaseOrdersContent() {
 
   const handleSave = () => {
     if (!formData.supplierId || !formData.items || formData.items.length === 0) {
-      alert("Por favor selecciona un proveedor y agrega al menos un producto");
+      toast.error("Por favor selecciona un proveedor y agrega al menos un producto");
       return;
     }
 
     // Validar que todos los productos tengan código
     const hasEmptyProducts = formData.items.some((item) => !item.productCode);
     if (hasEmptyProducts) {
-      alert("Por favor completa todos los productos");
+      toast.error("Por favor completa todos los productos");
       return;
     }
 
@@ -629,7 +630,7 @@ export function PurchaseOrdersContent() {
     // Validar que haya al menos un producto con cantidad > 0
     const hasItemsToReceive = receivingItems.some(item => item.receivingNow > 0);
     if (!hasItemsToReceive) {
-      alert("Debe ingresar al menos un producto con cantidad mayor a 0");
+      toast.error("Debe ingresar al menos un producto con cantidad mayor a 0");
       return;
     }
 
@@ -638,7 +639,7 @@ export function PurchaseOrdersContent() {
       item.previouslyReceived + item.receivingNow > item.orderedQuantity
     );
     if (hasExcessQuantity) {
-      alert("No se puede recibir más cantidad de la ordenada");
+      toast.error("No se puede recibir más cantidad de la ordenada");
       return;
     }
 
@@ -705,7 +706,7 @@ export function PurchaseOrdersContent() {
     setReceptions([...receptions, newReception]);
 
     // Mostrar mensaje de éxito
-    alert(`✅ Recepción completada exitosamente!\n\nNúmero: ${newReception.receptionNumber}\nBodega: ${WAREHOUSES.find(w => w.id === receivingWarehouse)?.name}\nProductos: ${newReception.items.length}`);
+    toast.success(`Recepción ${newReception.receptionNumber} completada exitosamente`);
 
     handleCloseReceivingModal();
   };

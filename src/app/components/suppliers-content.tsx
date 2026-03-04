@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Truck, Plus, Pencil, Trash2, Search, Eye, Mail, Phone, MapPin, User, Building2, FileText, X, ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import { useTheme } from "../contexts/theme-context";
+import { toast } from "sonner";
 
 interface Supplier {
   id: string;
@@ -47,6 +49,8 @@ const PAYMENT_TERMS = [
 ];
 
 export function SuppliersContent() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
@@ -259,7 +263,7 @@ export function SuppliersContent() {
 
   const handleSave = () => {
     if (!formData.name || !formData.ruc) {
-      alert("Por favor completa el nombre y RUC del proveedor");
+      toast.error("Por favor completa el nombre y RUC del proveedor");
       return;
     }
 
@@ -510,7 +514,7 @@ export function SuppliersContent() {
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleViewSupplier(supplier)}
-                          className="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
+                          className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}
                           title="Ver detalle"
                         >
                           <Eye className="w-4 h-4" />
@@ -518,7 +522,7 @@ export function SuppliersContent() {
 
                         <button
                           onClick={() => handleOpenModal(supplier)}
-                          className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors"
+                          className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}
                           title="Editar"
                         >
                           <Pencil className="w-4 h-4" />
@@ -526,7 +530,7 @@ export function SuppliersContent() {
 
                         <button
                           onClick={() => handleDelete(supplier.id)}
-                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                          className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -696,6 +700,8 @@ export function SuppliersContent() {
                     </select>
                   </div>
 
+                  {/* Estado — solo en edición */}
+                  {editingSupplier && (
                   <div>
                     <label className="block text-gray-300 text-sm mb-2 font-medium">
                       Estado
@@ -709,6 +715,7 @@ export function SuppliersContent() {
                       <option value="inactive">Inactivo</option>
                     </select>
                   </div>
+                  )}
                 </div>
               </div>
 

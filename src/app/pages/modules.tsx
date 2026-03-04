@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   FileText,
   Users,
@@ -1155,7 +1156,7 @@ export default function ModulesPage() {
               <button
                 onClick={() => {
                   setShowPreferencesModal(false);
-                  alert("Preferencias guardadas exitosamente");
+                  toast.success("Preferencias guardadas exitosamente");
                 }}
                 className="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors"
               >

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Eye, EyeOff, Lock, Mail, Shield, Crown, Send, X, CheckCircle2, Building2, User } from "lucide-react";
+import { toast } from "sonner";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -203,7 +204,7 @@ export function LoginForm() {
                 className="text-primary hover:text-primary/80 transition-colors font-medium"
                 onClick={(e) => {
                   e.preventDefault();
-                  alert("Contactar soporte técnico");
+                  toast.info("Contactar soporte técnico");
                 }}
               >
                 Contacta a soporte
