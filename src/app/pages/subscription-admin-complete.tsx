@@ -547,10 +547,7 @@ export default function SubscriptionAdminPage() {
       <div className="p-6">
         {/* Título */}
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-1">
-            <Building2 className="w-8 h-8 text-primary" />
-            <h2 className="text-white font-bold text-3xl">Gestión de Empresas</h2>
-          </div>
+
           <p className="text-gray-400 text-sm pl-11">
             Administra las empresas suscritas y sus configuraciones
           </p>

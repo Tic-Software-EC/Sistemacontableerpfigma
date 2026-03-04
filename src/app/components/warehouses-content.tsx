@@ -164,15 +164,6 @@ export function WarehousesContent() {
   return (
     <div className="space-y-6 w-full">
 
-      {/* TÍTULO */}
-      <div>
-        <h2 className={`font-bold text-3xl mb-1 flex items-center gap-3 ${txt}`}>
-          <Warehouse className="w-8 h-8 text-primary" />
-          Almacenes
-        </h2>
-        <p className={`text-sm ${sub}`}>Gestiona los almacenes disponibles por sucursal</p>
-      </div>
-
       <div className={`border-t ${divB}`} />
 
       {/* MÉTRICAS */}

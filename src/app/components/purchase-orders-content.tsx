@@ -762,18 +762,9 @@ export function PurchaseOrdersContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header estándar con diseño corporativo */}
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <ShoppingCart className="w-8 h-8 text-primary" />
-            Órdenes de Compra
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Gestiona tus órdenes de compra y realiza seguimiento de entregas
-          </p>
-        </div>
-        
+        <div></div>
         {/* Botones de acción - Arriba a la derecha */}
         <div className="flex items-center gap-3">
           

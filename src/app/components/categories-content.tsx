@@ -127,17 +127,6 @@ export function CategoriesContent() {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <FolderTree className="w-8 h-8 text-primary" />
-          <h2 className={`font-bold text-3xl ${txt}`}>Categorías</h2>
-        </div>
-        <p className="text-gray-400 text-sm">
-          Gestiona las categorías principales y sus subcategorías. Haz clic en el engranaje para ver y administrar los hijos.
-        </p>
-      </div>
-
       <div className={divider} />
 
       {/* Métricas */}

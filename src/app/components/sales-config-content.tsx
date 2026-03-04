@@ -105,16 +105,7 @@ export function SalesConfigContent() {
   return (
     <div className="space-y-6 w-full">
 
-      {/* ── Título ── */}
-      <div>
-        <h2 className={`font-bold text-3xl mb-1 flex items-center gap-3 ${txt}`}>
-          <ShoppingCart className="w-8 h-8 text-primary" />
-          Configuración de Ventas
-        </h2>
-        <p className={`text-sm ${sub}`}>
-          Parametriza el comportamiento del módulo de ventas por sucursal
-        </p>
-      </div>
+
 
       <div className={`border-t ${divB}`} />
 

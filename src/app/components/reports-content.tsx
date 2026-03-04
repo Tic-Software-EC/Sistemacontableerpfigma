@@ -168,18 +168,9 @@ export function ReportsContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header estándar con diseño corporativo */}
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <BarChart3 className="w-8 h-8 text-primary" />
-            Reportes y Análisis
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Análisis detallado de compras y métricas del periodo
-          </p>
-        </div>
-
+        <div></div>
         {/* Botones de acción - Arriba a la derecha */}
         <div className="flex items-center gap-3">
           <button

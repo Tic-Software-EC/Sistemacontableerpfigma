@@ -1,11 +1,16 @@
 import { LoginForm } from "../components/login-form";
 import { BarChart3, Shield, Clock } from "lucide-react";
 
+const DEFAULT_SECONDARY = "#0D1B2A";
+
 export function Login() {
   return (
     <div className="size-full flex relative overflow-hidden bg-white">
       {/* Panel izquierdo decorativo */}
-      <div className="hidden lg:flex lg:w-2/5 bg-[#0D1B2A] relative overflow-hidden items-center justify-center z-10">
+      <div
+        className="hidden lg:flex lg:w-2/5 relative overflow-hidden items-center justify-center z-10"
+        style={{ backgroundColor: DEFAULT_SECONDARY }}
+      >
         {/* Formas geométricas grandes - estilo de la imagen */}
         <div className="absolute w-[700px] h-[700px] bg-[#1a2f45] rounded-full -top-60 -left-40 opacity-60"></div>
         <div className="absolute w-[600px] h-[600px] bg-[#0a151f] rounded-full top-1/3 -left-60 opacity-50"></div>

@@ -85,19 +85,6 @@ export function BranchListContent() {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <Building2 className="w-8 h-8 text-primary" />
-          <h2 className={`font-bold text-3xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-            Sucursales / Establecimientos
-          </h2>
-        </div>
-        <p className="text-gray-400 text-sm">
-          Gestiona las sucursales · cada una define su código de establecimiento SRI para los Puntos de Emisión
-        </p>
-      </div>
-
       <div className={divider} />
 
       {/* Métricas */}

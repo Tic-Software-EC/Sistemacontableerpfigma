@@ -155,13 +155,7 @@ export function PuntoEmisionContent() {
 
       {/* Header */}
       <div>
-        <div className="flex items-center gap-3 mb-1">
-          <Printer className="w-8 h-8 text-primary" />
-          <h2 className={`font-bold text-3xl ${txt}`}>Puntos de Emisión</h2>
-        </div>
-        <p className={`text-sm ${sub}`}>
-          Configura los puntos de emisión por sucursal · cada punto hereda el establecimiento SRI de su sucursal
-        </p>
+        
       </div>
 
       <div className={`border-t ${divB}`} />

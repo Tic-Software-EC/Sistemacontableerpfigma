@@ -377,15 +377,7 @@ export function AccessLogsContent() {
     <div className="space-y-6 max-w-7xl">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <Shield className="w-8 h-8 text-primary" />
-            Registro de Accesos
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Historial completo de accesos e intentos de acceso al sistema
-          </p>
-        </div>
+        <div></div>
         <button
           onClick={handleExport}
           className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium flex items-center gap-2 justify-center"

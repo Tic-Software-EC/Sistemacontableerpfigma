@@ -1,9 +1,19 @@
 import { useState, useEffect } from "react";
-import { Mail, Bell, MessageSquare, Smartphone, Users, Plus, Trash2 } from "lucide-react";
+import { Mail, Bell, MessageSquare, Smartphone, Users, Plus, Trash2, Server, Send, ChevronUp, Pencil, Check, X, AlertTriangle } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { SysTabBar, SysTab } from "./ui/sys-tab-bar";
 import { useRoles } from "../contexts/roles-context";
 import { toast } from "sonner";
+
+// ── Helper compartido ─────────────────────────────────────────────────────────
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block mb-1.5 text-xs font-medium text-gray-500">{label}</label>
+      {children}
+    </div>
+  );
+}
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 type Channel = "sistema" | "email" | "sms" | "whatsapp";
@@ -288,7 +298,7 @@ function NotificationsByRole() {
   );
 }
 
-// ── WhatsApp icon ─────────────────────────────────────────────────────────────
+// ── WhatsApp icon ────────────────────���────────────────────────────────────────
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -299,10 +309,31 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 const COMM_TABS: SysTab[] = [
-  { id: "smtp",          label: "Email / SMTP",   icon: Mail         },
+  { id: "smtp",          label: "Email / SMTP",   icon: Server       },
   { id: "sms",           label: "SMS",            icon: Smartphone   },
   { id: "whatsapp",      label: "WhatsApp",       icon: WhatsAppIcon },
   { id: "notifications", label: "Notificaciones", icon: Bell         },
+];
+
+// ── Tipos Remitentes/SMTP ──────────────────────────────────────────────────
+interface SmtpServer {
+  id: string; name: string; host: string; port: string;
+  security: "tls" | "ssl" | "none"; user: string; password: string;
+}
+interface MailSender {
+  id: string; alias: string; fromName: string; fromEmail: string;
+  purpose: string; smtpId: string;
+}
+const PURPOSES = [
+  "Envío de RIDE (Factura electrónica)",
+  "Envío de Comprobantes de Retención",
+  "Envío de Notas de Crédito",
+  "Envío de Notas de Débito",
+  "Envío de Guías de Remisión",
+  "Notificaciones al cliente",
+  "Notificaciones internas",
+  "Recuperación de contraseña",
+  "Otro",
 ];
 
 // ── Componente principal ──────────────────────────────────────────────────────
@@ -310,15 +341,43 @@ export function CommunicationsContent() {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("smtp");
 
-  // SMTP
-  const [smtpHost,       setSmtpHost]       = useState("smtp.gmail.com");
-  const [smtpPort,       setSmtpPort]       = useState("587");
-  const [smtpUsername,   setSmtpUsername]   = useState("notificaciones@ticsoftec.com");
-  const [smtpPassword,   setSmtpPassword]   = useState("");
-  const [smtpEncryption, setSmtpEncryption] = useState("TLS");
-  const [smtpFromName,   setSmtpFromName]   = useState("TicSoftEc");
-  const [smtpFromEmail,  setSmtpFromEmail]  = useState("notificaciones@ticsoftec.com");
-  const [testEmail,      setTestEmail]      = useState("");
+  // ── SMTP multi-servidor ──
+  const [smtpServers, setSmtpServers] = useState<SmtpServer[]>([
+    { id: "1", name: "Gmail Corporativo", host: "smtp.gmail.com", port: "587", security: "tls", user: "notificaciones@empresa.com", password: "" },
+  ]);
+  const [smtpExpanded,   setSmtpExpanded]   = useState<string|null>(null);
+  const [smtpForm,       setSmtpForm]       = useState<SmtpServer|null>(null);
+  const [smtpShowPwd,    setSmtpShowPwd]    = useState(false);
+  const [smtpTesting,    setSmtpTesting]    = useState(false);
+  const [smtpTestResult, setSmtpTestResult] = useState<Record<string,"ok"|"fail">>({});
+  const [showSmtpNew,    setShowSmtpNew]    = useState(false);
+
+  // ── Remitentes ──
+  const [mailSenders, setMailSenders] = useState<MailSender[]>([
+    { id: "1", alias: "Facturación RIDE",  fromName: "TicSoftEc", fromEmail: "facturacion@empresa.com", purpose: "Envío de RIDE (Factura electrónica)", smtpId: "1" },
+    { id: "2", alias: "Notificaciones",    fromName: "TicSoftEc", fromEmail: "notificaciones@empresa.com", purpose: "Notificaciones al cliente",          smtpId: "1" },
+  ]);
+  const [senderExpanded, setSenderExpanded] = useState<string|null>(null);
+  const [senderForm,     setSenderForm]     = useState<MailSender|null>(null);
+  const [showSenderNew,  setShowSenderNew]  = useState(false);
+
+  const newSmtp   = (): SmtpServer => ({ id: Date.now().toString(), name: "", host: "", port: "587", security: "tls", user: "", password: "" });
+  const newSender = (): MailSender => ({ id: Date.now().toString(), alias: "", fromName: "", fromEmail: "", purpose: PURPOSES[0], smtpId: smtpServers[0]?.id ?? "" });
+
+  const saveSmtp = () => {
+    if (!smtpForm) return;
+    setSmtpServers(p => p.some(s => s.id === smtpForm.id) ? p.map(s => s.id === smtpForm.id ? smtpForm : s) : [...p, smtpForm]);
+    setSmtpForm(null); setSmtpExpanded(null); setShowSmtpNew(false);
+  };
+  const saveSender = () => {
+    if (!senderForm) return;
+    setMailSenders(p => p.some(s => s.id === senderForm.id) ? p.map(s => s.id === senderForm.id ? senderForm : s) : [...p, senderForm]);
+    setSenderForm(null); setSenderExpanded(null); setShowSenderNew(false);
+  };
+  const testSmtp = (id: string) => {
+    setSmtpTesting(true);
+    setTimeout(() => { setSmtpTestResult(p => ({ ...p, [id]: Math.random() > 0.2 ? "ok" : "fail" })); setSmtpTesting(false); }, 1800);
+  };
 
   // SMS
   const [smsProvider,    setSmsProvider]    = useState("twilio");
@@ -357,24 +416,8 @@ export function CommunicationsContent() {
     </div>
   );
 
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div>
-      <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>{label}</label>
-      {children}
-    </div>
-  );
-
   return (
     <div className="space-y-6 w-full">
-
-      {/* Título */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <MessageSquare className="w-8 h-8 text-primary" />
-          <h2 className={`font-bold text-3xl ${txt}`}>Comunicaciones y Notificaciones</h2>
-        </div>
-        <p className={`text-sm ${sub}`}>Configura los canales de comunicación y el sistema de notificaciones</p>
-      </div>
 
       <div className={`border-t ${divB}`} />
 
@@ -391,31 +434,151 @@ export function CommunicationsContent() {
 
       {/* ── SMTP ── */}
       {activeTab === "smtp" && (
-        <div className={card}>
-          <div className="flex items-center gap-2 mb-5">
-            <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
-              <Mail className="w-4 h-4 text-primary" />
+        <div className="space-y-5">
+
+          {/* ── Servidores SMTP ── */}
+          <div className={card}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+                  <Server className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h3 className={`font-bold text-base ${txt}`}>Servidores SMTP</h3>
+                  <p className={`text-xs ${sub}`}>Servidores de salida de correo electrónico</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => { setSmtpForm(newSmtp()); setShowSmtpNew(true); setSmtpExpanded(null); }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-primary hover:bg-primary/90 text-white transition-all shadow-lg shadow-primary/20">
+                <Plus className="w-4 h-4" /> Nuevo SMTP
+              </button>
             </div>
-            <h3 className={`font-bold text-base ${txt}`}>Servidor SMTP (Email)</h3>
-            <div className="ml-auto">
-              <button onClick={() => toast.info("Probando conexión SMTP...")} className={btnSec}>Probar Conexión</button>
+
+            {showSmtpNew && smtpForm && (
+              <div className={`rounded-xl border p-4 mb-4 ${isLight ? "border-primary/20 bg-primary/5" : "border-primary/20 bg-primary/5"}`}>
+                <p className={`text-xs font-semibold uppercase tracking-wide mb-3 text-primary`}>Nuevo servidor SMTP</p>
+                <SmtpInlineForm form={smtpForm} setForm={setSmtpForm} IN={IN} OB={OB} isLight={isLight}
+                  showPwd={smtpShowPwd} setShowPwd={setSmtpShowPwd} onSave={saveSmtp}
+                  onCancel={() => { setShowSmtpNew(false); setSmtpForm(null); }} />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {smtpServers.map(server => (
+                <div key={server.id} className={`rounded-xl border ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isLight ? "bg-blue-50" : "bg-blue-500/10"}`}>
+                      <Server className="w-4 h-4 text-blue-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold ${txt}`}>{server.name || "Sin nombre"}</p>
+                      <p className={`text-xs ${sub} truncate`}>{server.host}:{server.port} · {server.security.toUpperCase()} · {server.user}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {smtpTestResult[server.id] && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${smtpTestResult[server.id] === "ok" ? isLight ? "bg-green-100 text-green-700" : "bg-green-500/20 text-green-300" : isLight ? "bg-red-100 text-red-700" : "bg-red-500/20 text-red-300"}`}>
+                          {smtpTestResult[server.id] === "ok" ? "✓ OK" : "✗ Falló"}
+                        </span>
+                      )}
+                      <button type="button" onClick={() => testSmtp(server.id)} disabled={smtpTesting} className={btnSec}>
+                        {smtpTesting ? "..." : "Probar"}
+                      </button>
+                      <button type="button" onClick={() => { setSmtpForm({ ...server }); setSmtpExpanded(smtpExpanded === server.id ? null : server.id); setShowSmtpNew(false); }} className={btnSec}>
+                        {smtpExpanded === server.id ? <ChevronUp className="w-3.5 h-3.5" /> : <Pencil className="w-3.5 h-3.5" />}
+                      </button>
+                      <button type="button" onClick={() => setSmtpServers(p => p.filter(s => s.id !== server.id))}
+                        className={`px-2.5 py-1.5 rounded-lg text-xs border transition-colors ${isLight ? "border-gray-200 hover:border-red-300 hover:text-red-600 text-gray-600" : "border-white/10 hover:border-red-500/50 hover:text-red-400 text-gray-400"}`}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  {smtpExpanded === server.id && smtpForm && (
+                    <div className={`border-t px-4 pb-4 pt-3 ${isLight ? "border-gray-100 bg-gray-50/50" : "border-white/5 bg-white/[0.02]"}`}>
+                      <SmtpInlineForm form={smtpForm} setForm={setSmtpForm} IN={IN} OB={OB} isLight={isLight}
+                        showPwd={smtpShowPwd} setShowPwd={setSmtpShowPwd} onSave={saveSmtp}
+                        onCancel={() => { setSmtpExpanded(null); setSmtpForm(null); }} />
+                    </div>
+                  )}
+                </div>
+              ))}
+              {smtpServers.length === 0 && <p className={`text-center py-6 text-sm ${sub}`}>No hay servidores SMTP configurados.</p>}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Servidor SMTP"><input type="text" value={smtpHost} onChange={e => setSmtpHost(e.target.value)} className={IN} placeholder="smtp.gmail.com" /></Field>
-            <Field label="Puerto"><input type="text" value={smtpPort} onChange={e => setSmtpPort(e.target.value)} className={IN} placeholder="587" /></Field>
-            <Field label="Usuario"><input type="text" value={smtpUsername} onChange={e => setSmtpUsername(e.target.value)} className={IN} /></Field>
-            <Field label="Contraseña"><input type="password" value={smtpPassword} onChange={e => setSmtpPassword(e.target.value)} className={IN} /></Field>
-            <Field label="Cifrado">
-              <select value={smtpEncryption} onChange={e => setSmtpEncryption(e.target.value)} className={IN}>
-                <option value="TLS" className={OB}>TLS</option>
-                <option value="SSL" className={OB}>SSL</option>
-                <option value="none" className={OB}>Ninguno</option>
-              </select>
-            </Field>
-            <Field label="Email de prueba"><input type="email" value={testEmail} onChange={e => setTestEmail(e.target.value)} className={IN} placeholder="test@ejemplo.com" /></Field>
-            <Field label="Nombre del remitente"><input type="text" value={smtpFromName} onChange={e => setSmtpFromName(e.target.value)} className={IN} /></Field>
-            <Field label="Email del remitente"><input type="email" value={smtpFromEmail} onChange={e => setSmtpFromEmail(e.target.value)} className={IN} /></Field>
+
+          {/* ── Remitentes ── */}
+          <div className={card}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+                  <Send className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h3 className={`font-bold text-base ${txt}`}>Remitentes de Correo</h3>
+                  <p className={`text-xs ${sub}`}>Cada remitente usa un SMTP y tiene un propósito específico</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => { setSenderForm(newSender()); setShowSenderNew(true); setSenderExpanded(null); }}
+                disabled={smtpServers.length === 0}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-primary hover:bg-primary/90 text-white transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                <Plus className="w-4 h-4" /> Nuevo Remitente
+              </button>
+            </div>
+
+            {smtpServers.length === 0 && (
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border mb-3 ${isLight ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-amber-500/10 border-amber-500/30 text-amber-300"}`}>
+                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+                <p className="text-xs">Configura al menos un servidor SMTP antes de crear remitentes.</p>
+              </div>
+            )}
+
+            {showSenderNew && senderForm && (
+              <div className={`rounded-xl border p-4 mb-4 ${isLight ? "border-primary/20 bg-primary/5" : "border-primary/20 bg-primary/5"}`}>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-3 text-primary">Nuevo remitente</p>
+                <SenderInlineForm form={senderForm} setForm={setSenderForm} smtpServers={smtpServers} IN={IN} OB={OB} isLight={isLight}
+                  onSave={saveSender} onCancel={() => { setShowSenderNew(false); setSenderForm(null); }} />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {mailSenders.map(sender => {
+                const smtp = smtpServers.find(s => s.id === sender.smtpId);
+                return (
+                  <div key={sender.id} className={`rounded-xl border ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                    <div className="flex items-center gap-3 px-4 py-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isLight ? "bg-orange-50" : "bg-primary/10"}`}>
+                        <Mail className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className={`text-sm font-semibold ${txt}`}>{sender.alias}</p>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isLight ? "bg-gray-100 text-gray-500" : "bg-white/10 text-gray-400"}`}>
+                            {smtp?.name ?? "Sin SMTP"}
+                          </span>
+                        </div>
+                        <p className={`text-xs ${sub} truncate`}>{sender.fromName} &lt;{sender.fromEmail}&gt;</p>
+                        <p className="text-[11px] mt-0.5 text-primary/80">{sender.purpose}</p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button type="button" onClick={() => { setSenderForm({ ...sender }); setSenderExpanded(senderExpanded === sender.id ? null : sender.id); setShowSenderNew(false); }} className={btnSec}>
+                          {senderExpanded === sender.id ? <ChevronUp className="w-3.5 h-3.5" /> : <Pencil className="w-3.5 h-3.5" />}
+                        </button>
+                        <button type="button" onClick={() => setMailSenders(p => p.filter(s => s.id !== sender.id))}
+                          className={`px-2.5 py-1.5 rounded-lg text-xs border transition-colors ${isLight ? "border-gray-200 hover:border-red-300 hover:text-red-600 text-gray-600" : "border-white/10 hover:border-red-500/50 hover:text-red-400 text-gray-400"}`}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    {senderExpanded === sender.id && senderForm && (
+                      <div className={`border-t px-4 pb-4 pt-3 ${isLight ? "border-gray-100 bg-gray-50/50" : "border-white/5 bg-white/[0.02]"}`}>
+                        <SenderInlineForm form={senderForm} setForm={setSenderForm} smtpServers={smtpServers} IN={IN} OB={OB} isLight={isLight}
+                          onSave={saveSender} onCancel={() => { setSenderExpanded(null); setSenderForm(null); }} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              {mailSenders.length === 0 && <p className={`text-center py-6 text-sm ${sub}`}>No hay remitentes configurados.</p>}
+            </div>
           </div>
         </div>
       )}
@@ -501,6 +664,102 @@ export function CommunicationsContent() {
           <NotificationsByRole />
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Formularios Inline ──────────────────────────────────────────────────────
+function SmtpInlineForm({ form, setForm, IN, OB, isLight, showPwd, setShowPwd, onSave, onCancel }: {
+  form: SmtpServer;
+  setForm: (v: SmtpServer) => void;
+  IN: string;
+  OB: string;
+  isLight: boolean;
+  showPwd: boolean;
+  setShowPwd: (v: boolean) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <Field label="Nombre del servidor">
+        <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={IN} placeholder="Gmail Corporativo" />
+      </Field>
+      <Field label="Servidor SMTP">
+        <input type="text" value={form.host} onChange={e => setForm({ ...form, host: e.target.value })} className={IN} placeholder="smtp.gmail.com" />
+      </Field>
+      <Field label="Puerto">
+        <input type="text" value={form.port} onChange={e => setForm({ ...form, port: e.target.value })} className={IN} placeholder="587" />
+      </Field>
+      <Field label="Cifrado">
+        <select value={form.security} onChange={e => setForm({ ...form, security: e.target.value as "tls" | "ssl" | "none" })} className={IN}>
+          <option value="tls" className={OB}>TLS</option>
+          <option value="ssl" className={OB}>SSL</option>
+          <option value="none" className={OB}>Ninguno</option>
+        </select>
+      </Field>
+      <Field label="Usuario">
+        <input type="text" value={form.user} onChange={e => setForm({ ...form, user: e.target.value })} className={IN} />
+      </Field>
+      <Field label="Contraseña">
+        <div className="relative">
+          <input type={showPwd ? "text" : "password"} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className={IN} />
+          <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute top-0 right-0 px-3 py-2 text-sm text-gray-500 hover:text-gray-700">
+            {showPwd ? <X className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+          </button>
+        </div>
+      </Field>
+      <div className="flex items-center gap-3">
+        <button type="button" onClick={onSave} className="inline-flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-primary/20">
+          <Check className="w-4 h-4" /> Guardar
+        </button>
+        <button type="button" onClick={onCancel} className="inline-flex items-center gap-2 px-5 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+          <X className="w-4 h-4" /> Cancelar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SenderInlineForm({ form, setForm, smtpServers, IN, OB, isLight, onSave, onCancel }: {
+  form: MailSender;
+  setForm: (v: MailSender) => void;
+  smtpServers: SmtpServer[];
+  IN: string;
+  OB: string;
+  isLight: boolean;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <Field label="Alias">
+        <input type="text" value={form.alias} onChange={e => setForm({ ...form, alias: e.target.value })} className={IN} placeholder="Facturación RIDE" />
+      </Field>
+      <Field label="Nombre del remitente">
+        <input type="text" value={form.fromName} onChange={e => setForm({ ...form, fromName: e.target.value })} className={IN} placeholder="TicSoftEc" />
+      </Field>
+      <Field label="Email del remitente">
+        <input type="email" value={form.fromEmail} onChange={e => setForm({ ...form, fromEmail: e.target.value })} className={IN} placeholder="facturacion@empresa.com" />
+      </Field>
+      <Field label="Propósito">
+        <select value={form.purpose} onChange={e => setForm({ ...form, purpose: e.target.value })} className={IN}>
+          {PURPOSES.map(p => <option key={p} value={p} className={OB}>{p}</option>)}
+        </select>
+      </Field>
+      <Field label="Servidor SMTP">
+        <select value={form.smtpId} onChange={e => setForm({ ...form, smtpId: e.target.value })} className={IN}>
+          {smtpServers.map(s => <option key={s.id} value={s.id} className={OB}>{s.name}</option>)}
+        </select>
+      </Field>
+      <div className="flex items-center gap-3">
+        <button type="button" onClick={onSave} className="inline-flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-primary/20">
+          <Check className="w-4 h-4" /> Guardar
+        </button>
+        <button type="button" onClick={onCancel} className="inline-flex items-center gap-2 px-5 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+          <X className="w-4 h-4" /> Cancelar
+        </button>
+      </div>
     </div>
   );
 }

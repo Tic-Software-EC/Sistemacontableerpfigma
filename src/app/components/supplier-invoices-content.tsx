@@ -404,18 +404,9 @@ export function SupplierInvoicesContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header estándar */}
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <FileText className="w-8 h-8 text-primary" />
-            Facturas a Proveedores
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Gestión y control de facturas recibidas de proveedores
-          </p>
-        </div>
-
+        <div></div>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setShowNewInvoiceModal(true)}

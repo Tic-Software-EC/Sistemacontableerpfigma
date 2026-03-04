@@ -342,18 +342,9 @@ export function MerchandiseReceptionContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header estándar */}
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <Package className="w-8 h-8 text-primary" />
-            Recepción de Mercadería
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Control y registro de mercadería recibida de proveedores
-          </p>
-        </div>
-
+        <div></div>
         <div className="flex items-center gap-3">
           <button className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2" onClick={handleOpenNewReception}>
             <Plus className="w-5 h-5" />

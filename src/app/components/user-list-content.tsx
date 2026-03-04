@@ -225,15 +225,6 @@ export function UserListContent() {
   return (
     <div className="space-y-6 w-full">
 
-      {/* Header */}
-      <div>
-        <h2 className={`font-bold text-3xl mb-1 flex items-center gap-3 ${txt}`}>
-          <Users className="w-8 h-8 text-primary" />
-          Lista de Usuarios
-        </h2>
-        <p className={`text-sm ${sub}`}>Gestiona los usuarios y sus credenciales de acceso al sistema</p>
-      </div>
-
       <div className={`border-t ${divB}`} />
 
       {/* Métricas */}

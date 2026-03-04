@@ -232,15 +232,7 @@ export function PurchasesConfigContent() {
     <div className="space-y-6 max-w-7xl">
       {/* Header estándar */}
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <Settings className="w-8 h-8 text-primary" />
-            Configuración de Compras
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Parámetros generales del módulo de compras
-          </p>
-        </div>
+        <div></div>
         <button
           onClick={handleSave}
           disabled={!hasUnsavedChanges}

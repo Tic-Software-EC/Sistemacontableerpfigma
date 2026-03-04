@@ -21,6 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { ArqueoModal } from "../components/arqueo-modal";
+import { useTheme } from "../contexts/theme-context";
 
 interface SaleItem {
   code: string;
@@ -187,6 +188,16 @@ const MOCK_SALES: Sale[] = [
 ];
 
 export function SalesHistory() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  const rootBg = isLight ? "bg-gray-50" : "bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A]";
+  const txt    = isLight ? "text-gray-900" : "text-white";
+  const sub    = isLight ? "text-gray-500" : "text-gray-400";
+  const card   = isLight ? "bg-white border border-gray-200 shadow-sm" : "bg-white/5 border border-white/10";
+  const secBg  = isLight ? "bg-gray-100 border border-gray-200" : "bg-white/5 border border-white/10";
+  const inp    = isLight ? "bg-white border border-gray-300 text-gray-900 focus:border-primary" : "bg-white/5 border border-white/10 text-white focus:border-primary";
+  const divider= isLight ? "border-gray-200" : "border-white/10";
+
   const [sales, setSales] = useState<Sale[]>(MOCK_SALES);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -334,22 +345,18 @@ export function SalesHistory() {
   const diferencia = totalContado - saldoEsperado;
 
   return (
-    <div className="h-full bg-gradient-to-br from-[#0D1B2A] via-[#1a2332] to-[#0D1B2A] overflow-auto">
+    <div className={`h-full ${rootBg} overflow-auto`}>
       <div className="p-6">
         <div className="max-w-[1800px] mx-auto">
           {/* Título principal */}
           <div className="mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <Receipt className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-white">Historial de Ventas</h1>
-            </div>
-            <p className="text-gray-400 text-sm">
+            <p className={`text-sm ${sub}`}>
               Consulta y gestiona el historial completo de transacciones
             </p>
           </div>
 
           {/* Filtros y búsqueda */}
-          <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-4 mb-4">
+          <div className={`${card} rounded-xl p-4 mb-4`}>
             <div className="flex flex-col lg:flex-row gap-3">
               {/* Búsqueda */}
               <div className="flex-1 relative">
@@ -359,41 +366,26 @@ export function SalesHistory() {
                   placeholder="Buscar por factura, cliente o RUC..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#0f1825] border border-white/10 focus:border-primary/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none transition-all"
+                  className={`w-full pl-10 pr-4 py-2.5 rounded-lg text-sm placeholder-gray-500 focus:outline-none transition-all ${inp}`}
                 />
               </div>
-
               {/* Filtro de fecha */}
-              <select
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                className="px-4 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
-              >
+              <select value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className={`px-3 py-2 rounded-lg text-sm focus:outline-none transition-all ${inp}`}>
                 <option value="all">Todas las fechas</option>
                 <option value="today">Hoy</option>
                 <option value="yesterday">Ayer</option>
                 <option value="week">Esta semana</option>
                 <option value="month">Este mes</option>
               </select>
-
               {/* Filtro de estado */}
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
-              >
+              <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className={`px-3 py-2 rounded-lg text-sm focus:outline-none transition-all ${inp}`}>
                 <option value="all">Todos los estados</option>
                 <option value="completed">Completadas</option>
                 <option value="cancelled">Anuladas</option>
                 <option value="pending">Pendientes</option>
               </select>
-
               {/* Filtro de método de pago */}
-              <select
-                value={filterPayment}
-                onChange={(e) => setFilterPayment(e.target.value)}
-                className="px-4 py-2.5 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
-              >
+              <select value={filterPayment} onChange={(e) => setFilterPayment(e.target.value)} className={`px-3 py-2 rounded-lg text-sm focus:outline-none transition-all ${inp}`}>
                 <option value="all">Todos los pagos</option>
                 <option value="cash">Efectivo</option>
                 <option value="card">Tarjeta</option>
@@ -401,94 +393,53 @@ export function SalesHistory() {
                 <option value="mixed">Mixto</option>
                 <option value="credit">Crédito</option>
               </select>
-
-              {/* Botón Arqueo de Caja */}
-              <button 
-                onClick={() => setShowArqueoModal(true)}
-                className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm transition-all flex items-center gap-2">
-                <Calculator className="w-4 h-4" />
-                Arqueo
+              <button onClick={() => setShowArqueoModal(true)} className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm transition-all flex items-center gap-2">
+                <Calculator className="w-4 h-4" />Arqueo
               </button>
-
-              {/* Botón exportar */}
               <button className="px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium text-sm transition-all flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                Exportar
+                <Download className="w-4 h-4" />Exportar
               </button>
             </div>
           </div>
 
           {/* Tabla de ventas */}
-          <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl overflow-hidden">
+          <div className={`${card} rounded-xl overflow-hidden`}>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/5">
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      Factura
-                    </th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      Fecha/Hora
-                    </th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      Cliente
-                    </th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      Items
-                    </th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      Pago
-                    </th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      Total
-                    </th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      Estado
-                    </th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      Acciones
-                    </th>
+                  <tr className={`border-b ${divider} ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Factura</th>
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Fecha/Hora</th>
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Cliente</th>
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Items</th>
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Pago</th>
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Total</th>
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Estado</th>
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className={`divide-y ${divider}`}>
                   {filteredSales.length > 0 ? (
                     filteredSales.map((sale) => (
-                      <tr
-                        key={sale.id}
-                        className="hover:bg-white/5 transition-colors"
-                      >
+                      <tr key={sale.id} className={`transition-colors ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"}`}>
+                        <td className="px-4 py-2.5"><span className={`text-sm font-mono ${txt}`}>{sale.invoiceNumber}</span></td>
+                        <td className="px-4 py-2.5"><span className={`text-sm ${sub}`}>{sale.date} {sale.time}</span></td>
+                        <td className="px-4 py-2.5"><span className={`text-sm font-medium ${txt}`}>{sale.customer.name}</span></td>
+                        <td className="px-4 py-2.5"><span className={`text-sm ${sub}`}>{sale.items.length} items</span></td>
                         <td className="px-4 py-2.5">
-                          <span className="text-white text-sm font-mono">{sale.invoiceNumber}</span>
+                          <div className="flex items-center gap-1.5">
+                            {getPaymentIcon(sale.paymentMethod)}
+                            <span className={`text-sm ${sub}`}>{getPaymentLabel(sale.paymentMethod)}</span>
+                          </div>
                         </td>
-                        <td className="px-4 py-2.5">
-                          <span className="text-white text-sm datetime-display">{sale.date} {sale.time}</span>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span className="text-white text-sm font-medium">{sale.customer.name}</span>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span className="text-white text-sm">{sale.items.length} items</span>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span className="text-white text-sm">{getPaymentLabel(sale.paymentMethod)}</span>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span className="text-white font-bold text-sm">${sale.total.toFixed(2)}</span>
-                        </td>
+                        <td className="px-4 py-2.5"><span className={`font-bold text-sm ${txt}`}>${sale.total.toFixed(2)}</span></td>
                         <td className="px-4 py-2.5">{getStatusBadge(sale.status)}</td>
                         <td className="px-4 py-2.5">
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => setSelectedSale(sale)}
-                              className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
-                              title="Ver detalles"
-                            >
+                            <button onClick={() => setSelectedSale(sale)} className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors" title="Ver detalles">
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button
-                              className="p-1.5 text-gray-400 hover:bg-white/5 rounded-lg transition-colors"
-                              title="Imprimir"
-                            >
+                            <button className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`} title="Imprimir">
                               <Printer className="w-4 h-4" />
                             </button>
                           </div>
@@ -499,15 +450,8 @@ export function SalesHistory() {
                     <tr>
                       <td colSpan={8} className="px-4 py-12 text-center">
                         <div className="flex flex-col items-center gap-3">
-                          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center">
-                            <Search className="w-8 h-8 text-gray-600" />
-                          </div>
-                          <div>
-                            <p className="text-white font-medium mb-1">No se encontraron ventas</p>
-                            <p className="text-gray-400 text-sm">
-                              Intenta ajustar los filtros de búsqueda
-                            </p>
-                          </div>
+                          <Search className={`w-10 h-10 ${sub}`} />
+                          <p className={`font-medium ${sub}`}>No se encontraron ventas</p>
                         </div>
                       </td>
                     </tr>
@@ -522,125 +466,65 @@ export function SalesHistory() {
       {/* Modal de detalles de venta */}
       {selectedSale && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gradient-to-br from-[#1a1f2e] to-[#0D1B2A] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
-            {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-primary/20 to-orange-600/20 border-b border-primary/20 px-6 py-4 backdrop-blur-sm">
+          <div className={`${isLight ? "bg-white border border-gray-200" : "bg-gradient-to-br from-[#1a1f2e] to-[#0D1B2A] border border-white/10"} rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto shadow-2xl`}>
+            <div className={`sticky top-0 border-b px-6 py-4 backdrop-blur-sm ${isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20"}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-bold text-xl">Detalle de Venta</h3>
-                  <p className="text-gray-400 text-sm">Factura: {selectedSale.invoiceNumber}</p>
+                  <h3 className={`font-bold text-xl ${txt}`}>Detalle de Venta</h3>
+                  <p className={`text-sm ${sub}`}>Factura: {selectedSale.invoiceNumber}</p>
                 </div>
-                <button
-                  onClick={() => setSelectedSale(null)}
-                  className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                >
+                <button onClick={() => setSelectedSale(null)} className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
                   <XCircle className="w-5 h-5" />
                 </button>
               </div>
             </div>
-
-            {/* Contenido */}
-            <div className="p-6 space-y-6">
-              {/* Información general */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-2">Fecha y Hora</p>
-                  <p className="text-white font-medium">{selectedSale.date} - {selectedSale.time}</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-2">Estado</p>
-                  <div>{getStatusBadge(selectedSale.status)}</div>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-2">Cajero</p>
-                  <p className="text-white font-medium">{selectedSale.cashier}</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-2">Sucursal</p>
-                  <p className="text-white font-medium">{selectedSale.branch}</p>
-                </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className={`${secBg} rounded-xl p-3`}><p className={`text-xs mb-1 ${sub}`}>Fecha y Hora</p><p className={`font-medium text-sm ${txt}`}>{selectedSale.date} - {selectedSale.time}</p></div>
+                <div className={`${secBg} rounded-xl p-3`}><p className={`text-xs mb-1 ${sub}`}>Estado</p><div>{getStatusBadge(selectedSale.status)}</div></div>
+                <div className={`${secBg} rounded-xl p-3`}><p className={`text-xs mb-1 ${sub}`}>Cajero</p><p className={`font-medium text-sm ${txt}`}>{selectedSale.cashier}</p></div>
+                <div className={`${secBg} rounded-xl p-3`}><p className={`text-xs mb-1 ${sub}`}>Sucursal</p><p className={`font-medium text-sm ${txt}`}>{selectedSale.branch}</p></div>
               </div>
-
-              {/* Cliente */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-gray-400 text-xs mb-3">Cliente</p>
+              <div className={`${secBg} rounded-xl p-4`}>
+                <p className={`text-xs mb-3 ${sub}`}>Cliente</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold">
-                      {selectedSale.customer.name.split(" ").map((n) => n[0]).join("").substring(0, 2)}
-                    </span>
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">{selectedSale.customer.name.split(" ").map(n => n[0]).join("").substring(0, 2)}</span>
                   </div>
                   <div>
-                    <p className="text-white font-medium">{selectedSale.customer.name}</p>
-                    <p className="text-gray-400 text-sm font-mono">{selectedSale.customer.ruc}</p>
+                    <p className={`font-medium text-sm ${txt}`}>{selectedSale.customer.name}</p>
+                    <p className={`text-sm font-mono ${sub}`}>{selectedSale.customer.ruc}</p>
                   </div>
                 </div>
               </div>
-
-              {/* Items */}
-              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-white/5 border-b border-white/10">
-                  <p className="text-white font-medium text-sm">Productos</p>
-                </div>
-                <div className="divide-y divide-white/5">
+              <div className={`${secBg} rounded-xl overflow-hidden`}>
+                <div className={`px-4 py-2.5 border-b ${divider}`}><p className={`font-medium text-sm ${txt}`}>Productos</p></div>
+                <div className={`divide-y ${divider}`}>
                   {selectedSale.items.map((item, index) => (
                     <div key={index} className="px-4 py-3 flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="text-white text-sm font-medium">{item.name}</p>
-                        <p className="text-gray-400 text-xs">Código: {item.code}</p>
-                      </div>
+                      <div><p className={`text-sm font-medium ${txt}`}>{item.name}</p><p className={`text-xs ${sub}`}>Código: {item.code}</p></div>
                       <div className="text-right">
-                        <p className="text-white text-sm">
-                          {item.quantity} x ${item.price.toFixed(2)}
-                        </p>
+                        <p className={`text-sm ${sub}`}>{item.quantity} × ${item.price.toFixed(2)}</p>
                         <p className="text-primary font-bold text-sm">${item.total.toFixed(2)}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* Totales */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Subtotal:</span>
-                  <span className="text-white">${selectedSale.subtotal.toFixed(2)}</span>
-                </div>
-                {selectedSale.discount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Descuento:</span>
-                    <span className="text-green-400">-${selectedSale.discount.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">IVA (12%):</span>
-                  <span className="text-white">${selectedSale.tax.toFixed(2)}</span>
-                </div>
-                <div className="border-t border-white/10 pt-2 flex justify-between">
-                  <span className="text-white font-bold">Total:</span>
-                  <span className="text-primary font-bold text-xl">${selectedSale.total.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-white/10">
-                  {getPaymentIcon(selectedSale.paymentMethod)}
-                  <span className="text-gray-400 text-sm">
-                    Método de pago: <span className="text-white">{getPaymentLabel(selectedSale.paymentMethod)}</span>
-                  </span>
-                </div>
+              <div className={`${secBg} rounded-xl p-4 space-y-2`}>
+                <div className="flex justify-between text-sm"><span className={sub}>Subtotal:</span><span className={txt}>${selectedSale.subtotal.toFixed(2)}</span></div>
+                {selectedSale.discount > 0 && <div className="flex justify-between text-sm"><span className={sub}>Descuento:</span><span className="text-green-500">-${selectedSale.discount.toFixed(2)}</span></div>}
+                <div className="flex justify-between text-sm"><span className={sub}>IVA (12%):</span><span className={txt}>${selectedSale.tax.toFixed(2)}</span></div>
+                <div className={`border-t ${divider} pt-2 flex justify-between`}><span className={`font-bold ${txt}`}>Total:</span><span className="text-primary font-bold text-xl">${selectedSale.total.toFixed(2)}</span></div>
               </div>
-
-              {/* Acciones */}
-              <div className="flex gap-3">
-                <button className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2">
-                  <Printer className="w-4 h-4" />
-                  Imprimir Factura
-                </button>
-              </div>
+              <button className="w-full px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2">
+                <Printer className="w-4 h-4" />Imprimir Factura
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal de arqueo de caja */}
       {showArqueoModal && (
         <ArqueoModal
           isOpen={showArqueoModal}

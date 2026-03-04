@@ -298,18 +298,7 @@ export function ProductsContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header estándar con diseño corporativo */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <Package className="w-8 h-8 text-primary" />
-            Productos Comprados
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Historial y seguimiento de productos adquiridos mediante órdenes de compra
-          </p>
-        </div>
-      </div>
+
 
       {/* Separador */}
       <div className="border-t border-white/10"></div>

@@ -268,13 +268,6 @@ export function TaxesContent() {
       {/* Header estándar */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <Calculator className="w-8 h-8 text-primary" />
-            Impuestos
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Configura los impuestos aplicables a ventas por sucursal
-          </p>
         </div>
         <button
           onClick={() => handleOpenModal()}

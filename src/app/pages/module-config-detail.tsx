@@ -34,13 +34,75 @@ import {
   Database,
   Sun,
   Moon,
+  type LucideIcon,
 } from "lucide-react";
 
 // Modales
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { useTheme } from "../contexts/theme-context";
+import { useBrand } from "../contexts/brand-context";
 import { SysTabBar, SysTab } from "../components/ui/sys-tab-bar";
+
+// ─── Metadatos de sección ────────────────────────────────────────────────────
+interface SectionMeta { title: string; description: string; icon: LucideIcon }
+const SECTION_META: Record<string, SectionMeta> = {
+  "company-info":      { title: "Información de Empresa",      description: "Configura los datos generales de tu empresa",                        icon: Building2    },
+  "branches":          { title: "Sucursales",                   description: "Administra las sucursales y puntos de venta de tu empresa",           icon: Building2    },
+  "punto-emision":     { title: "Puntos de Emisión",            description: "Gestiona los puntos de emisión de documentos electrónicos",           icon: Printer      },
+  "pos-config":        { title: "Cajas POS",                    description: "Gestiona las cajas registradoras",                                    icon: ShoppingCart },
+  "regional-config":   { title: "Configuración Regional",       description: "Zona horaria, idioma, moneda y formato de fechas",                    icon: Globe        },
+  "security":          { title: "Seguridad",                    description: "Gestiona las opciones de seguridad y acceso de tu cuenta",            icon: Shield       },
+  "communications":    { title: "Comunicaciones",               description: "Configura correos, SMS y canales de comunicación del sistema",        icon: Mail         },
+  "printer-config":    { title: "Impresoras",                   description: "Administra las impresoras y configuración de impresión",              icon: Printer      },
+  "roles":             { title: "Roles y Permisos",             description: "Define los roles y niveles de acceso de los usuarios",                icon: UserCheck    },
+  "user-list":         { title: "Lista de Usuarios",            description: "Administra los usuarios del sistema y sus datos",                     icon: Users        },
+  "work-schedule":     { title: "Horario Laboral",              description: "Define los turnos y horarios de trabajo del personal",                icon: Calendar     },
+  "holidays":          { title: "Días Festivos",                description: "Gestiona el calendario de días no laborables",                       icon: Calendar     },
+  "warehouses":        { title: "Almacenes",                    description: "Configura los almacenes y bodegas de tu empresa",                     icon: Building2    },
+  "categories":        { title: "Categorías",                   description: "Organiza los productos en categorías y subcategorías",               icon: Boxes        },
+  "units":             { title: "Unidades de Medida",           description: "Define las unidades de medida utilizadas en el inventario",           icon: Calculator   },
+  "access-log":        { title: "Registros de Acceso",          description: "Historial de accesos y actividad de los usuarios",                   icon: ClipboardList},
+  "suppliers":         { title: "Proveedores",                  description: "Gestiona el catálogo de proveedores de tu empresa",                  icon: Truck        },
+  "purchase-orders":   { title: "Órdenes de Compra",            description: "Administra y da seguimiento a las órdenes de compra",                icon: ShoppingCart },
+  "sales-config":      { title: "Configuración de Ventas",      description: "Parámetros generales del módulo de ventas",                          icon: TrendingUp   },
+  "payment-methods":   { title: "Métodos de Pago",              description: "Configura las formas de pago aceptadas por tu empresa",              icon: DollarSign   },
+  "taxes":             { title: "Impuestos",                    description: "Define los impuestos y tarifas aplicables",                          icon: Receipt      },
+  "discounts":         { title: "Descuentos",                   description: "Configura las reglas y tipos de descuentos disponibles",             icon: Receipt      },
+  "purchase-config":   { title: "Configuración de Compras",     description: "Parámetros y reglas del módulo de compras",                          icon: ShoppingCart },
+  "stock-config":      { title: "Configuración de Stock",       description: "Define los parámetros de control y alertas de inventario",           icon: Boxes        },
+  "notifications":     { title: "Notificaciones",               description: "Gestiona cómo recibes las notificaciones del sistema",               icon: Bell         },
+  "chart-accounts":    { title: "Plan de Cuentas",              description: "Configura el catálogo de cuentas contables",                        icon: FileText     },
+  "fiscal-year":       { title: "Ejercicio Fiscal",             description: "Gestiona los periodos contables y cierres fiscales",                 icon: Calendar     },
+  "accounting-config": { title: "Configuración Contable",       description: "Parámetros generales del módulo de contabilidad",                   icon: Settings     },
+  "report-templates":  { title: "Plantillas de Reportes",       description: "Administra y personaliza las plantillas de informes",                icon: FileText     },
+  "custom-reports":    { title: "Reportes Personalizados",      description: "Crea y gestiona reportes adaptados a tus necesidades",               icon: ClipboardList},
+  "report-schedule":   { title: "Programación de Reportes",     description: "Automatiza el envío periódico de reportes",                         icon: Calendar     },
+};
+
+/** Encabezado estándar de sección — aparece en TODAS las opciones del módulo */
+function SectionHeader({ meta, theme, badge }: { meta: SectionMeta; theme: string; badge?: string }) {
+  const Icon = meta.icon;
+  const isLight = theme === "light";
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-3 mb-1">
+        <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+          <Icon className="w-5 h-5 text-primary" />
+        </div>
+        <h2 className={`font-bold text-2xl ${isLight ? "text-gray-900" : "text-white"}`}>
+          {meta.title}
+        </h2>
+      </div>
+      <p className={`ml-12 text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+        {meta.description}
+        {badge && (
+          <> · <span className="text-primary font-medium">{badge}</span></>
+        )}
+      </p>
+    </div>
+  );
+}
 
 const SECURITY_TABS: SysTab[] = [
   { id: "auth",     label: "Autenticación", icon: Shield },
@@ -128,15 +190,6 @@ function SecurityContent({ theme }: { theme: string }) {
 
   return (
     <div className="space-y-6 w-full">
-
-      {/* TÍTULO */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <Shield className="w-8 h-8 text-primary" />
-          <h2 className={`font-bold text-3xl ${txt}`}>Configuración de Seguridad</h2>
-        </div>
-        <p className={`text-sm ${sub}`}>Gestiona las opciones de seguridad de tu cuenta</p>
-      </div>
 
       <div className={D} />
 
@@ -272,14 +325,7 @@ function NotificationsContent() {
   return (
     <div className="space-y-8 max-w-6xl">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-white font-bold text-3xl mb-2">
-            Notificaciones
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Gestiona cómo recibes las notificaciones del sistema
-          </p>
-        </div>
+        <div></div>
         <button
           onClick={handleSave}
           className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium"
@@ -572,6 +618,7 @@ export default function ModuleConfigDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { logoUrl } = useBrand();
   const { moduleName, moduleColor, userPlan } = location.state || {
     moduleName: "Configuración",
     moduleColor: "#E8692E",
@@ -665,7 +712,7 @@ export default function ModuleConfigDetailPage() {
 
             {/* Logo y título */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
                 {moduleName === "Configuración" ? (
                   <Settings className="w-6 h-6 text-white" />
                 ) : moduleName === "Ventas" ? (
@@ -731,16 +778,16 @@ export default function ModuleConfigDetailPage() {
 
               {/* Menú desplegable del usuario */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-fit bg-[#3a3f4f] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 flex">
+                <div className={`absolute right-0 mt-2 w-fit rounded-xl shadow-2xl overflow-hidden z-50 flex border ${theme === "light" ? "bg-white border-gray-200 shadow-xl" : "bg-[#3a3f4f] border-white/10"}`}>
                   {/* Panel izquierdo - Selector de estado */}
                   {showStatusMenu && (
-                    <div className="w-64 bg-[#2f3442] border-r border-white/10 py-2">
+                    <div className={`w-64 border-r py-2 ${theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#2f3442] border-white/10"}`}>
                       <button
                         onClick={() => setUserStatus("online")}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-                          userStatus === "online" 
-                            ? "bg-white/10 text-white" 
-                            : "text-gray-300 hover:bg-white/5 hover:text-white"
+                          userStatus === "online"
+                            ? theme === "light" ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
+                            : theme === "light" ? "text-gray-600 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"
                         }`}
                       >
                         {userStatus === "online" && (
@@ -756,9 +803,9 @@ export default function ModuleConfigDetailPage() {
                       <button
                         onClick={() => setUserStatus("away")}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-                          userStatus === "away" 
-                            ? "bg-white/10 text-white" 
-                            : "text-gray-300 hover:bg-white/5 hover:text-white"
+                          userStatus === "away"
+                            ? theme === "light" ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
+                            : theme === "light" ? "text-gray-600 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"
                         }`}
                       >
                         {userStatus === "away" && (
@@ -774,9 +821,9 @@ export default function ModuleConfigDetailPage() {
                       <button
                         onClick={() => setUserStatus("dnd")}
                         className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors ${
-                          userStatus === "dnd" 
-                            ? "bg-white/10 text-white" 
-                            : "text-gray-300 hover:bg-white/5 hover:text-white"
+                          userStatus === "dnd"
+                            ? theme === "light" ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
+                            : theme === "light" ? "text-gray-600 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"
                         }`}
                       >
                         {userStatus === "dnd" && (
@@ -795,9 +842,9 @@ export default function ModuleConfigDetailPage() {
                       <button
                         onClick={() => setUserStatus("offline")}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-                          userStatus === "offline" 
-                            ? "bg-white/10 text-white" 
-                            : "text-gray-300 hover:bg-white/5 hover:text-white"
+                          userStatus === "offline"
+                            ? theme === "light" ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
+                            : theme === "light" ? "text-gray-600 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"
                         }`}
                       >
                         {userStatus === "offline" && (
@@ -815,26 +862,22 @@ export default function ModuleConfigDetailPage() {
                   {/* Panel derecho - Opciones principales */}
                   <div className="w-72">
                     {/* Header con info del usuario */}
-                    <div className="px-4 py-3 border-b border-white/10">
+                    <div className={`px-4 py-3 border-b ${theme === "light" ? "border-gray-100" : "border-white/10"}`}>
                       <div className="flex items-center gap-3">
                         <div className="relative">
                           {profilePhoto ? (
                             <div className="w-10 h-10 rounded-lg overflow-hidden">
-                              <img 
-                                src={profilePhoto} 
-                                alt="Avatar" 
-                                className="w-full h-full object-cover"
-                              />
+                              <img src={profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
                             </div>
                           ) : (
                             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
                               <span className="text-white font-bold text-sm">JP</span>
                             </div>
                           )}
-                          <span className={`absolute bottom-0 right-0 w-3 h-3 ${getStatusInfo().color} border-2 border-[#3a3f4f] rounded-full`}></span>
+                          <span className={`absolute bottom-0 right-0 w-3 h-3 ${getStatusInfo().color} border-2 rounded-full ${theme === "light" ? "border-white" : "border-[#3a3f4f]"}`}></span>
                         </div>
                         <div>
-                          <p className="text-white font-medium text-sm">{userProfile.name}</p>
+                          <p className={`font-medium text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
                           <p className="text-gray-400 text-xs">{userProfile.email}</p>
                         </div>
                       </div>
@@ -842,35 +885,29 @@ export default function ModuleConfigDetailPage() {
 
                     {/* Opciones del menú */}
                     <div className="py-2">
-                      <div className="border-t border-white/10 my-2"></div>
+                      <div className={`border-t my-2 ${theme === "light" ? "border-gray-100" : "border-white/10"}`}></div>
 
                       <button
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          setShowPreferencesModal(true);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left"
+                        onClick={() => { setShowUserMenu(false); setShowPreferencesModal(true); }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${theme === "light" ? "text-gray-600 hover:bg-gray-50 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
                       >
                         <Settings className="w-4 h-4" />
                         <span className="text-sm">Mis preferencias</span>
                       </button>
 
                       <button
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          setShowSubscriptionModal(true);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left"
+                        onClick={() => { setShowUserMenu(false); setShowSubscriptionModal(true); }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${theme === "light" ? "text-gray-600 hover:bg-gray-50 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
                       >
                         <CreditCard className="w-4 h-4" />
                         <span className="text-sm">Mi suscripción</span>
                       </button>
 
-                      <div className="border-t border-white/10 my-2"></div>
+                      <div className={`border-t my-2 ${theme === "light" ? "border-gray-100" : "border-white/10"}`}></div>
 
                       <button
                         onClick={() => navigate("/")}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left"
+                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${theme === "light" ? "text-gray-600 hover:bg-gray-50 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
                       >
                         <LogOut className="w-4 h-4" />
                         <span className="text-sm">Cerrar sesión</span>
@@ -975,6 +1012,15 @@ export default function ModuleConfigDetailPage() {
         <main className="flex-1 overflow-y-auto p-8">
           {selectedMenu ? (
             <div>
+              {/* ── Encabezado universal de sección ── */}
+              {SECTION_META[selectedMenu] && (
+                <SectionHeader
+                  meta={SECTION_META[selectedMenu]}
+                  theme={theme}
+                  badge={selectedMenu === "pos-config" ? userPlan : undefined}
+                />
+              )}
+
               {selectedMenu === "company-info" ? (
                 <CompanyInfoContent />
               ) : selectedMenu === "regional-config" ? (

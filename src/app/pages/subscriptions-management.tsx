@@ -19,10 +19,13 @@ import {
   Download,
   Menu,
   Package,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Pagination } from "../components/pagination";
 import { ProfileModal } from "../components/profile-modal";
 import { toast } from "sonner";
+import { useTheme } from "../contexts/theme-context";
 
 interface Subscription {
   id: string;
@@ -43,6 +46,8 @@ interface Subscription {
 
 export default function SubscriptionsManagementPage() {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
+  const isLight = theme === "light";
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<"all" | "free" | "standard" | "custom">("all");
@@ -226,9 +231,9 @@ export default function SubscriptionsManagementPage() {
   const totalPages = Math.ceil(filteredSubscriptions.length / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-secondary">
+    <div className={`min-h-screen ${isLight ? "bg-gray-50" : "bg-secondary"}`}>
       {/* Header */}
-      <header className="bg-secondary border-b border-white/10">
+      <header className={`border-b ${isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"}`}>
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -236,55 +241,63 @@ export default function SubscriptionsManagementPage() {
                 <span className="text-white font-bold text-lg">T</span>
               </div>
               <div>
-                <h1 className="text-white font-semibold text-lg">TicSoftEc</h1>
-                <p className="text-gray-400 text-xs">Administrador de Suscripciones</p>
+                <h1 className={`font-semibold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>TicSoftEc</h1>
+                <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Administrador de Suscripciones</p>
               </div>
             </div>
 
-            {/* Usuario */}
-            <div className="relative">
+            <div className="flex items-center gap-3">
+              {/* Toggle Tema Sol/Luna */}
               <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 p-2 text-gray-400 hover:text-white transition-colors"
+                onClick={toggleTheme}
+                className={`p-2 rounded-lg transition-all duration-300 ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-primary hover:bg-white/5"}`}
+                title={isLight ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">SA</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-white text-sm font-medium">Super Admin</p>
-                  <p className="text-gray-400 text-xs">Administrador</p>
-                </div>
+                {isLight ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
               </button>
 
-              {/* Menú de usuario */}
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-64 bg-[#3a3f4f] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
-                  <div className="px-4 py-3 border-b border-white/10">
-                    <p className="text-white font-medium text-sm">Super Admin</p>
-                    <p className="text-gray-400 text-xs">admin@ticsoftec.com</p>
+              {/* Usuario */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className={`flex items-center gap-2 p-2 transition-colors ${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`}
+                >
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">SA</span>
                   </div>
-                  <div className="py-2">
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        setShowProfileModal(true);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left"
-                    >
-                      <Settings className="w-4 h-4" />
-                      <span className="text-sm">Configuración</span>
-                    </button>
-                    <div className="border-t border-white/10 my-2"></div>
-                    <button
-                      onClick={() => navigate("/")}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors text-left"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span className="text-sm">Cerrar sesión</span>
-                    </button>
+                  <div className="text-left">
+                    <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>Super Admin</p>
+                    <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Administrador</p>
                   </div>
-                </div>
-              )}
+                </button>
+
+                {/* Menú de usuario */}
+                {showUserMenu && (
+                  <div className={`absolute right-0 mt-2 w-64 border rounded-xl shadow-2xl overflow-hidden z-50 ${isLight ? "bg-white border-gray-200" : "bg-[#3a3f4f] border-white/10"}`}>
+                    <div className={`px-4 py-3 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                      <p className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>Super Admin</p>
+                      <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>admin@ticsoftec.com</p>
+                    </div>
+                    <div className="py-2">
+                      <button
+                        onClick={() => { setShowUserMenu(false); setShowProfileModal(true); }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left text-sm ${isLight ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
+                      >
+                        <Settings className="w-4 h-4" />
+                        <span>Configuración</span>
+                      </button>
+                      <div className={`border-t my-2 ${isLight ? "border-gray-200" : "border-white/10"}`}></div>
+                      <button
+                        onClick={() => navigate("/")}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-red-500 transition-colors text-left text-sm ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"} hover:text-red-400`}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Cerrar sesión</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

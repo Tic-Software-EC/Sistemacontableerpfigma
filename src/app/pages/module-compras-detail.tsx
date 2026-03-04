@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useBrand } from "../contexts/brand-context";
 import {
   ShoppingCart,
   User,
@@ -26,7 +27,10 @@ import {
   DollarSign,
   Calendar,
   CreditCard as CardIcon,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { PurchaseOrdersContent } from "../components/purchase-orders-content";
@@ -225,6 +229,7 @@ const mockOrders = [
 
 export default function ModuleComprasDetail() {
   const navigate = useNavigate();
+  const { logoUrl } = useBrand();
   const [activeTab, setActiveTab] = useState("orders");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -360,36 +365,48 @@ export default function ModuleComprasDetail() {
   const uniqueSuppliers = Array.from(new Set(mockOrders.map(o => o.supplier)));
   const uniqueDates = Array.from(new Set(mockOrders.map(o => o.orderDate.substring(0, 7)))); // YYYY-MM
 
+  const { theme, toggleTheme } = useTheme();
+  const isLight = theme === "light";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]">
+    <div className={`min-h-screen ${isLight ? "bg-gray-50" : "bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]"}`}>
       {/* Header */}
-      <header className="border-b border-white/10 bg-secondary/50 backdrop-blur-sm sticky top-0 z-40">
+      <header className={`border-b sticky top-0 z-40 backdrop-blur-sm ${isLight ? "border-gray-200 bg-white/90" : "border-white/10 bg-secondary/50"}`}>
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             {/* Botón volver */}
             <button
               onClick={() => navigate("/modules")}
-              className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
             {/* Logo y título */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
                 <ShoppingCart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-white font-bold text-xl">{companyName}</h1>
-                <p className="text-gray-400 text-xs">Compras</p>
+                <h1 className={`font-bold text-xl ${isLight ? "text-gray-900" : "text-white"}`}>{companyName}</h1>
+                <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Compras</p>
               </div>
             </div>
           </div>
 
           {/* Derecha */}
           <div className="flex items-center gap-3">
+            {/* Toggle Tema Sol/Luna */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg transition-all duration-300 ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-primary hover:bg-white/5"}`}
+              title={isLight ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
+            >
+              {isLight ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
+
             {/* Notificaciones */}
-            <button className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors relative">
+            <button className={`p-2 rounded-lg transition-colors relative ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
             </button>
@@ -398,80 +415,55 @@ export default function ModuleComprasDetail() {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"}`}
               >
                 <div className="relative">
                   <div className="w-10 h-10 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">JP</span>
                   </div>
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-secondary rounded-full"></div>
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 rounded-full ${isLight ? "border-white" : "border-secondary"}`}></div>
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-white text-sm font-medium">{userProfile.name}</p>
-                  <p className="text-gray-400 text-xs">{userRole} • {userBranch}</p>
+                  <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
+                  <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{userRole} • {userBranch}</p>
                 </div>
               </button>
 
               {/* Menú desplegable del usuario */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-[#1a1f2e] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
-                  <div className="px-4 py-3 border-b border-white/10">
+                <div className={`absolute right-0 mt-2 w-72 border rounded-xl shadow-2xl overflow-hidden z-50 ${isLight ? "bg-white border-gray-200" : "bg-[#1a1f2e] border-white/10"}`}>
+                  <div className={`px-4 py-3 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         {profilePhoto ? (
                           <div className="w-10 h-10 rounded-lg overflow-hidden">
-                            <img 
-                              src={profilePhoto} 
-                              alt="Avatar" 
-                              className="w-full h-full object-cover"
-                            />
+                            <img src={profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
                           </div>
                         ) : (
                           <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
                             <span className="text-white font-bold text-sm">JP</span>
                           </div>
                         )}
-                        <span className={`absolute bottom-0 right-0 w-3 h-3 ${getStatusInfo().color} border-2 border-[#1a1f2e] rounded-full`}></span>
+                        <span className={`absolute bottom-0 right-0 w-3 h-3 ${getStatusInfo().color} border-2 rounded-full ${isLight ? "border-white" : "border-[#1a1f2e]"}`}></span>
                       </div>
                       <div>
-                        <p className="text-white font-medium text-sm">{userProfile.name}</p>
-                        <p className="text-gray-400 text-xs">{userProfile.email}</p>
+                        <p className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
+                        <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{userProfile.email}</p>
                         <p className="text-primary text-xs mt-1">{userRole} • {userBranch}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="py-2">
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        setShowPreferencesModal(true);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left"
-                    >
-                      <Settings className="w-4 h-4" />
-                      <span className="text-sm">Mis preferencias</span>
+                    <button onClick={() => { setShowUserMenu(false); setShowPreferencesModal(true); }} className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left text-sm ${isLight ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}>
+                      <Settings className="w-4 h-4" /><span>Mis preferencias</span>
                     </button>
-
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        setShowSubscriptionModal(true);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left"
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      <span className="text-sm">Mi suscripción</span>
+                    <button onClick={() => { setShowUserMenu(false); setShowSubscriptionModal(true); }} className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left text-sm ${isLight ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}>
+                      <CreditCard className="w-4 h-4" /><span>Mi suscripción</span>
                     </button>
-
-                    <div className="border-t border-white/10 my-2"></div>
-
-                    <button
-                      onClick={() => navigate("/")}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span className="text-sm">Cerrar sesión</span>
+                    <div className={`border-t my-2 ${isLight ? "border-gray-200" : "border-white/10"}`}></div>
+                    <button onClick={() => navigate("/")} className={`w-full flex items-center gap-3 px-4 py-3 text-red-500 transition-colors text-left text-sm ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"} hover:text-red-400`}>
+                      <LogOut className="w-4 h-4" /><span>Cerrar sesión</span>
                     </button>
                   </div>
                 </div>
@@ -481,7 +473,7 @@ export default function ModuleComprasDetail() {
         </div>
 
         {/* Tabs horizontales */}
-        <div className="px-6 border-t border-white/10">
+        <div className={`px-6 border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
           <div className="flex items-center gap-0 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -492,11 +484,11 @@ export default function ModuleComprasDetail() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${
                     isActive
-                      ? "border-primary text-primary"
-                      : "border-transparent text-gray-500 hover:text-gray-300"
+                      ? `border-primary ${isLight ? "text-primary bg-primary/5" : "text-primary"}`
+                      : `border-transparent ${isLight ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-500 hover:text-gray-300"}`
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-gray-500"}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? "text-primary" : ""}`} />
                   {tab.name}
                 </button>
               );
@@ -526,10 +518,7 @@ export default function ModuleComprasDetail() {
         {activeTab === "retentions" && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-                <Receipt className="w-8 h-8 text-primary" />
-                Retenciones a Proveedores
-              </h2>
+
               <p className="text-gray-400 text-sm">
                 Administración de retenciones fiscales a proveedores
               </p>
@@ -542,10 +531,7 @@ export default function ModuleComprasDetail() {
         {activeTab === "payments" && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-                <DollarSign className="w-8 h-8 text-primary" />
-                Pagos a Proveedores
-              </h2>
+
               <p className="text-gray-400 text-sm">
                 Control de pagos y cuentas por pagar a proveedores
               </p>

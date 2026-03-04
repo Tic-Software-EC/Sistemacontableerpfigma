@@ -59,6 +59,7 @@ import { useTheme } from "../contexts/theme-context";
 import { IconSelector } from "../components/icon-selector";
 import { ProfileModal } from "../components/profile-modal";
 import { toast } from "sonner";
+import { useBrand } from "../contexts/brand-context";
 
 interface MenuItem {
   id: string;
@@ -75,6 +76,7 @@ interface MenuItem {
 export default function MenuManagementPage() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { logoUrl } = useBrand();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showNewMenuModal, setShowNewMenuModal] = useState(false);
@@ -441,7 +443,7 @@ export default function MenuManagementPage() {
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -457,6 +459,17 @@ export default function MenuManagementPage() {
 
           <div className="flex items-center gap-3">
             <button
+              className={`p-2 rounded-lg transition-colors relative ${
+                theme === "light"
+                  ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+            </button>
+
+            <button
               onClick={toggleTheme}
               className={`p-2 rounded-lg transition-colors ${
                 theme === "light"
@@ -466,17 +479,6 @@ export default function MenuManagementPage() {
               title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
               {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-
-            <button
-              className={`p-2 rounded-lg transition-colors relative ${
-                theme === "light"
-                  ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
             </button>
 
             <div className="relative">

@@ -264,14 +264,7 @@ export function PrinterConfigContent() {
   return (
     <div className="space-y-6 w-full">
 
-      {/* TÍTULO */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <Printer className="w-8 h-8 text-primary" />
-          <h2 className={`font-bold text-3xl ${txt}`}>Configuración de Impresión</h2>
-        </div>
-        <p className={`text-sm ${sub}`}>Administra documentos e impresoras por sucursal</p>
-      </div>
+
 
       <div className={D} />
 

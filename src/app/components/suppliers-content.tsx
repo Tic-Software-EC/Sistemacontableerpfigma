@@ -306,16 +306,7 @@ export function SuppliersContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header: Título + subtítulo */}
-      <div>
-        <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-          <Truck className="w-8 h-8 text-primary" />
-          Gestión de Proveedores
-        </h2>
-        <p className="text-gray-400 text-sm">
-          Administra tu catálogo de proveedores
-        </p>
-      </div>
+
 
       {/* Línea separatoria */}
       <div className="border-t border-white/10"></div>

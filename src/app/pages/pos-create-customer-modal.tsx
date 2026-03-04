@@ -1,12 +1,14 @@
 import { User, X, CheckCircle, Loader2, Search, FileText, Phone, Mail, MapPin, Camera, AlertTriangle, Upload, Image, PenTool, Users, Home, Briefcase, Calendar, Heart, Building2, IdCard } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
+import { useTheme } from "../contexts/theme-context";
 
 interface Customer {
   ruc: string;
   name: string;
   email?: string;
   phone?: string;
+  phone2?: string;
   address?: string;
   totalPurchases: number;
   pendingBalance: number;
@@ -19,6 +21,9 @@ interface Customer {
   occupation?: string;
   workplace?: string;
   workPhone?: string;
+  // Vivienda
+  housingType?: string;
+  livesWith?: string;
   // Ubicación geográfica
   country?: string;
   province?: string;
@@ -48,6 +53,21 @@ interface CreateCustomerModalProps {
 }
 
 export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [] }: CreateCustomerModalProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  const txt  = isLight ? "text-gray-900" : "text-white";
+  const sub  = isLight ? "text-gray-500" : "text-gray-400";
+  const bdr  = isLight ? "border-gray-200" : "border-white/10";
+  const bdrSub = isLight ? "border-gray-100" : "border-white/5";
+  const secBg = isLight ? "bg-gray-50 border border-gray-200" : "bg-white/5 border border-white/10";
+  const inp  = isLight
+    ? "bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/30"
+    : "bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-primary/50";
+  const modalBg = isLight ? "bg-white" : "bg-[#0D1B2A]";
+  const cardHdr = isLight ? "bg-gray-50 border-b border-gray-200" : "bg-[#1a2332] border-b border-white/10";
+  const btnSec  = isLight
+    ? "bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700"
+    : "bg-white/5 hover:bg-white/10 border border-white/10 text-white";
   const [activeTab, setActiveTab] = useState<"basica" | "documentacion" | "garante">("basica");
   const [consultarRC, setConsultarRC] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -72,6 +92,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
     ruc: "",
     name: "",
     phone: "",
+    phone2: "",
     email: "",
     address: "",
     birthDate: "",
@@ -81,6 +102,9 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
     occupation: "",
     workplace: "",
     workPhone: "",
+    // Vivienda
+    housingType: "",
+    livesWith: "",
     // Ubicación geográfica
     country: "Ecuador",
     province: "",
@@ -204,6 +228,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
       ruc: formData.ruc,
       name: formData.name,
       phone: formData.phone || undefined,
+      phone2: formData.phone2 || undefined,
       email: formData.email || undefined,
       address: formData.address || undefined,
       birthDate: formData.birthDate || undefined,
@@ -213,6 +238,8 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
       occupation: formData.occupation || undefined,
       workplace: formData.workplace || undefined,
       workPhone: formData.workPhone || undefined,
+      housingType: formData.housingType || undefined,
+      livesWith: formData.livesWith || undefined,
       // Ubicación geográfica
       country: formData.country || undefined,
       province: formData.province || undefined,
@@ -242,22 +269,22 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-2xl bg-[#0D1B2A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+      <div className={`w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col border ${bdr} ${modalBg}`}>
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-b border-white/10 px-6 py-4">
+        <div className={`bg-primary/10 border-b ${bdr} px-6 py-4`}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-white font-bold text-xl flex items-center gap-2">
+              <h3 className={`font-bold text-xl flex items-center gap-2 ${txt}`}>
                 <User className="w-6 h-6 text-primary" />
                 Crear Nuevo Cliente
               </h3>
-              <p className="text-gray-400 text-sm mt-1">
+              <p className={`text-sm mt-1 ${sub}`}>
                 Complete la información del cliente
               </p>
             </div>
             <button
               onClick={onCancel}
-              className="text-gray-400 hover:text-white transition-colors"
+              className={`transition-colors ${sub} ${isLight ? "hover:text-gray-900" : "hover:text-white"}`}
             >
               <X className="w-6 h-6" />
             </button>
@@ -273,7 +300,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-green-400 font-bold text-sm mb-1">Datos obtenidos correctamente</p>
+                    <p className="text-green-500 font-bold text-sm mb-1">Datos obtenidos correctamente</p>
                     <p className="text-gray-400 text-xs">
                       Los datos básicos han sido cargados desde el Registro Civil. Complete los datos adicionales.
                     </p>
@@ -283,14 +310,14 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
             )}
 
             {/* Tabs */}
-            <div className="border-b border-white/10 px-6 mt-6">
+            <div className={`border-b ${bdr} px-6 mt-6`}>
               <div className="flex gap-1">
                 <button
                   onClick={() => setActiveTab("basica")}
                   className={`px-4 py-3 font-medium transition-all text-sm ${
                     activeTab === "basica"
                       ? "text-primary border-b-2 border-primary"
-                      : "text-gray-400 hover:text-white"
+                      : `${sub} ${isLight ? "hover:text-gray-900" : "hover:text-white"}`
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -303,7 +330,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                   className={`px-4 py-3 font-medium transition-all text-sm ${
                     activeTab === "documentacion"
                       ? "text-primary border-b-2 border-primary"
-                      : "text-gray-400 hover:text-white"
+                      : `${sub} ${isLight ? "hover:text-gray-900" : "hover:text-white"}`
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -316,7 +343,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                   className={`px-4 py-3 font-medium transition-all text-sm ${
                     activeTab === "garante"
                       ? "text-primary border-b-2 border-primary"
-                      : "text-gray-400 hover:text-white"
+                      : `${sub} ${isLight ? "hover:text-gray-900" : "hover:text-white"}`
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -339,7 +366,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                         type="checkbox"
                         checked={consultarRC}
                         onChange={(e) => setConsultarRC(e.target.checked)}
-                        className="mt-1 w-5 h-5 rounded border-blue-500/50 bg-[#0f1825] text-primary focus:ring-primary focus:ring-offset-0"
+                        className="mt-1 w-5 h-5 rounded border-blue-500/50 text-primary focus:ring-primary focus:ring-offset-0"
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
@@ -354,17 +381,17 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                   </div>
 
                   {/* SECCIÓN: DATOS DE IDENTIFICACIÓN */}
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                    <h4 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
+                  <div className={`rounded-xl p-5 ${secBg}`}>
+                    <h4 className={`font-bold text-sm mb-4 flex items-center gap-2 ${txt}`}>
                       <IdCard className="w-4 h-4 text-primary" />
                       Datos de Identificación
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Cédula/RUC */}
                       <div className="md:col-span-2">
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
                           <IdCard className="w-3 h-3" />
-                          Cédula / RUC <span className="text-red-400">*</span>
+                          Cédula / RUC <span className="text-red-500">*</span>
                         </label>
                         <div className="flex gap-2">
                           <input
@@ -373,7 +400,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                             onChange={(e) => handleInputChange("ruc", e.target.value.replace(/\D/g, ""))}
                             placeholder="0123456789"
                             maxLength={13}
-                            className="flex-1 px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                            className={`flex-1 px-3 py-2.5 rounded-lg text-sm font-mono focus:outline-none transition-all ${inp}`}
                           />
                           {consultarRC && (
                             <button
@@ -396,7 +423,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                           )}
                         </div>
                         {consultarRC && (
-                          <p className="text-gray-500 text-xs mt-1">
+                          <p className={`text-xs mt-1 ${sub}`}>
                             Ingrese mínimo 10 dígitos y haga clic en "Consultar"
                           </p>
                         )}
@@ -404,9 +431,9 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
 
                       {/* Nombre Completo */}
                       <div className="md:col-span-2">
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
                           <User className="w-3 h-3" />
-                          Nombre Completo <span className="text-red-400">*</span>
+                          Nombre Completo <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -414,13 +441,11 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                           onChange={(e) => handleInputChange("name", e.target.value)}
                           placeholder="Juan Carlos Pérez García"
                           disabled={datosObtenidos}
-                          className={`w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${
-                            datosObtenidos ? "opacity-60 cursor-not-allowed" : ""
-                          }`}
+                          className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp} ${datosObtenidos ? "opacity-60 cursor-not-allowed" : ""}`}
                         />
                         {datosObtenidos && (
-                          <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-400" />
+                          <p className={`text-xs mt-1 flex items-center gap-1 ${sub}`}>
+                            <CheckCircle className="w-3 h-3 text-green-500" />
                             Dato obtenido del Registro Civil
                           </p>
                         )}
@@ -429,15 +454,15 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                   </div>
 
                   {/* SECCIÓN: DATOS PERSONALES */}
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                    <h4 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
+                  <div className={`rounded-xl p-5 ${secBg}`}>
+                    <h4 className={`font-bold text-sm mb-4 flex items-center gap-2 ${txt}`}>
                       <User className="w-4 h-4 text-primary" />
                       Datos Personales
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Fecha de Nacimiento */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
                           <Calendar className="w-3 h-3" />
                           Fecha de Nacimiento
                         </label>
@@ -446,15 +471,13 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                           value={formData.birthDate}
                           onChange={(e) => handleInputChange("birthDate", e.target.value)}
                           disabled={datosObtenidos}
-                          className={`w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${
-                            datosObtenidos ? "opacity-60 cursor-not-allowed" : ""
-                          }`}
+                          className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp} ${datosObtenidos ? "opacity-60 cursor-not-allowed" : ""}`}
                         />
                       </div>
 
                       {/* Lugar de Nacimiento */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
                           <MapPin className="w-3 h-3" />
                           Lugar de Nacimiento
                         </label>
@@ -464,15 +487,13 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                           onChange={(e) => handleInputChange("birthPlace", e.target.value)}
                           placeholder="Quito, Pichincha"
                           disabled={datosObtenidos}
-                          className={`w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${
-                            datosObtenidos ? "opacity-60 cursor-not-allowed" : ""
-                          }`}
+                          className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp} ${datosObtenidos ? "opacity-60 cursor-not-allowed" : ""}`}
                         />
                       </div>
 
                       {/* Estado Civil */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
                           <Heart className="w-3 h-3" />
                           Estado Civil
                         </label>
@@ -480,9 +501,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                           value={formData.civilStatus}
                           onChange={(e) => handleInputChange("civilStatus", e.target.value)}
                           disabled={datosObtenidos}
-                          className={`w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${
-                            datosObtenidos ? "opacity-60 cursor-not-allowed" : ""
-                          }`}
+                          className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp} ${datosObtenidos ? "opacity-60 cursor-not-allowed" : ""}`}
                         >
                           <option value="Soltero/a">Soltero/a</option>
                           <option value="Casado/a">Casado/a</option>
@@ -492,10 +511,10 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                         </select>
                       </div>
 
-                      {/* Nombre del Cónyuge - Solo si está casado o en unión libre */}
+                      {/* Nombre del Cónyuge */}
                       {(formData.civilStatus === "Casado/a" || formData.civilStatus === "Unión Libre") && (
                         <div>
-                          <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
+                          <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
                             <Users className="w-3 h-3" />
                             Nombre del Cónyuge / Pareja
                           </label>
@@ -504,7 +523,7 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                             value={formData.spouseName}
                             onChange={(e) => handleInputChange("spouseName", e.target.value)}
                             placeholder="Nombre completo del cónyuge o pareja"
-                            className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                            className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`}
                           />
                         </div>
                       )}
@@ -512,193 +531,147 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                   </div>
 
                   {/* SECCIÓN: DATOS DE CONTACTO */}
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                    <h4 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
+                  <div className={`rounded-xl p-5 ${secBg}`}>
+                    <h4 className={`font-bold text-sm mb-4 flex items-center gap-2 ${txt}`}>
                       <Phone className="w-4 h-4 text-primary" />
                       Datos de Contacto
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Teléfono */}
+                      {/* Teléfono principal */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          Teléfono
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
+                          <Phone className="w-3 h-3" />Teléfono Principal
                         </label>
-                        <input
-                          type="text"
-                          value={formData.phone}
-                          onChange={(e) => handleInputChange("phone", e.target.value)}
-                          placeholder="0991234567"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <input type="text" value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} placeholder="0991234567" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
+                      </div>
+
+                      {/* Segundo teléfono */}
+                      <div>
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
+                          <Phone className="w-3 h-3" />Segundo Teléfono
+                        </label>
+                        <input type="text" value={formData.phone2} onChange={(e) => handleInputChange("phone2", e.target.value)} placeholder="022345678 (opcional)" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
 
                       {/* Email */}
-                      <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => handleInputChange("email", e.target.value)}
-                          placeholder="cliente@email.com"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                      <div className="md:col-span-2">
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><Mail className="w-3 h-3" />Email</label>
+                        <input type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} placeholder="cliente@email.com" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
                     </div>
                   </div>
 
+                  {/* SECCIÓN: VIVIENDA */}
+                  <div className={`rounded-xl p-5 ${secBg}`}>
+                    <h4 className={`font-bold text-sm mb-4 flex items-center gap-2 ${txt}`}>
+                      <Home className="w-4 h-4 text-primary" />
+                      Información de Vivienda
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Tipo de vivienda */}
+                      <div>
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
+                          <Home className="w-3 h-3" />Tipo de Vivienda
+                        </label>
+                        <select
+                          value={formData.housingType}
+                          onChange={(e) => handleInputChange("housingType", e.target.value)}
+                          className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`}
+                        >
+                          <option value="">Seleccionar...</option>
+                          <option value="propia">Casa Propia</option>
+                          <option value="arrendada">Arrendada / Alquiler</option>
+                          <option value="familiar">Familiar (con familia)</option>
+                          <option value="otro">Otro</option>
+                        </select>
+                      </div>
+
+                      {/* Con quién vive */}
+                      <div>
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}>
+                          <Users className="w-3 h-3" />¿Con quién vive?
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.livesWith}
+                          onChange={(e) => handleInputChange("livesWith", e.target.value)}
+                          placeholder="Ej: Solo, Con esposa e hijos, Con padres..."
+                          className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Indicador visual */}
+                    {formData.housingType && (
+                      <div className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border ${
+                        formData.housingType === "propia"
+                          ? "bg-green-500/10 border-green-500/25 text-green-600"
+                          : formData.housingType === "arrendada"
+                          ? "bg-yellow-500/10 border-yellow-500/25 text-yellow-600"
+                          : formData.housingType === "familiar"
+                          ? "bg-blue-500/10 border-blue-500/25 text-blue-500"
+                          : "bg-gray-500/10 border-gray-500/20 text-gray-500"
+                      }`}>
+                        <Home className="w-3.5 h-3.5 flex-shrink-0" />
+                        {formData.housingType === "propia" && "Vivienda propia — mayor estabilidad patrimonial"}
+                        {formData.housingType === "arrendada" && "Vivienda arrendada — considerar verificar contrato"}
+                        {formData.housingType === "familiar" && "Vive con familiares — considerar en análisis crediticio"}
+                        {formData.housingType === "otro" && "Tipo de vivienda personalizado"}
+                      </div>
+                    )}
+                  </div>
+
                   {/* SECCIÓN: DATOS LABORALES */}
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                    <h4 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
+                  <div className={`rounded-xl p-5 ${secBg}`}>
+                    <h4 className={`font-bold text-sm mb-4 flex items-center gap-2 ${txt}`}>
                       <Briefcase className="w-4 h-4 text-primary" />
                       Datos Laborales
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Ocupación */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <Briefcase className="w-3 h-3" />
-                          Ocupación
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.occupation}
-                          onChange={(e) => handleInputChange("occupation", e.target.value)}
-                          placeholder="Ingeniero de Software"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><Briefcase className="w-3 h-3" />Ocupación</label>
+                        <input type="text" value={formData.occupation} onChange={(e) => handleInputChange("occupation", e.target.value)} placeholder="Ingeniero de Software" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
-
-                      {/* Lugar de Trabajo */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <Building2 className="w-3 h-3" />
-                          Lugar de Trabajo
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.workplace}
-                          onChange={(e) => handleInputChange("workplace", e.target.value)}
-                          placeholder="TechCorp S.A."
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><Building2 className="w-3 h-3" />Lugar de Trabajo</label>
+                        <input type="text" value={formData.workplace} onChange={(e) => handleInputChange("workplace", e.target.value)} placeholder="TechCorp S.A." className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
-
-                      {/* Teléfono Trabajo */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          Teléfono de Trabajo
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.workPhone}
-                          onChange={(e) => handleInputChange("workPhone", e.target.value)}
-                          placeholder="022345678"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><Phone className="w-3 h-3" />Teléfono de Trabajo</label>
+                        <input type="text" value={formData.workPhone} onChange={(e) => handleInputChange("workPhone", e.target.value)} placeholder="022345678" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
                     </div>
                   </div>
 
                   {/* SECCIÓN: UBICACIÓN GEOGRÁFICA */}
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                    <h4 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      Ubicación Geográfica
+                  <div className={`rounded-xl p-5 ${secBg}`}>
+                    <h4 className={`font-bold text-sm mb-4 flex items-center gap-2 ${txt}`}>
+                      <MapPin className="w-4 h-4 text-primary" />Ubicación Geográfica
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Provincia */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          Provincia
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.province}
-                          onChange={(e) => handleInputChange("province", e.target.value)}
-                          placeholder="Pichincha"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><MapPin className="w-3 h-3" />Provincia</label>
+                        <input type="text" value={formData.province} onChange={(e) => handleInputChange("province", e.target.value)} placeholder="Pichincha" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
-
-                      {/* Canton */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          Cantón
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.canton}
-                          onChange={(e) => handleInputChange("canton", e.target.value)}
-                          placeholder="Quito"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><MapPin className="w-3 h-3" />Cantón</label>
+                        <input type="text" value={formData.canton} onChange={(e) => handleInputChange("canton", e.target.value)} placeholder="Quito" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
-
-                      {/* Parroquia */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          Parroquia
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.parish}
-                          onChange={(e) => handleInputChange("parish", e.target.value)}
-                          placeholder="Iñaquito"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><MapPin className="w-3 h-3" />Parroquia</label>
+                        <input type="text" value={formData.parish} onChange={(e) => handleInputChange("parish", e.target.value)} placeholder="Iñaquito" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
-
-                      {/* Barrio */}
                       <div>
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <Home className="w-3 h-3" />
-                          Barrio
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.neighborhood}
-                          onChange={(e) => handleInputChange("neighborhood", e.target.value)}
-                          placeholder="La Carolina"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><Home className="w-3 h-3" />Barrio</label>
+                        <input type="text" value={formData.neighborhood} onChange={(e) => handleInputChange("neighborhood", e.target.value)} placeholder="La Carolina" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
-
-                      {/* Dirección */}
                       <div className="md:col-span-2">
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          Dirección Completa
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.address}
-                          onChange={(e) => handleInputChange("address", e.target.value)}
-                          placeholder="Av. 6 de Diciembre N34-145 y Whymper"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><MapPin className="w-3 h-3" />Dirección Completa</label>
+                        <input type="text" value={formData.address} onChange={(e) => handleInputChange("address", e.target.value)} placeholder="Av. 6 de Diciembre N34-145 y Whymper" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
-
-                      {/* Referencia */}
                       <div className="md:col-span-2">
-                        <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          Referencia
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.reference}
-                          onChange={(e) => handleInputChange("reference", e.target.value)}
-                          placeholder="Edificio color azul junto a la gasolinera"
-                          className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                        <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><MapPin className="w-3 h-3" />Referencia</label>
+                        <input type="text" value={formData.reference} onChange={(e) => handleInputChange("reference", e.target.value)} placeholder="Edificio color azul junto a la gasolinera" className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                       </div>
                     </div>
                   </div>
@@ -756,11 +729,11 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                     </div>
                   </div>
 
-                  {/* Grid de Documentos - 2 columnas */}
+                  {/* Grid de Documentos */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                     {/* Firma del Cliente */}
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                      <label className="text-white text-xs mb-2 block font-bold flex items-center gap-1.5">
+                    <div className={`rounded-lg p-3 ${secBg}`}>
+                      <label className={`text-xs mb-2 block font-bold flex items-center gap-1.5 ${txt}`}>
                         <PenTool className="w-3.5 h-3.5 text-primary" />
                         Firma
                       </label>
@@ -780,9 +753,9 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                             </button>
                           </div>
                         ) : (
-                          <div className="w-full h-20 bg-white/5 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-1">
-                            <PenTool className="w-5 h-5 text-gray-600" />
-                            <span className="text-gray-500 text-[10px]">Sin firma</span>
+                          <div className={`w-full h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-1 ${isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/20"}`}>
+                            <PenTool className={`w-5 h-5 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                            <span className={`text-[10px] ${sub}`}>Sin firma</span>
                           </div>
                         )}
                         <input
@@ -792,251 +765,66 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                           onChange={(e) => e.target.files?.[0] && handleFileUpload("signature", e.target.files[0])}
                           className="hidden"
                         />
-                        <button
-                          onClick={() => signatureInputRef.current?.click()}
-                          className="w-full px-2 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
-                        >
+                        <button onClick={() => signatureInputRef.current?.click()} className="w-full px-2 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs">
                           <Upload className="w-3.5 h-3.5" />
                           {formData.signature ? "Cambiar" : "Cargar"}
                         </button>
-                        <p className="text-gray-500 text-[10px] text-center">
-                          Escanee la firma
-                        </p>
+                        <p className={`text-[10px] text-center ${sub}`}>Escanee la firma</p>
                       </div>
                     </div>
 
                     {/* Cédula */}
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                      <label className="text-white text-xs mb-2 block font-bold flex items-center gap-1.5">
-                        <IdCard className="w-3.5 h-3.5 text-primary" />
-                        Cédula
-                      </label>
+                    <div className={`rounded-lg p-3 ${secBg}`}>
+                      <label className={`text-xs mb-2 block font-bold flex items-center gap-1.5 ${txt}`}><IdCard className="w-3.5 h-3.5 text-primary" />Cédula</label>
                       <div className="space-y-2">
-                        {formData.cedula ? (
-                          <div className="relative">
-                            <img
-                              src={formData.cedula}
-                              alt="Cédula"
-                              className="w-full h-20 object-cover rounded-lg border border-primary/30"
-                            />
-                            <button
-                              onClick={() => handleInputChange("cedula", "")}
-                              className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"
-                            >
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="w-full h-20 bg-white/5 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-1">
-                            <FileText className="w-5 h-5 text-gray-600" />
-                            <span className="text-gray-500 text-[10px]">Sin cédula</span>
-                          </div>
-                        )}
-                        <input
-                          ref={cedulaInputRef}
-                          type="file"
-                          accept="image/*,application/pdf"
-                          onChange={(e) => e.target.files?.[0] && handleFileUpload("cedula", e.target.files[0])}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => cedulaInputRef.current?.click()}
-                          className="w-full px-2 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
-                        >
-                          <Upload className="w-3.5 h-3.5" />
-                          {formData.cedula ? "Cambiar" : "Cargar"}
-                        </button>
-                        <p className="text-gray-500 text-[10px] text-center">
-                          Ambos lados
-                        </p>
+                        {formData.cedula ? (<div className="relative"><img src={formData.cedula} alt="Cédula" className="w-full h-20 object-cover rounded-lg border border-primary/30" /><button onClick={() => handleInputChange("cedula", "")} className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"><X className="w-2.5 h-2.5" /></button></div>) : (<div className={`w-full h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-1 ${isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/20"}`}><FileText className={`w-5 h-5 ${isLight ? "text-gray-300" : "text-gray-600"}`} /><span className={`text-[10px] ${sub}`}>Sin cédula</span></div>)}
+                        <input ref={cedulaInputRef} type="file" accept="image/*,application/pdf" onChange={(e) => e.target.files?.[0] && handleFileUpload("cedula", e.target.files[0])} className="hidden" />
+                        <button onClick={() => cedulaInputRef.current?.click()} className={`w-full px-2 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs ${btnSec}`}><Upload className="w-3.5 h-3.5" />{formData.cedula ? "Cambiar" : "Cargar"}</button>
+                        <p className={`text-[10px] text-center ${sub}`}>Ambos lados</p>
                       </div>
                     </div>
 
                     {/* Papeleta de Votación */}
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                      <label className="text-white text-xs mb-2 block font-bold flex items-center gap-1.5">
-                        <FileText className="w-3.5 h-3.5 text-primary" />
-                        Papeleta
-                      </label>
+                    <div className={`rounded-lg p-3 ${secBg}`}>
+                      <label className={`text-xs mb-2 block font-bold flex items-center gap-1.5 ${txt}`}><FileText className="w-3.5 h-3.5 text-primary" />Papeleta</label>
                       <div className="space-y-2">
-                        {formData.papeletaVotacion ? (
-                          <div className="relative">
-                            <img
-                              src={formData.papeletaVotacion}
-                              alt="Papeleta"
-                              className="w-full h-20 object-cover rounded-lg border border-primary/30"
-                            />
-                            <button
-                              onClick={() => handleInputChange("papeletaVotacion", "")}
-                              className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"
-                            >
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="w-full h-20 bg-white/5 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-1">
-                            <FileText className="w-5 h-5 text-gray-600" />
-                            <span className="text-gray-500 text-[10px]">Sin papeleta</span>
-                          </div>
-                        )}
-                        <input
-                          ref={papeletaInputRef}
-                          type="file"
-                          accept="image/*,application/pdf"
-                          onChange={(e) => e.target.files?.[0] && handleFileUpload("papeletaVotacion", e.target.files[0])}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => papeletaInputRef.current?.click()}
-                          className="w-full px-2 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
-                        >
-                          <Upload className="w-3.5 h-3.5" />
-                          {formData.papeletaVotacion ? "Cambiar" : "Cargar"}
-                        </button>
-                        <p className="text-gray-500 text-[10px] text-center">
-                          Actualizada
-                        </p>
+                        {formData.papeletaVotacion ? (<div className="relative"><img src={formData.papeletaVotacion} alt="Papeleta" className="w-full h-20 object-cover rounded-lg border border-primary/30" /><button onClick={() => handleInputChange("papeletaVotacion", "")} className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"><X className="w-2.5 h-2.5" /></button></div>) : (<div className={`w-full h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-1 ${isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/20"}`}><FileText className={`w-5 h-5 ${isLight ? "text-gray-300" : "text-gray-600"}`} /><span className={`text-[10px] ${sub}`}>Sin papeleta</span></div>)}
+                        <input ref={papeletaInputRef} type="file" accept="image/*,application/pdf" onChange={(e) => e.target.files?.[0] && handleFileUpload("papeletaVotacion", e.target.files[0])} className="hidden" />
+                        <button onClick={() => papeletaInputRef.current?.click()} className={`w-full px-2 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs ${btnSec}`}><Upload className="w-3.5 h-3.5" />{formData.papeletaVotacion ? "Cambiar" : "Cargar"}</button>
+                        <p className={`text-[10px] text-center ${sub}`}>Actualizada</p>
                       </div>
                     </div>
 
                     {/* Planilla de Servicio */}
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                      <label className="text-white text-xs mb-2 block font-bold flex items-center gap-1.5">
-                        <FileText className="w-3.5 h-3.5 text-primary" />
-                        Planilla
-                      </label>
+                    <div className={`rounded-lg p-3 ${secBg}`}>
+                      <label className={`text-xs mb-2 block font-bold flex items-center gap-1.5 ${txt}`}><FileText className="w-3.5 h-3.5 text-primary" />Planilla</label>
                       <div className="space-y-2">
-                        {formData.planillaServicio ? (
-                          <div className="relative">
-                            <img
-                              src={formData.planillaServicio}
-                              alt="Planilla"
-                              className="w-full h-20 object-cover rounded-lg border border-primary/30"
-                            />
-                            <button
-                              onClick={() => handleInputChange("planillaServicio", "")}
-                              className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"
-                            >
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="w-full h-20 bg-white/5 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-1">
-                            <FileText className="w-5 h-5 text-gray-600" />
-                            <span className="text-gray-500 text-[10px]">Sin planilla</span>
-                          </div>
-                        )}
-                        <input
-                          ref={planillaInputRef}
-                          type="file"
-                          accept="image/*,application/pdf"
-                          onChange={(e) => e.target.files?.[0] && handleFileUpload("planillaServicio", e.target.files[0])}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => planillaInputRef.current?.click()}
-                          className="w-full px-2 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
-                        >
-                          <Upload className="w-3.5 h-3.5" />
-                          {formData.planillaServicio ? "Cambiar" : "Cargar"}
-                        </button>
-                        <p className="text-gray-500 text-[10px] text-center">
-                          Máx. 3 meses
-                        </p>
+                        {formData.planillaServicio ? (<div className="relative"><img src={formData.planillaServicio} alt="Planilla" className="w-full h-20 object-cover rounded-lg border border-primary/30" /><button onClick={() => handleInputChange("planillaServicio", "")} className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"><X className="w-2.5 h-2.5" /></button></div>) : (<div className={`w-full h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-1 ${isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/20"}`}><FileText className={`w-5 h-5 ${isLight ? "text-gray-300" : "text-gray-600"}`} /><span className={`text-[10px] ${sub}`}>Sin planilla</span></div>)}
+                        <input ref={planillaInputRef} type="file" accept="image/*,application/pdf" onChange={(e) => e.target.files?.[0] && handleFileUpload("planillaServicio", e.target.files[0])} className="hidden" />
+                        <button onClick={() => planillaInputRef.current?.click()} className={`w-full px-2 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs ${btnSec}`}><Upload className="w-3.5 h-3.5" />{formData.planillaServicio ? "Cambiar" : "Cargar"}</button>
+                        <p className={`text-[10px] text-center ${sub}`}>Máx. 3 meses</p>
                       </div>
                     </div>
 
                     {/* Foto de la Casa */}
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                      <label className="text-white text-xs mb-2 block font-bold flex items-center gap-1.5">
-                        <Home className="w-3.5 h-3.5 text-primary" />
-                        Foto de la Casa
-                      </label>
+                    <div className={`rounded-lg p-3 ${secBg}`}>
+                      <label className={`text-xs mb-2 block font-bold flex items-center gap-1.5 ${txt}`}><Home className="w-3.5 h-3.5 text-primary" />Foto de la Casa</label>
                       <div className="space-y-2">
-                        {formData.fotoCasa ? (
-                          <div className="relative">
-                            <img
-                              src={formData.fotoCasa}
-                              alt="Foto de la casa"
-                              className="w-full h-20 object-cover rounded-lg border border-primary/30"
-                            />
-                            <button
-                              onClick={() => handleInputChange("fotoCasa", "")}
-                              className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"
-                            >
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="w-full h-20 bg-white/5 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-1">
-                            <Home className="w-5 h-5 text-gray-600" />
-                            <span className="text-gray-500 text-[10px]">Sin foto</span>
-                          </div>
-                        )}
-                        <input
-                          ref={fotoCasaInputRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => e.target.files?.[0] && handleFileUpload("fotoCasa", e.target.files[0])}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => fotoCasaInputRef.current?.click()}
-                          className="w-full px-2 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
-                        >
-                          <Upload className="w-3.5 h-3.5" />
-                          {formData.fotoCasa ? "Cambiar" : "Cargar"}
-                        </button>
-                        <p className="text-gray-500 text-[10px] text-center">
-                          Escanee la foto
-                        </p>
+                        {formData.fotoCasa ? (<div className="relative"><img src={formData.fotoCasa} alt="Foto de la casa" className="w-full h-20 object-cover rounded-lg border border-primary/30" /><button onClick={() => handleInputChange("fotoCasa", "")} className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"><X className="w-2.5 h-2.5" /></button></div>) : (<div className={`w-full h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-1 ${isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/20"}`}><Home className={`w-5 h-5 ${isLight ? "text-gray-300" : "text-gray-600"}`} /><span className={`text-[10px] ${sub}`}>Sin foto</span></div>)}
+                        <input ref={fotoCasaInputRef} type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload("fotoCasa", e.target.files[0])} className="hidden" />
+                        <button onClick={() => fotoCasaInputRef.current?.click()} className={`w-full px-2 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs ${btnSec}`}><Upload className="w-3.5 h-3.5" />{formData.fotoCasa ? "Cambiar" : "Cargar"}</button>
+                        <p className={`text-[10px] text-center ${sub}`}>Escanee la foto</p>
                       </div>
                     </div>
 
                     {/* Consulta de Buro */}
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                      <label className="text-white text-xs mb-2 block font-bold flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-primary" />
-                        Consulta de Buro
-                      </label>
+                    <div className={`rounded-lg p-3 ${secBg}`}>
+                      <label className={`text-xs mb-2 block font-bold flex items-center gap-1.5 ${txt}`}><AlertTriangle className="w-3.5 h-3.5 text-primary" />Consulta de Buro</label>
                       <div className="space-y-2">
-                        {formData.consultaBuro ? (
-                          <div className="relative">
-                            <img
-                              src={formData.consultaBuro}
-                              alt="Consulta de Buro"
-                              className="w-full h-20 object-cover rounded-lg border border-primary/30"
-                            />
-                            <button
-                              onClick={() => handleInputChange("consultaBuro", "")}
-                              className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"
-                            >
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="w-full h-20 bg-white/5 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-1">
-                            <AlertTriangle className="w-5 h-5 text-gray-600" />
-                            <span className="text-gray-500 text-[10px]">Sin consulta</span>
-                          </div>
-                        )}
-                        <input
-                          ref={consultaBuroInputRef}
-                          type="file"
-                          accept="image/*,application/pdf"
-                          onChange={(e) => e.target.files?.[0] && handleFileUpload("consultaBuro", e.target.files[0])}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => consultaBuroInputRef.current?.click()}
-                          className="w-full px-2 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs"
-                        >
-                          <Upload className="w-3.5 h-3.5" />
-                          {formData.consultaBuro ? "Cambiar" : "Cargar"}
-                        </button>
-                        <p className="text-gray-500 text-[10px] text-center">
-                          Reporte de crédito
-                        </p>
+                        {formData.consultaBuro ? (<div className="relative"><img src={formData.consultaBuro} alt="Consulta de Buro" className="w-full h-20 object-cover rounded-lg border border-primary/30" /><button onClick={() => handleInputChange("consultaBuro", "")} className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"><X className="w-2.5 h-2.5" /></button></div>) : (<div className={`w-full h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-1 ${isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/20"}`}><AlertTriangle className={`w-5 h-5 ${isLight ? "text-gray-300" : "text-gray-600"}`} /><span className={`text-[10px] ${sub}`}>Sin consulta</span></div>)}
+                        <input ref={consultaBuroInputRef} type="file" accept="image/*,application/pdf" onChange={(e) => e.target.files?.[0] && handleFileUpload("consultaBuro", e.target.files[0])} className="hidden" />
+                        <button onClick={() => consultaBuroInputRef.current?.click()} className={`w-full px-2 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-center gap-1.5 text-xs ${btnSec}`}><Upload className="w-3.5 h-3.5" />{formData.consultaBuro ? "Cambiar" : "Cargar"}</button>
+                        <p className={`text-[10px] text-center ${sub}`}>Reporte de crédito</p>
                       </div>
                     </div>
                   </div>
@@ -1048,181 +836,73 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
                 <div className="space-y-4">
                   <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
                     <div className="flex items-start gap-3">
-                      <Users className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <Users className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-blue-400 font-bold text-sm mb-1">Información del Garante</p>
-                        <p className="text-gray-400 text-xs">
-                          Requerido únicamente para clientes que soliciten crédito. Complete los datos de la persona que garantizará los pagos.
-                        </p>
+                        <p className="text-blue-500 font-bold text-sm mb-1">Información del Garante</p>
+                        <p className={`text-xs ${sub}`}>Requerido únicamente para clientes que soliciten crédito. Complete los datos de la persona que garantizará los pagos.</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Checkbox para seleccionar cliente existente */}
                   <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-4">
                     <label className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={garanteEsCliente}
-                        onChange={(e) => {
-                          setGaranteEsCliente(e.target.checked);
-                          if (!e.target.checked) {
-                            setGaranteSearchTerm("");
-                            setShowGaranteResults(false);
-                          }
-                        }}
-                        className="mt-1 w-5 h-5 rounded border-primary/50 bg-[#0f1825] text-primary focus:ring-primary focus:ring-offset-0"
-                      />
+                      <input type="checkbox" checked={garanteEsCliente} onChange={(e) => { setGaranteEsCliente(e.target.checked); if (!e.target.checked) { setGaranteSearchTerm(""); setShowGaranteResults(false); } }} className="mt-1 w-5 h-5 rounded border-primary/50 text-primary focus:ring-primary focus:ring-offset-0" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-primary" />
                           <span className="text-primary font-bold text-sm">El garante es un cliente existente</span>
                         </div>
-                        <p className="text-gray-400 text-xs mt-1">
-                          Marque esta opción para buscar y seleccionar un cliente registrado como garante.
-                        </p>
+                        <p className={`text-xs mt-1 ${sub}`}>Marque esta opción para buscar y seleccionar un cliente registrado como garante.</p>
                       </div>
                     </label>
                   </div>
 
-                  {/* Búsqueda de cliente como garante */}
                   {garanteEsCliente && (
                     <div className="relative mb-4">
-                      <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                        <Search className="w-3 h-3" />
-                        Buscar Cliente
-                      </label>
+                      <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><Search className="w-3 h-3" />Buscar Cliente</label>
                       <div className="relative">
-                        <input
-                          type="text"
-                          value={garanteSearchTerm}
-                          onChange={(e) => handleGaranteSearch(e.target.value)}
-                          onFocus={() => garanteSearchTerm && setShowGaranteResults(true)}
-                          placeholder="Buscar por nombre o cédula/RUC..."
-                          className="w-full px-3 py-2.5 pl-10 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
-                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input type="text" value={garanteSearchTerm} onChange={(e) => handleGaranteSearch(e.target.value)} onFocus={() => garanteSearchTerm && setShowGaranteResults(true)} placeholder="Buscar por nombre o cédula/RUC..." className={`w-full px-3 py-2.5 pl-10 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
+                        <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${sub}`} />
                       </div>
-
-                      {/* Resultados de búsqueda */}
                       {showGaranteResults && filteredGarantes.length > 0 && (
-                        <div className="absolute z-10 w-full mt-2 bg-[#0D1B2A] border border-white/20 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                        <div className={`absolute z-10 w-full mt-2 rounded-lg shadow-xl max-h-60 overflow-y-auto border ${bdr} ${modalBg}`}>
                           {filteredGarantes.map((customer) => (
-                            <button
-                              key={customer.ruc}
-                              onClick={() => handleSelectGarante(customer)}
-                              className="w-full px-4 py-3 hover:bg-white/5 border-b border-white/10 last:border-b-0 transition-colors text-left"
-                            >
-                              <div className="flex flex-col">
-                                <p className="text-white font-medium text-sm">{customer.name}</p>
-                                <p className="text-gray-400 text-xs mt-0.5">{customer.ruc}</p>
-                              </div>
+                            <button key={customer.ruc} onClick={() => handleSelectGarante(customer)} className={`w-full px-4 py-3 border-b ${bdrSub} last:border-b-0 transition-colors text-left ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"}`}>
+                              <p className={`font-medium text-sm ${txt}`}>{customer.name}</p>
+                              <p className={`text-xs mt-0.5 ${sub}`}>{customer.ruc}</p>
                             </button>
                           ))}
                         </div>
                       )}
-
                       {showGaranteResults && filteredGarantes.length === 0 && garanteSearchTerm && (
-                        <div className="absolute z-10 w-full mt-2 bg-[#0D1B2A] border border-white/20 rounded-lg shadow-xl p-4">
-                          <p className="text-gray-400 text-sm text-center">No se encontraron clientes</p>
+                        <div className={`absolute z-10 w-full mt-2 rounded-lg shadow-xl p-4 border ${bdr} ${modalBg}`}>
+                          <p className={`text-sm text-center ${sub}`}>No se encontraron clientes</p>
                         </div>
                       )}
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Nombre del Garante */}
                     <div className="md:col-span-2">
-                      <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        Nombre Completo del Garante
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.guarantorName}
-                        onChange={(e) => handleInputChange("guarantorName", e.target.value)}
-                        placeholder="Pedro Luis Ramírez Torres"
-                        disabled={garanteEsCliente}
-                        className={`w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${
-                          garanteEsCliente ? "opacity-60 cursor-not-allowed" : ""
-                        }`}
-                      />
-                      {garanteEsCliente && formData.guarantorName && (
-                        <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3 text-green-400" />
-                          Datos obtenidos del cliente seleccionado
-                        </p>
-                      )}
+                      <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><User className="w-3 h-3" />Nombre Completo del Garante</label>
+                      <input type="text" value={formData.guarantorName} onChange={(e) => handleInputChange("guarantorName", e.target.value)} placeholder="Pedro Luis Ramírez Torres" disabled={garanteEsCliente} className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp} ${garanteEsCliente ? "opacity-60 cursor-not-allowed" : ""}`} />
+                      {garanteEsCliente && formData.guarantorName && (<p className={`text-xs mt-1 flex items-center gap-1 ${sub}`}><CheckCircle className="w-3 h-3 text-green-500" />Datos obtenidos del cliente seleccionado</p>)}
                     </div>
-
-                    {/* Cédula del Garante */}
                     <div>
-                      <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                        <IdCard className="w-3 h-3" />
-                        Cédula del Garante
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.guarantorCedula}
-                        onChange={(e) => handleInputChange("guarantorCedula", e.target.value.replace(/\D/g, ""))}
-                        placeholder="0987654321"
-                        maxLength={10}
-                        disabled={garanteEsCliente}
-                        className={`w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${
-                          garanteEsCliente ? "opacity-60 cursor-not-allowed" : ""
-                        }`}
-                      />
+                      <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><IdCard className="w-3 h-3" />Cédula del Garante</label>
+                      <input type="text" value={formData.guarantorCedula} onChange={(e) => handleInputChange("guarantorCedula", e.target.value.replace(/\D/g, ""))} placeholder="0987654321" maxLength={10} disabled={garanteEsCliente} className={`w-full px-3 py-2.5 rounded-lg text-sm font-mono focus:outline-none transition-all ${inp} ${garanteEsCliente ? "opacity-60 cursor-not-allowed" : ""}`} />
                     </div>
-
-                    {/* Teléfono del Garante */}
                     <div>
-                      <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        Teléfono del Garante
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.guarantorPhone}
-                        onChange={(e) => handleInputChange("guarantorPhone", e.target.value)}
-                        placeholder="0987654321"
-                        disabled={garanteEsCliente}
-                        className={`w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${
-                          garanteEsCliente ? "opacity-60 cursor-not-allowed" : ""
-                        }`}
-                      />
+                      <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><Phone className="w-3 h-3" />Teléfono del Garante</label>
+                      <input type="text" value={formData.guarantorPhone} onChange={(e) => handleInputChange("guarantorPhone", e.target.value)} placeholder="0987654321" disabled={garanteEsCliente} className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp} ${garanteEsCliente ? "opacity-60 cursor-not-allowed" : ""}`} />
                     </div>
-
-                    {/* Parentesco */}
                     <div>
-                      <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        Parentesco / Relación
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.guarantorRelationship}
-                        onChange={(e) => handleInputChange("guarantorRelationship", e.target.value)}
-                        placeholder="Padre, Hermano, Amigo, etc."
-                        className="w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                      />
+                      <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><Users className="w-3 h-3" />Parentesco / Relación</label>
+                      <input type="text" value={formData.guarantorRelationship} onChange={(e) => handleInputChange("guarantorRelationship", e.target.value)} placeholder="Padre, Hermano, Amigo, etc." className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp}`} />
                     </div>
-
-                    {/* Dirección del Garante */}
                     <div className="md:col-span-2">
-                      <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        Dirección del Garante
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.guarantorAddress}
-                        onChange={(e) => handleInputChange("guarantorAddress", e.target.value)}
-                        placeholder="Calle Principal N12-34 y Secundaria"
-                        disabled={garanteEsCliente}
-                        className={`w-full px-3 py-2.5 bg-[#0f1825] border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all ${
-                          garanteEsCliente ? "opacity-60 cursor-not-allowed" : ""
-                        }`}
-                      />
+                      <label className={`text-xs mb-1.5 block flex items-center gap-1 ${sub}`}><MapPin className="w-3 h-3" />Dirección del Garante</label>
+                      <input type="text" value={formData.guarantorAddress} onChange={(e) => handleInputChange("guarantorAddress", e.target.value)} placeholder="Calle Principal N12-34 y Secundaria" disabled={garanteEsCliente} className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none transition-all ${inp} ${garanteEsCliente ? "opacity-60 cursor-not-allowed" : ""}`} />
                     </div>
                   </div>
                 </div>
@@ -1232,12 +912,9 @@ export function CreateCustomerModal({ onConfirm, onCancel, existingCustomers = [
         </div>
 
         {/* Footer - Botones */}
-        <div className="border-t border-white/10 px-6 py-4 bg-[#1a2332]">
+        <div className={`border-t ${bdr} px-6 py-4 ${isLight ? "bg-gray-50" : "bg-[#1a2332]"}`}>
           <div className="flex gap-3 items-center justify-end">
-            <button
-              onClick={onCancel}
-              className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-colors font-medium"
-            >
+            <button onClick={onCancel} className={`px-6 py-3 rounded-xl transition-colors font-medium ${btnSec}`}>
               Cancelar
             </button>
             <button

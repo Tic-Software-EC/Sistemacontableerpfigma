@@ -146,15 +146,6 @@ export function HolidaysContent() {
   return (
     <div className="space-y-6 w-full">
 
-      {/* TÍTULO */}
-      <div>
-        <h2 className={`font-bold text-3xl mb-1 flex items-center gap-3 ${txt}`}>
-          <Calendar className="w-8 h-8 text-primary" />
-          Días Festivos
-        </h2>
-        <p className={`text-sm ${sub}`}>Gestione los días festivos y feriados por sucursal</p>
-      </div>
-
       <div className={`border-t ${divB}`} />
 
       {/* MÉTRICAS */}

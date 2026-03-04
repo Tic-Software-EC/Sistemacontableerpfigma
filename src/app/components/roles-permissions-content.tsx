@@ -143,15 +143,6 @@ export function RolesPermissionsContent() {
   return (
     <div className="space-y-6 w-full">
 
-      {/* ── Título ── */}
-      <div>
-        <h2 className={`font-bold text-3xl mb-1 flex items-center gap-3 ${txt}`}>
-          <Shield className="w-8 h-8 text-primary" />
-          Roles y Permisos
-        </h2>
-        <p className={`text-sm ${sub}`}>Gestiona los roles de usuario y sus permisos en el sistema</p>
-      </div>
-
       <div className={`border-t ${divB}`} />
 
       {/* ── Métricas ── */}

@@ -161,15 +161,6 @@ export function PosConfigContent({ userPlan = "Plan Básico" }: PosConfigContent
   return (
     <div className="space-y-6">
 
-      {/* TÍTULO */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <ShoppingCart className="w-8 h-8 text-primary" />
-          <h2 className={`font-bold text-3xl ${txt()}`}>Cajas POS</h2>
-        </div>
-        <p className={`text-sm ${sub()}`}>Gestiona las cajas registradoras · <span className="text-primary font-medium">{userPlan}</span></p>
-      </div>
-
       <div className={D} />
 
       {/* MÉTRICAS */}

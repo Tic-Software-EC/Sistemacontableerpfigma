@@ -23,7 +23,8 @@ interface ProfileModalProps {
 
 export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileModalProps) {
   const { theme } = useTheme();
-  const [editingProfile, setEditingProfile] = useState(userProfile);
+  const safeProfile = userProfile ?? { name: "", email: "", phone: "", role: "", avatar: "" };
+  const [editingProfile, setEditingProfile] = useState(safeProfile);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -46,7 +47,7 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
   };
 
   const handleCancel = () => {
-    setEditingProfile(userProfile);
+    setEditingProfile(safeProfile);
     onClose();
   };
 

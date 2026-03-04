@@ -76,13 +76,6 @@ export function StockConfigContent() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div>
-          <h2 className="text-white font-bold text-3xl mb-2 flex items-center gap-3">
-            <Settings className="w-8 h-8 text-primary" />
-            Configuración de Stock
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Configura los parámetros de control y gestión de inventario
-          </p>
         </div>
         {hasChanges && (
           <button

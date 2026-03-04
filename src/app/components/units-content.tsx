@@ -160,16 +160,7 @@ export function UnitsContent() {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <Ruler className="w-8 h-8 text-primary" />
-          <h2 className={`font-bold text-3xl ${txt}`}>Unidades de Medida</h2>
-        </div>
-        <p className="text-gray-400 text-sm">
-          Cada categoría gestiona sus propias unidades de medida. Expande una categoría para ver y administrar sus unidades.
-        </p>
-      </div>
+
 
       <div className={divider} />
 
