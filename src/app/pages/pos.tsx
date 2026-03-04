@@ -1312,7 +1312,8 @@ export function POS() {
                   {cart.length > 0 && (
                     <button
                       onClick={clearCart}
-                      className={`transition-colors text-xs flex items-center gap-1 ${sub} hover:text-red-500`}
+                      disabled={!isCajaOpen}
+                      className={`transition-colors text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed ${sub} hover:text-red-500`}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       Limpiar
@@ -1424,73 +1425,79 @@ export function POS() {
               </div>
 
               {/* Footer - Totales y acciones */}
-              {cart.length > 0 && (
-                <div className={`p-3 space-y-2 border-t ${bdr} ${isLight ? "bg-gray-50" : "bg-[#1a2332]"}`}>
-                  {/* Desglose de totales */}
-                  <div className="space-y-1.5 px-3">
-                    <div className="flex justify-between items-center">
-                      <span className={`text-sm ${sub}`}>Subtotal:</span>
-                      <span className={`text-sm font-mono ${txt}`}>${totals.subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-sm ${sub}`}>IVA (15%):</span>
-                      <span className={`text-sm font-mono ${txt}`}>${totals.tax.toFixed(2)}</span>
-                    </div>
-                  </div>
+              {/* Footer siempre visible cuando caja está abierta */}
+              <div className={`border-t ${bdr} ${isLight ? "bg-gray-50" : "bg-[#1a2332]"}`}>
 
-                  {/* Total a Pagar - Header destacado */}
-                  <div className={`flex justify-between items-center py-2 px-3 rounded-lg ${secBg}`}>
-                    <span className={`font-bold text-sm uppercase ${txt}`}>TOTAL A PAGAR:</span>
-                    <span className={`font-bold text-2xl font-mono ${txt}`}>${totals.total.toFixed(2)}</span>
-                  </div>
+                {/* Totales + Procesar Pago: solo cuando hay productos en el carrito */}
+                {cart.length > 0 && (
+                  <div className="p-3 pb-2 space-y-2">
+                    {/* Desglose de totales */}
+                    <div className="space-y-1.5 px-3">
+                      <div className="flex justify-between items-center">
+                        <span className={`text-sm ${sub}`}>Subtotal:</span>
+                        <span className={`text-sm font-mono ${txt}`}>${totals.subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className={`text-sm ${sub}`}>IVA (15%):</span>
+                        <span className={`text-sm font-mono ${txt}`}>${totals.tax.toFixed(2)}</span>
+                      </div>
+                    </div>
 
-                  {/* Botones de acción */}
-                  <div className="grid grid-cols-2 gap-2">
-                    {/* Pausar */}
+                    {/* Total a Pagar */}
+                    <div className={`flex justify-between items-center py-2 px-3 rounded-lg ${secBg}`}>
+                      <span className={`font-bold text-sm uppercase ${txt}`}>TOTAL A PAGAR:</span>
+                      <span className={`font-bold text-2xl font-mono ${txt}`}>${totals.total.toFixed(2)}</span>
+                    </div>
+
+                    {/* Procesar Pago */}
                     <button
-                      onClick={holdCurrentSale}
+                      onClick={() => setShowPaymentModal(true)}
                       disabled={!isCajaOpen}
-                      className={`px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-                        isCajaOpen ? btnSec : btnDis
+                      className={`w-full px-4 py-3 rounded-lg font-bold text-base transition-all flex items-center justify-center gap-2 ${
+                        isCajaOpen
+                          ? 'bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30'
+                          : btnDis
                       }`}
                     >
-                      <Pause className="w-4 h-4" />
-                      Pausar
-                    </button>
-
-                    {/* En Espera */}
-                    <button
-                      onClick={() => setShowHeldSalesModal(true)}
-                      disabled={!isCajaOpen}
-                      className={`px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 relative ${
-                        isCajaOpen ? btnSec : btnDis
-                      }`}
-                    >
-                      <FileText className="w-4 h-4" />
-                      En Espera
-                      {heldSales.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                          {heldSales.length}
-                        </span>
-                      )}
+                      <CreditCard className="w-5 h-5" />
+                      Procesar Pago
                     </button>
                   </div>
+                )}
 
-                  {/* Procesar Pago - Botón grande */}
+                {/* Pausar / En Espera: siempre visibles con caja abierta */}
+                <div className="px-3 pb-3 pt-2 grid grid-cols-2 gap-2">
+                  {/* Pausar */}
                   <button
-                    onClick={() => setShowPaymentModal(true)}
-                    disabled={!isCajaOpen}
-                    className={`w-full px-4 py-3 rounded-lg font-bold text-base transition-all flex items-center justify-center gap-2 ${
-                      isCajaOpen
-                        ? 'bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30'
-                        : btnDis
+                    onClick={holdCurrentSale}
+                    disabled={!isCajaOpen || cart.length === 0}
+                    className={`px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+                      isCajaOpen && cart.length > 0 ? btnSec : btnDis
                     }`}
                   >
-                    <CreditCard className="w-5 h-5" />
-                    Procesar Pago
+                    <Pause className="w-4 h-4" />
+                    Pausar
+                  </button>
+
+                  {/* En Espera */}
+                  <button
+                    onClick={() => setShowHeldSalesModal(true)}
+                    disabled={!isCajaOpen || heldSales.length === 0}
+                    className={`px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 relative ${
+                      isCajaOpen && heldSales.length > 0 ? btnSec : btnDis
+                    }`}
+                  >
+                    <FileText className="w-4 h-4" />
+                    En Espera
+                    {heldSales.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {heldSales.length}
+                      </span>
+                    )}
                   </button>
                 </div>
-              )}
+
+              </div>
             </div>
           </div>{/* fin carrito col-1 row-2 */}
 
