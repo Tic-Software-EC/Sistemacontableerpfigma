@@ -23,7 +23,7 @@ export function LoginForm() {
       localStorage.removeItem("companyRuc");
       localStorage.removeItem("companyName");
       localStorage.setItem("userType", "superadmin");
-      navigate("/admin/companies");
+      navigate("/admin");
     } else {
       // Admin de empresa: guardar nombre de empresa
       const companyNames = [

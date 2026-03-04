@@ -43,6 +43,9 @@ export function AdminHeader({ userProfile, onProfileUpdate }: AdminHeaderProps) 
     return location.pathname === path;
   };
 
+  const currentTab = tabs.find((tab) => tab.path === location.pathname);
+  const pageTitle = currentTab?.label ?? "Panel de Administración";
+
   return (
     <>
       <header className={`border-b sticky top-0 z-40 ${
@@ -53,18 +56,22 @@ export function AdminHeader({ userProfile, onProfileUpdate }: AdminHeaderProps) 
         <div className="flex items-center justify-between px-6 py-4">
           {/* Logo y título */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+            <button
+              onClick={() => navigate("/admin")}
+              className="flex items-center gap-3 group"
+              title="Ir al Panel de Administración"
+            >
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center group-hover:bg-primary/90 transition-colors">
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <h1 className={`font-bold text-xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                  TicSoftEc
-                </h1>
-                <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
-                  Administrador de Suscripciones
-                </p>
-              </div>
+            </button>
+            <div className="text-left">
+              <h1 className={`font-bold text-xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                TicSoftEc
+              </h1>
+              <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                {pageTitle}
+              </p>
             </div>
           </div>
 
