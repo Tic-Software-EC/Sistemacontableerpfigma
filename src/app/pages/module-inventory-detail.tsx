@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { ArrowLeft, Package, TrendingUp, ArrowLeftRight, Plus, Bell, FileText, Sun, Moon } from "lucide-react";
 import { InventoryStockList } from "../components/inventory-stock-list";
 import { InventoryMovementsList } from "../components/inventory-movements-list";
@@ -11,17 +11,15 @@ import { useTheme } from "../contexts/theme-context";
 
 export default function ModuleInventoryDetail() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const params = useParams<{ tab?: string }>();
   const { theme, toggleTheme } = useTheme();
   const isLight = theme === "light";
 
-  // Sincronizar activeTab con el parámetro "tab" de la URL
   const validTabs = ["stock", "movements", "transfers", "kardex"] as const;
   type TabType = typeof validTabs[number];
-  const rawTab = searchParams.get("tab") as TabType | null;
-  const activeTab: TabType = validTabs.includes(rawTab as TabType) ? (rawTab as TabType) : "stock";
+  const activeTab: TabType = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : "stock";
   const setActiveTab = (tab: TabType) => {
-    setSearchParams({ tab }, { replace: true });
+    navigate(`/module-inventory-detail/${tab}`, { replace: true });
   };
   const [showNewProductModal, setShowNewProductModal] = useState(false);
   const [showNewMovementModal, setShowNewMovementModal] = useState(false);

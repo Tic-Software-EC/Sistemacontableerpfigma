@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, useLocation, useSearchParams } from "react-router";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation, useParams } from "react-router";
 import {
   Settings,
   Users,
@@ -617,40 +617,75 @@ const planAccess: Record<string, any> = {
 export default function ModuleConfigDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams<{ moduloSlug?: string; menuId?: string; sectionId?: string }>();
   const { theme, toggleTheme } = useTheme();
   const { logoUrl } = useBrand();
-  const urlModule = new URLSearchParams(location.search).get("module");
+
+  // Mapa slug ↔ nombre real
+  const slugToModule: Record<string, string> = {
+    configuracion: "Configuración", ventas: "Ventas", contabilidad: "Contabilidad",
+    inventario: "Inventario", compras: "Compras", facturas: "Facturas",
+    clientes: "Clientes", reportes: "Reportes",
+  };
+  const moduleToSlug: Record<string, string> = Object.fromEntries(
+    Object.entries(slugToModule).map(([k, v]) => [v, k])
+  );
+
   const { moduleName: stateModuleName, moduleColor, userPlan } = location.state || {};
-  const moduleName = stateModuleName || urlModule || "Configuración";
+  const moduleName = (params.moduloSlug && slugToModule[params.moduloSlug]) || stateModuleName || "Configuración";
   const resolvedModuleColor = moduleColor || "#E8692E";
   const resolvedUserPlan = userPlan || "Plan Profesional";
 
-  const [searchParams, setSearchParams] = useSearchParams();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
-  // Sincronizar selectedMenu con el parámetro "section" de la URL
-  const selectedMenu = searchParams.get("section") || null;
+  // selectedMenu derivado 100% de la URL
+  const selectedMenu = params.sectionId || params.menuId || null;
+
+  // Base de navegación: /module-config-detail/:slug
+  const buildBase = () => `/module-config-detail/${moduleToSlug[moduleName] || "configuracion"}`;
+
+  // Al seleccionar un menú/submenú → navega a la URL limpia
   const setSelectedMenu = (id: string | null) => {
-    setSearchParams(prev => {
-      if (id) { prev.set("section", id); } else { prev.delete("section"); }
-      return prev;
-    }, { replace: true });
+    if (!id) { navigate(buildBase(), { replace: true }); return; }
+    let parentMenuId: string | null = null;
+    Object.values(moduleMenus).flat().forEach((menu: any) => {
+      if (menu.submenus?.some((s: any) => s.id === id)) parentMenuId = menu.id;
+    });
+    if (parentMenuId) {
+      navigate(`${buildBase()}/${parentMenuId}/${id}`, { replace: true });
+    } else {
+      navigate(`${buildBase()}/${id}`, { replace: true });
+    }
   };
 
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
-    const section = new URLSearchParams(window.location.search).get("section");
-    if (!section) return {};
+    const sectionId = params.sectionId || params.menuId;
+    if (!sectionId) return {};
     const expanded: Record<string, boolean> = {};
     Object.values(moduleMenus).flat().forEach((menu: any) => {
-      if (menu.submenus?.some((s: any) => s.id === section)) {
-        expanded[menu.id] = true;
-      }
+      if (menu.submenus?.some((s: any) => s.id === sectionId)) expanded[menu.id] = true;
     });
+    if (params.menuId) expanded[params.menuId] = true;
     return expanded;
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Sincronizar expandedMenus con navegación de historial (botones atrás/adelante)
+  useEffect(() => {
+    const sectionId = params.sectionId || params.menuId;
+    if (!sectionId) return;
+    setExpandedMenus(prev => {
+      const next = { ...prev };
+      Object.values(moduleMenus).flat().forEach((menu: any) => {
+        if (menu.submenus?.some((s: any) => s.id === sectionId)) next[menu.id] = true;
+      });
+      if (params.menuId) next[params.menuId] = true;
+      return next;
+    });
+  }, [params.menuId, params.sectionId]);
+
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [userStatus, setUserStatus] = useState<"online" | "away" | "dnd" | "offline">("online");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
@@ -670,11 +705,8 @@ export default function ModuleConfigDetailPage() {
       ...prev,
       [menuId]: !prev[menuId]
     }));
-    
-    // Si el menú es "suppliers" o "purchase-orders", seleccionarlo directamente
-    if (menuId === "suppliers" || menuId === "purchase-orders") {
-      setSelectedMenu(menuId);
-    }
+    // Seleccionar directamente si es un menú sin submenús (leaf menu)
+    setSelectedMenu(menuId);
   };
 
   const handleSubmenuClick = (submenu: any) => {

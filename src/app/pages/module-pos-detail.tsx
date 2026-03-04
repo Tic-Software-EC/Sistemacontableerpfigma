@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useBrand } from "../contexts/brand-context";
 import {
   ShoppingCart,
@@ -31,16 +31,14 @@ import { KeyboardShortcutsPanel } from "../components/keyboard-shortcuts-panel";
 
 export default function ModulePosDetail() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const params = useParams<{ tab?: string }>();
   const { theme, toggleTheme } = useTheme();
   const isLight = theme === "light";
 
-  // Sincronizar activeTab con el parámetro "tab" de la URL
   const validPosTabs = ["pos", "arqueo", "sales-history", "reports"];
-  const rawPosTab = searchParams.get("tab");
-  const activeTab = validPosTabs.includes(rawPosTab ?? "") ? rawPosTab! : "pos";
+  const activeTab = validPosTabs.includes(params.tab ?? "") ? params.tab! : "pos";
   const setActiveTab = (tab: string) => {
-    setSearchParams({ tab }, { replace: true });
+    navigate(`/module-pos-detail/${tab}`, { replace: true });
   };
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);

@@ -120,12 +120,25 @@ export default function ModulesPage() {
   ];
 
   const handleModuleClick = (module: Module) => {
-    if (module.name === "Compras") { navigate("/module-compras-detail"); return; }
-    if (module.name === "Punto de Venta") { navigate("/module-pos-detail"); return; }
-    if (module.name === "Inventario") { navigate("/module-inventory-detail"); return; }
-    const modulesWithMenus = ["Configuración", "Ventas", "Contabilidad", "Facturas", "Clientes", "Reportes"];
+    if (module.name === "Compras")        { navigate("/module-compras-detail/orders"); return; }
+    if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }
+    if (module.name === "Inventario")     { navigate("/module-inventory-detail/stock"); return; }
+
+    const moduleSlugMap: Record<string, string> = {
+      "Configuración": "configuracion",
+      "Ventas": "ventas",
+      "Contabilidad": "contabilidad",
+      "Facturas": "facturas",
+      "Clientes": "clientes",
+      "Reportes": "reportes",
+    };
+    const modulesWithMenus = Object.keys(moduleSlugMap);
     if (modulesWithMenus.includes(module.name)) {
-      navigate(`/module-config-detail?module=${encodeURIComponent(module.name)}`, { state: { moduleName: module.name, moduleColor: module.color, userPlan: "Plan Profesional" } });
+      const slug = moduleSlugMap[module.name];
+      navigate(
+        `/module-config-detail/${slug}`,
+        { state: { moduleName: module.name, moduleColor: module.color, userPlan: "Plan Profesional" } }
+      );
     } else {
       navigate(module.route);
     }
