@@ -369,6 +369,11 @@ export default function MenuManagementPage() {
       return;
     }
 
+    if (!formData.path.startsWith("/")) {
+      toast.error("La ruta debe comenzar con /  (ej: /modulo/seccion)");
+      return;
+    }
+
     const newMenu: MenuItem = {
       id: Date.now().toString(),
       ...formData,
@@ -382,6 +387,11 @@ export default function MenuManagementPage() {
 
     if (!formData.name.trim() || !formData.path.trim()) {
       toast.error("El nombre y la ruta son obligatorios");
+      return;
+    }
+
+    if (!formData.path.startsWith("/")) {
+      toast.error("La ruta debe comenzar con /  (ej: /modulo/seccion)");
       return;
     }
 

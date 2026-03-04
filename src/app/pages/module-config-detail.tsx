@@ -617,22 +617,19 @@ const planAccess: Record<string, any> = {
 export default function ModuleConfigDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useParams<{ moduloSlug?: string; menuId?: string; sectionId?: string }>();
+  const params = useParams<{ menuId?: string; sectionId?: string }>();
   const { theme, toggleTheme } = useTheme();
   const { logoUrl } = useBrand();
 
-  // Mapa slug ↔ nombre real
-  const slugToModule: Record<string, string> = {
-    configuracion: "Configuración", ventas: "Ventas", contabilidad: "Contabilidad",
-    inventario: "Inventario", compras: "Compras", facturas: "Facturas",
-    clientes: "Clientes", reportes: "Reportes",
-  };
-  const moduleToSlug: Record<string, string> = Object.fromEntries(
-    Object.entries(slugToModule).map(([k, v]) => [v, k])
-  );
-
+  // El módulo activo viene de location.state o localStorage (persiste en refresh)
   const { moduleName: stateModuleName, moduleColor, userPlan } = location.state || {};
-  const moduleName = (params.moduloSlug && slugToModule[params.moduloSlug]) || stateModuleName || "Configuración";
+  const moduleName: string = (() => {
+    if (stateModuleName) {
+      localStorage.setItem("activeModuleName", stateModuleName);
+      return stateModuleName;
+    }
+    return localStorage.getItem("activeModuleName") || "Configuración";
+  })();
   const resolvedModuleColor = moduleColor || "#E8692E";
   const resolvedUserPlan = userPlan || "Plan Profesional";
 
@@ -640,13 +637,16 @@ export default function ModuleConfigDetailPage() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
-  // selectedMenu derivado 100% de la URL
+  // selectedMenu derivado 100% de la URL:
+  // /module-config-detail/:menuId            → selectedMenu = menuId  (menú hoja)
+  // /module-config-detail/:menuId/:sectionId → selectedMenu = sectionId (submenú)
   const selectedMenu = params.sectionId || params.menuId || null;
 
-  // Base de navegación: /module-config-detail/:slug
-  const buildBase = () => `/module-config-detail/${moduleToSlug[moduleName] || "configuracion"}`;
+  // Base de navegación sin slug de módulo
+  const buildBase = () => `/module-config-detail`;
 
-  // Al seleccionar un menú/submenú → navega a la URL limpia
+  // Al seleccionar → navega a la URL correcta
+  // Ej: /module-config-detail/general-settings/branches
   const setSelectedMenu = (id: string | null) => {
     if (!id) { navigate(buildBase(), { replace: true }); return; }
     let parentMenuId: string | null = null;
@@ -660,28 +660,31 @@ export default function ModuleConfigDetailPage() {
     }
   };
 
+  // expandedMenus: expande el grupo padre de la sección activa al cargar
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
-    const sectionId = params.sectionId || params.menuId;
-    if (!sectionId) return {};
     const expanded: Record<string, boolean> = {};
-    Object.values(moduleMenus).flat().forEach((menu: any) => {
-      if (menu.submenus?.some((s: any) => s.id === sectionId)) expanded[menu.id] = true;
-    });
     if (params.menuId) expanded[params.menuId] = true;
+    const activeId = params.sectionId || params.menuId;
+    if (activeId) {
+      Object.values(moduleMenus).flat().forEach((menu: any) => {
+        if (menu.submenus?.some((s: any) => s.id === activeId)) expanded[menu.id] = true;
+      });
+    }
     return expanded;
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Sincronizar expandedMenus con navegación de historial (botones atrás/adelante)
+  // Sincronizar expandedMenus al navegar con botones atrás/adelante del browser
   useEffect(() => {
-    const sectionId = params.sectionId || params.menuId;
-    if (!sectionId) return;
     setExpandedMenus(prev => {
       const next = { ...prev };
-      Object.values(moduleMenus).flat().forEach((menu: any) => {
-        if (menu.submenus?.some((s: any) => s.id === sectionId)) next[menu.id] = true;
-      });
       if (params.menuId) next[params.menuId] = true;
+      const activeId = params.sectionId || params.menuId;
+      if (activeId) {
+        Object.values(moduleMenus).flat().forEach((menu: any) => {
+          if (menu.submenus?.some((s: any) => s.id === activeId)) next[menu.id] = true;
+        });
+      }
       return next;
     });
   }, [params.menuId, params.sectionId]);

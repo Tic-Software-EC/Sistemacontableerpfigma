@@ -1,4 +1,4 @@
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import {
   FolderTree, Search, Plus, Edit, Trash2, X,
   Filter, Tag, FolderOpen, Palette, Save, ChevronDown, ChevronRight, Settings,
@@ -195,172 +195,170 @@ export function CategoriesContent() {
               {filtered.length > 0 ? filtered.map(cat => {
                 const kids = children(cat.id);
                 const isExpanded = expandedId === cat.id;
-                return (
-                  <Fragment key={cat.id}>
-                    {/* Fila padre */}
-                    <tr key={cat.id}
-                      className={`border-b transition-colors ${
-                        isExpanded
-                          ? isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20"
-                          : isLight ? "hover:bg-gray-50 border-gray-100" : "hover:bg-white/[0.04] border-white/5"
+                return [
+                  // Fila padre
+                  <tr key={cat.id}
+                    className={`border-b transition-colors ${
+                      isExpanded
+                        ? isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20"
+                        : isLight ? "hover:bg-gray-50 border-gray-100" : "hover:bg-white/[0.04] border-white/5"
+                    }`}>
+                    {/* Toggle expand */}
+                    <td className="px-3 py-3">
+                      <button onClick={() => toggleExpand(cat.id)}
+                        className={`p-1 rounded transition-colors ${isExpanded ? "text-primary" : isLight ? "text-gray-400 hover:text-gray-600" : "text-gray-500 hover:text-gray-300"}`}>
+                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <FolderOpen className={`w-4 h-4 flex-shrink-0 ${isExpanded ? "text-primary" : "text-gray-400"}`} />
+                        <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{cat.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 max-w-[200px]">
+                      <span className={`text-sm truncate block ${isLight ? "text-gray-500" : "text-gray-400"}`}>{cat.description || "—"}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+                        kids.length > 0
+                          ? isLight ? "bg-blue-100 text-blue-700" : "bg-blue-500/20 text-blue-300"
+                          : isLight ? "bg-gray-100 text-gray-500" : "bg-white/5 text-gray-500"
                       }`}>
-                      {/* Toggle expand */}
-                      <td className="px-3 py-3">
-                        <button onClick={() => toggleExpand(cat.id)}
-                          className={`p-1 rounded transition-colors ${isExpanded ? "text-primary" : isLight ? "text-gray-400 hover:text-gray-600" : "text-gray-500 hover:text-gray-300"}`}>
-                          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <FolderOpen className={`w-4 h-4 flex-shrink-0 ${isExpanded ? "text-primary" : "text-gray-400"}`} />
-                          <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{cat.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 max-w-[200px]">
-                        <span className={`text-sm truncate block ${isLight ? "text-gray-500" : "text-gray-400"}`}>{cat.description || "—"}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
-                          kids.length > 0
-                            ? isLight ? "bg-blue-100 text-blue-700" : "bg-blue-500/20 text-blue-300"
-                            : isLight ? "bg-gray-100 text-gray-500" : "bg-white/5 text-gray-500"
+                        <Tag className="w-3 h-3" />{kids.length}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => handleToggleStatus(cat.id)}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                          cat.active
+                            ? isLight ? "bg-green-100 text-green-700 border border-green-200 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
+                            : isLight ? "bg-red-100 text-red-700 border border-red-200 hover:bg-red-200"         : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
                         }`}>
-                          <Tag className="w-3 h-3" />{kids.length}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <button onClick={() => handleToggleStatus(cat.id)}
-                          className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                            cat.active
-                              ? isLight ? "bg-green-100 text-green-700 border border-green-200 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
-                              : isLight ? "bg-red-100 text-red-700 border border-red-200 hover:bg-red-200"         : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
-                          }`}>
-                          {cat.active ? "Activa" : "Inactiva"}
+                        {cat.active ? "Activa" : "Inactiva"}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-1">
+                        <button onClick={() => toggleExpand(cat.id)} title="Gestionar subcategorías"
+                          className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "text-primary bg-primary/10" : `text-gray-400 ${isLight ? "hover:text-primary hover:bg-primary/10" : "hover:text-primary hover:bg-primary/10"}`}`}>
+                          <Settings className="w-4 h-4" />
                         </button>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-1">
-                          <button onClick={() => toggleExpand(cat.id)} title="Gestionar subcategorías"
-                            className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "text-primary bg-primary/10" : `text-gray-400 ${isLight ? "hover:text-primary hover:bg-primary/10" : "hover:text-primary hover:bg-primary/10"}`}`}>
-                            <Settings className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => openEdit(cat)} title="Editar"
-                            className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}>
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => handleDelete(cat.id)} title="Eliminar"
-                            className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-red-600 hover:bg-red-50" : "hover:text-red-400 hover:bg-red-500/10"}`}>
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <button onClick={() => openEdit(cat)} title="Editar"
+                          className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}>
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(cat.id)} title="Eliminar"
+                          className={`p-1.5 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:text-red-600 hover:bg-red-50" : "hover:text-red-400 hover:bg-red-500/10"}`}>
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>,
+
+                  // Panel expandido de subcategorías
+                  isExpanded && (
+                    <tr key={`${cat.id}-expanded`}>
+                      <td colSpan={6} className={`px-0 py-0 border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
+                        <div className={`${isLight ? "bg-primary/[0.03]" : "bg-primary/[0.06]"}`}>
+
+                          {/* Sub-tabla de hijos */}
+                          {kids.length > 0 && (
+                            <div className={`border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
+                              <table className="w-full">
+                                <thead>
+                                  <tr className={`text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-400 bg-primary/5" : "text-gray-500 bg-primary/5"}`}>
+                                    <th className="pl-14 pr-4 py-2 text-left">Subcategoría</th>
+                                    <th className="px-4 py-2 text-left">Descripción</th>
+                                    <th className="px-4 py-2 text-center">Estado</th>
+                                    <th className="px-4 py-2 text-center">Acciones</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {kids.map((child, idx) => (
+                                    <tr key={child.id}
+                                      className={`transition-colors ${idx < kids.length - 1 ? (isLight ? "border-b border-primary/5" : "border-b border-primary/5") : ""} ${isLight ? "hover:bg-primary/5" : "hover:bg-primary/5"}`}>
+                                      <td className="pl-14 pr-4 py-2.5">
+                                        <div className="flex items-center gap-2">
+                                          <div className={`w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0`} />
+                                          <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-200"}`}>{child.name}</span>
+                                        </div>
+                                      </td>
+                                      <td className="px-4 py-2.5 max-w-[180px]">
+                                        <span className={`text-xs truncate block ${isLight ? "text-gray-400" : "text-gray-500"}`}>{child.description || "—"}</span>
+                                      </td>
+                                      <td className="px-4 py-2.5 text-center">
+                                        <button onClick={() => handleToggleStatus(child.id)}
+                                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                                            child.active
+                                              ? isLight ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
+                                              : isLight ? "bg-red-100 text-red-700 hover:bg-red-200"       : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                                          }`}>
+                                          {child.active ? "Activa" : "Inactiva"}
+                                        </button>
+                                      </td>
+                                      <td className="px-4 py-2.5">
+                                        <div className="flex items-center justify-center gap-1">
+                                          <button onClick={() => openEdit(child)} title="Editar"
+                                            className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}>
+                                            <Edit className="w-3.5 h-3.5" />
+                                          </button>
+                                          <button onClick={() => handleDeleteChild(child.id)} title="Eliminar"
+                                            className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-red-600 hover:bg-red-50" : "hover:text-red-400 hover:bg-red-500/10"}`}>
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+
+                          {/* Formulario agregar hijo */}
+                          {addingChildTo === cat.id ? (
+                            <div className="pl-14 pr-4 py-3 flex items-center gap-3">
+                              <input autoFocus type="text" value={childForm.name}
+                                onChange={e => setChildForm({...childForm, name:e.target.value})}
+                                placeholder="Nombre de la subcategoría"
+                                className={`${ic} max-w-[220px]`}
+                                onKeyDown={e => { if (e.key === "Enter") handleSaveChild(cat.id); if (e.key === "Escape") { setAddingChildTo(null); setChildForm({name:"", description:"", active:true}); } }}
+                              />
+                              <input type="text" value={childForm.description}
+                                onChange={e => setChildForm({...childForm, description:e.target.value})}
+                                placeholder="Descripción (opcional)"
+                                className={`${ic} max-w-[200px]`}
+                              />
+                              <label className={`flex items-center gap-1.5 text-xs cursor-pointer flex-shrink-0 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                                <input type="checkbox" checked={childForm.active}
+                                  onChange={e => setChildForm({...childForm, active:e.target.checked})}
+                                  className="w-3.5 h-3.5 accent-primary" />
+                                Activa
+                              </label>
+                              <button onClick={() => handleSaveChild(cat.id)}
+                                className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors flex-shrink-0">
+                                <Save className="w-3.5 h-3.5" /> Guardar
+                              </button>
+                              <button onClick={() => { setAddingChildTo(null); setChildForm({name:"", description:"", active:true}); }}
+                                className={`p-2 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:bg-gray-100 hover:text-gray-600" : "hover:bg-white/10 hover:text-gray-200"}`}>
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="pl-14 pr-4 py-2.5">
+                              <button
+                                onClick={() => setAddingChildTo(cat.id)}
+                                className={`flex items-center gap-1.5 text-xs font-medium transition-colors text-primary hover:text-primary/80`}>
+                                <Plus className="w-3.5 h-3.5" /> Agregar subcategoría
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>
-
-                    {/* Panel expandido de subcategorías */}
-                    {isExpanded && (
-                      <tr key={`${cat.id}-expanded`}>
-                        <td colSpan={6} className={`px-0 py-0 border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
-                          <div className={`${isLight ? "bg-primary/[0.03]" : "bg-primary/[0.06]"}`}>
-
-                            {/* Sub-tabla de hijos */}
-                            {kids.length > 0 && (
-                              <div className={`border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
-                                <table className="w-full">
-                                  <thead>
-                                    <tr className={`text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-400 bg-primary/5" : "text-gray-500 bg-primary/5"}`}>
-                                      <th className="pl-14 pr-4 py-2 text-left">Subcategoría</th>
-                                      <th className="px-4 py-2 text-left">Descripción</th>
-                                      <th className="px-4 py-2 text-center">Estado</th>
-                                      <th className="px-4 py-2 text-center">Acciones</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {kids.map((child, idx) => (
-                                      <tr key={child.id}
-                                        className={`transition-colors ${idx < kids.length - 1 ? (isLight ? "border-b border-primary/5" : "border-b border-primary/5") : ""} ${isLight ? "hover:bg-primary/5" : "hover:bg-primary/5"}`}>
-                                        <td className="pl-14 pr-4 py-2.5">
-                                          <div className="flex items-center gap-2">
-                                            <div className={`w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0`} />
-                                            <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-200"}`}>{child.name}</span>
-                                          </div>
-                                        </td>
-                                        <td className="px-4 py-2.5 max-w-[180px]">
-                                          <span className={`text-xs truncate block ${isLight ? "text-gray-400" : "text-gray-500"}`}>{child.description || "—"}</span>
-                                        </td>
-                                        <td className="px-4 py-2.5 text-center">
-                                          <button onClick={() => handleToggleStatus(child.id)}
-                                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                                              child.active
-                                                ? isLight ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
-                                                : isLight ? "bg-red-100 text-red-700 hover:bg-red-200"       : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
-                                            }`}>
-                                            {child.active ? "Activa" : "Inactiva"}
-                                          </button>
-                                        </td>
-                                        <td className="px-4 py-2.5">
-                                          <div className="flex items-center justify-center gap-1">
-                                            <button onClick={() => openEdit(child)} title="Editar"
-                                              className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}>
-                                              <Edit className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button onClick={() => handleDeleteChild(child.id)} title="Eliminar"
-                                              className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-red-600 hover:bg-red-50" : "hover:text-red-400 hover:bg-red-500/10"}`}>
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )}
-
-                            {/* Formulario agregar hijo */}
-                            {addingChildTo === cat.id ? (
-                              <div className="pl-14 pr-4 py-3 flex items-center gap-3">
-                                <input autoFocus type="text" value={childForm.name}
-                                  onChange={e => setChildForm({...childForm, name:e.target.value})}
-                                  placeholder="Nombre de la subcategoría"
-                                  className={`${ic} max-w-[220px]`}
-                                  onKeyDown={e => { if (e.key === "Enter") handleSaveChild(cat.id); if (e.key === "Escape") { setAddingChildTo(null); setChildForm({name:"", description:"", active:true}); } }}
-                                />
-                                <input type="text" value={childForm.description}
-                                  onChange={e => setChildForm({...childForm, description:e.target.value})}
-                                  placeholder="Descripción (opcional)"
-                                  className={`${ic} max-w-[200px]`}
-                                />
-                                <label className={`flex items-center gap-1.5 text-xs cursor-pointer flex-shrink-0 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                                  <input type="checkbox" checked={childForm.active}
-                                    onChange={e => setChildForm({...childForm, active:e.target.checked})}
-                                    className="w-3.5 h-3.5 accent-primary" />
-                                  Activa
-                                </label>
-                                <button onClick={() => handleSaveChild(cat.id)}
-                                  className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors flex-shrink-0">
-                                  <Save className="w-3.5 h-3.5" /> Guardar
-                                </button>
-                                <button onClick={() => { setAddingChildTo(null); setChildForm({name:"", description:"", active:true}); }}
-                                  className={`p-2 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:bg-gray-100 hover:text-gray-600" : "hover:bg-white/10 hover:text-gray-200"}`}>
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="pl-14 pr-4 py-2.5">
-                                <button
-                                  onClick={() => setAddingChildTo(cat.id)}
-                                  className={`flex items-center gap-1.5 text-xs font-medium transition-colors text-primary hover:text-primary/80`}>
-                                  <Plus className="w-3.5 h-3.5" /> Agregar subcategoría
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
-                );
+                  ),
+                ];
               }) : (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center">

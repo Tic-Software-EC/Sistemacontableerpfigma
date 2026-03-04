@@ -120,28 +120,43 @@ export default function ModulesPage() {
   ];
 
   const handleModuleClick = (module: Module) => {
+    // Módulos con vista propia
     if (module.name === "Compras")        { navigate("/module-compras-detail/orders"); return; }
     if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }
     if (module.name === "Inventario")     { navigate("/module-inventory-detail/stock"); return; }
 
-    const moduleSlugMap: Record<string, string> = {
-      "Configuración": "configuracion",
-      "Ventas": "ventas",
-      "Contabilidad": "contabilidad",
-      "Facturas": "facturas",
-      "Clientes": "clientes",
-      "Reportes": "reportes",
+    // Primer menuId de cada módulo — define el grupo que se abre por defecto
+    // URL resultante: /module-config-detail/{menuId}
+    const moduleFirstMenuMap: Record<string, string> = {
+      "Configuración":        "general-settings",
+      "Ventas":               "sales-dashboard",
+      "Contabilidad":         "accounting-dashboard",
+      "Facturas":             "invoicing",
+      "Clientes":             "customers",
+      "Reportes":             "reports",
+      "Gastos":               "sales-config",
+      "Empleados":            "users",
+      "Estados Financieros":  "accounting-dashboard",
+      "Calendario":           "calendar",
+      "Pagos":                "payment-methods",
+      "Proveedores":          "suppliers",
+      "Cotizaciones":         "quotes",
+      "Activos":              "general-settings",
+      "Proyectos":            "general-settings",
+      "Indicadores":          "report-templates",
+      "Caja y Bancos":        "payment-methods",
+      "Productos":            "products",
+      "Libro Diario":         "journal",
+      "Auditoría":            "access-log",
+      "Presupuestos":         "accounting-dashboard",
+      "Almacenes":            "warehouses",
     };
-    const modulesWithMenus = Object.keys(moduleSlugMap);
-    if (modulesWithMenus.includes(module.name)) {
-      const slug = moduleSlugMap[module.name];
-      navigate(
-        `/module-config-detail/${slug}`,
-        { state: { moduleName: module.name, moduleColor: module.color, userPlan: "Plan Profesional" } }
-      );
-    } else {
-      navigate(module.route);
-    }
+
+    const firstMenu = moduleFirstMenuMap[module.name] || "general-settings";
+    navigate(
+      `/module-config-detail/${firstMenu}`,
+      { state: { moduleName: module.name, moduleColor: module.color, userPlan: "Plan Profesional" } }
+    );
   };
 
   const getStatusInfo = () => {

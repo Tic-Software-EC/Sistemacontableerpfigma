@@ -13,11 +13,14 @@ import ModulePosDetail from "./pages/module-pos-detail";
 import ModuleInventoryDetail from "./pages/module-inventory-detail";
 import AdminLayout from "./components/admin-layout";
 import AdminWelcomePage from "./pages/admin-welcome";
+import { RouteError } from "./components/route-error";
 
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <RouteError />,
     children: [
+      // ── Login ──────────────────────────────────────────────────────────────
       {
         path: "/",
         element: (
@@ -26,31 +29,65 @@ export const router = createBrowserRouter([
           </LoginBrandProvider>
         ),
       },
+
+      // ── Panel Super Admin ──────────────────────────────────────────────────
       {
         path: "/admin",
         element: <AdminLayout />,
+        errorElement: <RouteError />,
         children: [
-          { index: true,                        element: <AdminWelcomePage /> },
-          { path: "companies",                  element: <SubscriptionAdminPage /> },
-          { path: "subscriptions-management",   element: <Navigate to="/admin/companies" replace /> },
-          { path: "plan-configuration",         element: <PlanConfigurationPage /> },
-          { path: "menu-management",            element: <MenuManagementPage /> },
-          { path: "plans-config",               element: <PlanConfigurationPage /> },
-          { path: "module-configuration",       element: <ModuleConfigurationPage /> },
+          { index: true,                   element: <AdminWelcomePage /> },
+          { path: "companies",             element: <SubscriptionAdminPage /> },
+          { path: "plan-configuration",    element: <PlanConfigurationPage /> },
+          { path: "menu-management",       element: <MenuManagementPage /> },
+          { path: "module-configuration",  element: <ModuleConfigurationPage /> },
         ],
       },
-      { path: "/modules",                                                          element: <ModulesPage /> },
-      { path: "/module-config-detail",                                             element: <ModuleConfigDetailPage /> },
-      { path: "/module-config-detail/:moduloSlug",                                 element: <ModuleConfigDetailPage /> },
-      { path: "/module-config-detail/:moduloSlug/:menuId",                         element: <ModuleConfigDetailPage /> },
-      { path: "/module-config-detail/:moduloSlug/:menuId/:sectionId",              element: <ModuleConfigDetailPage /> },
-      { path: "/module-compras-detail",                                            element: <ModuleComprasDetail /> },
-      { path: "/module-compras-detail/:tab",                                       element: <ModuleComprasDetail /> },
-      { path: "/module-pos-detail",                                                element: <ModulePosDetail /> },
-      { path: "/module-pos-detail/:tab",                                           element: <ModulePosDetail /> },
-      { path: "/module-inventory-detail",                                          element: <ModuleInventoryDetail /> },
-      { path: "/module-inventory-detail/:tab",                                     element: <ModuleInventoryDetail /> },
-      { path: "*",                               element: <Navigate to="/" replace /> },
+
+      // ── Módulos (selector) ─────────────────────────────────────────────────
+      { path: "/modules", element: <ModulesPage /> },
+
+      // ── Configuración con sidebar ──────────────────────────────────────────
+      // URL: /module-config-detail/{menuId}/{sectionId}
+      // Ej:  /module-config-detail/general-settings/branches
+      {
+        path: "/module-config-detail/:menuId",
+        element: <ModuleConfigDetailPage />,
+      },
+      {
+        path: "/module-config-detail/:menuId/:sectionId",
+        element: <ModuleConfigDetailPage />,
+      },
+
+      // ── Compras ────────────────────────────────────────────────────────────
+      { path: "/module-compras-detail/:tab", element: <ModuleComprasDetail /> },
+
+      // ── Punto de Venta ─────────────────────────────────────────────────────
+      { path: "/module-pos-detail/:tab",     element: <ModulePosDetail /> },
+
+      // ── Inventario ─────────────────────────────────────────────────────────
+      { path: "/module-inventory-detail/:tab", element: <ModuleInventoryDetail /> },
+
+      // ── Redirects para URLs base sin parámetros obligatorios ───────────────
+      {
+        path: "/module-config-detail",
+        element: <Navigate to="/module-config-detail/general-settings" replace />,
+      },
+      {
+        path: "/module-compras-detail",
+        element: <Navigate to="/module-compras-detail/orders" replace />,
+      },
+      {
+        path: "/module-pos-detail",
+        element: <Navigate to="/module-pos-detail/pos" replace />,
+      },
+      {
+        path: "/module-inventory-detail",
+        element: <Navigate to="/module-inventory-detail/stock" replace />,
+      },
+
+      // ── Catch-all: cualquier ruta desconocida → login ──────────────────────
+      { path: "*", element: <Navigate to="/" replace /> },
     ],
   },
 ]);

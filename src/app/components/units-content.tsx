@@ -233,206 +233,204 @@ export function UnitsContent() {
                 const activeOnes = catUnits.filter(u => u.active).length;
                 const isExp      = expandedId === cat.id;
 
-                return (
-                  <Fragment key={cat.id}>
-                    {/* Fila categoría */}
-                    <tr className={`border-b transition-colors ${
-                      isExp
-                        ? isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20"
-                        : isLight ? "hover:bg-gray-50 border-gray-100" : "hover:bg-white/[0.04] border-white/5"
-                    }`}>
-                      <td className="px-3 py-3">
-                        <button onClick={() => toggleExpand(cat.id)}
-                          className={`p-1 rounded transition-colors ${isExp ? "text-primary" : isLight ? "text-gray-400 hover:text-gray-600" : "text-gray-500 hover:text-gray-300"}`}>
-                          {isExp ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{cat.name}</span>
-                      </td>
-                      <td className="px-4 py-3 max-w-[220px]">
-                        <span className={`text-sm truncate block ${isLight ? "text-gray-500" : "text-gray-400"}`}>{cat.description}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
-                          catUnits.length > 0
-                            ? isLight ? "bg-blue-100 text-blue-700" : "bg-blue-500/20 text-blue-300"
-                            : isLight ? "bg-gray-100 text-gray-500" : "bg-white/5 text-gray-500"
-                        }`}>
-                          <Ruler className="w-3 h-3" />{catUnits.length}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                          {activeOnes}/{catUnits.length}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <button onClick={() => toggleExpand(cat.id)} title="Gestionar unidades"
-                          className={`p-1.5 rounded-lg transition-colors ${isExp ? "text-primary bg-primary/10" : `text-gray-400 ${isLight ? "hover:text-primary hover:bg-primary/10" : "hover:text-primary hover:bg-primary/10"}`}`}>
-                          <Settings className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
+                return [
+                  // Fila categoría
+                  <tr key={cat.id} className={`border-b transition-colors ${
+                    isExp
+                      ? isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20"
+                      : isLight ? "hover:bg-gray-50 border-gray-100" : "hover:bg-white/[0.04] border-white/5"
+                  }`}>
+                    <td className="px-3 py-3">
+                      <button onClick={() => toggleExpand(cat.id)}
+                        className={`p-1 rounded transition-colors ${isExp ? "text-primary" : isLight ? "text-gray-400 hover:text-gray-600" : "text-gray-500 hover:text-gray-300"}`}>
+                        {isExp ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{cat.name}</span>
+                    </td>
+                    <td className="px-4 py-3 max-w-[220px]">
+                      <span className={`text-sm truncate block ${isLight ? "text-gray-500" : "text-gray-400"}`}>{cat.description}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+                        catUnits.length > 0
+                          ? isLight ? "bg-blue-100 text-blue-700" : "bg-blue-500/20 text-blue-300"
+                          : isLight ? "bg-gray-100 text-gray-500" : "bg-white/5 text-gray-500"
+                      }`}>
+                        <Ruler className="w-3 h-3" />{catUnits.length}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        {activeOnes}/{catUnits.length}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => toggleExpand(cat.id)} title="Gestionar unidades"
+                        className={`p-1.5 rounded-lg transition-colors ${isExp ? "text-primary bg-primary/10" : `text-gray-400 ${isLight ? "hover:text-primary hover:bg-primary/10" : "hover:text-primary hover:bg-primary/10"}`}`}>
+                        <Settings className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>,
 
-                    {/* Panel expandido */}
-                    {isExp && (
-                      <tr key={`${cat.id}-exp`}>
-                        <td colSpan={6} className={`px-0 py-0 border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
-                          <div className={isLight ? "bg-primary/[0.02]" : "bg-primary/[0.05]"}>
+                  // Panel expandido
+                  isExp && (
+                    <tr key={`${cat.id}-exp`}>
+                      <td colSpan={6} className={`px-0 py-0 border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
+                        <div className={isLight ? "bg-primary/[0.02]" : "bg-primary/[0.05]"}>
 
-                            {/* Sub-tabla de unidades */}
-                            {catUnits.length > 0 && (
-                              <div className={`border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
-                                <table className="w-full">
-                                  <thead>
-                                    <tr className={`text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-400 bg-primary/5" : "text-gray-500 bg-primary/5"}`}>
-                                      <th className="pl-14 pr-4 py-2 text-left">Nombre</th>
-                                      <th className="px-4 py-2 text-center">Abrev.</th>
-                                      <th className="px-4 py-2 text-left">Descripción</th>
-                                      <th className="px-4 py-2 text-center">Unidad base</th>
-                                      <th className="px-4 py-2 text-center">Factor</th>
-                                      <th className="px-4 py-2 text-center">Estado</th>
-                                      <th className="px-4 py-2 text-center">Acciones</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {catUnits.map((unit, idx) => (
-                                      <tr key={unit.id}
-                                        className={`transition-colors ${idx < catUnits.length - 1 ? (isLight ? "border-b border-primary/5" : "border-b border-primary/5") : ""} ${isLight ? "hover:bg-primary/5" : "hover:bg-primary/5"}`}>
-                                        <td className="pl-14 pr-4 py-2.5">
-                                          <div className="flex items-center gap-2">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0" />
-                                            <span className={`text-sm font-medium ${isLight ? "text-gray-800" : "text-gray-100"}`}>{unit.name}</span>
-                                          </div>
-                                        </td>
-                                        <td className="px-4 py-2.5 text-center">
-                                          <span className={`px-2 py-0.5 rounded text-xs font-mono font-medium ${isLight ? "bg-primary/10 text-primary" : "bg-primary/20 text-primary"}`}>
-                                            {unit.abbreviation}
-                                          </span>
-                                        </td>
-                                        <td className="px-4 py-2.5 max-w-[160px]">
-                                          <span className={`text-xs truncate block ${isLight ? "text-gray-400" : "text-gray-500"}`}>{unit.description || "—"}</span>
-                                        </td>
-                                        <td className="px-4 py-2.5 text-center">
-                                          {unit.baseUnitId
-                                            ? <span className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{baseName(unit.baseUnitId, cat.id)}</span>
-                                            : <span className={`px-2 py-0.5 rounded text-xs ${isLight ? "bg-amber-100 text-amber-700" : "bg-amber-500/20 text-amber-300"}`}>Base</span>
-                                          }
-                                        </td>
-                                        <td className="px-4 py-2.5 text-center">
-                                          <span className={`text-xs font-mono ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                                            {unit.baseUnitId ? unit.conversionFactor : "—"}
-                                          </span>
-                                        </td>
-                                        <td className="px-4 py-2.5 text-center">
-                                          <button onClick={() => handleToggleUnit(unit.id)}
-                                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                                              unit.active
-                                                ? isLight ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
-                                                : isLight ? "bg-red-100 text-red-700 hover:bg-red-200"       : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
-                                            }`}>
-                                            {unit.active ? "Activa" : "Inactiva"}
+                          {/* Sub-tabla de unidades */}
+                          {catUnits.length > 0 && (
+                            <div className={`border-b ${isLight ? "border-primary/10" : "border-primary/10"}`}>
+                              <table className="w-full">
+                                <thead>
+                                  <tr className={`text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-400 bg-primary/5" : "text-gray-500 bg-primary/5"}`}>
+                                    <th className="pl-14 pr-4 py-2 text-left">Nombre</th>
+                                    <th className="px-4 py-2 text-center">Abrev.</th>
+                                    <th className="px-4 py-2 text-left">Descripción</th>
+                                    <th className="px-4 py-2 text-center">Unidad base</th>
+                                    <th className="px-4 py-2 text-center">Factor</th>
+                                    <th className="px-4 py-2 text-center">Estado</th>
+                                    <th className="px-4 py-2 text-center">Acciones</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {catUnits.map((unit, idx) => (
+                                    <tr key={unit.id}
+                                      className={`transition-colors ${idx < catUnits.length - 1 ? (isLight ? "border-b border-primary/5" : "border-b border-primary/5") : ""} ${isLight ? "hover:bg-primary/5" : "hover:bg-primary/5"}`}>
+                                      <td className="pl-14 pr-4 py-2.5">
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0" />
+                                          <span className={`text-sm font-medium ${isLight ? "text-gray-800" : "text-gray-100"}`}>{unit.name}</span>
+                                        </div>
+                                      </td>
+                                      <td className="px-4 py-2.5 text-center">
+                                        <span className={`px-2 py-0.5 rounded text-xs font-mono font-medium ${isLight ? "bg-primary/10 text-primary" : "bg-primary/20 text-primary"}`}>
+                                          {unit.abbreviation}
+                                        </span>
+                                      </td>
+                                      <td className="px-4 py-2.5 max-w-[160px]">
+                                        <span className={`text-xs truncate block ${isLight ? "text-gray-400" : "text-gray-500"}`}>{unit.description || "—"}</span>
+                                      </td>
+                                      <td className="px-4 py-2.5 text-center">
+                                        {unit.baseUnitId
+                                          ? <span className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{baseName(unit.baseUnitId, cat.id)}</span>
+                                          : <span className={`px-2 py-0.5 rounded text-xs ${isLight ? "bg-amber-100 text-amber-700" : "bg-amber-500/20 text-amber-300"}`}>Base</span>
+                                        }
+                                      </td>
+                                      <td className="px-4 py-2.5 text-center">
+                                        <span className={`text-xs font-mono ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                                          {unit.baseUnitId ? unit.conversionFactor : "—"}
+                                        </span>
+                                      </td>
+                                      <td className="px-4 py-2.5 text-center">
+                                        <button onClick={() => handleToggleUnit(unit.id)}
+                                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                                            unit.active
+                                              ? isLight ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-green-500/20 text-green-300 hover:bg-green-500/30"
+                                              : isLight ? "bg-red-100 text-red-700 hover:bg-red-200"       : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                                          }`}>
+                                          {unit.active ? "Activa" : "Inactiva"}
+                                        </button>
+                                      </td>
+                                      <td className="px-4 py-2.5">
+                                        <div className="flex items-center justify-center gap-1">
+                                          <button onClick={() => openEdit(unit)} title="Editar"
+                                            className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}>
+                                            <Edit className="w-3.5 h-3.5" />
                                           </button>
-                                        </td>
-                                        <td className="px-4 py-2.5">
-                                          <div className="flex items-center justify-center gap-1">
-                                            <button onClick={() => openEdit(unit)} title="Editar"
-                                              className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-gray-700 hover:bg-gray-100" : "hover:text-gray-200 hover:bg-white/10"}`}>
-                                              <Edit className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button onClick={() => handleDeleteUnit(unit.id)} title="Eliminar"
-                                              className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-red-600 hover:bg-red-50" : "hover:text-red-400 hover:bg-red-500/10"}`}>
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )}
+                                          <button onClick={() => handleDeleteUnit(unit.id)} title="Eliminar"
+                                            className={`p-1 rounded transition-colors text-gray-400 ${isLight ? "hover:text-red-600 hover:bg-red-50" : "hover:text-red-400 hover:bg-red-500/10"}`}>
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
 
-                            {/* Formulario inline agregar */}
-                            {addingTo === cat.id ? (
-                              <div className={`pl-14 pr-4 py-3 flex flex-wrap items-end gap-3 border-b ${isLight ? "border-primary/10 bg-primary/5" : "border-primary/10 bg-primary/5"}`}>
-                                <div className="flex flex-col gap-1 min-w-[160px]">
-                                  <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Nombre *</label>
-                                  <input autoFocus type="text" value={childForm.name}
-                                    onChange={e => setChildForm({...childForm, name:e.target.value})}
-                                    placeholder="Ej: Kilogramo"
-                                    className={`${ic} !w-auto`}
-                                    onKeyDown={e => e.key === "Escape" && setAddingTo(null)}
-                                  />
-                                </div>
-                                <div className="flex flex-col gap-1 w-[90px]">
-                                  <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Abrev. *</label>
-                                  <input type="text" value={childForm.abbreviation}
-                                    onChange={e => setChildForm({...childForm, abbreviation:e.target.value})}
-                                    placeholder="kg"
-                                    className={`${ic} !w-auto`}
-                                  />
-                                </div>
-                                <div className="flex flex-col gap-1 min-w-[140px]">
-                                  <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Unidad base</label>
-                                  <select value={childForm.baseUnitId}
-                                    onChange={e => setChildForm({...childForm, baseUnitId:e.target.value})}
-                                    className={`${ic} !w-auto`}>
-                                    <option value="" className={optBg}>Es base</option>
-                                    {baseUnits(cat.id).map(u => (
-                                      <option key={u.id} value={u.id} className={optBg}>{u.name} ({u.abbreviation})</option>
-                                    ))}
-                                  </select>
-                                </div>
-                                {childForm.baseUnitId && (
-                                  <div className="flex flex-col gap-1 w-[100px]">
-                                    <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Factor</label>
-                                    <input type="number" step="0.001" value={childForm.conversionFactor}
-                                      onChange={e => setChildForm({...childForm, conversionFactor:parseFloat(e.target.value)||0})}
-                                      className={`${ic} !w-auto`}
-                                    />
-                                  </div>
-                                )}
-                                <div className="flex flex-col gap-1 min-w-[150px]">
-                                  <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Descripción</label>
-                                  <input type="text" value={childForm.description}
-                                    onChange={e => setChildForm({...childForm, description:e.target.value})}
-                                    placeholder="Opcional"
-                                    className={`${ic} !w-auto`}
-                                  />
-                                </div>
-                                <label className={`flex items-center gap-1.5 text-xs cursor-pointer mb-2 flex-shrink-0 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                                  <input type="checkbox" checked={childForm.active}
-                                    onChange={e => setChildForm({...childForm, active:e.target.checked})}
-                                    className="w-3.5 h-3.5 accent-primary" />
-                                  Activa
-                                </label>
-                                <div className="flex gap-2 mb-0.5">
-                                  <button onClick={() => handleSaveChild(cat.id)}
-                                    className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors flex-shrink-0">
-                                    <Save className="w-3.5 h-3.5" /> Guardar
-                                  </button>
-                                  <button onClick={() => { setAddingTo(null); setChildForm(emptyChild); }}
-                                    className={`p-2 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:bg-gray-100 hover:text-gray-600" : "hover:bg-white/10 hover:text-gray-200"}`}>
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                </div>
+                          {/* Formulario inline agregar */}
+                          {addingTo === cat.id ? (
+                            <div className={`pl-14 pr-4 py-3 flex flex-wrap items-end gap-3 border-b ${isLight ? "border-primary/10 bg-primary/5" : "border-primary/10 bg-primary/5"}`}>
+                              <div className="flex flex-col gap-1 min-w-[160px]">
+                                <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Nombre *</label>
+                                <input autoFocus type="text" value={childForm.name}
+                                  onChange={e => setChildForm({...childForm, name:e.target.value})}
+                                  placeholder="Ej: Kilogramo"
+                                  className={`${ic} !w-auto`}
+                                  onKeyDown={e => e.key === "Escape" && setAddingTo(null)}
+                                />
                               </div>
-                            ) : (
-                              <div className="pl-14 pr-4 py-2.5">
-                                <button onClick={() => setAddingTo(cat.id)}
-                                  className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
-                                  <Plus className="w-3.5 h-3.5" /> Agregar unidad
+                              <div className="flex flex-col gap-1 w-[90px]">
+                                <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Abrev. *</label>
+                                <input type="text" value={childForm.abbreviation}
+                                  onChange={e => setChildForm({...childForm, abbreviation:e.target.value})}
+                                  placeholder="kg"
+                                  className={`${ic} !w-auto`}
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1 min-w-[140px]">
+                                <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Unidad base</label>
+                                <select value={childForm.baseUnitId}
+                                  onChange={e => setChildForm({...childForm, baseUnitId:e.target.value})}
+                                  className={`${ic} !w-auto`}>
+                                  <option value="" className={optBg}>Es base</option>
+                                  {baseUnits(cat.id).map(u => (
+                                    <option key={u.id} value={u.id} className={optBg}>{u.name} ({u.abbreviation})</option>
+                                  ))}
+                                </select>
+                              </div>
+                              {childForm.baseUnitId && (
+                                <div className="flex flex-col gap-1 w-[100px]">
+                                  <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Factor</label>
+                                  <input type="number" step="0.001" value={childForm.conversionFactor}
+                                    onChange={e => setChildForm({...childForm, conversionFactor:parseFloat(e.target.value)||0})}
+                                    className={`${ic} !w-auto`}
+                                  />
+                                </div>
+                              )}
+                              <div className="flex flex-col gap-1 min-w-[150px]">
+                                <label className={`text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Descripción</label>
+                                <input type="text" value={childForm.description}
+                                  onChange={e => setChildForm({...childForm, description:e.target.value})}
+                                  placeholder="Opcional"
+                                  className={`${ic} !w-auto`}
+                                />
+                              </div>
+                              <label className={`flex items-center gap-1.5 text-xs cursor-pointer mb-2 flex-shrink-0 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                                <input type="checkbox" checked={childForm.active}
+                                  onChange={e => setChildForm({...childForm, active:e.target.checked})}
+                                  className="w-3.5 h-3.5 accent-primary" />
+                                Activa
+                              </label>
+                              <div className="flex gap-2 mb-0.5">
+                                <button onClick={() => handleSaveChild(cat.id)}
+                                  className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors flex-shrink-0">
+                                  <Save className="w-3.5 h-3.5" /> Guardar
+                                </button>
+                                <button onClick={() => { setAddingTo(null); setChildForm(emptyChild); }}
+                                  className={`p-2 rounded-lg transition-colors text-gray-400 ${isLight ? "hover:bg-gray-100 hover:text-gray-600" : "hover:bg-white/10 hover:text-gray-200"}`}>
+                                  <X className="w-4 h-4" />
                                 </button>
                               </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
-                );
+                            </div>
+                          ) : (
+                            <div className="pl-14 pr-4 py-2.5">
+                              <button onClick={() => setAddingTo(cat.id)}
+                                className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                                <Plus className="w-3.5 h-3.5" /> Agregar unidad
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ),
+                ];
               }) : (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center">
