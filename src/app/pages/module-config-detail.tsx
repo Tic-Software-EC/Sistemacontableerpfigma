@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation, useSearchParams } from "react-router";
 import {
   Settings,
   Users,
@@ -619,17 +619,37 @@ export default function ModuleConfigDetailPage() {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { logoUrl } = useBrand();
-  const { moduleName, moduleColor, userPlan } = location.state || {
-    moduleName: "Configuración",
-    moduleColor: "#E8692E",
-    userPlan: "Plan Profesional"
-  };
+  const urlModule = new URLSearchParams(location.search).get("module");
+  const { moduleName: stateModuleName, moduleColor, userPlan } = location.state || {};
+  const moduleName = stateModuleName || urlModule || "Configuración";
+  const resolvedModuleColor = moduleColor || "#E8692E";
+  const resolvedUserPlan = userPlan || "Plan Profesional";
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
-  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
+
+  // Sincronizar selectedMenu con el parámetro "section" de la URL
+  const selectedMenu = searchParams.get("section") || null;
+  const setSelectedMenu = (id: string | null) => {
+    setSearchParams(prev => {
+      if (id) { prev.set("section", id); } else { prev.delete("section"); }
+      return prev;
+    }, { replace: true });
+  };
+
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
+    const section = new URLSearchParams(window.location.search).get("section");
+    if (!section) return {};
+    const expanded: Record<string, boolean> = {};
+    Object.values(moduleMenus).flat().forEach((menu: any) => {
+      if (menu.submenus?.some((s: any) => s.id === section)) {
+        expanded[menu.id] = true;
+      }
+    });
+    return expanded;
+  });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [userStatus, setUserStatus] = useState<"online" | "away" | "dnd" | "offline">("online");
@@ -641,7 +661,7 @@ export default function ModuleConfigDetailPage() {
 
   // Obtener menús disponibles según el plan
   const availableMenus = moduleMenus[moduleName]?.filter((menu: any) => {
-    const planMenus = planAccess[userPlan]?.menus[moduleName] || [];
+    const planMenus = planAccess[resolvedUserPlan]?.menus[moduleName] || [];
     return planMenus.includes(menu.id);
   }) || [];
 
@@ -1017,7 +1037,7 @@ export default function ModuleConfigDetailPage() {
                 <SectionHeader
                   meta={SECTION_META[selectedMenu]}
                   theme={theme}
-                  badge={selectedMenu === "pos-config" ? userPlan : undefined}
+                  badge={selectedMenu === "pos-config" ? resolvedUserPlan : undefined}
                 />
               )}
 
@@ -1070,7 +1090,7 @@ export default function ModuleConfigDetailPage() {
               ) : selectedMenu === "units" ? (
                 <UnitsContent />
               ) : selectedMenu === "pos-config" ? (
-                <PosConfigContent userPlan={userPlan} />
+                <PosConfigContent userPlan={resolvedUserPlan} />
               ) : (
                 <>
                   <h2 className={`font-bold text-2xl mb-6 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
@@ -1143,7 +1163,7 @@ export default function ModuleConfigDetailPage() {
             <div className="space-y-4">
               <div className="p-4 bg-white/5 rounded-xl">
                 <p className="text-gray-400 text-sm mb-1">Plan actual</p>
-                <p className="text-white font-bold text-lg">{userPlan}</p>
+                <p className="text-white font-bold text-lg">{resolvedUserPlan}</p>
               </div>
               <div className="p-4 bg-white/5 rounded-xl">
                 <p className="text-gray-400 text-sm mb-1">Estado</p>

@@ -125,7 +125,7 @@ export default function ModulesPage() {
     if (module.name === "Inventario") { navigate("/module-inventory-detail"); return; }
     const modulesWithMenus = ["Configuración", "Ventas", "Contabilidad", "Facturas", "Clientes", "Reportes"];
     if (modulesWithMenus.includes(module.name)) {
-      navigate("/module-config-detail", { state: { moduleName: module.name, moduleColor: module.color, userPlan: "Plan Profesional" } });
+      navigate(`/module-config-detail?module=${encodeURIComponent(module.name)}`, { state: { moduleName: module.name, moduleColor: module.color, userPlan: "Plan Profesional" } });
     } else {
       navigate(module.route);
     }

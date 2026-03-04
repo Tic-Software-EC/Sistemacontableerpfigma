@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useBrand } from "../contexts/brand-context";
 import {
   ShoppingCart,
@@ -229,8 +229,16 @@ const mockOrders = [
 
 export default function ModuleComprasDetail() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { logoUrl } = useBrand();
-  const [activeTab, setActiveTab] = useState("orders");
+
+  // Sincronizar activeTab con el parámetro "tab" de la URL
+  const validTabs = ["orders", "reception", "suppliers", "invoices", "retentions", "payments", "config"];
+  const rawTab = searchParams.get("tab");
+  const activeTab = validTabs.includes(rawTab ?? "") ? rawTab! : "orders";
+  const setActiveTab = (tab: string) => {
+    setSearchParams({ tab }, { replace: true });
+  };
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
