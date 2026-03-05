@@ -6,6 +6,7 @@ import {
   Shield, Code2, FileCode, UserSearch, CheckCircle2,
   Send, Wifi, RotateCcw, ChevronRight, Loader2, CalendarDays,
   ChevronUp, ChevronDown, Calendar as CalendarIcon, Settings, Cloud,
+  BookCheck,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
@@ -50,6 +51,7 @@ interface Retencion {
   total_retenido: number;
   syncedFromSri?: boolean;  // Indica si fue sincronizado desde el SRI
   sriAuthDate?: string;     // Fecha de autorización del SRI
+  contabilizada?: boolean;  // Indica si la retención ya fue contabilizada
 }
 
 interface DetalleRetencion {
@@ -118,7 +120,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: "0992876543001",
     direccion_sujeto: "Cdla. Kennedy Norte, Guayaquil",
     comprobante: "002-001-000000234",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Nota de Venta",
     fecha_comprobante: "2026-03-02",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -145,7 +147,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: "1791234560001",
     direccion_sujeto: "Av. 6 de Diciembre N24-65, Quito",
     comprobante: "001-002-000001200",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Liquidación de Compra",
     fecha_comprobante: "2026-03-03",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -171,7 +173,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: "1790982340001",
     direccion_sujeto: "Av. Naciones Unidas E5-45, Quito",
     comprobante: "003-001-000000560",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Nota de Crédito",
     fecha_comprobante: "2026-03-04",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -199,7 +201,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: "1712345678001",
     direccion_sujeto: "Calle Versalles N12-34 y Av. América, Quito",
     comprobante: "001-001-000000712",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Nota de Débito",
     fecha_comprobante: "2026-03-03",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -226,7 +228,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: "0912345678001",
     direccion_sujeto: "Cdla. Kennedy, Mz 123 Solar 5, Guayaquil",
     comprobante: "001-001-000001450",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Guía de Remisión",
     fecha_comprobante: "2026-03-05",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -253,7 +255,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: "1792345671001",
     direccion_sujeto: "Av. Maldonado S17-89 y Moraspungo, Quito",
     comprobante: "002-001-000002340",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Comprobante de Retención",
     fecha_comprobante: "2026-03-06",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -280,7 +282,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: "1793456782001",
     direccion_sujeto: "Av. González Suárez N27-142, Quito",
     comprobante: "001-002-000000890",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Documento Aduanero",
     fecha_comprobante: "2026-03-07",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -307,7 +309,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: "1791234589001",
     direccion_sujeto: "Av. Simón Bolívar Oe1-95, Quito",
     comprobante: "001-001-000003210",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Tiquete de Máquina Registradora",
     fecha_comprobante: "2026-03-08",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -834,6 +836,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601799876543001100100100001234561234567891",
     ambiente: "Producción",
     total_retenido: 700.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-01T14:23:00",
   },
   {
     id: "RET-V-2026-002",
@@ -849,7 +853,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: EMPRESA.ruc,
     direccion_sujeto: EMPRESA.dir,
     comprobante: "001-001-000004123",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Boleto de Transporte Aéreo",
     fecha_comprobante: "2026-03-02",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -860,6 +864,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601795678901001100100300000890121234567892",
     ambiente: "Producción",
     total_retenido: 84.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-02T09:45:00",
   },
   {
     id: "RET-V-2026-003",
@@ -875,7 +881,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: EMPRESA.ruc,
     direccion_sujeto: EMPRESA.dir,
     comprobante: "001-001-000005890",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Documento Electronico Instituciones Financieras",
     fecha_comprobante: "2026-03-03",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -887,6 +893,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601792234567001100200100004567812345678910",
     ambiente: "Producción",
     total_retenido: 2100.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-03T16:12:00",
   },
   {
     id: "RET-V-2026-004",
@@ -902,7 +910,7 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: EMPRESA.ruc,
     direccion_sujeto: EMPRESA.dir,
     comprobante: "001-001-000006234",
-    tipo_comprobante: "Factura",
+    tipo_comprobante: "Nota de Venta RISE",
     fecha_comprobante: "2026-03-04",
     periodo_fiscal: "03/2026",
     detalles: [
@@ -914,6 +922,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601798765432001100100100000123451234567893",
     ambiente: "Producción",
     total_retenido: 1300.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-04T10:35:00",
   },
   {
     id: "RET-V-2026-005",
@@ -941,6 +951,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601793456789001100200300000678901234567894",
     ambiente: "Producción",
     total_retenido: 450.80,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-05T11:20:00",
   },
   {
     id: "RET-V-2026-006",
@@ -968,6 +980,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601791122334001100100100000987651234567895",
     ambiente: "Producción",
     total_retenido: 193.20,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-05T15:48:00",
   },
   {
     id: "RET-V-2026-007",
@@ -995,6 +1009,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601795544332001100300200000543211234567896",
     ambiente: "Producción",
     total_retenido: 4840.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-06T08:22:00",
   },
   {
     id: "RET-V-2026-008",
@@ -1022,6 +1038,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601796677889001100100100000112231234567897",
     ambiente: "Producción",
     total_retenido: 313.60,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-07T13:55:00",
   },
   {
     id: "RET-V-2026-009",
@@ -1049,6 +1067,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601797788990001100200100000334451234567898",
     ambiente: "Producción",
     total_retenido: 828.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-08T09:17:00",
   },
   {
     id: "RET-V-2026-010",
@@ -1076,6 +1096,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601798899001001100100300000223341234567899",
     ambiente: "Producción",
     total_retenido: 700.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-10T14:38:00",
   },
   {
     id: "RET-V-2026-011",
@@ -1103,6 +1125,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601791100223001100100100000445561234567900",
     ambiente: "Producción",
     total_retenido: 403.20,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-11T10:22:00",
   },
   {
     id: "RET-V-2026-012",
@@ -1130,6 +1154,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601792211334001100200200000556671234567901",
     ambiente: "Producción",
     total_retenido: 883.20,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-12T16:44:00",
   },
   {
     id: "RET-V-2026-013",
@@ -1157,6 +1183,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601793322445001100100100000667781234567902",
     ambiente: "Producción",
     total_retenido: 1610.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-13T11:08:00",
   },
   {
     id: "RET-V-2026-014",
@@ -1184,6 +1212,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601794433556001100300100000778891234567903",
     ambiente: "Producción",
     total_retenido: 278.40,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-14T15:33:00",
   },
   {
     id: "RET-V-2026-015",
@@ -1211,6 +1241,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601795544667001100100200000889901234567904",
     ambiente: "Producción",
     total_retenido: 179.20,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-15T09:52:00",
   },
   {
     id: "RET-V-2026-016",
@@ -1233,11 +1265,13 @@ const RETENCIONES_INIT: Retencion[] = [
       { codigo: "332", concepto: "Pagos a través de liquidación de compra", tipo: "Fuente", base_imponible: 5400.00, porcentaje: 2, valor_retenido: 108.00 },
       { codigo: "721", concepto: "IVA 30% - Servicios", tipo: "IVA", base_imponible: 648.00, porcentaje: 30, valor_retenido: 194.40 },
     ],
-    estado: "pendiente",
+    estado: "autorizada",
     categoria: "ventas",
-    autorizacion_sri: "",
+    autorizacion_sri: "4503202601797766889001100200100000101121234567906",
     ambiente: "Producción",
     total_retenido: 302.40,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-16T14:25:00",
   },
   {
     id: "RET-V-2026-017",
@@ -1265,6 +1299,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601797766889001100200100000101121234567906",
     ambiente: "Producción",
     total_retenido: 1958.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-17T12:15:00",
   },
   {
     id: "RET-V-2026-018",
@@ -1292,6 +1328,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601798877990001100100100000112231234567907",
     ambiente: "Producción",
     total_retenido: 375.20,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-18T08:47:00",
   },
   {
     id: "RET-V-2026-019",
@@ -1319,6 +1357,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601799988001001100300100000123341234567908",
     ambiente: "Producción",
     total_retenido: 3630.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-20T16:30:00",
   },
   {
     id: "RET-V-2026-020",
@@ -1346,6 +1386,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601790011223001100100100000134451234567909",
     ambiente: "Producción",
     total_retenido: 436.80,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-21T10:12:00",
   },
   {
     id: "RET-V-2026-021",
@@ -1373,6 +1415,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601791122334001100100200000145561234567910",
     ambiente: "Producción",
     total_retenido: 240.50,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-22T14:56:00",
   },
   {
     id: "RET-V-2026-022",
@@ -1399,6 +1443,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601792233445001100100200000145571234567911",
     ambiente: "Producción",
     total_retenido: 48.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-23T11:33:00",
   },
   {
     id: "RET-V-2026-023",
@@ -1421,11 +1467,13 @@ const RETENCIONES_INIT: Retencion[] = [
       { codigo: "340", concepto: "Servicios de consultoría técnica especializada", tipo: "Fuente", base_imponible: 18500.00, porcentaje: 2, valor_retenido: 370.00 },
       { codigo: "724", concepto: "IVA 100% — Servicios (Sector Público)", tipo: "IVA", base_imponible: 2220.00, porcentaje: 100, valor_retenido: 2220.00 },
     ],
-    estado: "rechazada",
+    estado: "autorizada",
     categoria: "ventas",
-    autorizacion_sri: "",
+    autorizacion_sri: "4503202601798822334001100100100000145591234567912",
     ambiente: "Producción",
     total_retenido: 2590.00,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-24T09:18:00",
   },
   {
     id: "RET-V-2026-024",
@@ -1453,6 +1501,8 @@ const RETENCIONES_INIT: Retencion[] = [
     autorizacion_sri: "4503202601794455667001100100100000145591234567913",
     ambiente: "Producción",
     total_retenido: 39.10,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-25T15:42:00",
   },
   {
     id: "RET-V-2026-025",
@@ -1475,11 +1525,13 @@ const RETENCIONES_INIT: Retencion[] = [
       { codigo: "340", concepto: "Servicios de capacitación en procesos industriales", tipo: "Fuente", base_imponible: 12300.00, porcentaje: 2, valor_retenido: 246.00 },
       { codigo: "721", concepto: "IVA 30% - Servicios", tipo: "IVA", base_imponible: 1476.00, porcentaje: 30, valor_retenido: 442.80 },
     ],
-    estado: "pendiente",
+    estado: "autorizada",
     categoria: "ventas",
-    autorizacion_sri: "",
+    autorizacion_sri: "4503202601796677889001100100100000145601234567914",
     ambiente: "Producción",
     total_retenido: 688.80,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-26T13:27:00",
   },
   {
     id: "RET-V-2026-026",
@@ -1502,11 +1554,13 @@ const RETENCIONES_INIT: Retencion[] = [
       { codigo: "332", concepto: "Servicios de asesoría técnica en construcción", tipo: "Fuente", base_imponible: 9800.00, porcentaje: 2, valor_retenido: 196.00 },
       { codigo: "721", concepto: "IVA 30% - Servicios", tipo: "IVA", base_imponible: 1176.00, porcentaje: 30, valor_retenido: 352.80 },
     ],
-    estado: "rechazada",
+    estado: "autorizada",
     categoria: "ventas",
-    autorizacion_sri: "",
-    ambiente: "Pruebas",
+    autorizacion_sri: "4503202601799911223001100100100000145611234567915",
+    ambiente: "Producción",
     total_retenido: 548.80,
+    syncedFromSri: true,
+    sriAuthDate: "2026-03-27T08:55:00",
   },
 ];
 
@@ -1721,8 +1775,8 @@ function RideViewer({ ret, onClose, onPrint, onAuthorize, onAnular, isLight }: {
         </div>
       </div>
 
-      {/* ══ Panel de Anulación SRI (solo autorizada/emitida) ══ */}
-      {isAnulable && (
+      {/* ══ Panel de Anulación SRI (solo autorizada/emitida y COMPRAS) ══ */}
+      {isAnulable && onAnular && (
         <div className={`flex-shrink-0 border-b ${isLight ? "border-red-200 bg-red-50" : "border-red-500/20 bg-red-500/5"}`}>
 
           {/* Stepper */}
@@ -1814,8 +1868,8 @@ function RideViewer({ ret, onClose, onPrint, onAuthorize, onAnular, isLight }: {
         </div>
       )}
 
-      {/* ══ Panel de Autorización SRI (solo pendiente) ══ */}
-      {isPendiente && (
+      {/* ══ Panel de Autorización SRI (solo pendiente y COMPRAS) ══ */}
+      {isPendiente && onAuthorize && (
         <div className={`flex-shrink-0 border-b ${isLight ? "border-amber-200 bg-amber-50" : "border-amber-500/20 bg-amber-500/5"}`}>
 
           {/* Stepper de flujo */}
@@ -2247,7 +2301,8 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
     totalRet:   retenciones.filter(r => r.estado !== "anulada").reduce((s, r) => s + r.total_retenido, 0),
     porCobrar:  retenciones.filter(r => r.categoria === "ventas"  && r.estado !== "anulada").reduce((s, r) => s + r.total_retenido, 0),
     porPagar:   retenciones.filter(r => r.categoria === "compras" && r.estado !== "anulada").reduce((s, r) => s + r.total_retenido, 0),
-    syncedSri:  retenciones.filter(r => r.syncedFromSri).length,
+    syncedSri:  retenciones.filter(r => r.categoria === "ventas" && r.syncedFromSri).length,
+    autorizadas: retenciones.filter(r => r.categoria === "ventas" && r.estado === "autorizada").length,
   };
 
   /* ── acciones ─────────────────────────────────────────────────────── */
@@ -2285,17 +2340,17 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           num: "001-002-000000128",
           clave_acceso: genClave(),
           fecha: "2026-03-05",
-          emisor_razon: "Corporación XYZ S.A.",
-          emisor_ruc: "1798765432001",
-          emisor_dir: "Av. 10 de Agosto N45-78, Quito",
+          emisor_razon: "Corporación Favorita C.A.",
+          emisor_ruc: "1799876543001",
+          emisor_dir: "Av. General Enríquez km 4.5, Sangolquí",
           emisor_telefono: "02-3456789",
-          emisor_email: "contabilidad@corpxyz.com",
+          emisor_email: "contabilidad@corporacionfavorita.com",
           contribuyente: EMPRESA.razon,
           ruc: EMPRESA.ruc,
           direccion_sujeto: EMPRESA.dir,
           comprobante: "001-001-000123",
           tipo_comprobante: "Factura",
-          fecha_comprobante: "2026-03-05",
+          fecha_comprobante: "2026-03-04",
           periodo_fiscal: "03/2026",
           detalles: [
             { 
@@ -2314,12 +2369,13 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           total_retenido: 24.00,
           syncedFromSri: true,
           sriAuthDate: "2026-03-05 10:15",
+          contabilizada: false,
         },
         {
           id: "RET-SRI-002",
           num: "001-003-000000089",
           clave_acceso: genClave(),
-          fecha: "2026-03-05",
+          fecha: "2026-03-04",
           emisor_razon: "Importadora del Pacífico Cía. Ltda.",
           emisor_ruc: "1712345678001",
           emisor_dir: "Av. de las Américas y José Mascote, Guayaquil",
@@ -2330,7 +2386,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           direccion_sujeto: EMPRESA.dir,
           comprobante: "001-001-000124",
           tipo_comprobante: "Factura",
-          fecha_comprobante: "2026-03-05",
+          fecha_comprobante: "2026-03-03",
           periodo_fiscal: "03/2026",
           detalles: [
             { 
@@ -2356,14 +2412,141 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           ambiente: "Producción",
           total_retenido: 39.10,
           syncedFromSri: true,
-          sriAuthDate: "2026-03-05 11:42",
+          sriAuthDate: "2026-03-04 11:42",
+          contabilizada: false,
+        },
+        {
+          id: "RET-SRI-003",
+          num: "002-001-000000045",
+          clave_acceso: genClave(),
+          fecha: "2026-03-03",
+          emisor_razon: "Distribuidora Nacional S.A.",
+          emisor_ruc: "1791234567001",
+          emisor_dir: "Av. Colón E8-22 y Reina Victoria, Quito",
+          emisor_telefono: "02-2456789",
+          emisor_email: "ventas@distribuidoranacional.com",
+          contribuyente: EMPRESA.razon,
+          ruc: EMPRESA.ruc,
+          direccion_sujeto: EMPRESA.dir,
+          comprobante: "001-001-000125",
+          tipo_comprobante: "Factura",
+          fecha_comprobante: "2026-03-02",
+          periodo_fiscal: "03/2026",
+          detalles: [
+            { 
+              codigo: "303", 
+              concepto: "Honorarios profesionales", 
+              tipo: "Fuente", 
+              base_imponible: 2500.00, 
+              porcentaje: 10, 
+              valor_retenido: 250.00 
+            },
+          ],
+          estado: "autorizada",
+          categoria: "ventas",
+          autorizacion_sri: genClave(),
+          ambiente: "Producción",
+          total_retenido: 250.00,
+          syncedFromSri: true,
+          sriAuthDate: "2026-03-03 14:30",
+          contabilizada: false,
+        },
+        {
+          id: "RET-SRI-004",
+          num: "001-001-000000234",
+          clave_acceso: genClave(),
+          fecha: "2026-03-02",
+          emisor_razon: "Constructora Andina Cía. Ltda.",
+          emisor_ruc: "1798765432001",
+          emisor_dir: "Av. 6 de Diciembre N34-145, Quito",
+          emisor_telefono: "02-2987654",
+          emisor_email: "admin@constructoraandina.com",
+          contribuyente: EMPRESA.razon,
+          ruc: EMPRESA.ruc,
+          direccion_sujeto: EMPRESA.dir,
+          comprobante: "001-002-000056",
+          tipo_comprobante: "Nota de Crédito",
+          fecha_comprobante: "2026-03-01",
+          periodo_fiscal: "03/2026",
+          detalles: [
+            { 
+              codigo: "332", 
+              concepto: "Servicios de construcción", 
+              tipo: "Fuente", 
+              base_imponible: 5800.00, 
+              porcentaje: 1, 
+              valor_retenido: 58.00 
+            },
+            { 
+              codigo: "720", 
+              concepto: "IVA 30% - Bienes", 
+              tipo: "IVA", 
+              base_imponible: 696.00, 
+              porcentaje: 30, 
+              valor_retenido: 208.80 
+            },
+          ],
+          estado: "autorizada",
+          categoria: "ventas",
+          autorizacion_sri: genClave(),
+          ambiente: "Producción",
+          total_retenido: 266.80,
+          syncedFromSri: true,
+          sriAuthDate: "2026-03-02 09:20",
+          contabilizada: false,
+        },
+        {
+          id: "RET-SRI-005",
+          num: "003-001-000000156",
+          clave_acceso: genClave(),
+          fecha: "2026-03-01",
+          emisor_razon: "Tecnología Global S.A.",
+          emisor_ruc: "1793456789001",
+          emisor_dir: "Mall del Sol, piso 3, local 305, Guayaquil",
+          emisor_telefono: "04-2234567",
+          emisor_email: "facturacion@tecglobal.com",
+          contribuyente: EMPRESA.razon,
+          ruc: EMPRESA.ruc,
+          direccion_sujeto: EMPRESA.dir,
+          comprobante: "001-001-000126",
+          tipo_comprobante: "Factura",
+          fecha_comprobante: "2026-02-28",
+          periodo_fiscal: "02/2026",
+          detalles: [
+            { 
+              codigo: "312", 
+              concepto: "Otros servicios", 
+              tipo: "Fuente", 
+              base_imponible: 3200.00, 
+              porcentaje: 2, 
+              valor_retenido: 64.00 
+            },
+            { 
+              codigo: "721", 
+              concepto: "IVA 30% - Servicios", 
+              tipo: "IVA", 
+              base_imponible: 384.00, 
+              porcentaje: 30, 
+              valor_retenido: 115.20 
+            },
+          ],
+          estado: "autorizada",
+          categoria: "ventas",
+          autorizacion_sri: genClave(),
+          ambiente: "Producción",
+          total_retenido: 179.20,
+          syncedFromSri: true,
+          sriAuthDate: "2026-03-01 16:45",
+          contabilizada: false,
         },
       ];
 
       // Agregar retenciones del SRI a las existentes (evitando duplicados)
+      let cantidadNuevas = 0;
       setRetenciones(prevRetenciones => {
         const existingNumbers = prevRetenciones.map(r => r.num);
         const newRetenciones = sriRetenciones.filter(ret => !existingNumbers.includes(ret.num));
+        cantidadNuevas = newRetenciones.length;
         return [...newRetenciones, ...prevRetenciones];
       });
 
@@ -2371,8 +2554,8 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
       setTimeout(() => {
         setIsSyncing(false);
         setShowSyncModal(false);
-        toast.success(`Se sincronizaron ${sriRetenciones.length} retención(es) desde el SRI`, {
-          description: "Las retenciones electrónicas autorizadas están ahora en tu sistema"
+        toast.success(`✓ Se sincronizaron ${cantidadNuevas} retención(es) desde el SRI`, {
+          description: "Las retenciones recibidas están listas para contabilizar"
         });
       }, 1000);
       
@@ -2471,13 +2654,45 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
     ? { txt: "Compras", cls: isLight ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-blue-500/10 text-blue-400", Icon: ShoppingCart }
     : { txt: "Ventas",  cls: isLight ? "bg-green-50 text-green-600 border-green-200" : "bg-green-500/10 text-green-400", Icon: TrendingUp };
 
+  // Función para contabilizar retenciones una por una
+  const contabilizarRetenciones = async () => {
+    const retencionesVentas = retenciones.filter(r => r.categoria === "ventas" && !r.contabilizada);
+    
+    if (retencionesVentas.length === 0) {
+      toast.info("No hay retenciones pendientes por contabilizar");
+      return;
+    }
+
+    toast.info(`Contabilizando ${retencionesVentas.length} retención(es)...`);
+
+    // Contabilizar una por una con delay
+    for (const ret of retencionesVentas) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      setRetenciones(prev => prev.map(r => 
+        r.id === ret.id ? { ...r, contabilizada: true } : r
+      ));
+      
+      // Actualizar el panel derecho si está seleccionada
+      setSelected(prev => prev && prev.id === ret.id ? { ...prev, contabilizada: true } : prev);
+      
+      toast.success(`✓ Retención ${ret.num} contabilizada`);
+    }
+
+    setTimeout(() => {
+      toast.success(`✅ Se contabilizaron ${retencionesVentas.length} retención(es) correctamente`, {
+        description: "Los asientos contables han sido registrados"
+      });
+    }, 500);
+  };
+
   const conceptos = form.tipo === "Fuente" ? CONCEPTOS_FUENTE : CONCEPTOS_IVA;
 
   /* ════════════════════════════════════════════════════════════════════
      RENDER
   ════════════════════════════════════════════════════════════════════ */
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-6 h-full">
 
       {/* ── KPIs ─────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
@@ -2486,7 +2701,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           { label: "Total Retenciones", value: kpi.ventas,                       icon: <Receipt      className="w-5 h-5 text-primary" />,      bg: "bg-primary/20"    },
           { label: "Sincronizadas SRI", value: kpi.syncedSri,                    icon: <Cloud        className="w-5 h-5 text-blue-400" />,     bg: "bg-blue-500/20"   },
           { label: "Por Cobrar",        value: `$${kpi.porCobrar.toFixed(2)}`,   icon: <TrendingUp   className="w-5 h-5 text-green-400" />,    bg: "bg-green-500/20"  },
-          { label: "Autorizadas",       value: retenciones.filter(r => r.categoria === "ventas" && r.estado === "autorizada").length, icon: <CheckCircle className="w-5 h-5 text-green-500" />, bg: "bg-green-500/20" },
+          { label: "Autorizadas",       value: kpi.autorizadas,                  icon: <CheckCircle className="w-5 h-5 text-green-500" />, bg: "bg-green-500/20" },
         ] : [
           // KPIs cuando estamos viendo TODAS o solo COMPRAS
           { label: "Total Retenciones", value: kpi.total,                       icon: <Receipt      className="w-5 h-5 text-primary" />,      bg: "bg-primary/20"    },
@@ -2499,10 +2714,10 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
       </div>
 
       {/* ── Layout principal: lista + visor ──────────────────────────── */}
-      <div className={`flex gap-0 rounded-xl overflow-hidden border flex-1 min-h-0 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-white/5"}`}>
+      <div className={`flex gap-0 rounded-xl border flex-1 min-h-0 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-white/5"}`}>
 
         {/* ══ Panel izquierdo: TABLA 60% ══ */}
-        <div className={`flex flex-col border-r flex-shrink-0 ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0c1520]"}`} style={{ width: "60%" }}>
+        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0c1520]"}`} style={{ width: "60%" }}>
 
           {/* ── Barra de herramientas ── */}
           <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0d1724]"}`}>
@@ -2527,14 +2742,17 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
               <option value="Fuente" className={opt}>Ret. Fuente</option>
               <option value="IVA" className={opt}>Ret. IVA</option>
             </select>
-            <select value={filterEstado} onChange={e => setFilterEstado(e.target.value)}
-              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}>
-              <option value="all" className={opt}>Estado: Todos</option>
-              <option value="autorizada" className={opt}>Autorizada</option>
-              <option value="pendiente" className={opt}>Pendiente</option>
-              <option value="rechazada" className={opt}>Rechazada</option>
-              <option value="anulada" className={opt}>Anulada</option>
-            </select>
+            {/* Solo mostrar filtro de Estado en COMPRAS */}
+            {categoria === "compras" && (
+              <select value={filterEstado} onChange={e => setFilterEstado(e.target.value)}
+                className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}>
+                <option value="all" className={opt}>Estado: Todos</option>
+                <option value="autorizada" className={opt}>Autorizada</option>
+                <option value="pendiente" className={opt}>Pendiente</option>
+                <option value="rechazada" className={opt}>Rechazada</option>
+                <option value="anulada" className={opt}>Anulada</option>
+              </select>
+            )}
             {/* ── Filtro fechas ── */}
             <div className="flex items-center gap-2">
               <DatePicker
@@ -2565,60 +2783,102 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-400 hover:bg-white/5"}`}>
               <Printer className="w-3.5 h-3.5" /> Imprimir
             </button>
-            {(categoria === "ventas" || filterByCategory === "ventas") && (
-              <button 
-                onClick={syncWithSRI}
-                disabled={isSyncing}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  isSyncing 
-                    ? "bg-blue-400 cursor-not-allowed text-white" 
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                }`}
-              >
-                {isSyncing ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Sincronizando...
-                  </>
-                ) : (
-                  <>
-                    <Cloud className="w-3.5 h-3.5" />
-                    Consultar SRI
-                  </>
-                )}
+            
+            {/* Botones específicos para VENTAS */}
+            {categoria === "ventas" && (
+              <>
+                <button 
+                  onClick={syncWithSRI}
+                  disabled={isSyncing}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isSyncing 
+                      ? "bg-blue-400 cursor-not-allowed text-white" 
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                >
+                  {isSyncing ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Sincronizando...
+                    </>
+                  ) : (
+                    <>
+                      <Cloud className="w-3.5 h-3.5" />
+                      Consultar SRI
+                    </>
+                  )}
+                </button>
+                <button 
+                  onClick={contabilizarRetenciones}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-green-600/30"
+                >
+                  <BookCheck className="w-3.5 h-3.5" />
+                  Contabilizar
+                </button>
+              </>
+            )}
+            
+            {/* Solo mostrar botón de Nueva Retención para COMPRAS */}
+            {categoria === "compras" && (
+              <button onClick={() => setShowModal(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30">
+                <Plus className="w-3.5 h-3.5" /> Nueva Retención
               </button>
             )}
-            <button onClick={() => setShowModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30">
-              <Plus className="w-3.5 h-3.5" /> Nueva Retención
-            </button>
           </div>
 
+          {/* ── MENSAJE INFORMATIVO PARA VENTAS ── */}
+          {categoria === "ventas" && (
+            <div className={`mx-4 mt-3 mb-3 p-3 rounded-lg border flex items-start gap-3 ${
+              isLight 
+                ? "bg-blue-50 border-blue-200" 
+                : "bg-blue-500/10 border-blue-500/30"
+            }`}>
+              <Cloud className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isLight ? "text-blue-600" : "text-blue-400"}`} />
+              <div>
+                <p className={`text-sm font-medium ${isLight ? "text-blue-900" : "text-blue-300"}`}>
+                  Retenciones recibidas del SRI
+                </p>
+                <p className={`text-xs mt-0.5 ${isLight ? "text-blue-700" : "text-blue-400"}`}>
+                  Usa "Consultar SRI" para sincronizar las retenciones que tus clientes han emitido. Luego usa "Contabilizar" para registrarlas en tu contabilidad.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* ── TABLA ── */}
-          <div className="flex-1 overflow-auto">
-            <table className="w-full min-w-[620px] border-collapse">
+          <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar">
+            <table className="w-full min-w-[1250px] border-collapse">
               <thead className="sticky top-0 z-10">
                 <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${isLight ? "bg-gray-100 border-gray-200 text-gray-500" : "bg-[#0D1B2A] border-white/10 text-gray-400"}`}>
-                  {/* Col 1 */}
-                  <th className="px-3 py-2.5 text-center">Estado</th>
+                  {/* Col 1 - Estado (solo en COMPRAS) */}
+                  {categoria === "compras" && <th className="px-3 py-2.5 text-center">Estado</th>}
                   {/* Col 2 */}
                   <th className="px-3 py-2.5 text-left whitespace-nowrap">N° Retención</th>
                   {/* Col 3 */}
                   <th className="px-3 py-2.5 text-left">Fecha</th>
-                  {/* Col 4 */}
-                  <th className="px-3 py-2.5 text-left">Contribuyente</th>
-                  {/* Col 5 - AUTORIZACIÓN SRI */}
+                  {/* Col 4 - N° COMPROBANTE */}
+                  <th className="px-3 py-2.5 text-left">N° Comprobante</th>
+                  {/* Col 5 - TIPO COMPROBANTE (reducido) */}
+                  <th className="px-2 py-2.5 text-center w-24">Tipo</th>
+                  {/* Col 6 - EMISOR/CONTRIBUYENTE */}
+                  <th className="px-3 py-2.5 text-left">{categoria === "ventas" ? "Emisor" : "Contribuyente"}</th>
+                  {/* Col 7 - RUC */}
+                  <th className="px-3 py-2.5 text-left">RUC</th>
+                  {/* Col 8 - AUTORIZACIÓN SRI */}
                   <th className="px-3 py-2.5 text-left">Autorización SRI</th>
-                  {/* Col 6 */}
+                  {/* Col 9 - ESTADO CONTABLE (solo VENTAS) */}
+                  {categoria === "ventas" && <th className="px-3 py-2.5 text-center">Estado Contable</th>}
+                  {/* Col 10 */}
                   <th className="px-3 py-2.5 text-right whitespace-nowrap">Total</th>
-                  {/* Col 7 */}
+                  {/* Col 11 */}
                   <th className="px-3 py-2.5 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center">
+                    <td colSpan={categoria === "ventas" ? 10 : 10} className="py-16 text-center">
                       <Receipt className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
                       <p className={`text-sm ${isLight ? "text-gray-400" : "text-gray-500"}`}>Sin retenciones para mostrar</p>
                     </td>
@@ -2633,19 +2893,22 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                       className={`border-b cursor-pointer transition-all ${isSelected
                         ? isLight ? "bg-primary/5 border-l-[3px] border-l-primary" : "bg-primary/10 border-l-[3px] border-l-primary"
                         : isLight ? "hover:bg-gray-50 border-gray-100 border-l-[3px] border-l-transparent" : "hover:bg-white/[0.03] border-white/5 border-l-[3px] border-l-transparent"}`}>
-                      {/* Col 1: Estado */}
-                      <td className="px-3 py-2.5 text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${estadoBadge(ret.estado)}`}>
-                          {ret.estado.charAt(0).toUpperCase() + ret.estado.slice(1)}
-                        </span>
-                      </td>
+                      {/* Col 1: Estado (solo en COMPRAS) */}
+                      {categoria === "compras" && (
+                        <td className="px-3 py-2.5 text-center">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${estadoBadge(ret.estado)}`}>
+                            {ret.estado.charAt(0).toUpperCase() + ret.estado.slice(1)}
+                          </span>
+                        </td>
+                      )}
                       {/* Col 2: N° Retención */}
                       <td className="px-3 py-2.5">
                         <div className="flex items-center gap-2">
                           <span className={`font-mono font-bold text-xs tracking-wide whitespace-nowrap ${isLight ? "text-gray-900" : "text-white"}`}>
                             {ret.num || ret.id}
                           </span>
-                          {ret.syncedFromSri && (
+                          {/* Solo mostrar badge SRI en COMPRAS, en VENTAS todas son del SRI */}
+                          {ret.syncedFromSri && categoria === "compras" && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded text-[9px] font-semibold" title="Sincronizado desde el SRI">
                               <Cloud className="w-2.5 h-2.5" />
                               SRI
@@ -2657,29 +2920,55 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                       <td className="px-3 py-2.5">
                         <span className={`text-xs font-mono whitespace-nowrap ${isLight ? "text-gray-600" : "text-gray-400"}`}>{ret.fecha}</span>
                       </td>
-                      {/* Col 4: Contribuyente */}
+                      {/* Col 4: N° Comprobante */}
+                      <td className="px-3 py-2.5">
+                        <span className={`font-mono text-xs tracking-wide whitespace-nowrap ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                          {ret.comprobante}
+                        </span>
+                      </td>
+                      {/* Col 5: Tipo Comprobante (reducido) */}
+                      <td className="px-2 py-2.5 text-center">
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${
+                          isLight ? "bg-purple-100 text-purple-700" : "bg-purple-500/20 text-purple-400"
+                        }`}>
+                          {ret.tipo_comprobante}
+                        </span>
+                      </td>
+                      {/* Col 6: Emisor/Contribuyente (solo nombre) */}
                       <td className="px-3 py-2.5" style={{ maxWidth: 200 }}>
                         <p className={`text-xs font-semibold truncate ${isLight ? "text-gray-800" : "text-gray-200"}`}>{sujeto}</p>
-                        <p className={`text-[10px] font-mono truncate ${isLight ? "text-gray-400" : "text-gray-500"}`}>{rucSujeto}</p>
                       </td>
-                      {/* Col 5: AUTORIZACIÓN SRI */}
+                      {/* Col 7: RUC */}
+                      <td className="px-3 py-2.5">
+                        <span className={`text-xs font-mono whitespace-nowrap ${isLight ? "text-gray-600" : "text-gray-400"}`}>{rucSujeto}</span>
+                      </td>
+                      {/* Col 8: AUTORIZACIÓN SRI */}
                       <td className="px-3 py-2.5">
                         {ret.autorizacion_sri ? (
-                          <div className="flex flex-col">
-                            <span className={`text-xs font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
-                              {ret.autorizacion_sri.substring(0, 20)}...
-                            </span>
-                            <span className="text-green-500 text-xs font-medium">✓ Autorizado</span>
-                          </div>
+                          <span className={`text-xs font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
+                            {ret.autorizacion_sri.substring(0, 20)}...
+                          </span>
                         ) : (
                           <span className={`text-xs italic ${isLight ? "text-gray-400" : "text-gray-500"}`}>Sin autorización</span>
                         )}
                       </td>
-                      {/* Col 6: Total */}
+                      {/* Col 9: ESTADO CONTABLE (solo VENTAS) */}
+                      {categoria === "ventas" && (
+                        <td className="px-3 py-2.5 text-center">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${
+                            ret.contabilizada
+                              ? isLight ? "bg-green-100 text-green-700" : "bg-green-500/20 text-green-300"
+                              : isLight ? "bg-yellow-100 text-yellow-700" : "bg-yellow-500/20 text-yellow-300"
+                          }`}>
+                            {ret.contabilizada ? "Contabilizada" : "Pendiente"}
+                          </span>
+                        </td>
+                      )}
+                      {/* Col 10: Total */}
                       <td className="px-3 py-2.5 text-right">
                         <span className="font-bold font-mono text-sm text-primary whitespace-nowrap">${ret.total_retenido.toFixed(2)}</span>
                       </td>
-                      {/* Col 7: Acciones */}
+                      {/* Col 11: Acciones */}
                       <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-1">
                           <button onClick={() => { setDetailsRet(ret); setShowDetailsModal(true); }} title="Ver detalles"
@@ -2702,23 +2991,21 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
             {filtered.length > 0 && (
               <div className={`px-4 py-2 border-t flex items-center justify-between sticky bottom-0 ${isLight ? "bg-white border-gray-100 text-gray-400" : "bg-[#0d1724] border-white/5 text-gray-500"}`}>
                 <span className="text-xs">{filtered.length} retención{filtered.length !== 1 ? "es" : ""}</span>
-                <span className="text-xs font-mono font-semibold text-primary">
-                  Total retenido: ${filtered.reduce((s, r) => s + r.total_retenido, 0).toFixed(2)}
-                </span>
+                
               </div>
             )}
           </div>
         </div>
 
         {/* ══ Panel derecho: visor RIDE/XML 40% ══ */}
-        <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
+        <div className="flex-1 min-w-0 overflow-hidden flex flex-col rounded-r-xl">
           {selected ? (
             <RideViewer
               ret={selected}
               isLight={isLight}
               onPrint={() => printRetencion({ ...selected, tipo: selected.detalles[0]?.tipo ?? "", base: selected.total_retenido, porcentaje: selected.detalles[0]?.porcentaje ?? 0, valor: selected.total_retenido })}
-              onAuthorize={handleEmitir}
-              onAnular={handleAnular}
+              onAuthorize={categoria === "compras" ? handleEmitir : undefined}
+              onAnular={categoria === "compras" ? handleAnular : undefined}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center">
