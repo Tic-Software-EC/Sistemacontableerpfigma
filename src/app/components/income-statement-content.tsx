@@ -69,9 +69,9 @@ const DATA_POR_PERIODO: Record<string, { ingresos: any[]; costos: any[]; gastos:
 };
 
 const CHART_DATA = [
-  { mes: "Ene", ingresos: 108700, costos: 57000, utilidad: 36010 },
-  { mes: "Feb", ingresos: 124800, costos: 65900, utilidad: 42820 },
-  { mes: "Mar", ingresos: 145500, costos: 79200, utilidad: 50000 },
+  { id: "ene-2026", mes: "Ene", ingresos: 108700, costos: 57000, utilidad: 36010 },
+  { id: "feb-2026", mes: "Feb", ingresos: 124800, costos: 65900, utilidad: 42820 },
+  { id: "mar-2026", mes: "Mar", ingresos: 145500, costos: 79200, utilidad: 50000 },
 ];
 
 const fmt = (v: number) => `$${v.toLocaleString("es-EC", { minimumFractionDigits: 2 })}`;
@@ -196,9 +196,9 @@ export function IncomeStatementContent() {
               labelStyle={{ color: isLight ? "#111" : "#fff", fontWeight: 600 }}
             />
             <Legend formatter={(v) => v === "ingresos" ? "Ingresos" : v === "costos" ? "Costos" : "Utilidad"} />
-            <Bar name="Ingresos" dataKey="ingresos" fill="#22c55e" radius={[4,4,0,0]} />
-            <Bar name="Costos"   dataKey="costos"   fill="#ef4444" radius={[4,4,0,0]} />
-            <Bar name="Utilidad" dataKey="utilidad" fill="#E8692E" radius={[4,4,0,0]} />
+            <Bar key="bar-ingresos" name="Ingresos" dataKey="ingresos" fill="#22c55e" radius={[4,4,0,0]} />
+            <Bar key="bar-costos" name="Costos"   dataKey="costos"   fill="#ef4444" radius={[4,4,0,0]} />
+            <Bar key="bar-utilidad" name="Utilidad" dataKey="utilidad" fill="#E8692E" radius={[4,4,0,0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

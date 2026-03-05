@@ -248,27 +248,27 @@ export default function ModuleVentasDetail() {
           </div>
 
           {/* Tabs de navegación */}
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                    isActive
-                      ? "bg-primary text-white shadow-lg shadow-primary/30"
-                      : isLight
-                      ? "text-gray-600 hover:bg-gray-100"
-                      : "text-gray-400 hover:bg-white/5"
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-white" : ""}`} />
-                  {tab.name}
-                </button>
-              );
-            })}
+          <div className={`border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
+            <div className="flex items-center gap-0 overflow-x-auto">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${
+                      isActive
+                        ? `border-primary ${isLight ? "text-primary bg-primary/5" : "text-primary"}`
+                        : `border-transparent ${isLight ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-500 hover:text-gray-300"}`
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? "text-primary" : ""}`} />
+                    {tab.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </header>

@@ -16,21 +16,21 @@ import {
 import { AccountingKpiCard } from "./ui/accounting-kpi-card";
 
 const MONTHS_DATA = [
-  { mes: "Oct", ingresos: 82000, gastos: 61000, utilidad: 21000 },
-  { mes: "Nov", ingresos: 95000, gastos: 68000, utilidad: 27000 },
-  { mes: "Dic", ingresos: 128000, gastos: 84000, utilidad: 44000 },
-  { mes: "Ene", ingresos: 108700, gastos: 72690, utilidad: 36010 },
-  { mes: "Feb", ingresos: 124800, gastos: 81980, utilidad: 42820 },
-  { mes: "Mar", ingresos: 145500, gastos: 95500, utilidad: 50000 },
+  { id: "oct-2025", mes: "Oct", ingresos: 82000, gastos: 61000, utilidad: 21000 },
+  { id: "nov-2025", mes: "Nov", ingresos: 95000, gastos: 68000, utilidad: 27000 },
+  { id: "dic-2025", mes: "Dic", ingresos: 128000, gastos: 84000, utilidad: 44000 },
+  { id: "ene-2026", mes: "Ene", ingresos: 108700, gastos: 72690, utilidad: 36010 },
+  { id: "feb-2026", mes: "Feb", ingresos: 124800, gastos: 81980, utilidad: 42820 },
+  { id: "mar-2026", mes: "Mar", ingresos: 145500, gastos: 95500, utilidad: 50000 },
 ];
 
 const GASTOS_PIE = [
-  { name: "Sueldos y Salarios", value: 12400, color: "#E8692E" },
-  { name: "Costo de Ventas",    value: 72400, color: "#3b82f6" },
-  { name: "Beneficios Sociales",value: 2480,  color: "#a855f7" },
-  { name: "Arriendos",          value: 1800,  color: "#22c55e" },
-  { name: "Depreciaciones",     value: 850,   color: "#f59e0b" },
-  { name: "Otros",              value: 5570,  color: "#6b7280" },
+  { id: "sueldos", name: "Sueldos y Salarios", value: 12400, color: "#E8692E" },
+  { id: "costo-ventas", name: "Costo de Ventas",    value: 72400, color: "#3b82f6" },
+  { id: "beneficios", name: "Beneficios Sociales",value: 2480,  color: "#a855f7" },
+  { id: "arriendos", name: "Arriendos",          value: 1800,  color: "#22c55e" },
+  { id: "depreciaciones", name: "Depreciaciones",     value: 850,   color: "#f59e0b" },
+  { id: "otros", name: "Otros",              value: 5570,  color: "#6b7280" },
 ];
 
 const REPORTES = [
@@ -151,9 +151,9 @@ export function FinancialReportsContent() {
                 contentStyle={{ background: isLight ? "#fff" : "#0D1B2A", border: `1px solid ${isLight ? "#e5e7eb" : "#ffffff15"}`, borderRadius: "8px" }}
               />
               <Legend formatter={(v) => v === "ingresos" ? "Ingresos" : v === "gastos" ? "Gastos" : "Utilidad"} />
-              <Bar name="Ingresos" dataKey="ingresos" fill="#22c55e" radius={[4,4,0,0]} />
-              <Bar name="Gastos"   dataKey="gastos"   fill="#ef4444" radius={[4,4,0,0]} />
-              <Bar name="Utilidad" dataKey="utilidad" fill="#E8692E" radius={[4,4,0,0]} />
+              <Bar key="bar-ingresos" name="Ingresos" dataKey="ingresos" fill="#22c55e" radius={[4,4,0,0]} />
+              <Bar key="bar-gastos" name="Gastos"   dataKey="gastos"   fill="#ef4444" radius={[4,4,0,0]} />
+              <Bar key="bar-utilidad" name="Utilidad" dataKey="utilidad" fill="#E8692E" radius={[4,4,0,0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -162,7 +162,7 @@ export function FinancialReportsContent() {
           <ResponsiveContainer width="100%" height={220}>
             <RechartsPieChart>
               <Pie data={GASTOS_PIE} cx="50%" cy="50%" innerRadius={55} outerRadius={80} dataKey="value" paddingAngle={2}>
-                {GASTOS_PIE.map((entry, i) => <Cell key={`cell-${i}`} fill={entry.color} />)}
+                {GASTOS_PIE.map((entry) => <Cell key={entry.id} fill={entry.color} />)}
               </Pie>
               <Tooltip formatter={(v: any) => [fmt(v), ""]}
                 contentStyle={{ background: isLight ? "#fff" : "#0D1B2A", border: `1px solid ${isLight ? "#e5e7eb" : "#ffffff15"}`, borderRadius: "8px" }} />
