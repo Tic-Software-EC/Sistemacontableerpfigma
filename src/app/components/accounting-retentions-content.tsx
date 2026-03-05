@@ -2989,10 +2989,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
 
             {/* Pie de tabla */}
             {filtered.length > 0 && (
-              <div className={`px-4 py-2 border-t flex items-center justify-between sticky bottom-0 ${isLight ? "bg-white border-gray-100 text-gray-400" : "bg-[#0d1724] border-white/5 text-gray-500"}`}>
-                <span className="text-xs">{filtered.length} retención{filtered.length !== 1 ? "es" : ""}</span>
-                
-              </div>
+              null
             )}
           </div>
         </div>
