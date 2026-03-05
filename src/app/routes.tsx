@@ -86,6 +86,10 @@ export const router = createBrowserRouter([
         element: <Navigate to="/module-compras-detail/orders" replace />,
       },
       {
+        path: "/module-ventas-detail",
+        element: <Navigate to="/module-ventas-detail/invoices" replace />,
+      },
+      {
         path: "/module-pos-detail",
         element: <Navigate to="/module-pos-detail/pos" replace />,
       },

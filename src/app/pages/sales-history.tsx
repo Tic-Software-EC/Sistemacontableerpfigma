@@ -19,9 +19,13 @@ import {
   Calculator,
   Wallet,
   AlertCircle,
+  Cloud,
+  CloudOff,
+  Loader2,
 } from "lucide-react";
 import { ArqueoModal } from "../components/arqueo-modal";
 import { useTheme } from "../contexts/theme-context";
+import { toast } from "sonner";
 
 interface SaleItem {
   code: string;
@@ -49,6 +53,10 @@ interface Sale {
   status: "completed" | "cancelled" | "pending";
   cashier: string;
   branch: string;
+  authorizationNumber?: string;
+  sriStatus?: "authorized" | "pending" | "rejected" | "not_sent";
+  syncedFromSri?: boolean;
+  sriAuthDate?: string;
 }
 
 // Datos mock de ventas
@@ -74,6 +82,10 @@ const MOCK_SALES: Sale[] = [
     status: "completed",
     cashier: "Juan Pérez",
     branch: "Sucursal Centro",
+    authorizationNumber: "1902202601179001234500120010010000012341234567890",
+    sriStatus: "authorized",
+    syncedFromSri: false,
+    sriAuthDate: "2026-02-19 14:35",
   },
   {
     id: "2",
@@ -96,6 +108,7 @@ const MOCK_SALES: Sale[] = [
     status: "completed",
     cashier: "Juan Pérez",
     branch: "Sucursal Centro",
+    authorizationNumber: "1902202601170987654300120010010000012221234567890",
   },
   {
     id: "3",
@@ -140,6 +153,10 @@ const MOCK_SALES: Sale[] = [
     status: "completed",
     cashier: "Juan Pérez",
     branch: "Sucursal Centro",
+    authorizationNumber: "1802202601172638495000120010010000012001234567890",
+    sriStatus: "authorized",
+    syncedFromSri: false,
+    sriAuthDate: "2026-02-18 16:25",
   },
   {
     id: "5",
@@ -206,6 +223,97 @@ export function SalesHistory() {
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showArqueoModal, setShowArqueoModal] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+
+  // Función para sincronizar con SRI
+  const syncWithSRI = async () => {
+    setIsSyncing(true);
+    setShowSyncModal(true);
+
+    try {
+      // Simular llamada al API del SRI
+      await new Promise(resolve => setTimeout(resolve, 2500));
+
+      // Mock: Simular documentos obtenidos del SRI
+      const sriDocuments: Sale[] = [
+        {
+          id: "sri-001",
+          invoiceNumber: "001-001-000200",
+          date: "2026-03-05",
+          time: "10:15",
+          customer: {
+            name: "Carlos Ramírez Pérez",
+            ruc: "1723456789001",
+          },
+          items: [
+            { code: "PROD005", name: "Monitor LG 27\"", quantity: 1, price: 320.00, total: 320.00 },
+          ],
+          subtotal: 320.00,
+          tax: 48.00,
+          discount: 0,
+          total: 368.00,
+          paymentMethod: "card",
+          status: "completed",
+          cashier: "Sistema SRI",
+          branch: "Sucursal Centro",
+          authorizationNumber: "0503202601179001234500120010010000020001234567890",
+          sriStatus: "authorized",
+          syncedFromSri: true,
+          sriAuthDate: "2026-03-05 10:18",
+        },
+        {
+          id: "sri-002",
+          invoiceNumber: "001-001-000201",
+          date: "2026-03-05",
+          time: "11:30",
+          customer: {
+            name: "Ana Martínez Gómez",
+            ruc: "1798765432001",
+          },
+          items: [
+            { code: "PROD006", name: "Teclado Mecánico", quantity: 2, price: 75.00, total: 150.00 },
+          ],
+          subtotal: 150.00,
+          tax: 22.50,
+          discount: 0,
+          total: 172.50,
+          paymentMethod: "transfer",
+          status: "completed",
+          cashier: "Sistema SRI",
+          branch: "Sucursal Centro",
+          authorizationNumber: "0503202601179001234500120010010000020101234567890",
+          sriStatus: "authorized",
+          syncedFromSri: true,
+          sriAuthDate: "2026-03-05 11:33",
+        },
+      ];
+
+      // Agregar documentos del SRI a las ventas existentes (evitando duplicados)
+      setSales(prevSales => {
+        const existingInvoices = prevSales.map(s => s.invoiceNumber);
+        const newDocuments = sriDocuments.filter(doc => !existingInvoices.includes(doc.invoiceNumber));
+        return [...newDocuments, ...prevSales];
+      });
+
+      // Mostrar notificación de éxito
+      setTimeout(() => {
+        setIsSyncing(false);
+        setShowSyncModal(false);
+        toast.success(`Se sincronizaron ${sriDocuments.length} documento(s) desde el SRI`, {
+          description: "Los documentos electrónicos autorizados están ahora en tu historial de ventas"
+        });
+      }, 1000);
+      
+    } catch (error) {
+      console.error("Error al sincronizar con SRI:", error);
+      setIsSyncing(false);
+      setShowSyncModal(false);
+      toast.error("Error al sincronizar con el SRI", {
+        description: "Por favor intenta nuevamente"
+      });
+    }
+  };
 
   // Estados para arqueo de caja
   const [montoInicial] = useState(500.00); // Monto inicial de caja
@@ -344,15 +452,26 @@ export function SalesHistory() {
   const saldoEsperado = montoInicial + ventasEfectivo - gastos;
   const diferencia = totalContado - saldoEsperado;
 
+  // Calcular documentos sincronizados desde SRI
+  const syncedFromSriCount = sales.filter(s => s.syncedFromSri).length;
+
   return (
     <div className={`h-full ${rootBg} overflow-auto`}>
       <div className="p-6">
         <div className="max-w-[1800px] mx-auto">
           {/* Título principal */}
           <div className="mb-6">
-            <p className={`text-sm ${sub}`}>
-              Consulta y gestiona el historial completo de transacciones
-            </p>
+            <div className="flex items-center gap-3">
+              <p className={`text-sm ${sub}`}>
+                Consulta y gestiona el historial completo de transacciones
+              </p>
+              {syncedFromSriCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 text-blue-500 rounded-lg text-xs font-semibold">
+                  <Cloud className="w-3.5 h-3.5" />
+                  {syncedFromSriCount} doc{syncedFromSriCount !== 1 ? 's' : ''} desde SRI
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Filtros y búsqueda */}
@@ -393,6 +512,27 @@ export function SalesHistory() {
                 <option value="mixed">Mixto</option>
                 <option value="credit">Crédito</option>
               </select>
+              <button 
+                onClick={syncWithSRI}
+                disabled={isSyncing}
+                className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+                  isSyncing 
+                    ? "bg-blue-400 cursor-not-allowed text-white" 
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                {isSyncing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sincronizando...
+                  </>
+                ) : (
+                  <>
+                    <Cloud className="w-4 h-4" />
+                    Consultar SRI
+                  </>
+                )}
+              </button>
               <button onClick={() => setShowArqueoModal(true)} className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm transition-all flex items-center gap-2">
                 <Calculator className="w-4 h-4" />Arqueo
               </button>
@@ -408,13 +548,21 @@ export function SalesHistory() {
               <table className="w-full">
                 <thead>
                   <tr className={`border-b ${divider} ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
+                    {/* Col 1 */}
                     <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Factura</th>
+                    {/* Col 2 */}
                     <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Fecha/Hora</th>
+                    {/* Col 3 */}
                     <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Cliente</th>
-                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Items</th>
+                    {/* Col 4 - AUTORIZACIÓN SRI */}
+                    <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Autorización SRI</th>
+                    {/* Col 5 */}
                     <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Pago</th>
+                    {/* Col 6 */}
                     <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Total</th>
+                    {/* Col 7 */}
                     <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Estado</th>
+                    {/* Col 8 */}
                     <th className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider ${sub}`}>Acciones</th>
                   </tr>
                 </thead>
@@ -422,17 +570,43 @@ export function SalesHistory() {
                   {filteredSales.length > 0 ? (
                     filteredSales.map((sale) => (
                       <tr key={sale.id} className={`transition-colors ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"}`}>
-                        <td className="px-4 py-2.5"><span className={`text-sm font-mono ${txt}`}>{sale.invoiceNumber}</span></td>
+                        {/* Col 1: Factura */}
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-mono ${txt}`}>{sale.invoiceNumber}</span>
+                            {sale.syncedFromSri && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded text-[10px] font-semibold" title="Documento sincronizado desde el SRI">
+                                <Cloud className="w-3 h-3" />
+                                SRI
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        {/* Col 2: Fecha/Hora */}
                         <td className="px-4 py-2.5"><span className={`text-sm ${sub}`}>{sale.date} {sale.time}</span></td>
+                        {/* Col 3: Cliente */}
                         <td className="px-4 py-2.5"><span className={`text-sm font-medium ${txt}`}>{sale.customer.name}</span></td>
-                        <td className="px-4 py-2.5"><span className={`text-sm ${sub}`}>{sale.items.length} items</span></td>
+                        {/* Col 4: AUTORIZACIÓN SRI */}
+                        <td className="px-4 py-2.5">
+                          {sale.authorizationNumber ? (
+                            <div className="flex flex-col">
+                              <span className={`text-xs font-mono ${txt}`}>{sale.authorizationNumber.substring(0, 20)}...</span>
+                              <span className="text-green-500 text-xs font-medium">✓ Autorizado</span>
+                            </div>
+                          ) : (
+                            <span className={`text-xs italic ${sub}`}>Sin autorización</span>
+                          )}
+                        </td>
+                        {/* Col 5: Pago */}
                         <td className="px-4 py-2.5">
                           <div className="flex items-center gap-1.5">
                             {getPaymentIcon(sale.paymentMethod)}
                             <span className={`text-sm ${sub}`}>{getPaymentLabel(sale.paymentMethod)}</span>
                           </div>
                         </td>
+                        {/* Col 6: Total */}
                         <td className="px-4 py-2.5"><span className={`font-bold text-sm ${txt}`}>${sale.total.toFixed(2)}</span></td>
+                        {/* Col 7: Estado */}
                         <td className="px-4 py-2.5">{getStatusBadge(sale.status)}</td>
                         <td className="px-4 py-2.5">
                           <div className="flex items-center gap-1.5">
@@ -448,7 +622,7 @@ export function SalesHistory() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={8} className="px-4 py-12 text-center">
+                      <td colSpan={9} className="px-4 py-12 text-center">
                         <div className="flex flex-col items-center gap-3">
                           <Search className={`w-10 h-10 ${sub}`} />
                           <p className={`font-medium ${sub}`}>No se encontraron ventas</p>
@@ -485,6 +659,31 @@ export function SalesHistory() {
                 <div className={`${secBg} rounded-xl p-3`}><p className={`text-xs mb-1 ${sub}`}>Cajero</p><p className={`font-medium text-sm ${txt}`}>{selectedSale.cashier}</p></div>
                 <div className={`${secBg} rounded-xl p-3`}><p className={`text-xs mb-1 ${sub}`}>Sucursal</p><p className={`font-medium text-sm ${txt}`}>{selectedSale.branch}</p></div>
               </div>
+              {selectedSale.authorizationNumber && (
+                <div className={`${secBg} rounded-xl p-4 border-2 ${selectedSale.syncedFromSri ? (isLight ? "border-blue-200" : "border-blue-500/20") : (isLight ? "border-green-200" : "border-green-500/20")}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className={`text-xs uppercase font-semibold ${sub}`}>Autorización SRI</p>
+                    {selectedSale.syncedFromSri && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/10 text-blue-500 rounded text-[10px] font-semibold">
+                        <Cloud className="w-3 h-3" />
+                        Sincronizado desde SRI
+                      </span>
+                    )}
+                  </div>
+                  <p className={`font-mono text-sm ${txt} break-all`}>{selectedSale.authorizationNumber}</p>
+                  <div className="flex items-center gap-3 mt-3">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span className="text-green-500 text-xs font-medium">Factura Autorizada</span>
+                    </div>
+                    {selectedSale.sriAuthDate && (
+                      <div className={`text-xs ${sub}`}>
+                        {selectedSale.sriAuthDate}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className={`${secBg} rounded-xl p-4`}>
                 <p className={`text-xs mb-3 ${sub}`}>Cliente</p>
                 <div className="flex items-center gap-3">
@@ -520,6 +719,50 @@ export function SalesHistory() {
               <button className="w-full px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2">
                 <Printer className="w-4 h-4" />Imprimir Factura
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Sincronización con SRI */}
+      {showSyncModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`${card} rounded-2xl p-8 max-w-md w-full shadow-2xl`}>
+            <div className="text-center space-y-6">
+              {/* Icono animado */}
+              <div className="flex justify-center">
+                <div className="relative">
+                  <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center">
+                    {isSyncing ? (
+                      <Cloud className="w-10 h-10 text-blue-500 animate-pulse" />
+                    ) : (
+                      <CheckCircle className="w-10 h-10 text-green-500" />
+                    )}
+                  </div>
+                  {isSyncing && (
+                    <div className="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                </div>
+              </div>
+
+              {/* Texto */}
+              <div>
+                <h3 className={`text-xl font-bold mb-2 ${txt}`}>
+                  {isSyncing ? "Consultando SRI..." : "¡Sincronización Completada!"}
+                </h3>
+                <p className={sub}>
+                  {isSyncing 
+                    ? "Obteniendo documentos electrónicos autorizados" 
+                    : "Los documentos del SRI se han agregado correctamente"}
+                </p>
+              </div>
+
+              {/* Barra de progreso */}
+              {isSyncing && (
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                  <div className="bg-blue-500 h-full rounded-full animate-pulse" style={{ width: "70%" }}></div>
+                </div>
+              )}
             </div>
           </div>
         </div>

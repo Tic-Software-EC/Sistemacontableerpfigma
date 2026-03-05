@@ -539,27 +539,35 @@ export function SupplierInvoicesContent() {
             <table className="w-full">
               <thead className="bg-white/5 border-b border-white/10">
                 <tr>
+                  {/* Col 1 */}
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Nº Factura
                   </th>
+                  {/* Col 2 */}
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Proveedor
                   </th>
+                  {/* Col 3 */}
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Orden Compra
                   </th>
+                  {/* Col 4 */}
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Fecha Emisión
                   </th>
+                  {/* Col 5 - AUTORIZACIÓN SRI */}
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Vencimiento
+                    Autorización SRI
                   </th>
+                  {/* Col 6 */}
                   <th className="px-6 py-4 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Total
                   </th>
+                  {/* Col 7 */}
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Estado
                   </th>
+                  {/* Col 8 */}
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Acciones
                   </th>
@@ -570,32 +578,39 @@ export function SupplierInvoicesContent() {
                   const daysUntilDue = getDaysUntilDue(invoice.dueDate);
                   return (
                     <tr key={invoice.id} className="hover:bg-white/[0.02] transition-colors">
-                      {/* Número de Factura */}
+                      {/* Col 1: Número de Factura */}
                       <td className="px-6 py-3">
                         <span className="text-white font-bold font-mono text-sm">{invoice.invoiceNumber}</span>
                       </td>
 
-                      {/* Proveedor */}
+                      {/* Col 2: Proveedor */}
                       <td className="px-6 py-3">
                         <span className="text-white text-sm">{invoice.supplier}</span>
                       </td>
 
-                      {/* Orden de Compra */}
+                      {/* Col 3: Orden de Compra */}
                       <td className="px-6 py-3">
                         <span className="text-white text-sm font-mono">{invoice.purchaseOrder}</span>
                       </td>
 
-                      {/* Fecha Emisión */}
+                      {/* Col 4: Fecha Emisión */}
                       <td className="px-6 py-3">
                         <span className="text-white text-sm">{formatDate(invoice.invoiceDate)}</span>
                       </td>
 
-                      {/* Vencimiento */}
+                      {/* Col 5: AUTORIZACIÓN SRI */}
                       <td className="px-6 py-3">
-                        <span className="text-white text-sm">{formatDate(invoice.dueDate)}</span>
+                        {invoice.authorizationNumber ? (
+                          <div className="flex flex-col">
+                            <span className="text-white text-xs font-mono">{invoice.authorizationNumber.substring(0, 20)}...</span>
+                            <span className="text-green-400 text-xs">✓ Autorizado</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-500 text-xs italic">Sin autorización</span>
+                        )}
                       </td>
 
-                      {/* Total */}
+                      {/* Col 6: Total */}
                       <td className="px-6 py-3 text-right">
                         <span className="text-white font-bold text-sm">{formatCurrency(invoice.total)}</span>
                       </td>
@@ -782,8 +797,11 @@ export function SupplierInvoicesContent() {
 
               {/* Datos fiscales */}
               {selectedInvoice.authorizationNumber && (
-                <div className="bg-white/5 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-2 uppercase">Datos Fiscales</p>
+                <div className="bg-white/5 border-2 border-green-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <p className="text-green-400 text-sm font-semibold uppercase">Factura Autorizada por el SRI</p>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-gray-500 text-xs">Establecimiento</p>
@@ -794,7 +812,7 @@ export function SupplierInvoicesContent() {
                       <p className="text-white font-mono">{selectedInvoice.emissionPoint}</p>
                     </div>
                     <div className="md:col-span-2">
-                      <p className="text-gray-500 text-xs">Número de Autorización</p>
+                      <p className="text-gray-500 text-xs">Número de Autorización SRI</p>
                       <p className="text-white font-mono text-sm break-all">{selectedInvoice.authorizationNumber}</p>
                     </div>
                   </div>

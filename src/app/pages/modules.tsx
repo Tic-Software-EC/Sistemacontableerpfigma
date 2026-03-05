@@ -122,7 +122,7 @@ export default function ModulesPage() {
   const handleModuleClick = (module: Module) => {
     // Módulos con vista propia
     if (module.name === "Compras")        { navigate("/module-compras-detail/orders"); return; }
-    if (module.name === "Ventas")         { navigate("/module-ventas-detail/quotes"); return; }
+    if (module.name === "Ventas")         { navigate("/module-ventas-detail/invoices"); return; }
     if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }
     if (module.name === "Inventario")     { navigate("/module-inventory-detail/stock"); return; }
     if (module.name === "Contabilidad")   { navigate("/module-accounting-detail/journal"); return; }

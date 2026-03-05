@@ -22,6 +22,7 @@ import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { AccountingRetentionsContent } from "../components/accounting-retentions-content";
+import { SalesInvoicesContent } from "../components/sales-invoices-content";
 
 export default function ModuleVentasDetail() {
   const navigate = useNavigate();
@@ -333,10 +334,7 @@ export default function ModuleVentasDetail() {
               </h2>
               <p className="text-gray-400 text-sm">Administración de facturas emitidas a clientes</p>
             </div>
-            <div className={`p-8 rounded-xl border text-center ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
-              <Receipt className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
-              <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulo de facturas en desarrollo</p>
-            </div>
+            <SalesInvoicesContent />
           </div>
         )}
 

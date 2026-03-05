@@ -5,7 +5,7 @@ import {
   ShoppingCart, TrendingUp, FileText, ZoomIn, ZoomOut, RefreshCw,
   Shield, Code2, FileCode, UserSearch, CheckCircle2,
   Send, Wifi, RotateCcw, ChevronRight, Loader2, CalendarDays,
-  ChevronUp, ChevronDown, Calendar as CalendarIcon, Settings,
+  ChevronUp, ChevronDown, Calendar as CalendarIcon, Settings, Cloud,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
@@ -48,6 +48,8 @@ interface Retencion {
   autorizacion_sri: string;
   ambiente: "Producción" | "Pruebas";
   total_retenido: number;
+  syncedFromSri?: boolean;  // Indica si fue sincronizado desde el SRI
+  sriAuthDate?: string;     // Fecha de autorización del SRI
 }
 
 interface DetalleRetencion {
@@ -59,7 +61,7 @@ interface DetalleRetencion {
   valor_retenido: number;
 }
 
-/* ══════════════════════════════════════════════════════════════════════
+/* ════════════��═════════════════════════════════════════════════════════
    DATOS INICIALES
 ══════════════════════════════════════════════════════════════════════ */
 const EMPRESA = {
@@ -2127,6 +2129,10 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
   const [categoria, setCategoria]       = useState<"todas" | "compras" | "ventas">(filterByCategory || "todas");
   const [fechaDesde, setFechaDesde]     = useState("");
   const [fechaHasta, setFechaHasta]     = useState("");
+  
+  // Estados para sincronización con SRI
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
 
   // Seleccionar la primera retención según la categoría filtrada
   const getInitialSelection = () => {
@@ -2241,6 +2247,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
     totalRet:   retenciones.filter(r => r.estado !== "anulada").reduce((s, r) => s + r.total_retenido, 0),
     porCobrar:  retenciones.filter(r => r.categoria === "ventas"  && r.estado !== "anulada").reduce((s, r) => s + r.total_retenido, 0),
     porPagar:   retenciones.filter(r => r.categoria === "compras" && r.estado !== "anulada").reduce((s, r) => s + r.total_retenido, 0),
+    syncedSri:  retenciones.filter(r => r.syncedFromSri).length,
   };
 
   /* ── acciones ─────────────────────────────────────────────────────── */
@@ -2259,6 +2266,124 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
     setRetenciones(prev => prev.map(r => r.id === id ? { ...r, estado: "anulada" } : r));
     setSelected(prev => prev && prev.id === id ? { ...prev, estado: "anulada" } : prev);
     toast.success("✓ Anulación aceptada por el SRI. Retención anulada.");
+  };
+
+  // Función para sincronizar con SRI
+  const syncWithSRI = async () => {
+    setIsSyncing(true);
+    setShowSyncModal(true);
+
+    try {
+      // Simular llamada al API del SRI
+      await new Promise(resolve => setTimeout(resolve, 2500));
+
+      // Mock: Simular retenciones obtenidas del SRI
+      // Solo traemos retenciones de VENTAS (que nos emitieron a nosotros)
+      const sriRetenciones: Retencion[] = [
+        {
+          id: "RET-SRI-001",
+          num: "001-002-000000128",
+          clave_acceso: genClave(),
+          fecha: "2026-03-05",
+          emisor_razon: "Corporación XYZ S.A.",
+          emisor_ruc: "1798765432001",
+          emisor_dir: "Av. 10 de Agosto N45-78, Quito",
+          emisor_telefono: "02-3456789",
+          emisor_email: "contabilidad@corpxyz.com",
+          contribuyente: EMPRESA.razon,
+          ruc: EMPRESA.ruc,
+          direccion_sujeto: EMPRESA.dir,
+          comprobante: "001-001-000123",
+          tipo_comprobante: "Factura",
+          fecha_comprobante: "2026-03-05",
+          periodo_fiscal: "03/2026",
+          detalles: [
+            { 
+              codigo: "312", 
+              concepto: "Otros servicios", 
+              tipo: "Fuente", 
+              base_imponible: 1200.00, 
+              porcentaje: 2, 
+              valor_retenido: 24.00 
+            },
+          ],
+          estado: "autorizada",
+          categoria: "ventas",
+          autorizacion_sri: genClave(),
+          ambiente: "Producción",
+          total_retenido: 24.00,
+          syncedFromSri: true,
+          sriAuthDate: "2026-03-05 10:15",
+        },
+        {
+          id: "RET-SRI-002",
+          num: "001-003-000000089",
+          clave_acceso: genClave(),
+          fecha: "2026-03-05",
+          emisor_razon: "Importadora del Pacífico Cía. Ltda.",
+          emisor_ruc: "1712345678001",
+          emisor_dir: "Av. de las Américas y José Mascote, Guayaquil",
+          emisor_telefono: "04-2567890",
+          emisor_email: "info@importadorapacifico.com",
+          contribuyente: EMPRESA.razon,
+          ruc: EMPRESA.ruc,
+          direccion_sujeto: EMPRESA.dir,
+          comprobante: "001-001-000124",
+          tipo_comprobante: "Factura",
+          fecha_comprobante: "2026-03-05",
+          periodo_fiscal: "03/2026",
+          detalles: [
+            { 
+              codigo: "340", 
+              concepto: "Transporte privado de pasajeros o transporte público o privado de carga", 
+              tipo: "Fuente", 
+              base_imponible: 850.00, 
+              porcentaje: 1, 
+              valor_retenido: 8.50 
+            },
+            { 
+              codigo: "721", 
+              concepto: "IVA 30% - Servicios", 
+              tipo: "IVA", 
+              base_imponible: 102.00, 
+              porcentaje: 30, 
+              valor_retenido: 30.60 
+            },
+          ],
+          estado: "autorizada",
+          categoria: "ventas",
+          autorizacion_sri: genClave(),
+          ambiente: "Producción",
+          total_retenido: 39.10,
+          syncedFromSri: true,
+          sriAuthDate: "2026-03-05 11:42",
+        },
+      ];
+
+      // Agregar retenciones del SRI a las existentes (evitando duplicados)
+      setRetenciones(prevRetenciones => {
+        const existingNumbers = prevRetenciones.map(r => r.num);
+        const newRetenciones = sriRetenciones.filter(ret => !existingNumbers.includes(ret.num));
+        return [...newRetenciones, ...prevRetenciones];
+      });
+
+      // Mostrar notificación de éxito
+      setTimeout(() => {
+        setIsSyncing(false);
+        setShowSyncModal(false);
+        toast.success(`Se sincronizaron ${sriRetenciones.length} retención(es) desde el SRI`, {
+          description: "Las retenciones electrónicas autorizadas están ahora en tu sistema"
+        });
+      }, 1000);
+      
+    } catch (error) {
+      console.error("Error al sincronizar con SRI:", error);
+      setIsSyncing(false);
+      setShowSyncModal(false);
+      toast.error("Error al sincronizar con el SRI", {
+        description: "Por favor intenta nuevamente"
+      });
+    }
   };
 
   // Función para cerrar modal y resetear formulario
@@ -2356,12 +2481,19 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
 
       {/* ── KPIs ─────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
-        {[
+        {((filterByCategory === "ventas" || categoria === "ventas") ? [
+          // KPIs cuando estamos viendo solo VENTAS (retenciones recibidas)
+          { label: "Total Retenciones", value: kpi.ventas,                       icon: <Receipt      className="w-5 h-5 text-primary" />,      bg: "bg-primary/20"    },
+          { label: "Sincronizadas SRI", value: kpi.syncedSri,                    icon: <Cloud        className="w-5 h-5 text-blue-400" />,     bg: "bg-blue-500/20"   },
+          { label: "Por Cobrar",        value: `$${kpi.porCobrar.toFixed(2)}`,   icon: <TrendingUp   className="w-5 h-5 text-green-400" />,    bg: "bg-green-500/20"  },
+          { label: "Autorizadas",       value: retenciones.filter(r => r.categoria === "ventas" && r.estado === "autorizada").length, icon: <CheckCircle className="w-5 h-5 text-green-500" />, bg: "bg-green-500/20" },
+        ] : [
+          // KPIs cuando estamos viendo TODAS o solo COMPRAS
           { label: "Total Retenciones", value: kpi.total,                       icon: <Receipt      className="w-5 h-5 text-primary" />,      bg: "bg-primary/20"    },
           { label: "De Compras",        value: kpi.compras,                     icon: <ShoppingCart className="w-5 h-5 text-blue-400" />,     bg: "bg-blue-500/20"   },
           { label: "De Ventas",         value: kpi.ventas,                      icon: <TrendingUp   className="w-5 h-5 text-green-400" />,    bg: "bg-green-500/20"  },
           { label: "Retenido Total",    value: `$${kpi.totalRet.toFixed(2)}`,   icon: <FileText     className="w-5 h-5 text-purple-400" />,   bg: "bg-purple-500/20" },
-        ].map(m => (
+        ]).map(m => (
           <AccountingKpiCard key={m.label} label={m.label} value={m.value} icon={m.icon} iconBg={m.bg} />
         ))}
       </div>
@@ -2433,6 +2565,29 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-400 hover:bg-white/5"}`}>
               <Printer className="w-3.5 h-3.5" /> Imprimir
             </button>
+            {(categoria === "ventas" || filterByCategory === "ventas") && (
+              <button 
+                onClick={syncWithSRI}
+                disabled={isSyncing}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isSyncing 
+                    ? "bg-blue-400 cursor-not-allowed text-white" 
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                {isSyncing ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Sincronizando...
+                  </>
+                ) : (
+                  <>
+                    <Cloud className="w-3.5 h-3.5" />
+                    Consultar SRI
+                  </>
+                )}
+              </button>
+            )}
             <button onClick={() => setShowModal(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30">
               <Plus className="w-3.5 h-3.5" /> Nueva Retención
@@ -2444,18 +2599,26 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
             <table className="w-full min-w-[620px] border-collapse">
               <thead className="sticky top-0 z-10">
                 <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${isLight ? "bg-gray-100 border-gray-200 text-gray-500" : "bg-[#0D1B2A] border-white/10 text-gray-400"}`}>
+                  {/* Col 1 */}
                   <th className="px-3 py-2.5 text-center">Estado</th>
+                  {/* Col 2 */}
                   <th className="px-3 py-2.5 text-left whitespace-nowrap">N° Retención</th>
+                  {/* Col 3 */}
                   <th className="px-3 py-2.5 text-left">Fecha</th>
+                  {/* Col 4 */}
                   <th className="px-3 py-2.5 text-left">Contribuyente</th>
+                  {/* Col 5 - AUTORIZACIÓN SRI */}
+                  <th className="px-3 py-2.5 text-left">Autorización SRI</th>
+                  {/* Col 6 */}
                   <th className="px-3 py-2.5 text-right whitespace-nowrap">Total</th>
+                  {/* Col 7 */}
                   <th className="px-3 py-2.5 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-16 text-center">
+                    <td colSpan={7} className="py-16 text-center">
                       <Receipt className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
                       <p className={`text-sm ${isLight ? "text-gray-400" : "text-gray-500"}`}>Sin retenciones para mostrar</p>
                     </td>
@@ -2470,32 +2633,53 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                       className={`border-b cursor-pointer transition-all ${isSelected
                         ? isLight ? "bg-primary/5 border-l-[3px] border-l-primary" : "bg-primary/10 border-l-[3px] border-l-primary"
                         : isLight ? "hover:bg-gray-50 border-gray-100 border-l-[3px] border-l-transparent" : "hover:bg-white/[0.03] border-white/5 border-l-[3px] border-l-transparent"}`}>
-                      {/* Estado */}
+                      {/* Col 1: Estado */}
                       <td className="px-3 py-2.5 text-center">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${estadoBadge(ret.estado)}`}>
                           {ret.estado.charAt(0).toUpperCase() + ret.estado.slice(1)}
                         </span>
                       </td>
-                      {/* N° Retención */}
+                      {/* Col 2: N° Retención */}
                       <td className="px-3 py-2.5">
-                        <span className={`font-mono font-bold text-xs tracking-wide whitespace-nowrap ${isLight ? "text-gray-900" : "text-white"}`}>
-                          {ret.num || ret.id}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`font-mono font-bold text-xs tracking-wide whitespace-nowrap ${isLight ? "text-gray-900" : "text-white"}`}>
+                            {ret.num || ret.id}
+                          </span>
+                          {ret.syncedFromSri && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded text-[9px] font-semibold" title="Sincronizado desde el SRI">
+                              <Cloud className="w-2.5 h-2.5" />
+                              SRI
+                            </span>
+                          )}
+                        </div>
                       </td>
-                      {/* Fecha */}
+                      {/* Col 3: Fecha */}
                       <td className="px-3 py-2.5">
                         <span className={`text-xs font-mono whitespace-nowrap ${isLight ? "text-gray-600" : "text-gray-400"}`}>{ret.fecha}</span>
                       </td>
-                      {/* Contribuyente */}
+                      {/* Col 4: Contribuyente */}
                       <td className="px-3 py-2.5" style={{ maxWidth: 200 }}>
                         <p className={`text-xs font-semibold truncate ${isLight ? "text-gray-800" : "text-gray-200"}`}>{sujeto}</p>
                         <p className={`text-[10px] font-mono truncate ${isLight ? "text-gray-400" : "text-gray-500"}`}>{rucSujeto}</p>
                       </td>
-                      {/* Total */}
+                      {/* Col 5: AUTORIZACIÓN SRI */}
+                      <td className="px-3 py-2.5">
+                        {ret.autorizacion_sri ? (
+                          <div className="flex flex-col">
+                            <span className={`text-xs font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
+                              {ret.autorizacion_sri.substring(0, 20)}...
+                            </span>
+                            <span className="text-green-500 text-xs font-medium">✓ Autorizado</span>
+                          </div>
+                        ) : (
+                          <span className={`text-xs italic ${isLight ? "text-gray-400" : "text-gray-500"}`}>Sin autorización</span>
+                        )}
+                      </td>
+                      {/* Col 6: Total */}
                       <td className="px-3 py-2.5 text-right">
                         <span className="font-bold font-mono text-sm text-primary whitespace-nowrap">${ret.total_retenido.toFixed(2)}</span>
                       </td>
-                      {/* Acciones */}
+                      {/* Col 7: Acciones */}
                       <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-1">
                           <button onClick={() => { setDetailsRet(ret); setShowDetailsModal(true); }} title="Ver detalles"
@@ -2872,7 +3056,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           MODAL: DETALLES DE RETENCIÓN
       ══════════════════════════════════════════════════════════════════════ */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-        <DialogContent className={`max-w-3xl max-h-[90vh] overflow-y-auto ${isLight ? "bg-white" : "bg-[#1a2332] border-white/10"}`}>
+        <DialogContent className={`max-w-3xl h-[70vh] flex flex-col ${isLight ? "bg-white" : "bg-[#1a2332] border-white/10"}`}>
           <DialogHeader>
             <DialogTitle className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
               Detalles de Retención
@@ -2883,26 +3067,26 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           </DialogHeader>
 
           {detailsRet && (
-            <Tabs defaultValue="general" className="w-full">
-              <TabsList className={`inline-flex h-auto p-0 gap-0 bg-transparent border-b w-full ${isLight ? "border-gray-200" : "border-white/10"}`}>
+            <Tabs defaultValue="general" className="w-full flex-1 flex flex-col overflow-hidden">
+              <TabsList className={`inline-flex h-auto p-0 gap-8 bg-transparent border-b w-full flex-shrink-0 ${isLight ? "border-gray-200" : "border-white/10"}`}>
                 <TabsTrigger 
                   value="general" 
-                  className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 rounded-none bg-transparent transition-colors data-[state=active]:border-primary data-[state=active]:text-primary ${isLight ? "data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-500 hover:text-gray-700 hover:bg-transparent" : "data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-400 hover:text-gray-300 hover:bg-transparent"}`}
+                  className={`!inline-flex !items-center !gap-1.5 !px-0 !pb-1.5 !pt-0 !text-sm !font-normal !border-b-2 !border-x-0 !border-t-0 !rounded-none !bg-transparent !shadow-none !outline-none !ring-0 focus-visible:!outline-none focus-visible:!ring-0 !transition-colors data-[state=active]:!border-primary data-[state=active]:!text-primary data-[state=active]:!font-medium data-[state=active]:!bg-transparent ${isLight ? "data-[state=inactive]:!border-transparent data-[state=inactive]:!text-gray-500 data-[state=inactive]:!bg-transparent hover:!text-gray-700 hover:!bg-transparent" : "data-[state=inactive]:!border-transparent data-[state=inactive]:!text-gray-400 data-[state=inactive]:!bg-transparent hover:!text-gray-300 hover:!bg-transparent"}`}
                 >
-                  <FileText className="w-4 h-4" />
+                  <Settings className="w-3.5 h-3.5" />
                   General
                 </TabsTrigger>
                 <TabsTrigger 
                   value="detalles" 
-                  className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 rounded-none bg-transparent transition-colors data-[state=active]:border-primary data-[state=active]:text-primary ${isLight ? "data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-500 hover:text-gray-700 hover:bg-transparent" : "data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-400 hover:text-gray-300 hover:bg-transparent"}`}
+                  className={`!inline-flex !items-center !gap-1.5 !px-0 !pb-1.5 !pt-0 !text-sm !font-normal !border-b-2 !border-x-0 !border-t-0 !rounded-none !bg-transparent !shadow-none !outline-none !ring-0 focus-visible:!outline-none focus-visible:!ring-0 !transition-colors data-[state=active]:!border-primary data-[state=active]:!text-primary data-[state=active]:!font-medium data-[state=active]:!bg-transparent ${isLight ? "data-[state=inactive]:!border-transparent data-[state=inactive]:!text-gray-500 data-[state=inactive]:!bg-transparent hover:!text-gray-700 hover:!bg-transparent" : "data-[state=inactive]:!border-transparent data-[state=inactive]:!text-gray-400 data-[state=inactive]:!bg-transparent hover:!text-gray-300 hover:!bg-transparent"}`}
                 >
-                  <Receipt className="w-4 h-4" />
+                  <Receipt className="w-3.5 h-3.5" />
                   Detalles
                 </TabsTrigger>
               </TabsList>
 
               {/* TAB: GENERAL */}
-              <TabsContent value="general" className="space-y-4 mt-4">
+              <TabsContent value="general" className="space-y-4 mt-4 overflow-y-auto flex-1">
                 {/* Información del documento */}
                 <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
                   <h3 className={`text-sm font-bold mb-3 uppercase ${isLight ? "text-gray-700" : "text-gray-300"}`}>
@@ -2969,7 +3153,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
               </TabsContent>
 
               {/* TAB: DETALLES DE RETENCIONES */}
-              <TabsContent value="detalles" className="space-y-4 mt-4">
+              <TabsContent value="detalles" className="space-y-4 mt-4 overflow-y-auto flex-1">
                 <div className={`p-4 rounded-lg border ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
                   <h3 className={`text-sm font-bold mb-3 uppercase ${isLight ? "text-gray-700" : "text-gray-300"}`}>
                     Detalles de Retenciones Aplicadas
@@ -3034,6 +3218,52 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           )}
         </DialogContent>
       </Dialog>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MODAL: SINCRONIZACIÓN CON SRI
+         ══════════════════════════════════════════════════════════════════════ */}
+      {showSyncModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+          <div className={`rounded-2xl p-8 max-w-md w-full shadow-2xl ${isLight ? "bg-white border border-gray-200" : "bg-gradient-to-br from-[#1a1f2e] to-[#0D1B2A] border border-white/10"}`}>
+            <div className="text-center space-y-6">
+              {/* Icono animado */}
+              <div className="flex justify-center">
+                <div className="relative">
+                  <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center">
+                    {isSyncing ? (
+                      <Cloud className="w-10 h-10 text-blue-500 animate-pulse" />
+                    ) : (
+                      <CheckCircle className="w-10 h-10 text-green-500" />
+                    )}
+                  </div>
+                  {isSyncing && (
+                    <div className="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                </div>
+              </div>
+
+              {/* Texto */}
+              <div>
+                <h3 className={`text-xl font-bold mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  {isSyncing ? "Consultando SRI..." : "¡Sincronización Completada!"}
+                </h3>
+                <p className={isLight ? "text-gray-600" : "text-gray-400"}>
+                  {isSyncing 
+                    ? "Obteniendo retenciones electrónicas autorizadas" 
+                    : "Las retenciones del SRI se han agregado correctamente"}
+                </p>
+              </div>
+
+              {/* Barra de progreso */}
+              {isSyncing && (
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                  <div className="bg-blue-500 h-full rounded-full animate-pulse" style={{ width: "70%" }}></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
