@@ -17,6 +17,7 @@ import {
   Moon,
   Users,
   TrendingUp,
+  FileCheck,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
@@ -53,7 +54,7 @@ export default function ModuleVentasDetail() {
     { id: "orders", name: "Pedidos de Venta", icon: ShoppingCart },
     { id: "customers", name: "Clientes", icon: Users },
     { id: "invoices", name: "Facturas de Venta", icon: Receipt },
-    { id: "retentions", name: "Retenciones Recibidas", icon: FileText },
+    { id: "retentions", name: "Retenciones Recibidas", icon: FileCheck },
     { id: "collections", name: "Cobros", icon: DollarSign },
   ];
 
@@ -90,67 +91,60 @@ export default function ModuleVentasDetail() {
     <div className={`min-h-screen ${isLight ? "bg-gray-50" : "bg-[#0A0F1A]"}`}>
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <header className={`sticky top-0 z-50 border-b ${isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10"}`}>
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between gap-4">
-            {/* Logo y breadcrumb */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate("/modules")}
-                className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100 text-gray-600" : "hover:bg-white/5 text-gray-300"}`}
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
+        {/* Fila principal del header */}
+        <div className="flex items-center justify-between px-6 py-4">
+          {/* Izquierda: botón volver + logo/título */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate("/modules")}
+              className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
 
-              <div className="flex items-center gap-3">
-                {logoUrl ? (
-                  <img src={logoUrl} alt="Logo" className="h-10 w-10 object-contain rounded-lg" />
-                ) : (
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-white" />
-                  </div>
-                )}
-                <div>
-                  <h1 className={`font-bold text-xl ${isLight ? "text-gray-900" : "text-white"}`}>{companyName}</h1>
-                  <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Ventas</p>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className={`font-bold text-xl ${isLight ? "text-gray-900" : "text-white"}`}>{companyName}</h1>
+                <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Ventas</p>
               </div>
             </div>
+          </div>
 
-            {/* Acciones derecha */}
-            <div className="flex items-center gap-3">
-              {/* Toggle tema */}
+          {/* Derecha: acciones y usuario */}
+          <div className="flex items-center gap-3">
+            {/* Toggle tema */}
               <button
                 onClick={toggleTheme}
-                className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100 text-gray-600" : "hover:bg-white/5 text-gray-300"}`}
+                className={`p-2 rounded-lg transition-all duration-300 ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-primary hover:bg-white/5"}`}
+                title={isLight ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
               >
                 {isLight ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
               </button>
 
               {/* Notificaciones */}
-              <button className={`p-2 rounded-lg transition-colors relative ${isLight ? "hover:bg-gray-100 text-gray-600" : "hover:bg-white/5 text-gray-300"}`}>
+              <button className={`p-2 rounded-lg transition-colors relative ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
               </button>
 
-              {/* Menú de usuario */}
+              {/* Usuario */}
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"}`}
                 >
                   <div className="relative">
-                    {profilePhoto ? (
-                      <img src={profilePhoto} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                        <User className="w-4 h-4 text-white" />
-                      </div>
-                    )}
-                    <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 ${statusInfo.color} border-2 ${isLight ? "border-white" : "border-[#0D1B2A]"} rounded-full`}></span>
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">JP</span>
+                    </div>
+                    <div className={`absolute bottom-0 right-0 w-3 h-3 ${statusInfo.color} border-2 rounded-full ${isLight ? "border-white" : "border-secondary"}`}></div>
                   </div>
-                  <div className="text-left hidden md:block">
+                  <div className="hidden md:block text-left">
                     <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
-                    <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{userRole}</p>
+                    <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{userRole} • {userBranch}</p>
                   </div>
                 </button>
 
@@ -245,31 +239,30 @@ export default function ModuleVentasDetail() {
                   </>
                 )}
               </div>
-            </div>
           </div>
+        </div>
 
-          {/* Tabs de navegación */}
-          <div className={`border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
-            <div className="flex items-center gap-0 overflow-x-auto">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${
-                      isActive
-                        ? `border-primary ${isLight ? "text-primary bg-primary/5" : "text-primary"}`
-                        : `border-transparent ${isLight ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-500 hover:text-gray-300"}`
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 ${isActive ? "text-primary" : ""}`} />
-                    {tab.name}
-                  </button>
-                );
-              })}
-            </div>
+        {/* Tabs horizontales */}
+        <div className={`px-6 border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
+          <div className="flex items-center gap-0 overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${
+                    isActive
+                      ? `border-primary ${isLight ? "text-primary bg-primary/5" : "text-primary"}`
+                      : `border-transparent ${isLight ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-500 hover:text-gray-300"}`
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? "text-primary" : ""}`} />
+                  {tab.name}
+                </button>
+              );
+            })}
           </div>
         </div>
       </header>

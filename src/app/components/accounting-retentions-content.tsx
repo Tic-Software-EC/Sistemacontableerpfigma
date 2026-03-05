@@ -2859,26 +2859,24 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                   <th className="px-3 py-2.5 text-left">Fecha</th>
                   {/* Col 4 - N° COMPROBANTE */}
                   <th className="px-3 py-2.5 text-left">N° Comprobante</th>
-                  {/* Col 5 - TIPO COMPROBANTE (reducido) */}
-                  <th className="px-2 py-2.5 text-center w-24">Tipo</th>
-                  {/* Col 6 - EMISOR/CONTRIBUYENTE */}
+                  {/* Col 5 - EMISOR/CONTRIBUYENTE */}
                   <th className="px-3 py-2.5 text-left">{categoria === "ventas" ? "Emisor" : "Contribuyente"}</th>
-                  {/* Col 7 - RUC */}
+                  {/* Col 6 - RUC */}
                   <th className="px-3 py-2.5 text-left">RUC</th>
-                  {/* Col 8 - AUTORIZACIÓN SRI */}
+                  {/* Col 7 - AUTORIZACIÓN SRI */}
                   <th className="px-3 py-2.5 text-left">Autorización SRI</th>
-                  {/* Col 9 - ESTADO CONTABLE (solo VENTAS) */}
+                  {/* Col 8 - ESTADO CONTABLE (solo VENTAS) */}
                   {categoria === "ventas" && <th className="px-3 py-2.5 text-center">Estado Contable</th>}
-                  {/* Col 10 */}
+                  {/* Col 9 */}
                   <th className="px-3 py-2.5 text-right whitespace-nowrap">Total</th>
-                  {/* Col 11 */}
+                  {/* Col 10 */}
                   <th className="px-3 py-2.5 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={categoria === "ventas" ? 10 : 10} className="py-16 text-center">
+                    <td colSpan={categoria === "ventas" ? 9 : 9} className="py-16 text-center">
                       <Receipt className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
                       <p className={`text-sm ${isLight ? "text-gray-400" : "text-gray-500"}`}>Sin retenciones para mostrar</p>
                     </td>
@@ -2926,23 +2924,15 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                           {ret.comprobante}
                         </span>
                       </td>
-                      {/* Col 5: Tipo Comprobante (reducido) */}
-                      <td className="px-2 py-2.5 text-center">
-                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${
-                          isLight ? "bg-purple-100 text-purple-700" : "bg-purple-500/20 text-purple-400"
-                        }`}>
-                          {ret.tipo_comprobante}
-                        </span>
-                      </td>
-                      {/* Col 6: Emisor/Contribuyente (solo nombre) */}
+                      {/* Col 5: Emisor/Contribuyente (solo nombre) */}
                       <td className="px-3 py-2.5" style={{ maxWidth: 200 }}>
                         <p className={`text-xs font-semibold truncate ${isLight ? "text-gray-800" : "text-gray-200"}`}>{sujeto}</p>
                       </td>
-                      {/* Col 7: RUC */}
+                      {/* Col 6: RUC */}
                       <td className="px-3 py-2.5">
                         <span className={`text-xs font-mono whitespace-nowrap ${isLight ? "text-gray-600" : "text-gray-400"}`}>{rucSujeto}</span>
                       </td>
-                      {/* Col 8: AUTORIZACIÓN SRI */}
+                      {/* Col 7: AUTORIZACIÓN SRI */}
                       <td className="px-3 py-2.5">
                         {ret.autorizacion_sri ? (
                           <span className={`text-xs font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
@@ -2952,7 +2942,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                           <span className={`text-xs italic ${isLight ? "text-gray-400" : "text-gray-500"}`}>Sin autorización</span>
                         )}
                       </td>
-                      {/* Col 9: ESTADO CONTABLE (solo VENTAS) */}
+                      {/* Col 8: ESTADO CONTABLE (solo VENTAS) */}
                       {categoria === "ventas" && (
                         <td className="px-3 py-2.5 text-center">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${
@@ -2964,11 +2954,11 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                           </span>
                         </td>
                       )}
-                      {/* Col 10: Total */}
+                      {/* Col 9: Total */}
                       <td className="px-3 py-2.5 text-right">
                         <span className="font-bold font-mono text-sm text-primary whitespace-nowrap">${ret.total_retenido.toFixed(2)}</span>
                       </td>
-                      {/* Col 11: Acciones */}
+                      {/* Col 10: Acciones */}
                       <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-1">
                           <button onClick={() => { setDetailsRet(ret); setShowDetailsModal(true); }} title="Ver detalles"
@@ -3384,20 +3374,26 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                       </p>
                     </div>
                     <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Fecha Emisión</label>
+                      <p className={`text-sm font-mono ${isLight ? "text-gray-800" : "text-gray-200"}`}>{detailsRet.fecha}</p>
+                    </div>
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Tipo de Comprobante</label>
+                      <p>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
+                          isLight ? "bg-purple-100 text-purple-700" : "bg-purple-500/20 text-purple-400"
+                        }`}>
+                          {detailsRet.tipo_comprobante}
+                        </span>
+                      </p>
+                    </div>
+                    <div>
                       <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Estado</label>
                       <p>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${estadoBadge(detailsRet.estado)}`}>
                           {detailsRet.estado.charAt(0).toUpperCase() + detailsRet.estado.slice(1)}
                         </span>
                       </p>
-                    </div>
-                    <div>
-                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Fecha Emisión</label>
-                      <p className={`text-sm font-mono ${isLight ? "text-gray-800" : "text-gray-200"}`}>{detailsRet.fecha}</p>
-                    </div>
-                    <div>
-                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Periodo Fiscal</label>
-                      <p className={`text-sm font-mono ${isLight ? "text-gray-800" : "text-gray-200"}`}>{detailsRet.periodo_fiscal}</p>
                     </div>
                     <div className="col-span-2">
                       <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Clave de Acceso</label>
@@ -3485,12 +3481,6 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
 
               {/* Botones de acción */}
               <div className="flex items-center justify-end gap-2 pt-4 border-t mt-4" style={{ borderColor: isLight ? "#e5e7eb" : "rgba(255,255,255,0.1)" }}>
-                <button
-                  onClick={() => printRetencion({ ...detailsRet, tipo: detailsRet.detalles[0]?.tipo ?? "", base: detailsRet.total_retenido, porcentaje: detailsRet.detalles[0]?.porcentaje ?? 0, valor: detailsRet.total_retenido })}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors flex items-center gap-2 ${isLight ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50" : "bg-white/5 border-white/10 text-white hover:bg-white/10"}`}
-                >
-                  <Printer className="w-4 h-4" /> Imprimir
-                </button>
                 <button
                   onClick={() => setShowDetailsModal(false)}
                   className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors"
