@@ -5,6 +5,7 @@ import {
   ShoppingCart, TrendingUp, FileText, ZoomIn, ZoomOut, RefreshCw,
   Shield, Code2, FileCode, UserSearch, CheckCircle2,
   Send, Wifi, RotateCcw, ChevronRight, Loader2, CalendarDays,
+  ChevronUp, ChevronDown, Calendar as CalendarIcon,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
@@ -12,6 +13,9 @@ import { printRetencion, printAllRetentions, downloadRetentionsCSV } from "../ut
 import { SUPPLIERS_DATA } from "../data/suppliers-data";
 import { PURCHASE_INVOICES_DATA, PurchaseInvoice } from "../data/purchase-invoices-data";
 import { AccountingKpiCard } from "./ui/accounting-kpi-card";
+import { DatePicker } from "./date-picker-range";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 /* ══════════════════════════════════════════════════════════════════════
    TIPOS
@@ -894,7 +898,11 @@ function RideViewer({ ret, onClose, onPrint, onAuthorize, onAnular, isLight }: {
 /* ══════════════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════════════════════════════════════════════ */
-export function AccountingRetentionsContent() {
+interface AccountingRetentionsContentProps {
+  filterByCategory?: "compras" | "ventas";
+}
+
+export function AccountingRetentionsContent({ filterByCategory }: AccountingRetentionsContentProps = {}) {
   const { theme } = useTheme();
   const isLight = theme === "light";
 
@@ -902,7 +910,7 @@ export function AccountingRetentionsContent() {
   const [search, setSearch]             = useState("");
   const [filterTipo, setFilterTipo]     = useState("all");
   const [filterEstado, setFilterEstado] = useState("all");
-  const [categoria, setCategoria]       = useState<"todas" | "compras" | "ventas">("todas");
+  const [categoria, setCategoria]       = useState<"todas" | "compras" | "ventas">(filterByCategory || "todas");
   const [fechaDesde, setFechaDesde]     = useState("");
   const [fechaHasta, setFechaHasta]     = useState("");
 
@@ -910,9 +918,11 @@ export function AccountingRetentionsContent() {
   const [showModal, setShowModal]   = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingRet, setEditingRet] = useState<Retencion | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsRet, setDetailsRet] = useState<Retencion | null>(null);
 
   const [form, setForm] = useState({
-    categoria: "compras" as "compras" | "ventas",
+    categoria: (filterByCategory || "compras") as "compras" | "ventas",
     tipo: "Fuente" as "Fuente" | "IVA",
     contribuyente: "", ruc: "", direccion_sujeto: "",
     comprobante: "", tipo_comprobante: "Factura",
@@ -1019,6 +1029,25 @@ export function AccountingRetentionsContent() {
     toast.success("✓ Anulación aceptada por el SRI. Retención anulada.");
   };
 
+  // Función para cerrar modal y resetear formulario
+  const closeModalAndReset = () => {
+    setShowModal(false);
+    setSupplierQuery("");
+    setSupplierFound(null);
+    setSelectedInvoice(null);
+    setForm({
+      categoria: (filterByCategory || "compras") as "compras" | "ventas",
+      tipo: "Fuente" as "Fuente" | "IVA",
+      contribuyente: "", ruc: "", direccion_sujeto: "",
+      comprobante: "", tipo_comprobante: "Factura",
+      fecha: "2026-03-04", fecha_comprobante: "2026-03-04",
+      periodo_fiscal: "03/2026",
+      emisor_razon: "", emisor_ruc: "",
+      codigo: "", concepto: "",
+      porcentaje: 1, base_imponible: "",
+    });
+  };
+
   const handleSave = () => {
     if (!form.contribuyente.trim() || !form.comprobante.trim() || !form.base_imponible || !form.codigo) {
       toast.error("Complete todos los campos obligatorios"); return;
@@ -1061,10 +1090,7 @@ export function AccountingRetentionsContent() {
     setRetenciones(prev => [newRet, ...prev]);
     setSelected(newRet);
     toast.success("Retención creada. Pendiente de autorización.");
-    setShowModal(false);
-    setSupplierQuery("");
-    setSupplierFound(null);
-    setSelectedInvoice(null);
+    closeModalAndReset();
   };
 
   /* ── estilos ──────────────────────────────────────────────────────── */
@@ -1115,14 +1141,16 @@ export function AccountingRetentionsContent() {
 
           {/* ── Barra de herramientas ── */}
           <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0d1724]"}`}>
-            <div className={`flex gap-1 p-0.5 rounded-lg ${isLight ? "bg-gray-100" : "bg-white/5"}`}>
-              {(["todas","compras","ventas"] as const).map(c => (
-                <button key={c} onClick={() => setCategoria(c)}
-                  className={`px-3 py-1.5 rounded text-xs font-medium capitalize transition-colors ${categoria === c ? "bg-primary text-white" : isLight ? "text-gray-600 hover:bg-gray-200" : "text-gray-400 hover:bg-white/5"}`}>
-                  {c === "todas" ? "Todas" : c === "compras" ? "Compras" : "Ventas"}
-                </button>
-              ))}
-            </div>
+            {!filterByCategory && (
+              <div className={`flex gap-1 p-0.5 rounded-lg ${isLight ? "bg-gray-100" : "bg-white/5"}`}>
+                {(["todas","compras","ventas"] as const).map(c => (
+                  <button key={c} onClick={() => setCategoria(c)}
+                    className={`px-3 py-1.5 rounded text-xs font-medium capitalize transition-colors ${categoria === c ? "bg-primary text-white" : isLight ? "text-gray-600 hover:bg-gray-200" : "text-gray-400 hover:bg-white/5"}`}>
+                    {c === "todas" ? "Todas" : c === "compras" ? "Compras" : "Ventas"}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 flex-1 min-w-[160px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
               <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar número, contribuyente, comprobante..."
@@ -1142,19 +1170,24 @@ export function AccountingRetentionsContent() {
               <option value="anulada" className={opt}>Anulada</option>
             </select>
             {/* ── Filtro fechas ── */}
-            <div className={`flex items-center gap-1.5 border rounded-lg px-2 py-1 ${isLight ? "bg-white border-gray-300" : "bg-[#0d1724] border-white/10"}`}>
-              <CalendarDays className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <input type="date" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)}
-                title="Fecha desde"
-                className={`text-xs bg-transparent focus:outline-none ${isLight ? "text-gray-700" : "text-gray-300"}`} />
+            <div className="flex items-center gap-2">
+              <DatePicker
+                value={fechaDesde}
+                onChange={setFechaDesde}
+                placeholder="Desde"
+                isLight={isLight}
+              />
               <span className="text-gray-400 text-xs">—</span>
-              <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)}
-                title="Fecha hasta"
-                className={`text-xs bg-transparent focus:outline-none ${isLight ? "text-gray-700" : "text-gray-300"}`} />
+              <DatePicker
+                value={fechaHasta}
+                onChange={setFechaHasta}
+                placeholder="Hasta"
+                isLight={isLight}
+              />
               {(fechaDesde || fechaHasta) && (
                 <button onClick={() => { setFechaDesde(""); setFechaHasta(""); }} title="Limpiar fechas"
-                  className="text-gray-400 hover:text-primary ml-0.5">
-                  <X className="w-3 h-3" />
+                  className="text-gray-400 hover:text-primary">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -1177,11 +1210,10 @@ export function AccountingRetentionsContent() {
             <table className="w-full min-w-[620px] border-collapse">
               <thead className="sticky top-0 z-10">
                 <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${isLight ? "bg-gray-100 border-gray-200 text-gray-500" : "bg-[#0D1B2A] border-white/10 text-gray-400"}`}>
+                  <th className="px-3 py-2.5 text-center">Estado</th>
                   <th className="px-3 py-2.5 text-left whitespace-nowrap">N° Retención</th>
                   <th className="px-3 py-2.5 text-left">Fecha</th>
                   <th className="px-3 py-2.5 text-left">Contribuyente</th>
-                  <th className="px-3 py-2.5 text-left whitespace-nowrap">Comprobante</th>
-                  <th className="px-3 py-2.5 text-center">Estado</th>
                   <th className="px-3 py-2.5 text-right whitespace-nowrap">Total</th>
                   <th className="px-3 py-2.5 text-center">Acciones</th>
                 </tr>
@@ -1189,7 +1221,7 @@ export function AccountingRetentionsContent() {
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center">
+                    <td colSpan={6} className="py-16 text-center">
                       <Receipt className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
                       <p className={`text-sm ${isLight ? "text-gray-400" : "text-gray-500"}`}>Sin retenciones para mostrar</p>
                     </td>
@@ -1204,6 +1236,12 @@ export function AccountingRetentionsContent() {
                       className={`border-b cursor-pointer transition-all ${isSelected
                         ? isLight ? "bg-primary/5 border-l-[3px] border-l-primary" : "bg-primary/10 border-l-[3px] border-l-primary"
                         : isLight ? "hover:bg-gray-50 border-gray-100 border-l-[3px] border-l-transparent" : "hover:bg-white/[0.03] border-white/5 border-l-[3px] border-l-transparent"}`}>
+                      {/* Estado */}
+                      <td className="px-3 py-2.5 text-center">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${estadoBadge(ret.estado)}`}>
+                          {ret.estado.charAt(0).toUpperCase() + ret.estado.slice(1)}
+                        </span>
+                      </td>
                       {/* N° Retención */}
                       <td className="px-3 py-2.5">
                         <span className={`font-mono font-bold text-xs tracking-wide whitespace-nowrap ${isLight ? "text-gray-900" : "text-white"}`}>
@@ -1215,20 +1253,9 @@ export function AccountingRetentionsContent() {
                         <span className={`text-xs font-mono whitespace-nowrap ${isLight ? "text-gray-600" : "text-gray-400"}`}>{ret.fecha}</span>
                       </td>
                       {/* Contribuyente */}
-                      <td className="px-3 py-2.5" style={{ maxWidth: 150 }}>
+                      <td className="px-3 py-2.5" style={{ maxWidth: 200 }}>
                         <p className={`text-xs font-semibold truncate ${isLight ? "text-gray-800" : "text-gray-200"}`}>{sujeto}</p>
                         <p className={`text-[10px] font-mono truncate ${isLight ? "text-gray-400" : "text-gray-500"}`}>{rucSujeto}</p>
-                      </td>
-                      {/* Comprobante origen */}
-                      <td className="px-3 py-2.5">
-                        <span className={`text-[11px] font-mono font-semibold whitespace-nowrap ${isLight ? "text-primary" : "text-primary/90"}`}>{ret.comprobante}</span>
-                        <p className={`text-[10px] mt-0.5 font-mono ${isLight ? "text-gray-400" : "text-gray-500"}`}>{ret.tipo_comprobante}</p>
-                      </td>
-                      {/* Estado */}
-                      <td className="px-3 py-2.5 text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${estadoBadge(ret.estado)}`}>
-                          {ret.estado.charAt(0).toUpperCase() + ret.estado.slice(1)}
-                        </span>
                       </td>
                       {/* Total */}
                       <td className="px-3 py-2.5 text-right">
@@ -1236,10 +1263,16 @@ export function AccountingRetentionsContent() {
                       </td>
                       {/* Acciones */}
                       <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
-                        <button onClick={() => printRetencion({ ...ret, tipo: ret.detalles[0]?.tipo ?? "", base: ret.total_retenido, porcentaje: ret.detalles[0]?.porcentaje ?? 0, valor: ret.total_retenido })} title="Imprimir"
-                          className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100 hover:text-gray-800" : "text-gray-400 hover:bg-white/10 hover:text-white"}`}>
-                          <Printer className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center justify-center gap-1">
+                          <button onClick={() => { setDetailsRet(ret); setShowDetailsModal(true); }} title="Ver detalles"
+                            className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100 hover:text-gray-800" : "text-gray-400 hover:bg-white/10 hover:text-white"}`}>
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => printRetencion({ ...ret, tipo: ret.detalles[0]?.tipo ?? "", base: ret.total_retenido, porcentaje: ret.detalles[0]?.porcentaje ?? 0, valor: ret.total_retenido })} title="Imprimir"
+                            className={`p-1.5 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100 hover:text-gray-800" : "text-gray-400 hover:bg-white/10 hover:text-white"}`}>
+                            <Printer className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1290,27 +1323,47 @@ export function AccountingRetentionsContent() {
                 <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center"><Plus className="w-5 h-5 text-primary" /></div>
                 <h3 className={`font-bold text-xl ${isLight ? "text-gray-900" : "text-white"}`}>Nueva Retención</h3>
               </div>
-              <button onClick={() => { setShowModal(false); setSupplierQuery(""); setSupplierFound(null); setSelectedInvoice(null); }} className={`p-2 rounded-lg ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}><X className="w-5 h-5" /></button>
+              <button onClick={closeModalAndReset} className={`p-2 rounded-lg ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}><X className="w-5 h-5" /></button>
             </div>
             <div className="p-5 overflow-y-auto flex-1 space-y-4">
 
               {/* Categoría */}
-              <div>
-                <label className={lbl}>Tipo de Retención</label>
-                <div className={`flex gap-2 p-1 rounded-lg ${isLight ? "bg-gray-100" : "bg-white/5"}`}>
-                  {(["compras","ventas"] as const).map(c => (
-                    <button key={c} onClick={() => setForm({...form, categoria: c})}
-                      className={`flex-1 py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition-colors ${form.categoria === c ? "bg-primary text-white" : isLight ? "text-gray-600 hover:bg-gray-200" : "text-gray-400 hover:bg-white/5"}`}>
-                      {c === "compras" ? <><ShoppingCart className="w-4 h-4" /> Emito (Compras)</> : <><TrendingUp className="w-4 h-4" /> Me retienen (Ventas)</>}
-                    </button>
-                  ))}
+              {!filterByCategory ? (
+                <div>
+                  <label className={lbl}>Tipo de Retención</label>
+                  <div className={`flex gap-2 p-1 rounded-lg ${isLight ? "bg-gray-100" : "bg-white/5"}`}>
+                    {(["compras","ventas"] as const).map(c => (
+                      <button key={c} onClick={() => setForm({...form, categoria: c})}
+                        className={`flex-1 py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition-colors ${form.categoria === c ? "bg-primary text-white" : isLight ? "text-gray-600 hover:bg-gray-200" : "text-gray-400 hover:bg-white/5"}`}>
+                        {c === "compras" ? <><ShoppingCart className="w-4 h-4" /> Emito (Compras)</> : <><TrendingUp className="w-4 h-4" /> Me retienen (Ventas)</>}
+                      </button>
+                    ))}
+                  </div>
+                  <p className={`text-xs mt-1 ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                    {form.categoria === "compras"
+                      ? "Yo soy el agente de retención — le retengo a mi proveedor"
+                      : "Mi cliente me aplica una retención sobre mi factura de venta"}
+                  </p>
                 </div>
-                <p className={`text-xs mt-1 ${isLight ? "text-gray-500" : "text-gray-400"}`}>
-                  {form.categoria === "compras"
-                    ? "Yo soy el agente de retención — le retengo a mi proveedor"
-                    : "Mi cliente me aplica una retención sobre mi factura de venta"}
-                </p>
-              </div>
+              ) : (
+                <div className={`p-4 rounded-xl border ${isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20"}`}>
+                  <div className="flex items-center gap-2">
+                    {filterByCategory === "compras" ? (
+                      <><ShoppingCart className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className={`text-sm font-bold ${isLight ? "text-gray-900" : "text-white"}`}>Retención de Compras</p>
+                        <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Yo soy el agente de retención — le retengo a mi proveedor</p>
+                      </div></>
+                    ) : (
+                      <><TrendingUp className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className={`text-sm font-bold ${isLight ? "text-gray-900" : "text-white"}`}>Retención de Ventas</p>
+                        <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Mi cliente me aplica una retención sobre mi factura de venta</p>
+                      </div></>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Emisor (solo para ventas) */}
               {form.categoria === "ventas" && (
@@ -1572,7 +1625,7 @@ export function AccountingRetentionsContent() {
             </div>
 
             <div className={`border-t px-5 py-4 flex justify-end gap-3 flex-shrink-0 ${isLight ? "border-gray-200" : "border-white/10"}`}>
-              <button onClick={() => setShowModal(false)} className={`px-5 py-2 rounded-lg text-sm font-medium border ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-white/5 border-white/10 text-white"}`}>Cancelar</button>
+              <button onClick={closeModalAndReset} className={`px-5 py-2 rounded-lg text-sm font-medium border ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-white/5 border-white/10 text-white"}`}>Cancelar</button>
               <button onClick={handleSave} className="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
                 <Save className="w-4 h-4" /> Crear Retención
               </button>
@@ -1580,6 +1633,212 @@ export function AccountingRetentionsContent() {
           </div>
         </div>
       )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MODAL: DETALLES DE RETENCIÓN
+      ══════════════════════════════════════════════════════════════════════ */}
+      <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+        <DialogContent className={`max-w-3xl max-h-[90vh] overflow-y-auto ${isLight ? "bg-white" : "bg-[#1a2332] border-white/10"}`}>
+          <DialogHeader>
+            <DialogTitle className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+              Detalles de Retención
+            </DialogTitle>
+            <DialogDescription className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+              Información completa del documento de retención
+            </DialogDescription>
+          </DialogHeader>
+
+          {detailsRet && (
+            <Tabs defaultValue="general" className="w-full">
+              <TabsList className={`grid w-full grid-cols-4 ${isLight ? "bg-gray-100" : "bg-white/5"}`}>
+                <TabsTrigger value="general" className="text-xs">General</TabsTrigger>
+                <TabsTrigger value="comprobante" className="text-xs">Comprobante</TabsTrigger>
+                <TabsTrigger value="detalles" className="text-xs">Detalles</TabsTrigger>
+                <TabsTrigger value="adicional" className="text-xs">Adicional</TabsTrigger>
+              </TabsList>
+
+              {/* TAB: GENERAL */}
+              <TabsContent value="general" className="space-y-4 mt-4">
+                {/* Información del documento */}
+                <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                  <h3 className={`text-sm font-bold mb-3 uppercase ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    Información del Documento
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>N° Retención</label>
+                      <p className={`text-sm font-mono font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                        {detailsRet.num || detailsRet.id}
+                      </p>
+                    </div>
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Estado</label>
+                      <p>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${estadoBadge(detailsRet.estado)}`}>
+                          {detailsRet.estado.charAt(0).toUpperCase() + detailsRet.estado.slice(1)}
+                        </span>
+                      </p>
+                    </div>
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Fecha Emisión</label>
+                      <p className={`text-sm font-mono ${isLight ? "text-gray-800" : "text-gray-200"}`}>{detailsRet.fecha}</p>
+                    </div>
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Periodo Fiscal</label>
+                      <p className={`text-sm font-mono ${isLight ? "text-gray-800" : "text-gray-200"}`}>{detailsRet.periodo_fiscal}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Clave de Acceso</label>
+                      <p className={`text-xs font-mono break-all ${isLight ? "text-gray-700" : "text-gray-300"}`}>{detailsRet.clave_acceso}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Datos del contribuyente */}
+                <div className={`p-4 rounded-lg border ${isLight ? "bg-blue-50 border-blue-200" : "bg-blue-500/10 border-blue-500/20"}`}>
+                  <h3 className={`text-sm font-bold mb-3 uppercase ${isLight ? "text-blue-700" : "text-blue-300"}`}>
+                    {detailsRet.categoria === "compras" ? "Datos del Proveedor (Sujeto Retenido)" : "Datos del Cliente (Emisor)"}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="col-span-2">
+                      <label className={`text-xs font-semibold ${isLight ? "text-blue-600" : "text-blue-400"}`}>Razón Social</label>
+                      <p className={`text-sm font-bold ${isLight ? "text-blue-900" : "text-blue-200"}`}>
+                        {detailsRet.categoria === "compras" ? detailsRet.contribuyente : detailsRet.emisor_razon}
+                      </p>
+                    </div>
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-blue-600" : "text-blue-400"}`}>RUC/CI</label>
+                      <p className={`text-sm font-mono ${isLight ? "text-blue-800" : "text-blue-200"}`}>
+                        {detailsRet.categoria === "compras" ? detailsRet.ruc : detailsRet.emisor_ruc}
+                      </p>
+                    </div>
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-blue-600" : "text-blue-400"}`}>Email</label>
+                      <p className={`text-sm ${isLight ? "text-blue-800" : "text-blue-200"}`}>{detailsRet.emisor_email || "—"}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <label className={`text-xs font-semibold ${isLight ? "text-blue-600" : "text-blue-400"}`}>Dirección</label>
+                      <p className={`text-sm ${isLight ? "text-blue-800" : "text-blue-200"}`}>{detailsRet.direccion_sujeto || "—"}</p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* TAB: COMPROBANTE ORIGEN */}
+              <TabsContent value="comprobante" className="space-y-4 mt-4">
+                <div className={`p-4 rounded-lg border ${isLight ? "bg-amber-50 border-amber-200" : "bg-amber-500/10 border-amber-500/20"}`}>
+                  <h3 className={`text-sm font-bold mb-3 uppercase ${isLight ? "text-amber-700" : "text-amber-300"}`}>
+                    Comprobante de Venta Origen
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-amber-600" : "text-amber-400"}`}>Tipo de Comprobante</label>
+                      <p className={`text-sm font-bold ${isLight ? "text-amber-900" : "text-amber-200"}`}>{detailsRet.tipo_comprobante}</p>
+                    </div>
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-amber-600" : "text-amber-400"}`}>N° Comprobante</label>
+                      <p className={`text-sm font-mono font-bold ${isLight ? "text-amber-900" : "text-amber-200"}`}>{detailsRet.comprobante}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <label className={`text-xs font-semibold ${isLight ? "text-amber-600" : "text-amber-400"}`}>Fecha del Comprobante</label>
+                      <p className={`text-sm font-mono ${isLight ? "text-amber-800" : "text-amber-200"}`}>{detailsRet.fecha_comprobante}</p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* TAB: DETALLES DE RETENCIONES */}
+              <TabsContent value="detalles" className="space-y-4 mt-4">
+                <div className={`p-4 rounded-lg border ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
+                  <h3 className={`text-sm font-bold mb-3 uppercase ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    Detalles de Retenciones Aplicadas
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className={`border-b ${isLight ? "bg-gray-100 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                          <th className={`px-3 py-2 text-left text-xs font-bold ${isLight ? "text-gray-700" : "text-gray-300"}`}>Tipo</th>
+                          <th className={`px-3 py-2 text-left text-xs font-bold ${isLight ? "text-gray-700" : "text-gray-300"}`}>Código</th>
+                          <th className={`px-3 py-2 text-right text-xs font-bold ${isLight ? "text-gray-700" : "text-gray-300"}`}>Base Imponible</th>
+                          <th className={`px-3 py-2 text-right text-xs font-bold ${isLight ? "text-gray-700" : "text-gray-300"}`}>%</th>
+                          <th className={`px-3 py-2 text-right text-xs font-bold ${isLight ? "text-gray-700" : "text-gray-300"}`}>Valor Retenido</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {detailsRet.detalles.map((det, i) => (
+                          <tr key={i} className={`border-b ${isLight ? "border-gray-100" : "border-white/5"}`}>
+                            <td className={`px-3 py-2 ${isLight ? "text-gray-800" : "text-gray-200"}`}>
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${det.tipo === "Fuente" ? (isLight ? "bg-green-100 text-green-700" : "bg-green-500/20 text-green-400") : (isLight ? "bg-blue-100 text-blue-700" : "bg-blue-500/20 text-blue-400")}`}>
+                                {det.tipo}
+                              </span>
+                            </td>
+                            <td className={`px-3 py-2 font-mono text-xs ${isLight ? "text-gray-700" : "text-gray-300"}`}>{det.codigo}</td>
+                            <td className={`px-3 py-2 text-right font-mono ${isLight ? "text-gray-800" : "text-gray-200"}`}>${det.base_imponible.toFixed(2)}</td>
+                            <td className={`px-3 py-2 text-right font-mono ${isLight ? "text-gray-700" : "text-gray-300"}`}>{det.porcentaje}%</td>
+                            <td className="px-3 py-2 text-right font-mono font-bold text-primary">${det.valor_retenido.toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className={`border-t-2 ${isLight ? "bg-gray-50 border-gray-300" : "bg-white/5 border-white/20"}`}>
+                          <td colSpan={4} className={`px-3 py-2 text-right font-bold text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                            TOTAL RETENIDO:
+                          </td>
+                          <td className="px-3 py-2 text-right font-bold text-lg text-primary">
+                            ${detailsRet.total_retenido.toFixed(2)}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* TAB: INFORMACIÓN ADICIONAL */}
+              <TabsContent value="adicional" className="space-y-4 mt-4">
+                <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                  <h3 className={`text-sm font-bold mb-3 uppercase ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    Información Adicional
+                  </h3>
+                  {detailsRet.num_autorizacion && (
+                    <div className="mb-3">
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>N° Autorización SRI</label>
+                      <p className={`text-sm font-mono ${isLight ? "text-gray-800" : "text-gray-200"}`}>{detailsRet.num_autorizacion}</p>
+                    </div>
+                  )}
+                  {detailsRet.observaciones && (
+                    <div>
+                      <label className={`text-xs font-semibold ${isLight ? "text-gray-500" : "text-gray-400"}`}>Observaciones</label>
+                      <p className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>{detailsRet.observaciones}</p>
+                    </div>
+                  )}
+                  {!detailsRet.num_autorizacion && !detailsRet.observaciones && (
+                    <p className={`text-sm italic ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                      No hay información adicional disponible
+                    </p>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* Botones de acción */}
+              <div className="flex items-center justify-end gap-2 pt-4 border-t mt-4" style={{ borderColor: isLight ? "#e5e7eb" : "rgba(255,255,255,0.1)" }}>
+                <button
+                  onClick={() => printRetencion({ ...detailsRet, tipo: detailsRet.detalles[0]?.tipo ?? "", base: detailsRet.total_retenido, porcentaje: detailsRet.detalles[0]?.porcentaje ?? 0, valor: detailsRet.total_retenido })}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors flex items-center gap-2 ${isLight ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50" : "bg-white/5 border-white/10 text-white hover:bg-white/10"}`}
+                >
+                  <Printer className="w-4 h-4" /> Imprimir
+                </button>
+                <button
+                  onClick={() => setShowDetailsModal(false)}
+                  className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

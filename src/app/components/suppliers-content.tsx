@@ -1,4 +1,14 @@
+import { useState } from "react";
 import { Supplier, SUPPLIERS_DATA } from "../data/suppliers-data";
+import { useTheme } from "../contexts/theme-context";
+import {
+  Search, Plus, Filter, Download, Printer, Eye, Edit, Trash2,
+  X, Save, Building2, MapPin, Phone, Mail, CreditCard, User,
+  FileText, Calendar, DollarSign, Package, TrendingUp, AlertCircle,
+  CheckCircle2, Clock, Ban, Truck, Pencil, ChevronsLeft, ChevronsRight,
+  ChevronLeft, ChevronRight
+} from "lucide-react";
+import { toast } from "sonner";
 
 const SUPPLIER_CATEGORIES = [
   "all",

@@ -97,7 +97,7 @@ export default function ModulesPage() {
     { id: "reportes", name: "Reportes", icon: BarChart3, color: "from-purple-500 to-purple-600", route: "/module-config-detail", description: "Reportes y análisis" },
     { id: "inventario", name: "Inventario", icon: Package, color: "from-orange-500 to-orange-600", route: "/module-inventory-detail", description: "Control de inventario" },
     { id: "contabilidad", name: "Contabilidad", icon: Calculator, color: "from-pink-500 to-pink-600", route: "/module-config-detail", description: "Gestión contable" },
-    { id: "ventas", name: "Ventas", icon: ShoppingCart, color: "from-cyan-500 to-cyan-600", route: "/module-config-detail", description: "Módulo de ventas" },
+    { id: "ventas", name: "Ventas", icon: ShoppingCart, color: "from-cyan-500 to-cyan-600", route: "/module-ventas-detail", description: "Módulo de ventas" },
     { id: "pos", name: "Punto de Venta", icon: Receipt, color: "from-primary to-primary/80", route: "/module-pos-detail", description: "Sistema POS" },
     { id: "compras", name: "Compras", icon: ShoppingBag, color: "from-indigo-500 to-indigo-600", route: "/module-compras-detail", description: "Gestión de compras" },
     { id: "gastos", name: "Gastos", icon: Wallet, color: "from-red-500 to-red-600", route: "/module-config-detail", description: "Control de gastos" },
@@ -122,6 +122,7 @@ export default function ModulesPage() {
   const handleModuleClick = (module: Module) => {
     // Módulos con vista propia
     if (module.name === "Compras")        { navigate("/module-compras-detail/orders"); return; }
+    if (module.name === "Ventas")         { navigate("/module-ventas-detail/quotes"); return; }
     if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }
     if (module.name === "Inventario")     { navigate("/module-inventory-detail/stock"); return; }
     if (module.name === "Contabilidad")   { navigate("/module-accounting-detail/journal"); return; }

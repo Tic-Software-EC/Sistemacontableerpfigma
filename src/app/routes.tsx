@@ -9,6 +9,7 @@ import PlanConfigurationPage from "./pages/plan-configuration";
 import MenuManagementPage from "./pages/menu-management";
 import ModuleConfigurationPage from "./pages/module-configuration";
 import ModuleComprasDetail from "./pages/module-compras-detail";
+import ModuleVentasDetail from "./pages/module-ventas-detail";
 import ModulePosDetail from "./pages/module-pos-detail";
 import ModuleInventoryDetail from "./pages/module-inventory-detail";
 import ModuleAccountingDetail from "./pages/module-accounting-detail";
@@ -62,6 +63,9 @@ export const router = createBrowserRouter([
 
       // ── Compras ────────────────────────────────────────────────────────────
       { path: "/module-compras-detail/:tab", element: <ModuleComprasDetail /> },
+
+      // ── Ventas ─────────────────────────────────────────────────────────────
+      { path: "/module-ventas-detail/:tab", element: <ModuleVentasDetail /> },
 
       // ── Punto de Venta ─────────────────────────────────────────────────────
       { path: "/module-pos-detail/:tab",     element: <ModulePosDetail /> },

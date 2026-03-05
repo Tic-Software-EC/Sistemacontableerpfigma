@@ -13,7 +13,6 @@ import { JournalContent } from "../components/journal-content";
 import { ChartOfAccountsContent } from "../components/chart-of-accounts-content";
 import { BalanceSheetContent } from "../components/balance-sheet-content";
 import { IncomeStatementContent } from "../components/income-statement-content";
-import { AccountingRetentionsContent } from "../components/accounting-retentions-content";
 import { FinancialReportsContent } from "../components/financial-reports-content";
 
 const TABS = [
@@ -21,7 +20,6 @@ const TABS = [
   { id: "accounts",   name: "Plan de Cuentas",        icon: List        },
   { id: "balance",    name: "Balance General",        icon: BarChart2   },
   { id: "income",     name: "Estado de Resultados",   icon: TrendingUp  },
-  { id: "retentions", name: "Retenciones",            icon: Receipt     },
   { id: "reports",    name: "Reportes Financieros",   icon: PieChart    },
 ];
 
@@ -227,8 +225,7 @@ export default function ModuleAccountingDetail() {
       </header>
 
       {/* ── Contenido principal ──────────────────────────────────────────────── */}
-      <main className={activeTab === "retentions" ? "p-6 flex flex-col" : "p-6"}
-            style={activeTab === "retentions" ? { height: "calc(100vh - 130px)" } : undefined}>
+      <main className="p-6">
         {/* Libro Diario */}
         {activeTab === "journal" && <JournalContent />}
 
@@ -240,13 +237,6 @@ export default function ModuleAccountingDetail() {
 
         {/* Estado de Resultados */}
         {activeTab === "income" && <IncomeStatementContent />}
-
-        {/* Retenciones — layout full height */}
-        {activeTab === "retentions" && (
-          <div className="flex flex-col flex-1 min-h-0">
-            <AccountingRetentionsContent />
-          </div>
-        )}
 
         {/* Reportes Financieros */}
         {activeTab === "reports" && <FinancialReportsContent />}

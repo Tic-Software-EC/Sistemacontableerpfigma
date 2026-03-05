@@ -37,7 +37,7 @@ import { PurchaseOrdersContent } from "../components/purchase-orders-content";
 import { SuppliersContent } from "../components/suppliers-content";
 import { MerchandiseReceptionContent } from "../components/merchandise-reception-content";
 import { SupplierInvoicesContent } from "../components/supplier-invoices-content";
-import { RetentionsContent } from "../components/retentions-content";
+import { AccountingRetentionsContent } from "../components/accounting-retentions-content";
 
 // Mock data para las órdenes de compra con productos detallados
 const mockOrders = [
@@ -504,7 +504,8 @@ export default function ModuleComprasDetail() {
       </header>
 
       {/* Contenido principal */}
-      <main className="p-6">
+      <main className={activeTab === "retentions" ? "p-6 flex flex-col" : "p-6"}
+            style={activeTab === "retentions" ? { height: "calc(100vh - 165px)" } : undefined}>
         {activeTab === "orders" && (
           <PurchaseOrdersContent />
         )}
@@ -522,15 +523,8 @@ export default function ModuleComprasDetail() {
         )}
 
         {activeTab === "retentions" && (
-          <div className="space-y-6">
-            <div>
-
-              <p className="text-gray-400 text-sm">
-                Administración de retenciones fiscales a proveedores
-              </p>
-            </div>
-            <div className="border-t border-white/10"></div>
-            <RetentionsContent />
+          <div className="flex flex-col flex-1 min-h-0">
+            <AccountingRetentionsContent filterByCategory="compras" />
           </div>
         )}
 
