@@ -40,7 +40,6 @@ export default function ModuleVentasDetail() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [userStatus, setUserStatus] = useState<"online" | "away" | "dnd" | "offline">("online");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
@@ -68,6 +67,10 @@ export default function ModuleVentasDetail() {
 
   const handleSaveProfile = (profile: any) => {
     console.log("Perfil actualizado:", profile);
+  };
+
+  const getModuleIcon = () => {
+    return <TrendingUp className="w-5 h-5 text-white" />;
   };
 
   const getStatusInfo = () => {
@@ -156,16 +159,12 @@ export default function ModuleVentasDetail() {
                       {/* Info del usuario */}
                       <div className={`p-4 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
                         <div className="flex items-center gap-3">
-                          {profilePhoto ? (
-                            <img src={profilePhoto} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                              <User className="w-6 h-6 text-white" />
-                            </div>
-                          )}
+                          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                            {getModuleIcon()}
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`font-semibold text-sm truncate ${isLight ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
-                            <p className={`text-xs truncate ${isLight ? "text-gray-500" : "text-gray-400"}`}>{userProfile.email}</p>
+                            <p className={`font-medium text-sm truncate ${isLight ? "text-gray-900" : "text-white"}`}>{companyName}</p>
+                            <p className={`text-xs truncate ${isLight ? "text-gray-500" : "text-gray-400"}`}>Ventas</p>
                           </div>
                         </div>
                         <div className="mt-3 flex items-center justify-between">
@@ -204,26 +203,21 @@ export default function ModuleVentasDetail() {
                           <User className="w-4 h-4" />
                           Mi Perfil
                         </button>
-                        <button
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            setShowPreferencesModal(true);
-                          }}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isLight ? "hover:bg-gray-100 text-gray-700" : "hover:bg-white/5 text-gray-300"}`}
-                        >
-                          <Settings className="w-4 h-4" />
-                          Preferencias
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            setShowSubscriptionModal(true);
-                          }}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isLight ? "hover:bg-gray-100 text-gray-700" : "hover:bg-white/5 text-gray-300"}`}
-                        >
-                          <CreditCard className="w-4 h-4" />
-                          Suscripción
-                        </button>
+                        {/* Solo administradores pueden ver Preferencias */}
+                        {userProfile.role.toLowerCase().includes("administrador") && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setShowUserMenu(false);
+                                setShowPreferencesModal(true);
+                              }}
+                              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isLight ? "hover:bg-gray-100 text-gray-700" : "hover:bg-white/5 text-gray-300"}`}
+                            >
+                              <Settings className="w-4 h-4" />
+                              Preferencias
+                            </button>
+                          </>
+                        )}
                       </div>
 
                       <div className={`p-2 border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
@@ -367,53 +361,6 @@ export default function ModuleVentasDetail() {
       )}
 
       {showPreferencesModal && <PreferencesModal isOpen={showPreferencesModal} onClose={() => setShowPreferencesModal(false)} />}
-
-      {/* Modal de Suscripción */}
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className={`w-full max-w-2xl rounded-2xl border shadow-2xl ${isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10"}`}>
-            <div className={`flex items-center justify-between p-6 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
-              <div>
-                <h3 className={`text-xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>Información de Suscripción</h3>
-                <p className={`text-sm mt-1 ${isLight ? "text-gray-500" : "text-gray-400"}`}>Detalles de tu plan actual</p>
-              </div>
-              <button onClick={() => setShowSubscriptionModal(false)} className={`p-2 rounded-lg ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6">
-              <div className={`p-6 rounded-xl border ${isLight ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20" : "bg-gradient-to-br from-primary/10 to-primary/20 border-primary/30"}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h4 className={`text-2xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>{userPlan}</h4>
-                    <p className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>Plan activo hasta: 31/12/2026</p>
-                  </div>
-                  <CreditCard className="w-12 h-12 text-primary" />
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  <div>
-                    <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Usuarios activos</p>
-                    <p className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>5 / 10</p>
-                  </div>
-                  <div>
-                    <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulos disponibles</p>
-                    <p className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>8 / 12</p>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  onClick={() => setShowSubscriptionModal(false)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${isLight ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50" : "bg-white/5 border-white/10 text-white hover:bg-white/10"}`}
-                >
-                  Cerrar
-                </button>
-                <button className="px-4 py-2 rounded-lg text-sm font-medium bg-primary hover:bg-primary/90 text-white transition-colors">Gestionar Plan</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

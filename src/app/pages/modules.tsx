@@ -61,8 +61,6 @@ export default function ModulesPage() {
   const { logoUrl } = useBrand();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [activeSubscriptionTab, setActiveSubscriptionTab] = useState("current-plan");
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [userStatus, setUserStatus] = useState<"online" | "away" | "dnd" | "offline">("online");
@@ -250,33 +248,38 @@ export default function ModulesPage() {
                     {/* Header con info del usuario */}
                     <div className={`px-4 py-4 border-b ${theme === "light" ? "border-gray-100" : "border-white/10"}`}>
                       <div className="flex items-center gap-3">
-                        <div className="relative">
-                          {profilePhoto ? (
-                            <div className="w-12 h-12 rounded-xl overflow-hidden">
-                              <img src={profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
-                            </div>
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary to-primary/80 flex-shrink-0">
+                          {logoUrl ? (
+                            <img src={logoUrl} alt="Logo empresa" className="w-full h-full object-contain p-1" />
                           ) : (
-                            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
-                              <span className="text-white font-bold">JP</span>
-                            </div>
+                            <span className="text-white font-bold text-lg">T</span>
                           )}
-                          <span className={`absolute bottom-0 right-0 w-3.5 h-3.5 ${getStatusInfo().color} border-2 ${theme === "light" ? "border-white" : "border-[#3a3f4f]"} rounded-full`}></span>
                         </div>
-                        <div>
-                          <p className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>Juan Pérez</p>
-                          <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>juan.perez@ticsoftec.com</p>
+                        <div className="flex-1">
+                          <p className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>{companyName || "TicSoftEc"}</p>
+                          <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>Sistema ERP Empresarial</p>
                         </div>
                       </div>
                     </div>
                     {/* Opciones del menú */}
                     <div className="py-2">
                       <button
-                        onClick={() => { setShowUserMenu(false); setShowPreferencesModal(true); }}
+                        onClick={() => { setShowUserMenu(false); setShowProfileModal(true); }}
                         className={`w-full flex items-center gap-3 px-5 py-3.5 transition-colors text-left ${theme === "light" ? "text-gray-600 hover:bg-gray-50 hover:text-primary" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
                       >
-                        <Settings className="w-4 h-4" />
-                        <span className="text-sm">Mis preferencias</span>
+                        <User className="w-4 h-4" />
+                        <span className="text-sm">Mi Perfil</span>
                       </button>
+                      {/* Solo administradores pueden ver Preferencias */}
+                      {userProfile.role.toLowerCase().includes("administrador") && (
+                        <button
+                          onClick={() => { setShowUserMenu(false); setShowPreferencesModal(true); }}
+                          className={`w-full flex items-center gap-3 px-5 py-3.5 transition-colors text-left ${theme === "light" ? "text-gray-600 hover:bg-gray-50 hover:text-primary" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
+                        >
+                          <Settings className="w-4 h-4" />
+                          <span className="text-sm">Mis preferencias</span>
+                        </button>
+                      )}
                       <div className={`border-t my-1 mx-4 ${theme === "light" ? "border-gray-100" : "border-white/10"}`}></div>
                       <button
                         onClick={() => navigate("/")}
@@ -458,145 +461,7 @@ export default function ModulesPage() {
         </div>
       )}
 
-      {/* Modal de Suscripción */}
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-secondary border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
-            {/* Header del modal */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-              <h2 className="text-xl font-semibold text-white">Mi Suscripción</h2>
-              <button onClick={() => setShowSubscriptionModal(false)} className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
-            {/* Contenido del modal */}
-            <div className="flex h-[calc(90vh-8rem)]">
-              {/* Sidebar con pestañas */}
-              <div className="w-64 border-r border-white/10 p-4 space-y-2 overflow-y-auto">
-                <button
-                  onClick={() => setActiveSubscriptionTab("current-plan")}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${activeSubscriptionTab === "current-plan" ? "bg-primary text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"}`}
-                >
-                  <CreditCard className="w-4 h-4" />
-                  <span className="text-sm">Plan Actual</span>
-                </button>
-                <button
-                  onClick={() => setActiveSubscriptionTab("plans")}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${activeSubscriptionTab === "plans" ? "bg-primary text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"}`}
-                >
-                  <Layers className="w-4 h-4" />
-                  <span className="text-sm">Planes</span>
-                </button>
-              </div>
-
-              {/* Contenido de las pestañas */}
-              <div className="flex-1 p-6 overflow-y-auto">
-                {/* Tab: Plan Actual */}
-                {activeSubscriptionTab === "current-plan" && (
-                  <div className="space-y-6">
-                    <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-6 py-4 rounded-lg flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium">Su período de prueba expira en 5 días</p>
-                        <p className="text-xs text-yellow-400/80 mt-1">Actualice su plan para continuar usando todas las funcionalidades</p>
-                      </div>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-white font-semibold text-lg">Plan Standard</h3>
-                            <span className="px-3 py-1 bg-yellow-500 text-gray-900 text-xs font-semibold rounded">Trial</span>
-                          </div>
-                          <p className="text-gray-400 text-sm">Todas las aplicaciones incluidas</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-primary text-2xl font-bold">$8.95</p>
-                          <p className="text-gray-400 text-xs">/usuario/mes</p>
-                        </div>
-                      </div>
-                      <div className="space-y-3 mb-6">
-                        {["Acceso completo a todos los módulos", "5 usuarios simultáneos", "Soporte técnico 24/7", "Backups automáticos diarios"].map((item) => (
-                          <div key={item} className="flex items-center gap-2 text-gray-300 text-sm">
-                            <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                            <span>{item}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <button className="w-full px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">Comprar Plan Standard</button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-                        <h4 className="text-white font-medium mb-2 text-sm">Cambiar de Plan</h4>
-                        <p className="text-gray-400 text-xs mb-3">Flexible; cambie en cualquier momento sin penalizaciones.</p>
-                        <p className="text-gray-400 text-xs">¿Ya tiene una suscripción? <a href="#" className="text-primary hover:underline">Regístrela aquí</a></p>
-                      </div>
-                      <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-                        <h4 className="text-white font-medium mb-2 text-sm">¿Necesita Ayuda?</h4>
-                        <p className="text-gray-400 text-xs">Contacte a su gerente de cuenta dedicado o al soporte técnico.</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab: Planes */}
-                {activeSubscriptionTab === "plans" && (
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-white font-medium mb-4">Planes Disponibles</h3>
-                      <p className="text-gray-400 text-sm mb-6">Seleccione el plan que mejor se adapte a las necesidades de su empresa</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-white/5 border border-white/10 hover:border-primary/50 rounded-lg p-6 transition-all hover:shadow-lg hover:shadow-primary/10">
-                        <h4 className="text-cyan-400 font-semibold text-lg mb-2">Free</h4>
-                        <p className="text-gray-400 text-sm mb-4">Una aplicación únicamente</p>
-                        <p className="text-white text-3xl font-bold mb-6">Gratis</p>
-                        <ul className="space-y-2 mb-6">
-                          {["1 módulo", "1 usuario", "Soporte básico"].map(i => (
-                            <li key={i} className="flex items-center gap-2 text-gray-300 text-sm"><div className="w-1.5 h-1.5 bg-cyan-400 rounded-full"></div><span>{i}</span></li>
-                          ))}
-                        </ul>
-                        <button className="w-full px-4 py-2 border border-white/20 text-gray-300 hover:bg-white/5 rounded-lg text-sm transition-colors">Cambiar a Free</button>
-                      </div>
-                      <div className="bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary rounded-lg p-6 relative shadow-lg shadow-primary/20">
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                          <span className="px-4 py-1 bg-yellow-500 text-gray-900 text-xs font-bold rounded-full">ACTUAL</span>
-                        </div>
-                        <h4 className="text-primary font-semibold text-lg mb-2">Standard</h4>
-                        <p className="text-gray-300 text-sm mb-4">Todas las aplicaciones</p>
-                        <div className="mb-6"><span className="text-white text-3xl font-bold">$8.95</span><span className="text-gray-400 text-sm">/usuario/mes</span></div>
-                        <ul className="space-y-2 mb-6">
-                          {["Todos los módulos", "5 usuarios", "Soporte 24/7", "Backups diarios"].map(i => (
-                            <li key={i} className="flex items-center gap-2 text-gray-300 text-sm"><div className="w-1.5 h-1.5 bg-primary rounded-full"></div><span>{i}</span></li>
-                          ))}
-                        </ul>
-                        <button className="w-full px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">Comprar Standard</button>
-                      </div>
-                      <div className="bg-white/5 border border-white/10 hover:border-primary/50 rounded-lg p-6 transition-all hover:shadow-lg hover:shadow-primary/10">
-                        <h4 className="text-cyan-400 font-semibold text-lg mb-2">Custom</h4>
-                        <p className="text-gray-400 text-sm mb-4">Personalizado para empresas</p>
-                        <div className="mb-6"><span className="text-white text-3xl font-bold">$13.60</span><span className="text-gray-400 text-sm">/usuario/mes</span></div>
-                        <ul className="space-y-2 mb-6">
-                          {["Todas las apps", "Studio incluido", "API / Multi Company", "Usuarios ilimitados"].map(i => (
-                            <li key={i} className="flex items-center gap-2 text-gray-300 text-sm"><div className="w-1.5 h-1.5 bg-cyan-400 rounded-full"></div><span>{i}</span></li>
-                          ))}
-                        </ul>
-                        <button className="w-full px-4 py-2 border border-white/20 text-gray-300 hover:bg-white/5 rounded-lg text-sm transition-colors">Cambiar a Custom</button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Footer del modal */}
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10">
-              <button onClick={() => setShowSubscriptionModal(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Cerrar</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Contenido principal */}
       <main className="max-w-7xl mx-auto px-6 py-12">

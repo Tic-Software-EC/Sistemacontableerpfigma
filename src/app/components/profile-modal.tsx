@@ -69,7 +69,7 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
                 Configuración de Perfil
               </h3>
               <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                Actualiza tu información personal
+                Cambia tu contraseña de forma segura
               </p>
             </div>
           </div>
@@ -89,44 +89,8 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
         <div className={`p-5 max-h-[calc(85vh-120px)] overflow-y-auto ${
           theme === "light" ? "bg-white" : ""
         }`}>
-          {/* Foto de perfil */}
-          <div className={`flex items-center gap-6 mb-8 p-6 rounded-xl border ${
-            theme === "light" ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
-          }`}>
-            <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center overflow-hidden">
-                {editingProfile.avatar ? (
-                  <img src={editingProfile.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-white font-bold text-3xl">
-                    {editingProfile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                  </span>
-                )}
-              </div>
-              <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center cursor-pointer transition-colors shadow-lg">
-                <Camera className="w-5 h-5 text-white" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            <div className="flex-1">
-              <h4 className={`font-semibold text-lg mb-1 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                Foto de Perfil
-              </h4>
-              <p className={`text-sm mb-3 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                Sube una foto para personalizar tu perfil
-              </p>
-              <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>
-                Formatos: JPG, PNG, GIF • Tamaño máximo: 2MB
-              </p>
-            </div>
-          </div>
 
-          {/* Formulario */}
+          {/* Formulario - Solo lectura para usuarios regulares */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-5">
             {/* Nombre completo */}
             <div className="md:col-span-2">
@@ -142,11 +106,11 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
                 <input
                   type="text"
                   value={editingProfile.name}
-                  onChange={(e) => setEditingProfile(prev => ({ ...prev, name: e.target.value }))}
-                  className={`w-full border rounded-lg px-3.5 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                  disabled
+                  className={`w-full border rounded-lg px-3.5 py-2 pl-10 text-sm cursor-not-allowed ${
                     theme === "light"
-                      ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                      : "bg-white/5 border-white/10 text-white placeholder-gray-500"
+                      ? "bg-gray-100 border-gray-300 text-gray-600"
+                      : "bg-white/5 border-white/10 text-gray-400"
                   }`}
                   placeholder="Tu nombre completo"
                 />
@@ -167,11 +131,11 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
                 <input
                   type="email"
                   value={editingProfile.email}
-                  onChange={(e) => setEditingProfile(prev => ({ ...prev, email: e.target.value }))}
-                  className={`w-full border rounded-lg px-3.5 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                  disabled
+                  className={`w-full border rounded-lg px-3.5 py-2 pl-10 text-sm cursor-not-allowed ${
                     theme === "light"
-                      ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                      : "bg-white/5 border-white/10 text-white placeholder-gray-500"
+                      ? "bg-gray-100 border-gray-300 text-gray-600"
+                      : "bg-white/5 border-white/10 text-gray-400"
                   }`}
                   placeholder="tu@email.com"
                 />
@@ -188,11 +152,11 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
               <input
                 type="tel"
                 value={editingProfile.phone}
-                onChange={(e) => setEditingProfile(prev => ({ ...prev, phone: e.target.value }))}
-                className={`w-full border rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                disabled
+                className={`w-full border rounded-lg px-3.5 py-2 text-sm cursor-not-allowed ${
                   theme === "light"
-                    ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                    : "bg-white/5 border-white/10 text-white placeholder-gray-500"
+                    ? "bg-gray-100 border-gray-300 text-gray-600"
+                    : "bg-white/5 border-white/10 text-gray-400"
                 }`}
                 placeholder="+593 99 123 4567"
               />
@@ -314,14 +278,11 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
             </div>
           </div>
 
-          {/* Guía de uso */}
-          
-
           {/* Botones */}
           <div className="flex gap-3">
             <button
               onClick={handleCancel}
-              className={`flex-1 px-6 py-3 border rounded-lg transition-colors font-medium ${
+              className={`flex-1 px-6 py-3 border rounded-lg transition-colors font-medium text-sm ${
                 theme === "light"
                   ? "text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-300"
                   : "text-gray-400 hover:text-white hover:bg-white/5 border-white/10"
@@ -331,10 +292,10 @@ export function ProfileModal({ isOpen, onClose, userProfile, onSave }: ProfileMo
             </button>
             <button
               onClick={handleSave}
-              className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+              className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2 text-sm"
             >
               <Save className="w-4 h-4" />
-              Guardar Cambios
+              Cambiar Contraseña
             </button>
           </div>
         </div>

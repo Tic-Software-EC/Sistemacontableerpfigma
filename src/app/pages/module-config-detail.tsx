@@ -9,7 +9,6 @@ import {
   Menu as MenuIcon,
   X,
   LogOut,
-  CreditCard,
   Shield,
   ShoppingCart,
   Calendar,
@@ -635,7 +634,6 @@ export default function ModuleConfigDetailPage() {
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   // selectedMenu derivado 100% de la URL:
   // /module-config-detail/:menuId            → selectedMenu = menuId  (menú hoja)
@@ -726,6 +724,23 @@ export default function ModuleConfigDetailPage() {
 
   const handleSaveProfile = (profile: any) => {
     console.log("Perfil actualizado:", profile);
+  };
+
+  const getModuleIcon = () => {
+    switch (moduleName) {
+      case "Configuración":
+        return <Settings className="w-5 h-5 text-white" />;
+      case "Ventas":
+        return <ShoppingCart className="w-5 h-5 text-white" />;
+      case "Inventario":
+        return <Package className="w-5 h-5 text-white" />;
+      case "Contabilidad":
+        return <Wallet className="w-5 h-5 text-white" />;
+      case "Compras":
+        return <ShoppingCart className="w-5 h-5 text-white" />;
+      default:
+        return <Settings className="w-5 h-5 text-white" />;
+    }
   };
 
   const getStatusInfo = () => {
@@ -919,21 +934,12 @@ export default function ModuleConfigDetailPage() {
                     {/* Header con info del usuario */}
                     <div className={`px-4 py-3 border-b ${theme === "light" ? "border-gray-100" : "border-white/10"}`}>
                       <div className="flex items-center gap-3">
-                        <div className="relative">
-                          {profilePhoto ? (
-                            <div className="w-10 h-10 rounded-lg overflow-hidden">
-                              <img src={profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
-                            </div>
-                          ) : (
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                              <span className="text-white font-bold text-sm">JP</span>
-                            </div>
-                          )}
-                          <span className={`absolute bottom-0 right-0 w-3 h-3 ${getStatusInfo().color} border-2 rounded-full ${theme === "light" ? "border-white" : "border-[#3a3f4f]"}`}></span>
+                        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                          {getModuleIcon()}
                         </div>
-                        <div>
-                          <p className={`font-medium text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
-                          <p className="text-gray-400 text-xs">{userProfile.email}</p>
+                        <div className="flex-1">
+                          <p className={`font-medium text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>{companyName || "TicSoftEc"}</p>
+                          <p className="text-gray-400 text-xs">{moduleName}</p>
                         </div>
                       </div>
                     </div>
@@ -943,20 +949,25 @@ export default function ModuleConfigDetailPage() {
                       <div className={`border-t my-2 ${theme === "light" ? "border-gray-100" : "border-white/10"}`}></div>
 
                       <button
-                        onClick={() => { setShowUserMenu(false); setShowPreferencesModal(true); }}
+                        onClick={() => { setShowUserMenu(false); setShowProfileModal(true); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${theme === "light" ? "text-gray-600 hover:bg-gray-50 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
                       >
                         <Settings className="w-4 h-4" />
-                        <span className="text-sm">Mis preferencias</span>
+                        <span className="text-sm">Mi Perfil</span>
                       </button>
 
-                      <button
-                        onClick={() => { setShowUserMenu(false); setShowSubscriptionModal(true); }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${theme === "light" ? "text-gray-600 hover:bg-gray-50 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
-                      >
-                        <CreditCard className="w-4 h-4" />
-                        <span className="text-sm">Mi suscripción</span>
-                      </button>
+                      {/* Solo administradores pueden ver Preferencias */}
+                      {userProfile.role.toLowerCase().includes("administrador") && (
+                        <>
+                          <button
+                            onClick={() => { setShowUserMenu(false); setShowPreferencesModal(true); }}
+                            className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${theme === "light" ? "text-gray-600 hover:bg-gray-50 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}
+                          >
+                            <Settings className="w-4 h-4" />
+                            <span className="text-sm">Mis preferencias</span>
+                          </button>
+                        </>
+                      )}
 
                       <div className={`border-t my-2 ${theme === "light" ? "border-gray-100" : "border-white/10"}`}></div>
 
@@ -1182,38 +1193,6 @@ export default function ModuleConfigDetailPage() {
         isOpen={showPreferencesModal}
         onClose={() => setShowPreferencesModal(false)}
       />
-
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md bg-secondary border border-white/10 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white font-bold text-xl">Mi Suscripción</h3>
-              <button
-                onClick={() => setShowSubscriptionModal(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div className="p-4 bg-white/5 rounded-xl">
-                <p className="text-gray-400 text-sm mb-1">Plan actual</p>
-                <p className="text-white font-bold text-lg">{resolvedUserPlan}</p>
-              </div>
-              <div className="p-4 bg-white/5 rounded-xl">
-                <p className="text-gray-400 text-sm mb-1">Estado</p>
-                <span className="inline-flex items-center px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
-                  Activo
-                </span>
-              </div>
-              <div className="p-4 bg-white/5 rounded-xl">
-                <p className="text-gray-400 text-sm mb-1">Próxima renovación</p>
-                <p className="text-white font-semibold">16 de Marzo, 2026</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

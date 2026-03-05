@@ -3,24 +3,28 @@ import { useNavigate, useParams } from "react-router";
 import { useBrand } from "../contexts/brand-context";
 import {
   BookOpen, ChevronLeft, Bell, Settings, LogOut,
-  Sun, Moon, X, CreditCard,
-  BarChart2, PieChart, TrendingUp, FileText, Receipt, List,
+  Sun, Moon, X,
+  BarChart2, PieChart, TrendingUp, FileText, Receipt, List, FileDown,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { JournalContent } from "../components/journal-content";
+import { LedgerContent } from "../components/ledger-content";
 import { ChartOfAccountsContent } from "../components/chart-of-accounts-content";
 import { BalanceSheetContent } from "../components/balance-sheet-content";
 import { IncomeStatementContent } from "../components/income-statement-content";
 import { FinancialReportsContent } from "../components/financial-reports-content";
+import { AtsContent } from "../components/ats-content";
 
 const TABS = [
   { id: "journal",    name: "Libro Diario",          icon: BookOpen    },
+  { id: "ledger",     name: "Libro Mayor",           icon: Receipt     },
   { id: "accounts",   name: "Plan de Cuentas",        icon: List        },
   { id: "balance",    name: "Balance General",        icon: BarChart2   },
   { id: "income",     name: "Estado de Resultados",   icon: TrendingUp  },
   { id: "reports",    name: "Reportes Financieros",   icon: PieChart    },
+  { id: "ats",        name: "ATS",                    icon: FileDown    },
 ];
 
 export default function ModuleAccountingDetail() {
@@ -37,7 +41,6 @@ export default function ModuleAccountingDetail() {
   const [showUserMenu,         setShowUserMenu]         = useState(false);
   const [showProfileModal,     setShowProfileModal]     = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
-  const [showSubscriptionModal,setShowSubscriptionModal]= useState(false);
   const [userStatus,           setUserStatus]           = useState<"online"|"away"|"dnd"|"offline">("online");
   const [profilePhoto,         setProfilePhoto]         = useState<string | null>(null);
   const [showStatusMenu,       setShowStatusMenu]       = useState(false);
@@ -51,6 +54,10 @@ export default function ModuleAccountingDetail() {
   });
 
   const handleSaveProfile = (profile: any) => console.log("Perfil:", profile);
+
+  const getModuleIcon = () => {
+    return <BookOpen className="w-5 h-5 text-white" />;
+  };
 
   const statusInfo = () => ({
     online:  { color: "bg-green-500",  label: "En línea"      },
@@ -137,59 +144,29 @@ export default function ModuleAccountingDetail() {
                   {/* Perfil */}
                   <div className={`px-4 py-3 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
                     <div className="flex items-center gap-3">
-                      <div className="relative">
-                        {profilePhoto ? (
-                          <div className="w-10 h-10 rounded-lg overflow-hidden">
-                            <img src={profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">JP</span>
-                          </div>
-                        )}
-                        <button onClick={() => setShowStatusMenu(!showStatusMenu)}
-                          className={`absolute bottom-0 right-0 w-3 h-3 ${statusInfo().color} border-2 rounded-full cursor-pointer hover:scale-125 transition-transform ${isLight ? "border-white" : "border-[#1a1f2e]"}`} />
+                      <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                        {getModuleIcon()}
                       </div>
-                      <div>
-                        <p className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
-                        <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{userProfile.email}</p>
-                        <p className={`text-xs mt-0.5 ${statusInfo().color.replace("bg-", "text-").replace("500", "400").replace("400", "400")}`}>{statusInfo().label}</p>
+                      <div className="flex-1">
+                        <p className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{companyName}</p>
+                        <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Contabilidad</p>
                       </div>
-                    </div>
-                    {showStatusMenu && (
-                      <div className={`mt-3 p-2 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
-                        <p className={`text-xs mb-2 font-medium ${isLight ? "text-gray-500" : "text-gray-400"}`}>Cambiar estado</p>
-                        {statusOptions.map(s => (
-                          <button key={s.key} onClick={() => { setUserStatus(s.key as any); setShowStatusMenu(false); }}
-                            className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-colors ${userStatus === s.key ? "bg-primary/10 text-primary" : isLight ? "text-gray-700 hover:bg-gray-100" : "text-gray-300 hover:bg-white/5"}`}>
-                            <div className={`w-2.5 h-2.5 rounded-full ${s.color}`} />
-                            {s.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Plan */}
-                  <div className={`px-4 py-2.5 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{userPlan}</span>
-                      <button onClick={() => { setShowSubscriptionModal(true); setShowUserMenu(false); }}
-                        className="text-xs text-primary hover:underline">Ver detalles</button>
                     </div>
                   </div>
 
                   {/* Acciones */}
                   <div className="p-2">
-                    {[
-                      { icon: <Settings className="w-4 h-4" />, label: "Mi Perfil",     action: () => { setShowProfileModal(true);     setShowUserMenu(false); } },
-                      { icon: <CreditCard className="w-4 h-4" />, label: "Preferencias", action: () => { setShowPreferencesModal(true); setShowUserMenu(false); } },
-                    ].map(item => (
-                      <button key={item.label} onClick={item.action}
+                    <button onClick={() => { setShowProfileModal(true); setShowUserMenu(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isLight ? "text-gray-700 hover:bg-gray-100" : "text-gray-300 hover:bg-white/5"}`}>
+                      <span className="text-gray-400"><Settings className="w-4 h-4" /></span>Mi Perfil
+                    </button>
+                    {/* Solo administradores pueden ver Preferencias */}
+                    {userProfile.role.toLowerCase().includes("administrador") && (
+                      <button onClick={() => { setShowPreferencesModal(true); setShowUserMenu(false); }}
                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isLight ? "text-gray-700 hover:bg-gray-100" : "text-gray-300 hover:bg-white/5"}`}>
-                        <span className="text-gray-400">{item.icon}</span>{item.label}
+                        <Settings className="w-4 h-4" />Preferencias
                       </button>
-                    ))}
+                    )}
                     <div className={`my-1 border-t ${isLight ? "border-gray-200" : "border-white/10"}`} />
                     <button onClick={() => navigate("/")}
                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-red-400 ${isLight ? "hover:bg-red-50" : "hover:bg-red-500/10"}`}>
@@ -229,6 +206,9 @@ export default function ModuleAccountingDetail() {
         {/* Libro Diario */}
         {activeTab === "journal" && <JournalContent />}
 
+        {/* Libro Mayor */}
+        {activeTab === "ledger" && <LedgerContent />}
+
         {/* Plan de Cuentas */}
         {activeTab === "accounts" && <ChartOfAccountsContent />}
 
@@ -240,6 +220,9 @@ export default function ModuleAccountingDetail() {
 
         {/* Reportes Financieros */}
         {activeTab === "reports" && <FinancialReportsContent />}
+
+        {/* ATS - Anexo Transaccional Simplificado */}
+        {activeTab === "ats" && <AtsContent />}
       </main>
 
       {/* ── Modales ──────────────────────────────────────────────────────────── */}
@@ -253,36 +236,6 @@ export default function ModuleAccountingDetail() {
         isOpen={showPreferencesModal}
         onClose={() => setShowPreferencesModal(false)}
       />
-
-      {/* Suscripción */}
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-md rounded-2xl p-6 ${isLight ? "bg-white border border-gray-200" : "bg-secondary border border-white/10"}`}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className={`font-bold text-xl ${isLight ? "text-gray-900" : "text-white"}`}>Mi Suscripción</h3>
-              <button onClick={() => setShowSubscriptionModal(false)}
-                className={`p-2 rounded-lg transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              {[
-                { label: "Plan actual",        value: userPlan },
-                { label: "Estado",             value: "Activo", badge: true },
-                { label: "Próxima renovación", value: "16 de Marzo, 2026" },
-              ].map(r => (
-                <div key={r.label} className={`p-4 rounded-xl ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
-                  <p className="text-gray-400 text-sm mb-1">{r.label}</p>
-                  {r.badge
-                    ? <span className="inline-flex items-center px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">Activo</span>
-                    : <p className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>{r.value}</p>
-                  }
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Click fuera cierra menús */}
       {(showUserMenu) && (

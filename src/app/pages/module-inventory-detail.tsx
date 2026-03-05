@@ -49,6 +49,10 @@ export default function ModuleInventoryDetail() {
     avatar: "",
   });
 
+  const getModuleIcon = () => {
+    return <Package className="w-5 h-5 text-white" />;
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "stock":

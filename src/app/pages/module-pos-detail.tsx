@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   Bell,
   Settings,
-  CreditCard,
   LogOut,
   Receipt,
   Clock,
@@ -205,6 +204,10 @@ export default function ModulePosDetail() {
     console.log("Perfil actualizado:", profile);
   };
 
+  const getModuleIcon = () => {
+    return <ShoppingCart className="w-5 h-5 text-white" />;
+  };
+
   const getStatusInfo = () => {
     switch (userStatus) {
       case "online":
@@ -312,15 +315,12 @@ export default function ModulePosDetail() {
                 <div className={`absolute right-0 mt-2 w-72 border rounded-xl shadow-2xl overflow-hidden z-50 ${isLight ? "bg-white border-gray-200" : "bg-[#1a1f2e] border-white/10"}`}>
                   <div className={`px-4 py-3 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
                     <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
-                          <span className="text-white font-bold">JP</span>
-                        </div>
-                        <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 ${getStatusInfo().color} border-2 rounded-full ${isLight ? "border-white" : "border-[#1a1f2e]"}`}></div>
+                      <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                        {getModuleIcon()}
                       </div>
-                      <div>
-                        <p className={`font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{userProfile.name}</p>
-                        <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>{userProfile.email}</p>
+                      <div className="flex-1">
+                        <p className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{companyName}</p>
+                        <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Punto de Venta</p>
                       </div>
                     </div>
                   </div>
@@ -329,12 +329,14 @@ export default function ModulePosDetail() {
                     <button onClick={() => { setShowUserMenu(false); setShowProfileModal(true); }} className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left text-sm ${isLight ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}>
                       <User className="w-4 h-4" /><span>Mi Perfil</span>
                     </button>
-                    <button onClick={() => { setShowUserMenu(false); setShowPreferencesModal(true); }} className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left text-sm ${isLight ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}>
-                      <Settings className="w-4 h-4" /><span>Mis preferencias</span>
-                    </button>
-                    <button className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left text-sm ${isLight ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}>
-                      <CreditCard className="w-4 h-4" /><span>Mi suscripción</span>
-                    </button>
+                    {/* Solo administradores pueden ver Preferencias */}
+                    {userProfile.role.toLowerCase().includes("administrador") && (
+                      <>
+                        <button onClick={() => { setShowUserMenu(false); setShowPreferencesModal(true); }} className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left text-sm ${isLight ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900" : "text-gray-300 hover:bg-white/5 hover:text-white"}`}>
+                          <Settings className="w-4 h-4" /><span>Mis preferencias</span>
+                        </button>
+                      </>
+                    )}
                     <div className={`border-t my-2 ${isLight ? "border-gray-200" : "border-white/10"}`}></div>
                     <button onClick={() => navigate("/")} className={`w-full flex items-center gap-3 px-4 py-3 text-red-500 transition-colors text-left text-sm ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"} hover:text-red-400`}>
                       <LogOut className="w-4 h-4" /><span>Cerrar sesión</span>

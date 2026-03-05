@@ -7,6 +7,7 @@ import {
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
 import { AccountingKpiCard } from "./ui/accounting-kpi-card";
+import { DateRangePicker } from "./date-range-picker";
 import {
   printAsiento,
   printJournal,
@@ -96,6 +97,8 @@ export function JournalContent() {
   const [filterTipo, setFilterTipo]   = useState("all");
   const [filterEstado, setFilterEstado] = useState("all");
   const [expandedId, setExpandedId]   = useState<string | null>(null);
+  const [fechaDesde, setFechaDesde]   = useState("2026-03-01");
+  const [fechaHasta, setFechaHasta]   = useState("2026-03-31");
 
   /* ── Modales ──────────────────────────────────────────────────────── */
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -116,7 +119,8 @@ export function JournalContent() {
     const matchQ = a.id.toLowerCase().includes(q) || a.descripcion.toLowerCase().includes(q) || a.referencia.toLowerCase().includes(q);
     const matchTipo   = filterTipo   === "all" || a.tipo   === filterTipo;
     const matchEstado = filterEstado === "all" || a.estado === filterEstado;
-    return matchQ && matchTipo && matchEstado;
+    const matchFecha = (!fechaDesde || a.fecha >= fechaDesde) && (!fechaHasta || a.fecha <= fechaHasta);
+    return matchQ && matchTipo && matchEstado && matchFecha;
   });
 
   const totalDebe  = filtered.reduce((s, a) => s + a.debe,  0);
@@ -493,30 +497,40 @@ export function JournalContent() {
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
-          <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          <input type="text" placeholder="Buscar asientos..." value={search} onChange={e => setSearch(e.target.value)}
-            className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-500 ${isLight ? "text-gray-900" : "text-white"}`} />
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <input type="text" placeholder="Buscar asientos..." value={search} onChange={e => setSearch(e.target.value)}
+              className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-500 ${isLight ? "text-gray-900" : "text-white"}`} />
+          </div>
+          <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[150px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+            <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <select value={filterTipo} onChange={e => setFilterTipo(e.target.value)}
+              className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+              <option value="all" className={opt}>Todos los tipos</option>
+              {TIPOS.map(t => <option key={t} value={t} className={opt}>{t}</option>)}
+            </select>
+          </div>
+          <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[150px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+            <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <select value={filterEstado} onChange={e => setFilterEstado(e.target.value)}
+              className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+              <option value="all" className={opt}>Todos los estados</option>
+              <option value="aprobado"  className={opt}>Aprobado</option>
+              <option value="pendiente" className={opt}>Pendiente</option>
+              <option value="borrador"  className={opt}>Borrador</option>
+            </select>
+          </div>
         </div>
-        <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[150px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
-          <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          <select value={filterTipo} onChange={e => setFilterTipo(e.target.value)}
-            className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-            <option value="all" className={opt}>Todos los tipos</option>
-            {TIPOS.map(t => <option key={t} value={t} className={opt}>{t}</option>)}
-          </select>
-        </div>
-        <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 min-w-[150px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
-          <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          <select value={filterEstado} onChange={e => setFilterEstado(e.target.value)}
-            className={`flex-1 bg-transparent text-sm focus:outline-none appearance-none cursor-pointer ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-            <option value="all" className={opt}>Todos los estados</option>
-            <option value="aprobado"  className={opt}>Aprobado</option>
-            <option value="pendiente" className={opt}>Pendiente</option>
-            <option value="borrador"  className={opt}>Borrador</option>
-          </select>
-        </div>
+
+        {/* Selector de rango de fechas */}
+        <DateRangePicker
+          dateFrom={fechaDesde}
+          dateTo={fechaHasta}
+          onDateFromChange={setFechaDesde}
+          onDateToChange={setFechaHasta}
+        />
       </div>
 
       {/* Tabla */}
