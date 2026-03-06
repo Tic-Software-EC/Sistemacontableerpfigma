@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { FileText, Search, Calendar, Eye, Plus, X, Printer, Download, Truck, User, DollarSign, ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight, Filter, CheckCircle, Clock, XCircle, AlertTriangle, Edit, Save, Trash2 } from "lucide-react";
 import { NewSupplierInvoiceModal } from "./new-supplier-invoice-modal";
+import { useAccounting, buildAsientoCompra } from "../contexts/accounting-context";
+import { toast } from "sonner";
 
 // Usuario logueado
 const LOGGED_USER = {
@@ -308,6 +310,30 @@ export function SupplierInvoicesContent() {
   const [selectedInvoice, setSelectedInvoice] = useState<SupplierInvoice | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [registeredAsientos, setRegisteredAsientos] = useState<Set<string>>(
+    // Las facturas ya aprobadas/pagadas en el historial inicial ya tienen asiento
+    new Set(["inv-001", "inv-003", "inv-005"])
+  );
+
+  const { addAsiento } = useAccounting();
+
+  // Registrar asiento contable para una factura de proveedor
+  const handleRegistrarAsiento = (invoice: SupplierInvoice) => {
+    addAsiento(buildAsientoCompra({
+      fecha:         invoice.invoiceDate,
+      invoiceNumber: invoice.invoiceNumber,
+      supplier:      invoice.supplier,
+      subtotal:      invoice.subtotal,
+      taxAmount:     invoice.taxAmount,
+      discount:      invoice.discount,
+      total:         invoice.total,
+    }));
+    setRegisteredAsientos(prev => new Set([...prev, invoice.id]));
+    toast.success(`Asiento generado para ${invoice.invoiceNumber}`, {
+      description: `Débito: Inventario + IVA en Compras / Crédito: Cuentas por Pagar — registrado en el Libro Diario.`,
+    });
+    setShowDetailModal(false);
+  };
 
   const filteredInvoices = MOCK_SUPPLIER_INVOICES.filter(invoice => {
     const matchesSearch = searchTerm === "" ||
@@ -916,6 +942,15 @@ export function SupplierInvoicesContent() {
                 <Printer className="w-4 h-4" />
                 Imprimir
               </button>
+              {selectedInvoice.status === "approved" && !registeredAsientos.has(selectedInvoice.id) && (
+                <button
+                  onClick={() => handleRegistrarAsiento(selectedInvoice)}
+                  className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-colors font-medium flex items-center gap-2"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Registrar Asiento
+                </button>
+              )}
             </div>
           </div>
         </div>

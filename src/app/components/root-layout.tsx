@@ -5,6 +5,7 @@ import { RolesProvider } from "../contexts/roles-context";
 import { PuntoEmisionProvider } from "../contexts/punto-emision-context";
 import { SucursalProvider } from "../contexts/sucursal-context";
 import { CajaProvider } from "../contexts/caja-context";
+import { AccountingProvider } from "../contexts/accounting-context";
 import { Toaster } from "sonner";
 
 export default function RootLayout() {
@@ -15,16 +16,18 @@ export default function RootLayout() {
           <SucursalProvider>
             <PuntoEmisionProvider>
               <CajaProvider>
-                <Outlet />
-                <Toaster
-                  position="top-right"
-                  richColors
-                  closeButton
-                  toastOptions={{
-                    style: { fontFamily: "IBM Plex Sans, sans-serif" },
-                    duration: 3500,
-                  }}
-                />
+                <AccountingProvider>
+                  <Outlet />
+                  <Toaster
+                    position="top-right"
+                    richColors
+                    closeButton
+                    toastOptions={{
+                      style: { fontFamily: "IBM Plex Sans, sans-serif" },
+                      duration: 3500,
+                    }}
+                  />
+                </AccountingProvider>
               </CajaProvider>
             </PuntoEmisionProvider>
           </SucursalProvider>

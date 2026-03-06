@@ -3,8 +3,8 @@ import { Download, Printer, TrendingUp, TrendingDown, DollarSign, BarChart2, Pie
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  LineChart, Line, PieChart as RechartsPieChart, Pie, Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart as RechartsPieChart, Pie, Cell,
 } from "recharts";
 import {
   printFinancialReport, downloadCSV,
@@ -137,50 +137,7 @@ export function FinancialReportsContent() {
       <div className={`border-t ${isLight ? "border-gray-200" : "border-white/10"}`} />
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className={`${card} p-5 lg:col-span-2`}>
-          <h3 className={`font-semibold mb-4 text-sm ${isLight ? "text-gray-700" : "text-gray-200"}`}>Ingresos vs Gastos (6 meses)</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart id="financial-chart" data={MONTHS_DATA} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={isLight ? "#f0f0f0" : "#ffffff10"} />
-              <XAxis dataKey="mes" tick={{ fill: isLight ? "#6b7280" : "#9ca3af", fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: isLight ? "#6b7280" : "#9ca3af", fontSize: 11 }} axisLine={false} tickLine={false}
-                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-              <Tooltip
-                formatter={(v: any, name: string) => [fmt(v), name === "Ingresos" ? "Ingresos" : name === "Gastos" ? "Gastos" : "Utilidad"]}
-                contentStyle={{ background: isLight ? "#fff" : "#0D1B2A", border: `1px solid ${isLight ? "#e5e7eb" : "#ffffff15"}`, borderRadius: "8px" }}
-              />
-              <Legend formatter={(v) => v === "Ingresos" ? "Ingresos" : v === "Gastos" ? "Gastos" : "Utilidad"} />
-              <Bar key="bar-ingresos" name="Ingresos" dataKey="ingresos" fill="#22c55e" radius={[4,4,0,0]} />
-              <Bar key="bar-gastos" name="Gastos" dataKey="gastos" fill="#ef4444" radius={[4,4,0,0]} />
-              <Bar key="bar-utilidad" name="Utilidad" dataKey="utilidad" fill="#E8692E" radius={[4,4,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <div className={`${card} p-5`}>
-          <h3 className={`font-semibold mb-4 text-sm ${isLight ? "text-gray-700" : "text-gray-200"}`}>Distribución de Gastos</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <RechartsPieChart>
-              <Pie data={GASTOS_PIE} cx="50%" cy="50%" innerRadius={55} outerRadius={80} dataKey="value" paddingAngle={2}>
-                {GASTOS_PIE.map((entry) => <Cell key={entry.id} fill={entry.color} />)}
-              </Pie>
-              <Tooltip formatter={(v: any) => [fmt(v), ""]}
-                contentStyle={{ background: isLight ? "#fff" : "#0D1B2A", border: `1px solid ${isLight ? "#e5e7eb" : "#ffffff15"}`, borderRadius: "8px" }} />
-            </RechartsPieChart>
-          </ResponsiveContainer>
-          <div className="space-y-1.5">
-            {GASTOS_PIE.slice(0, 4).map(g => (
-              <div key={g.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: g.color }} />
-                  <span className={`text-xs truncate ${isLight ? "text-gray-600" : "text-gray-400"}`}>{g.name}</span>
-                </div>
-                <span className={`text-xs font-mono font-medium ${isLight ? "text-gray-800" : "text-gray-200"}`}>{fmt(g.value)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      
 
       {/* Listado de reportes disponibles */}
       <div className={`${card} overflow-hidden`}>

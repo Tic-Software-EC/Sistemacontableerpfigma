@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
+import { useAccounting, buildAsientoVenta } from "../contexts/accounting-context";
 
 interface InvoiceItem {
   code: string;
@@ -131,6 +132,7 @@ const MOCK_INVOICES: Invoice[] = [
 export function SalesInvoicesContent() {
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const { addMultipleAsientos } = useAccounting();
 
   // Variables de tema consistentes
   const rootBg  = isLight ? "bg-gray-50" : "bg-[#0A0F1A]";
@@ -214,18 +216,32 @@ export function SalesInvoicesContent() {
       ];
 
       // Agregar documentos del SRI a las facturas existentes (evitando duplicados)
+      let newDocs: Invoice[] = [];
       setInvoices(prevInvoices => {
         const existingInvoices = prevInvoices.map(i => i.invoiceNumber);
-        const newDocuments = sriDocuments.filter(doc => !existingInvoices.includes(doc.invoiceNumber));
-        return [...newDocuments, ...prevInvoices];
+        newDocs = sriDocuments.filter(doc => !existingInvoices.includes(doc.invoiceNumber));
+        return [...newDocs, ...prevInvoices];
       });
 
-      // Mostrar notificación de éxito
+      // ── GENERAR ASIENTOS AUTOMÁTICOS para cada factura sincronizada ──
       setTimeout(() => {
+        if (newDocs.length > 0) {
+          addMultipleAsientos(
+            newDocs.map(inv => buildAsientoVenta({
+              fecha:         inv.date,
+              invoiceNumber: inv.invoiceNumber,
+              subtotal:      inv.subtotal,
+              tax:           inv.tax,
+              discount:      inv.discount,
+              total:         inv.total,
+              paymentMethod: inv.paymentMethod,
+            }))
+          );
+        }
         setIsSyncing(false);
         setShowSyncModal(false);
         toast.success(`Se sincronizaron ${sriDocuments.length} factura(s) desde el SRI`, {
-          description: "Las facturas electrónicas autorizadas están ahora en tu sistema"
+          description: "Los asientos contables fueron generados automáticamente en el Libro Diario."
         });
       }, 1000);
       

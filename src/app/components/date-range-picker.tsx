@@ -1,17 +1,36 @@
 import { useState } from "react";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, X } from "lucide-react";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
 import { useTheme } from "../contexts/theme-context";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 
 interface DateRangePickerProps {
   dateFrom: string;
   dateTo: string;
   onDateFromChange: (date: string) => void;
   onDateToChange: (date: string) => void;
+}
+
+/** Convierte "YYYY-MM-DD" → "DD/MM/YYYY" para mostrar en el botón */
+function formatDisplay(isoDate: string): string {
+  if (!isoDate) return "";
+  const [y, m, d] = isoDate.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+/** Convierte Date → "YYYY-MM-DD" sin problemas de zona horaria */
+function toIso(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** Convierte "YYYY-MM-DD" → Date forzando medianoche local */
+function fromIso(iso: string): Date | undefined {
+  if (!iso) return undefined;
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 export function DateRangePicker({
@@ -24,204 +43,166 @@ export function DateRangePicker({
   const isLight = theme === "light";
 
   const [openFrom, setOpenFrom] = useState(false);
-  const [openTo, setOpenTo] = useState(false);
+  const [openTo,   setOpenTo]   = useState(false);
 
-  const selectedDateFrom = dateFrom ? new Date(dateFrom + "T00:00:00") : undefined;
-  const selectedDateTo = dateTo ? new Date(dateTo + "T00:00:00") : undefined;
+  const selectedFrom = fromIso(dateFrom);
+  const selectedTo   = fromIso(dateTo);
 
-  const handleFromSelect = (date: Date | undefined) => {
-    if (date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      onDateFromChange(`${year}-${month}-${day}`);
-      setOpenFrom(false);
-    }
-  };
+  const btnBase = `w-full px-3 py-2 rounded-lg text-sm border flex items-center justify-between gap-2 transition-colors ${
+    isLight
+      ? "bg-white border-gray-300 text-gray-900 hover:border-primary/60"
+      : "bg-white/5 border-white/10 text-white hover:border-primary/40"
+  }`;
 
-  const handleToSelect = (date: Date | undefined) => {
-    if (date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      onDateToChange(`${year}-${month}-${day}`);
-      setOpenTo(false);
-    }
-  };
-
-  const clearFrom = () => {
-    onDateFromChange("");
-    setOpenFrom(false);
-  };
-
-  const clearTo = () => {
-    onDateToChange("");
-    setOpenTo(false);
-  };
-
-  const setTodayFrom = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    onDateFromChange(`${year}-${month}-${day}`);
-    setOpenFrom(false);
-  };
-
-  const setTodayTo = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    onDateToChange(`${year}-${month}-${day}`);
-    setOpenTo(false);
-  };
+  const todayIso = toIso(new Date());
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Fecha Desde */}
+      {/* ── Fecha Desde ─────────────────────────────────────────────── */}
       <div>
         <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
           Desde
         </label>
         <Popover open={openFrom} onOpenChange={setOpenFrom}>
           <PopoverTrigger asChild>
-            <button
-              className={`w-full px-3 py-2 rounded-lg text-sm border flex items-center justify-between ${
-                isLight
-                  ? "bg-white border-gray-300 text-gray-900"
-                  : "bg-white/5 border-white/10 text-white"
-              }`}
-            >
-              <span>
-                {selectedDateFrom
-                  ? format(selectedDateFrom, "PPP", { locale: es })
-                  : "Seleccionar fecha"}
-              </span>
-              <CalendarIcon className="w-4 h-4 ml-2" />
+            <button className={btnBase}>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <CalendarIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <span className={dateFrom ? "" : "text-gray-400"}>
+                  {dateFrom ? formatDisplay(dateFrom) : "Seleccionar fecha"}
+                </span>
+              </div>
+              {dateFrom && (
+                <span
+                  role="button"
+                  onClick={(e) => { e.stopPropagation(); onDateFromChange(""); }}
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </span>
+              )}
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <div className="p-4">
+            <div className={`p-3 rounded-xl ${isLight ? "bg-white" : "bg-[#1a2332]"}`}>
               <Calendar
                 mode="single"
-                selected={selectedDateFrom}
-                onSelect={handleFromSelect}
+                selected={selectedFrom}
+                onSelect={(date) => {
+                  if (date) { onDateFromChange(toIso(date)); setOpenFrom(false); }
+                }}
                 initialFocus
-                locale={es}
                 classNames={{
-                  months: "flex flex-col sm:flex-row gap-2",
-                  month: "flex flex-col gap-4",
+                  months: "flex flex-col gap-2",
+                  month:  "flex flex-col gap-3",
                   caption: "flex justify-center pt-1 relative items-center w-full",
-                  caption_label: "text-base font-semibold",
+                  caption_label: `text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`,
                   nav: "flex items-center gap-1",
-                  nav_button: "size-9 bg-transparent p-0 opacity-70 hover:opacity-100 rounded-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center",
+                  nav_button: `size-8 bg-transparent p-0 opacity-70 hover:opacity-100 rounded-lg ${isLight ? "hover:bg-gray-100" : "hover:bg-white/10"} transition-colors inline-flex items-center justify-center`,
                   nav_button_previous: "absolute left-1",
                   nav_button_next: "absolute right-1",
                   table: "w-full border-collapse",
                   head_row: "flex",
-                  head_cell: "text-gray-500 rounded-md w-9 font-medium text-xs uppercase",
+                  head_cell: `${isLight ? "text-gray-400" : "text-gray-500"} rounded-md w-9 font-medium text-xs uppercase`,
                   row: "flex w-full mt-1",
                   cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
-                  day: "size-9 p-0 font-normal rounded-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center",
-                  day_selected: "bg-primary text-white hover:bg-primary hover:text-white focus:bg-primary focus:text-white font-semibold rounded-xl",
-                  day_today: "bg-gray-100 font-semibold",
-                  day_outside: "text-gray-300 opacity-50",
-                  day_disabled: "text-gray-300 opacity-30",
+                  day: `size-9 p-0 font-normal rounded-lg ${isLight ? "hover:bg-gray-100 text-gray-900" : "hover:bg-white/10 text-white"} transition-colors inline-flex items-center justify-center`,
+                  day_selected: "bg-primary text-white hover:bg-primary hover:text-white focus:bg-primary focus:text-white font-semibold",
+                  day_today: `font-bold ${isLight ? "bg-orange-50 text-primary" : "bg-primary/20 text-primary"}`,
+                  day_outside: "opacity-30",
+                  day_disabled: "opacity-20",
                   day_hidden: "invisible",
                 }}
               />
-            </div>
-            <div className="flex items-center justify-between px-4 pb-4 border-t pt-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFrom}
-                className="text-sm text-gray-600 hover:text-gray-900"
-              >
-                Borrar
-              </Button>
-              <Button
-                size="sm"
-                onClick={setTodayFrom}
-                className="text-sm bg-primary hover:bg-primary/90 text-white rounded-lg px-4"
-              >
-                Hoy
-              </Button>
+              <div className={`flex items-center justify-between mt-2 pt-2 border-t ${isLight ? "border-gray-100" : "border-white/10"}`}>
+                <button
+                  onClick={() => { onDateFromChange(""); setOpenFrom(false); }}
+                  className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${isLight ? "text-gray-600 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}
+                >
+                  Borrar
+                </button>
+                <button
+                  onClick={() => { onDateFromChange(todayIso); setOpenFrom(false); }}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white transition-colors"
+                >
+                  Hoy
+                </button>
+              </div>
             </div>
           </PopoverContent>
         </Popover>
       </div>
 
-      {/* Fecha Hasta */}
+      {/* ── Fecha Hasta ─────────────────────────────────────────────── */}
       <div>
         <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
           Hasta
         </label>
         <Popover open={openTo} onOpenChange={setOpenTo}>
           <PopoverTrigger asChild>
-            <button
-              className={`w-full px-3 py-2 rounded-lg text-sm border flex items-center justify-between ${
-                isLight
-                  ? "bg-white border-gray-300 text-gray-900"
-                  : "bg-white/5 border-white/10 text-white"
-              }`}
-            >
-              <span>
-                {selectedDateTo
-                  ? format(selectedDateTo, "PPP", { locale: es })
-                  : "Seleccionar fecha"}
-              </span>
-              <CalendarIcon className="w-4 h-4 ml-2" />
+            <button className={btnBase}>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <CalendarIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <span className={dateTo ? "" : "text-gray-400"}>
+                  {dateTo ? formatDisplay(dateTo) : "Seleccionar fecha"}
+                </span>
+              </div>
+              {dateTo && (
+                <span
+                  role="button"
+                  onClick={(e) => { e.stopPropagation(); onDateToChange(""); }}
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </span>
+              )}
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <div className="p-4">
+            <div className={`p-3 rounded-xl ${isLight ? "bg-white" : "bg-[#1a2332]"}`}>
               <Calendar
                 mode="single"
-                selected={selectedDateTo}
-                onSelect={handleToSelect}
+                selected={selectedTo}
+                onSelect={(date) => {
+                  if (date) { onDateToChange(toIso(date)); setOpenTo(false); }
+                }}
                 initialFocus
-                locale={es}
                 classNames={{
-                  months: "flex flex-col sm:flex-row gap-2",
-                  month: "flex flex-col gap-4",
+                  months: "flex flex-col gap-2",
+                  month:  "flex flex-col gap-3",
                   caption: "flex justify-center pt-1 relative items-center w-full",
-                  caption_label: "text-base font-semibold",
+                  caption_label: `text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`,
                   nav: "flex items-center gap-1",
-                  nav_button: "size-9 bg-transparent p-0 opacity-70 hover:opacity-100 rounded-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center",
+                  nav_button: `size-8 bg-transparent p-0 opacity-70 hover:opacity-100 rounded-lg ${isLight ? "hover:bg-gray-100" : "hover:bg-white/10"} transition-colors inline-flex items-center justify-center`,
                   nav_button_previous: "absolute left-1",
                   nav_button_next: "absolute right-1",
                   table: "w-full border-collapse",
                   head_row: "flex",
-                  head_cell: "text-gray-500 rounded-md w-9 font-medium text-xs uppercase",
+                  head_cell: `${isLight ? "text-gray-400" : "text-gray-500"} rounded-md w-9 font-medium text-xs uppercase`,
                   row: "flex w-full mt-1",
                   cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
-                  day: "size-9 p-0 font-normal rounded-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center",
-                  day_selected: "bg-primary text-white hover:bg-primary hover:text-white focus:bg-primary focus:text-white font-semibold rounded-xl",
-                  day_today: "bg-gray-100 font-semibold",
-                  day_outside: "text-gray-300 opacity-50",
-                  day_disabled: "text-gray-300 opacity-30",
+                  day: `size-9 p-0 font-normal rounded-lg ${isLight ? "hover:bg-gray-100 text-gray-900" : "hover:bg-white/10 text-white"} transition-colors inline-flex items-center justify-center`,
+                  day_selected: "bg-primary text-white hover:bg-primary hover:text-white focus:bg-primary focus:text-white font-semibold",
+                  day_today: `font-bold ${isLight ? "bg-orange-50 text-primary" : "bg-primary/20 text-primary"}`,
+                  day_outside: "opacity-30",
+                  day_disabled: "opacity-20",
                   day_hidden: "invisible",
                 }}
               />
-            </div>
-            <div className="flex items-center justify-between px-4 pb-4 border-t pt-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearTo}
-                className="text-sm text-gray-600 hover:text-gray-900"
-              >
-                Borrar
-              </Button>
-              <Button
-                size="sm"
-                onClick={setTodayTo}
-                className="text-sm bg-primary hover:bg-primary/90 text-white rounded-lg px-4"
-              >
-                Hoy
-              </Button>
+              <div className={`flex items-center justify-between mt-2 pt-2 border-t ${isLight ? "border-gray-100" : "border-white/10"}`}>
+                <button
+                  onClick={() => { onDateToChange(""); setOpenTo(false); }}
+                  className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${isLight ? "text-gray-600 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}
+                >
+                  Borrar
+                </button>
+                <button
+                  onClick={() => { onDateToChange(todayIso); setOpenTo(false); }}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white transition-colors"
+                >
+                  Hoy
+                </button>
+              </div>
             </div>
           </PopoverContent>
         </Popover>

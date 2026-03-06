@@ -103,17 +103,17 @@ export default function ModuleAccountingDetail() {
 
           {/* Derecha */}
           <div className="flex items-center gap-3">
+            {/* Notificaciones */}
+            <button className={`p-2 rounded-lg transition-colors relative ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+            </button>
+
             {/* Toggle tema */}
             <button onClick={toggleTheme}
               className={`p-2 rounded-lg transition-all ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-primary hover:bg-white/5"}`}
               title={isLight ? "Modo oscuro" : "Modo claro"}>
               {isLight ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
-
-            {/* Notificaciones */}
-            <button className={`p-2 rounded-lg transition-colors relative ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
             </button>
 
             {/* Usuario */}

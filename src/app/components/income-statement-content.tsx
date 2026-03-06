@@ -182,26 +182,7 @@ export function IncomeStatementContent() {
       </div>
 
       {/* Gráfico de tendencia */}
-      <div className={`rounded-xl p-5 ${isLight ? "bg-white border border-gray-200" : "bg-white/5 border border-white/10"}`}>
-        <h3 className={`font-semibold mb-4 text-sm ${isLight ? "text-gray-700" : "text-gray-200"}`}>Tendencia Trimestral</h3>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart id="income-chart" data={CHART_DATA} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={isLight ? "#f0f0f0" : "#ffffff10"} />
-            <XAxis dataKey="mes" tick={{ fill: isLight ? "#6b7280" : "#9ca3af", fontSize: 12 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: isLight ? "#6b7280" : "#9ca3af", fontSize: 11 }} axisLine={false} tickLine={false}
-              tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-            <Tooltip
-              formatter={(v: any, name: string) => [fmt(v), name === "Ingresos" ? "Ingresos" : name === "Costos" ? "Costos" : "Utilidad"]}
-              contentStyle={{ background: isLight ? "#fff" : "#0D1B2A", border: `1px solid ${isLight ? "#e5e7eb" : "#ffffff15"}`, borderRadius: "8px" }}
-              labelStyle={{ color: isLight ? "#111" : "#fff", fontWeight: 600 }}
-            />
-            <Legend formatter={(v) => v === "Ingresos" ? "Ingresos" : v === "Costos" ? "Costos" : "Utilidad"} />
-            <Bar key="bar-ingresos" name="Ingresos" dataKey="ingresos" fill="#22c55e" radius={[4,4,0,0]} />
-            <Bar key="bar-costos" name="Costos"   dataKey="costos"   fill="#ef4444" radius={[4,4,0,0]} />
-            <Bar key="bar-utilidad" name="Utilidad" dataKey="utilidad" fill="#E8692E" radius={[4,4,0,0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      
 
       {/* Estado de Resultados */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
