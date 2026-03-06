@@ -16,6 +16,7 @@ import { BalanceSheetContent } from "../components/balance-sheet-content";
 import { IncomeStatementContent } from "../components/income-statement-content";
 import { FinancialReportsContent } from "../components/financial-reports-content";
 import { AtsContent } from "../components/ats-content";
+import { AccountingConfigContent } from "../components/accounting-config-content";
 
 const TABS = [
   { id: "journal",    name: "Libro Diario",          icon: BookOpen    },
@@ -25,6 +26,7 @@ const TABS = [
   { id: "income",     name: "Estado de Resultados",   icon: TrendingUp  },
   { id: "reports",    name: "Reportes Financieros",   icon: PieChart    },
   { id: "ats",        name: "ATS",                    icon: FileDown    },
+  { id: "config",     name: "Config. Contable",       icon: Settings    },
 ];
 
 export default function ModuleAccountingDetail() {
@@ -223,6 +225,9 @@ export default function ModuleAccountingDetail() {
 
         {/* ATS - Anexo Transaccional Simplificado */}
         {activeTab === "ats" && <AtsContent />}
+
+        {/* Configuración Contable */}
+        {activeTab === "config" && <AccountingConfigContent />}
       </main>
 
       {/* ── Modales ──────────────────────────────────────────────────────────── */}
