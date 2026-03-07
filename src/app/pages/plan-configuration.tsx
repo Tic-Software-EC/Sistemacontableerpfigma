@@ -188,7 +188,6 @@ export default function PlanConfigurationPage() {
         { id: "5-2", name: "Libro Mayor", path: "/contabilidad/libro-mayor", isEnabled: false, features: "Resumen por cuenta contable" },
         { id: "5-3", name: "Balance General", path: "/contabilidad/balance", isEnabled: false, features: "Estado de situación financiera" },
         { id: "5-4", name: "Estado de Resultados", path: "/contabilidad/resultados", isEnabled: false, features: "Pérdidas y ganancias" },
-        { id: "5-5", name: "Plan de Cuentas", path: "/contabilidad/cuentas", isEnabled: false, features: "Gestión del catálogo de cuentas" },
       ],
     },
     {

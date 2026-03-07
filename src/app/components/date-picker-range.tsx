@@ -41,8 +41,8 @@ export function DatePicker({ value, onChange, placeholder, isLight }: {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-xs transition-all min-w-[140px] ${isLight ? "bg-white border-gray-300 text-gray-700 hover:border-primary" : "bg-[#0d1724] border-white/10 text-gray-300 hover:border-primary/50"}`}>
-          <CalendarIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+        <button className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-sm transition-all w-full ${isLight ? "bg-white border-gray-300 text-gray-700 hover:border-primary" : "bg-[#0d1724] border-white/10 text-gray-300 hover:border-primary/50"}`}>
+          <CalendarIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
           <span className={value ? "" : "text-gray-500"}>
             {value ? formatDisplay(value) : (placeholder || "Seleccionar")}
           </span>

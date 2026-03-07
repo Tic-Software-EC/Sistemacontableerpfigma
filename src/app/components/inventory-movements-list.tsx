@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowDown, ArrowUp, RefreshCw, Package, Eye } from "lucide-react";
 import { Pagination } from "./pagination";
 import { ViewMovementModal } from "./view-movement-modal";
+import { useTheme } from "../contexts/theme-context";
 
 interface MovementProduct {
   productCode: string;
@@ -176,6 +177,9 @@ const MOCK_MOVEMENTS: Movement[] = [
 ];
 
 export function InventoryMovementsList() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filterType, setFilterType] = useState("all");
@@ -237,12 +241,16 @@ export function InventoryMovementsList() {
           placeholder="Buscar por código, producto..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+          className={`px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+            isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+          }`}
         />
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+          className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+            isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+          }`}
         >
           <option value="all">Todos los tipos</option>
           <option value="entrada">Entrada</option>
@@ -253,32 +261,32 @@ export function InventoryMovementsList() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#1a2332] rounded-lg overflow-hidden border border-white/5">
+      <div className={`rounded-lg overflow-hidden border ${isLight ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/5"}`}>
         <table className="w-full">
-          <thead className="bg-[#151f2e]">
+          <thead className={isLight ? "bg-gray-50" : "bg-[#151f2e]"}>
             <tr>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Código</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Fecha</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Tipo</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Almacén</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Cantidad</th>
-              <th className="px-4 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Código</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Fecha</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Tipo</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Almacén</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Cantidad</th>
+              <th className={`px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
             {currentItems.map((movement) => (
-              <tr key={movement.id} className="hover:bg-white/[0.02] transition-colors">
+              <tr key={movement.id} className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/[0.02] transition-colors"}>
                 <td className="px-4 py-3">
-                  <span className="text-white font-mono text-sm">{movement.code}</span>
+                  <span className={`font-mono text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{movement.code}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-gray-300 text-sm">{new Date(movement.date).toLocaleDateString('es-EC')}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>{new Date(movement.date).toLocaleDateString('es-EC')}</span>
                 </td>
                 <td className="px-4 py-3">
                   {getTypeBadge(movement.type)}
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-gray-300 text-sm">{movement.warehouse}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>{movement.warehouse}</span>
                 </td>
                 <td className="px-4 py-3">
                   <span className={`text-sm font-medium ${movement.products.reduce((acc, product) => acc + product.quantity, 0) > 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -287,7 +295,7 @@ export function InventoryMovementsList() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition-colors" title="Ver" onClick={() => setSelectedMovement(movement)}>
+                    <button className={`p-1.5 rounded-md transition-colors ${isLight ? "text-primary hover:bg-primary/10" : "text-primary hover:bg-primary/10"}`} title="Ver" onClick={() => setSelectedMovement(movement)}>
                       <Eye className="w-4 h-4" />
                     </button>
                   </div>

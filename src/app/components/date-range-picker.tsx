@@ -48,28 +48,25 @@ export function DateRangePicker({
   const selectedFrom = fromIso(dateFrom);
   const selectedTo   = fromIso(dateTo);
 
-  const btnBase = `w-full px-3 py-2 rounded-lg text-sm border flex items-center justify-between gap-2 transition-colors ${
+  const btnBase = `w-full px-3 py-2 rounded-lg text-sm border flex items-center justify-between gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 ${
     isLight
-      ? "bg-white border-gray-300 text-gray-900 hover:border-primary/60"
-      : "bg-white/5 border-white/10 text-white hover:border-primary/40"
+      ? "bg-white border-gray-300 text-gray-900 hover:border-gray-400"
+      : "bg-[#0f1825] border-white/10 text-white hover:border-white/20"
   }`;
 
   const todayIso = toIso(new Date());
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-3">
       {/* ── Fecha Desde ─────────────────────────────────────────────── */}
       <div>
-        <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-          Desde
-        </label>
         <Popover open={openFrom} onOpenChange={setOpenFrom}>
           <PopoverTrigger asChild>
             <button className={btnBase}>
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <CalendarIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
                 <span className={dateFrom ? "" : "text-gray-400"}>
-                  {dateFrom ? formatDisplay(dateFrom) : "Seleccionar fecha"}
+                  {dateFrom ? formatDisplay(dateFrom) : "Desde"}
                 </span>
               </div>
               {dateFrom && (
@@ -135,16 +132,13 @@ export function DateRangePicker({
 
       {/* ── Fecha Hasta ─────────────────────────────────────────────── */}
       <div>
-        <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-          Hasta
-        </label>
         <Popover open={openTo} onOpenChange={setOpenTo}>
           <PopoverTrigger asChild>
             <button className={btnBase}>
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <CalendarIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
                 <span className={dateTo ? "" : "text-gray-400"}>
-                  {dateTo ? formatDisplay(dateTo) : "Seleccionar fecha"}
+                  {dateTo ? formatDisplay(dateTo) : "Hasta"}
                 </span>
               </div>
               {dateTo && (

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Package, ArrowRight, CheckCircle, Clock, XCircle, Eye, Edit, X } from "lucide-react";
 import { Pagination } from "./pagination";
+import { useTheme } from "../contexts/theme-context";
 
 interface Transfer {
   id: string;
@@ -91,6 +92,9 @@ const MOCK_TRANSFERS: Transfer[] = [
 ];
 
 export function InventoryTransfersList() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState("all");
@@ -159,12 +163,16 @@ export function InventoryTransfersList() {
             placeholder="Buscar por código, producto..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+            className={`px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+              isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+            }`}
           />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+            className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+              isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+            }`}
           >
             <option value="all">Todos los estados</option>
             <option value="pendiente">Pendiente</option>
@@ -176,44 +184,44 @@ export function InventoryTransfersList() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#1a2332] rounded-lg overflow-hidden border border-white/5">
+      <div className={`rounded-lg overflow-hidden border ${isLight ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/5"}`}>
         <table className="w-full">
-          <thead className="bg-[#151f2e]">
+          <thead className={isLight ? "bg-gray-50" : "bg-[#151f2e]"}>
             <tr>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Código</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Fecha</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Cód. Producto</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Producto</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Origen → Destino</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Cantidad</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-              <th className="px-4 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Código</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Fecha</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Cód. Producto</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Producto</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Origen → Destino</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Cantidad</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Estado</th>
+              <th className={`px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
             {currentItems.map((transfer) => (
-              <tr key={transfer.id} className="hover:bg-white/[0.02] transition-colors">
+              <tr key={transfer.id} className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/[0.02] transition-colors"}>
                 <td className="px-4 py-3">
-                  <span className="text-white font-mono text-sm">{transfer.code}</span>
+                  <span className={`font-mono text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{transfer.code}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-gray-300 text-sm">{new Date(transfer.date).toLocaleDateString('es-EC')}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>{new Date(transfer.date).toLocaleDateString('es-EC')}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-gray-400 font-mono text-sm">{transfer.productCode}</span>
+                  <span className={`font-mono text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>{transfer.productCode}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-white text-sm">{transfer.product}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{transfer.product}</span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-300 text-sm">{transfer.originWarehouse}</span>
+                    <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>{transfer.originWarehouse}</span>
                     <ArrowRight className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                    <span className="text-gray-300 text-sm">{transfer.destinationWarehouse}</span>
+                    <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>{transfer.destinationWarehouse}</span>
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-white text-sm">{transfer.quantity} {transfer.unit}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{transfer.quantity} {transfer.unit}</span>
                 </td>
                 <td className="px-4 py-3">
                   {getStatusBadge(transfer.status)}
@@ -222,17 +230,17 @@ export function InventoryTransfersList() {
                   <div className="flex items-center justify-end gap-2">
                     <button 
                       onClick={() => handleViewDetails(transfer)}
-                      className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition-colors" 
+                      className={`p-1.5 rounded-md transition-colors ${isLight ? "text-primary hover:bg-primary/10" : "text-primary hover:bg-primary/10"}`}
                       title="Ver detalles"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
                     {transfer.status === "pendiente" && (
                       <>
-                        <button className="p-1.5 text-gray-400 hover:bg-white/5 rounded-md transition-colors" title="Editar">
+                        <button className={`p-1.5 rounded-md transition-colors ${isLight ? "text-gray-600 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`} title="Editar">
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-md transition-colors" title="Cancelar">
+                        <button className={`p-1.5 rounded-md transition-colors ${isLight ? "text-red-600 hover:bg-red-50" : "text-red-400 hover:bg-red-500/10"}`} title="Cancelar">
                           <XCircle className="w-4 h-4" />
                         </button>
                       </>

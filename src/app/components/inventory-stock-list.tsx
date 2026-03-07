@@ -3,6 +3,7 @@ import { Package, AlertTriangle, CheckCircle2, Eye, Edit, Trash2 } from "lucide-
 import { Pagination } from "./pagination";
 import { ViewProductModal } from "./view-product-modal";
 import { NewProductModal } from "./new-product-modal";
+import { useTheme } from "../contexts/theme-context";
 
 interface StockItem {
   id: string;
@@ -153,6 +154,9 @@ const MOCK_STOCK: StockItem[] = [
 ];
 
 export function InventoryStockList() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterWarehouse, setFilterWarehouse] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
@@ -239,12 +243,16 @@ export function InventoryStockList() {
           placeholder="Buscar producto..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+          className={`px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+            isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+          }`}
         />
         <select
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
-          className="px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+          className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+            isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+          }`}
         >
           <option value="all">Todas las categorías</option>
           <option value="Tecnología">Tecnología</option>
@@ -253,7 +261,9 @@ export function InventoryStockList() {
         <select
           value={filterWarehouse}
           onChange={(e) => setFilterWarehouse(e.target.value)}
-          className="px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+          className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+            isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+          }`}
         >
           <option value="all">Todos los almacenes</option>
           <option value="Almacén Principal">Almacén Principal</option>
@@ -262,7 +272,9 @@ export function InventoryStockList() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+          className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+            isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+          }`}
         >
           <option value="all">Todos los estados</option>
           <option value="normal">Normal</option>
@@ -272,53 +284,53 @@ export function InventoryStockList() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#1a2332] rounded-lg overflow-hidden border border-white/5">
+      <div className={`rounded-lg overflow-hidden border ${isLight ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/5"}`}>
         <table className="w-full">
-          <thead className="bg-[#151f2e]">
+          <thead className={isLight ? "bg-gray-50" : "bg-[#151f2e]"}>
             <tr>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Código</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Producto</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Categoría</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Almacén</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Stock</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-              <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Precio Venta</th>
-              <th className="px-4 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Código</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Producto</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Categoría</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Almacén</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Stock</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Estado</th>
+              <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Precio Venta</th>
+              <th className={`px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
             {currentItems.map((item) => (
-              <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+              <tr key={item.id} className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/[0.02] transition-colors"}>
                 <td className="px-4 py-3">
-                  <span className="text-white font-mono text-sm">{item.code}</span>
+                  <span className={`font-mono text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{item.code}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-white text-sm">{item.productName}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{item.productName}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-gray-400 text-sm">{item.category}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>{item.category}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-gray-300 text-sm">{item.warehouse}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>{item.warehouse}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-white text-sm">{item.quantity} {item.unit}</span>
+                  <span className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{item.quantity} {item.unit}</span>
                 </td>
                 <td className="px-4 py-3">
                   {getStatusBadge(item.status)}
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-white text-sm font-medium">${item.salePrice.toFixed(2)}</span>
+                  <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>${item.salePrice.toFixed(2)}</span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition-colors" title="Ver" onClick={() => handleViewProduct(item)}>
+                    <button className={`p-1.5 rounded-md transition-colors ${isLight ? "text-primary hover:bg-primary/10" : "text-primary hover:bg-primary/10"}`} title="Ver" onClick={() => handleViewProduct(item)}>
                       <Eye className="w-4 h-4" />
                     </button>
-                    <button className="p-1.5 text-gray-400 hover:bg-white/5 rounded-md transition-colors" title="Editar" onClick={() => handleEditProduct(item)}>
+                    <button className={`p-1.5 rounded-md transition-colors ${isLight ? "text-gray-600 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`} title="Editar" onClick={() => handleEditProduct(item)}>
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-md transition-colors" title="Eliminar" onClick={() => handleDeleteProduct(item)}>
+                    <button className={`p-1.5 rounded-md transition-colors ${isLight ? "text-red-600 hover:bg-red-50" : "text-red-400 hover:bg-red-500/10"}`} title="Eliminar" onClick={() => handleDeleteProduct(item)}>
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

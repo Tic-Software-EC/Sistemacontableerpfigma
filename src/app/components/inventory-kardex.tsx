@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Search, FileText, Calendar, Package, TrendingUp, Download, Filter, X } from "lucide-react";
+import { Package, FileText, Download, Calendar, Filter, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "../contexts/theme-context";
 
 interface KardexEntry {
   id: string;
@@ -169,6 +170,9 @@ const generateMockKardex = (productCode: string): KardexEntry[] => {
 };
 
 export function InventoryKardex() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
   const [selectedProduct, setSelectedProduct] = useState(MOCK_PRODUCTS[0]);
   const [dateFrom, setDateFrom] = useState("2026-02-01");
   const [dateTo, setDateTo] = useState("2026-02-27");
@@ -217,11 +221,11 @@ export function InventoryKardex() {
   return (
     <div className="space-y-6">
       {/* Filtros y Selección de Producto */}
-      <div className="bg-secondary border border-white/10 rounded-lg p-5">
+      <div className={`rounded-lg p-5 border ${isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-primary" />
-            <h3 className="text-white font-semibold text-base">Filtros de Consulta</h3>
+            <h3 className={`font-semibold text-base ${isLight ? "text-gray-900" : "text-white"}`}>Filtros de Consulta</h3>
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -235,21 +239,25 @@ export function InventoryKardex() {
         <div className={`grid grid-cols-1 lg:grid-cols-5 gap-3 ${showFilters ? '' : 'hidden lg:grid'}`}>
           {/* Selección de Producto */}
           <div className="lg:col-span-2">
-            <label className="block text-gray-400 text-xs mb-1.5">
+            <label className={`block text-xs mb-1.5 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
               Producto <span className="text-red-400">*</span>
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isLight ? "text-gray-400" : "text-gray-400"}`} />
               <input
                 type="text"
                 placeholder="Buscar producto..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50"
+                className={`w-full pl-10 pr-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 ${
+                  isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+                }`}
               />
             </div>
             {searchTerm && filteredProducts.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-[#1a2332] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+              <div className={`absolute z-10 w-full mt-1 border rounded-lg shadow-xl max-h-48 overflow-y-auto ${
+                isLight ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"
+              }`}>
                 {filteredProducts.map((product) => (
                   <button
                     key={product.code}
@@ -258,10 +266,14 @@ export function InventoryKardex() {
                       setSelectedProduct(product);
                       setSearchTerm("");
                     }}
-                    className="w-full text-left px-3 py-2 hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0"
+                    className={`w-full text-left px-3 py-2 transition-colors border-b last:border-b-0 ${
+                      isLight 
+                        ? "hover:bg-gray-50 border-gray-100" 
+                        : "hover:bg-white/5 border-white/5"
+                    }`}
                   >
-                    <p className="text-white text-sm font-medium">{product.name}</p>
-                    <p className="text-gray-400 text-xs">{product.code} • {product.unit}</p>
+                    <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>{product.name}</p>
+                    <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>{product.code} • {product.unit}</p>
                   </button>
                 ))}
               </div>
@@ -270,39 +282,45 @@ export function InventoryKardex() {
 
           {/* Fecha Desde */}
           <div>
-            <label className="block text-gray-400 text-xs mb-1.5">
+            <label className={`block text-xs mb-1.5 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
               Fecha Desde <span className="text-red-400">*</span>
             </label>
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+              }`}
             />
           </div>
 
           {/* Fecha Hasta */}
           <div>
-            <label className="block text-gray-400 text-xs mb-1.5">
+            <label className={`block text-xs mb-1.5 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
               Fecha Hasta <span className="text-red-400">*</span>
             </label>
             <input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+              }`}
             />
           </div>
 
           {/* Almacén */}
           <div>
-            <label className="block text-gray-400 text-xs mb-1.5">
+            <label className={`block text-xs mb-1.5 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
               Almacén
             </label>
             <select
               value={selectedWarehouse}
               onChange={(e) => setSelectedWarehouse(e.target.value)}
-              className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50"
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
+                isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"
+              }`}
             >
               {WAREHOUSES.map(warehouse => (
                 <option key={warehouse} value={warehouse}>{warehouse}</option>
@@ -313,12 +331,12 @@ export function InventoryKardex() {
 
         {/* Producto Seleccionado */}
         {!searchTerm && (
-          <div className="mt-4 pt-4 border-t border-white/10">
+          <div className={`mt-4 pt-4 border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-400 mb-1">Producto Seleccionado:</p>
-                <p className="text-white font-semibold text-base">{selectedProduct.name}</p>
-                <p className="text-gray-400 text-xs">Código: {selectedProduct.code} • Unidad: {selectedProduct.unit}</p>
+                <p className={`text-xs mb-1 ${isLight ? "text-gray-500" : "text-gray-400"}`}>Producto Seleccionado:</p>
+                <p className={`font-semibold text-base ${isLight ? "text-gray-900" : "text-white"}`}>{selectedProduct.name}</p>
+                <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Código: {selectedProduct.code} • Unidad: {selectedProduct.unit}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -341,62 +359,15 @@ export function InventoryKardex() {
         )}
       </div>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-secondary border border-white/10 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-green-500/10 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-green-400" />
-            </div>
-            <p className="text-gray-400 text-xs">Total Entradas</p>
-          </div>
-          <p className="text-white text-2xl font-bold">{totalEntries}</p>
-          <p className="text-gray-500 text-xs mt-1">{selectedProduct.unit}</p>
-        </div>
-
-        <div className="bg-secondary border border-white/10 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-red-500/10 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-red-400 rotate-180" />
-            </div>
-            <p className="text-gray-400 text-xs">Total Salidas</p>
-          </div>
-          <p className="text-white text-2xl font-bold">{totalExits}</p>
-          <p className="text-gray-500 text-xs mt-1">{selectedProduct.unit}</p>
-        </div>
-
-        <div className="bg-secondary border border-white/10 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Package className="w-4 h-4 text-primary" />
-            </div>
-            <p className="text-gray-400 text-xs">Saldo Actual</p>
-          </div>
-          <p className="text-white text-2xl font-bold">{currentBalance}</p>
-          <p className="text-gray-500 text-xs mt-1">{selectedProduct.unit}</p>
-        </div>
-
-        <div className="bg-secondary border border-white/10 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <FileText className="w-4 h-4 text-blue-400" />
-            </div>
-            <p className="text-gray-400 text-xs">Valor en Stock</p>
-          </div>
-          <p className="text-white text-2xl font-bold">${currentValue.toFixed(2)}</p>
-          <p className="text-gray-500 text-xs mt-1">USD</p>
-        </div>
-      </div>
-
       {/* Tabla del Kardex */}
-      <div className="bg-secondary border border-white/10 rounded-lg overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/10">
+      <div className={`rounded-lg overflow-hidden border ${isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"}`}>
+        <div className={`px-5 py-4 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
           <div className="flex items-center justify-between">
-            <h3 className="text-white font-semibold text-base flex items-center gap-2">
+            <h3 className={`font-semibold text-base flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
               <FileText className="w-5 h-5 text-primary" />
               Kardex de Inventario
             </h3>
-            <p className="text-gray-400 text-xs">
+            <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>
               {filteredEntries.length} movimiento(s) • Período: {new Date(dateFrom).toLocaleDateString('es-EC')} - {new Date(dateTo).toLocaleDateString('es-EC')}
             </p>
           </div>
@@ -404,37 +375,37 @@ export function InventoryKardex() {
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-[#151f2e]">
+            <thead className={isLight ? "bg-gray-50" : "bg-[#151f2e]"}>
               <tr>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Fecha</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Movimiento</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Tipo</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Motivo</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Almacén</th>
-                <th className="px-4 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Entrada</th>
-                <th className="px-4 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Salida</th>
-                <th className="px-4 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Saldo</th>
-                <th className="px-4 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Costo Unit.</th>
-                <th className="px-4 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Valor Total</th>
+                <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Fecha</th>
+                <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Movimiento</th>
+                <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Tipo</th>
+                <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Motivo</th>
+                <th className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Almacén</th>
+                <th className={`px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Entrada</th>
+                <th className={`px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Salida</th>
+                <th className={`px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Saldo</th>
+                <th className={`px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Costo Unit.</th>
+                <th className={`px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider ${isLight ? "text-gray-500" : "text-gray-400"}`}>Valor Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
               {filteredEntries.map((entry) => {
                 const typeInfo = getTypeInfo(entry.type);
                 return (
-                  <tr key={entry.id} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={entry.id} className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/[0.02] transition-colors"}>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-gray-500" />
-                        <span className="text-white text-xs">
+                        <Calendar className={`w-3.5 h-3.5 ${isLight ? "text-gray-400" : "text-gray-500"}`} />
+                        <span className={`text-xs ${isLight ? "text-gray-900" : "text-white"}`}>
                           {new Date(entry.date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                         </span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-gray-300 text-xs font-mono">{entry.movementCode}</span>
+                      <span className={`text-xs font-mono ${isLight ? "text-gray-700" : "text-gray-300"}`}>{entry.movementCode}</span>
                       {entry.reference && (
-                        <p className="text-gray-500 text-[10px] mt-0.5">{entry.reference}</p>
+                        <p className={`text-[10px] mt-0.5 ${isLight ? "text-gray-400" : "text-gray-500"}`}>{entry.reference}</p>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -443,45 +414,45 @@ export function InventoryKardex() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-white text-xs">{entry.reason}</span>
+                      <span className={`text-xs ${isLight ? "text-gray-900" : "text-white"}`}>{entry.reason}</span>
                       {entry.notes && (
-                        <p className="text-gray-500 text-[10px] mt-0.5">{entry.notes}</p>
+                        <p className={`text-[10px] mt-0.5 ${isLight ? "text-gray-400" : "text-gray-500"}`}>{entry.notes}</p>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-gray-400 text-xs">{entry.warehouse}</span>
+                      <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>{entry.warehouse}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       {entry.quantity > 0 ? (
                         <span className="text-green-400 text-sm font-semibold">+{entry.quantity}</span>
                       ) : (
-                        <span className="text-gray-600 text-sm">-</span>
+                        <span className={`text-sm ${isLight ? "text-gray-300" : "text-gray-600"}`}>-</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">
                       {entry.quantity < 0 ? (
                         <span className="text-red-400 text-sm font-semibold">{Math.abs(entry.quantity)}</span>
                       ) : (
-                        <span className="text-gray-600 text-sm">-</span>
+                        <span className={`text-sm ${isLight ? "text-gray-300" : "text-gray-600"}`}>-</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="text-white text-sm font-bold">{entry.balance}</span>
+                      <span className={`text-sm font-bold ${isLight ? "text-gray-900" : "text-white"}`}>{entry.balance}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-gray-300 text-xs">${entry.unitCost.toFixed(2)}</span>
+                      <span className={`text-xs ${isLight ? "text-gray-700" : "text-gray-300"}`}>${entry.unitCost.toFixed(2)}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-white text-sm font-semibold">${entry.balanceValue.toFixed(2)}</span>
+                      <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>${entry.balanceValue.toFixed(2)}</span>
                     </td>
                   </tr>
                 );
               })}
             </tbody>
-            <tfoot className="bg-[#151f2e] border-t-2 border-primary/30">
+            <tfoot className={`border-t-2 border-primary/30 ${isLight ? "bg-gray-50" : "bg-[#151f2e]"}`}>
               <tr>
                 <td colSpan={5} className="px-4 py-3 text-right">
-                  <span className="text-white text-sm font-bold">SALDO FINAL:</span>
+                  <span className={`text-sm font-bold ${isLight ? "text-gray-900" : "text-white"}`}>SALDO FINAL:</span>
                 </td>
                 <td className="px-4 py-3 text-center">
                   <span className="text-green-400 text-sm font-bold">{totalEntries}</span>
@@ -490,10 +461,10 @@ export function InventoryKardex() {
                   <span className="text-red-400 text-sm font-bold">{totalExits}</span>
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <span className="text-white text-base font-bold">{currentBalance}</span>
+                  <span className={`text-base font-bold ${isLight ? "text-gray-900" : "text-white"}`}>{currentBalance}</span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <span className="text-gray-400 text-xs">-</span>
+                  <span className={`text-xs ${isLight ? "text-gray-400" : "text-gray-400"}`}>-</span>
                 </td>
                 <td className="px-4 py-3 text-right">
                   <span className="text-primary text-base font-bold">${currentValue.toFixed(2)}</span>

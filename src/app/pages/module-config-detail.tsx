@@ -71,7 +71,6 @@ const SECTION_META: Record<string, SectionMeta> = {
   "purchase-config":   { title: "Configuración de Compras",     description: "Parámetros y reglas del módulo de compras",                          icon: ShoppingCart },
   "stock-config":      { title: "Configuración de Stock",       description: "Define los parámetros de control y alertas de inventario",           icon: Boxes        },
   "notifications":     { title: "Notificaciones",               description: "Gestiona cómo recibes las notificaciones del sistema",               icon: Bell         },
-  "chart-accounts":    { title: "Plan de Cuentas",              description: "Configura el catálogo de cuentas contables",                        icon: FileText     },
   "fiscal-year":       { title: "Ejercicio Fiscal",             description: "Gestiona los periodos contables y cierres fiscales",                 icon: Calendar     },
   "accounting-config": { title: "Configuración Contable",       description: "Parámetros generales del módulo de contabilidad",                   icon: Settings     },
   "report-templates":  { title: "Plantillas de Reportes",       description: "Administra y personaliza las plantillas de informes",                icon: FileText     },
@@ -466,7 +465,6 @@ const moduleMenus: Record<string, any> = {
       name: "Contabilidad",
       icon: Wallet,
       submenus: [
-        { id: "chart-accounts", name: "Plan de cuentas", icon: FileText },
         { id: "fiscal-year", name: "Ejercicio fiscal", icon: Calendar },
         { id: "accounting-config", name: "Configuración contable", icon: Settings },
       ]

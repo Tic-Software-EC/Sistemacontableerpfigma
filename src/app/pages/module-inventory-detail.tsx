@@ -166,6 +166,12 @@ export default function ModuleInventoryDetail() {
 
           {/* Derecha */}
           <div className="flex items-center gap-3">
+            {/* Notificaciones */}
+            <button className={`p-2 rounded-lg transition-colors relative ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+            </button>
+
             {/* Toggle Tema Sol/Luna */}
             <button
               onClick={toggleTheme}
@@ -173,12 +179,6 @@ export default function ModuleInventoryDetail() {
               title={isLight ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
             >
               {isLight ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
-
-            {/* Notificaciones */}
-            <button className={`p-2 rounded-lg transition-colors relative ${isLight ? "text-gray-600 hover:text-primary hover:bg-gray-100" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
             </button>
 
             {/* Usuario */}

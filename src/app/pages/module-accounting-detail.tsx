@@ -11,7 +11,6 @@ import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
 import { JournalContent } from "../components/journal-content";
 import { LedgerContent } from "../components/ledger-content";
-import { ChartOfAccountsContent } from "../components/chart-of-accounts-content";
 import { BalanceSheetContent } from "../components/balance-sheet-content";
 import { IncomeStatementContent } from "../components/income-statement-content";
 import { FinancialReportsContent } from "../components/financial-reports-content";
@@ -23,12 +22,10 @@ import { ManualEntryContent } from "../components/manual-entry-content";
 const TABS = [
   { id: "journal",    name: "Libro Diario",          icon: BookOpen    },
   { id: "ledger",     name: "Libro Mayor",           icon: Receipt     },
-  { id: "accounts",   name: "Plan de Cuentas",        icon: List        },
   { id: "balance",    name: "Balance General",        icon: BarChart2   },
   { id: "income",     name: "Estado de Resultados",   icon: TrendingUp  },
   { id: "reports",    name: "Reportes Financieros",   icon: PieChart    },
   { id: "ats",        name: "ATS",                    icon: FileDown    },
-  { id: "manual",     name: "Asiento Manual",         icon: FileText    },
   { id: "config",     name: "Configuración",          icon: Settings    },
 ];
 
@@ -214,9 +211,6 @@ export default function ModuleAccountingDetail() {
         {/* Libro Mayor */}
         {activeTab === "ledger" && <LedgerContent />}
 
-        {/* Plan de Cuentas */}
-        {activeTab === "accounts" && <ChartOfAccountsContent />}
-
         {/* Balance General */}
         {activeTab === "balance" && <BalanceSheetContent />}
 
@@ -228,9 +222,6 @@ export default function ModuleAccountingDetail() {
 
         {/* ATS - Anexo Transaccional Simplificado */}
         {activeTab === "ats" && <AtsContent />}
-
-        {/* Asiento Manual */}
-        {activeTab === "manual" && <ManualEntryContent />}
 
         {/* Configuración de Cuentas Contables */}
         {activeTab === "config" && <AccountingSettingsContent />}
