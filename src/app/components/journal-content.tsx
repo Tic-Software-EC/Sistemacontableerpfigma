@@ -1,14 +1,11 @@
 import { useState } from "react";
 import {
-  Search, Eye, Download, Printer, Pencil,
-  BookOpen, CheckCircle, AlertTriangle, X, Save,
-  ArrowUpRight, ArrowDownRight, Trash2, Zap,
-  ShoppingCart, ShoppingBag, Users, TrendingDown, DollarSign,
-  Package, Settings, ChevronDown, Lock, Plus,
+  Download, Printer, Settings, Search, X, Save, Trash2, Eye, Pencil,
+  AlertTriangle, CheckCircle, Lock, BookOpen, Zap, ChevronDown,
+  Plus, ArrowUpRight, ArrowDownRight
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
-import { AccountingKpiCard } from "./ui/accounting-kpi-card";
 import { DateRangePicker } from "./date-range-picker";
 import {
   useAccounting,
@@ -39,12 +36,12 @@ const CUENTAS_DISPONIBLES = [
 const TIPOS = ["Ajuste", "Cierre", "Corrección", "Reclasificación", "Otro"];
 
 const MODULOS_FUENTE = [
-  { key: "ventas",      label: "Ventas",      icon: ShoppingCart, color: "text-blue-600 bg-blue-50 border-blue-200"   },
-  { key: "compras",     label: "Compras",     icon: ShoppingBag,  color: "text-purple-600 bg-purple-50 border-purple-200" },
-  { key: "inventario",  label: "Inventario",  icon: Package,      color: "text-teal-600 bg-teal-50 border-teal-200"   },
-  { key: "nomina",      label: "Nómina",      icon: Users,        color: "text-orange-600 bg-orange-50 border-orange-200" },
-  { key: "activos",     label: "Activos",     icon: TrendingDown, color: "text-rose-600 bg-rose-50 border-rose-200"   },
-  { key: "cartera",     label: "Cartera",     icon: DollarSign,   color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
+  { key: "ventas",      label: "Ventas",      icon: Plus, color: "text-blue-600 bg-blue-50 border-blue-200"   },
+  { key: "compras",     label: "Compras",     icon: Plus,  color: "text-purple-600 bg-purple-50 border-purple-200" },
+  { key: "inventario",  label: "Inventario",  icon: Plus,      color: "text-teal-600 bg-teal-50 border-teal-200"   },
+  { key: "nomina",      label: "Nómina",      icon: Plus,        color: "text-orange-600 bg-orange-50 border-orange-200" },
+  { key: "activos",     label: "Activos",     icon: Plus, color: "text-rose-600 bg-rose-50 border-rose-200"   },
+  { key: "cartera",     label: "Cartera",     icon: Plus,   color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
 ];
 
 const origenLabel = (origen: OrigenAsiento): string => {
@@ -75,7 +72,7 @@ export function JournalContent() {
 
   // Modal crear/editar
   const [showFormModal,   setShowFormModal]   = useState(false);
-  const [editingId,       setEditingId]       = useState<string | null>(null); // null = crear
+  const [editingId,       setEditingId]       = useState<string | null>(null);
   const [form,            setForm]            = useState({ descripcion: "", referencia: "", tipo: "Ajuste", fecha: "2026-03-06" });
   const [editLineas,      setEditLineas]      = useState<AsientoLinea[]>([]);
 
@@ -141,17 +138,20 @@ export function JournalContent() {
   const openView = (a: Asiento) => { setViewingAsiento(a); setShowViewModal(true); };
 
   /* ── Clases ────────────────────────────────────────────────── */
-  const ic      = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`;
-  const lbl     = `block mb-1.5 text-xs font-medium ${isLight ? "text-gray-700" : "text-gray-300"}`;
+  const ic      = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`;
+  const lbl     = `block mb-1.5 text-sm font-medium ${isLight ? "text-gray-700" : "text-gray-300"}`;
   const opt     = "bg-[#0D1B2A]";
   const modalBg = isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10";
+  const card = `rounded-lg border ${isLight ? "bg-white border-gray-200" : "bg-white/[0.03] border-white/10"}`;
+  const txt = isLight ? "text-gray-900" : "text-white";
+  const sub = isLight ? "text-gray-500" : "text-gray-400";
   const thCls   = `px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap ${isLight ? "text-gray-500" : "text-gray-400"}`;
   const tdCls   = "px-4 py-3";
 
   /* ── KPIs ──────────────────────────────────────────────────── */
   const metrics = [
-    { label: "Total Asientos", value: asientos.length,                             icon: <BookOpen       className="w-5 h-5 text-primary" />,  bg: "bg-primary/10"  },
-    { label: "Auto-generados", value: asientos.filter(a => a.autoGenerado).length, icon: <Zap            className="w-5 h-5 text-gray-500" />, bg: "bg-gray-500/10" },
+    { label: "Total Asientos", value: asientos.length,                             icon: <CheckCircle       className="w-5 h-5 text-primary" />,  bg: "bg-primary/10"  },
+    { label: "Auto-generados", value: asientos.filter(a => a.autoGenerado).length, icon: <Plus            className="w-5 h-5 text-gray-500" />, bg: "bg-gray-500/10" },
     { label: "Total Debe",     value: fmt(asientos.reduce((s,a)=>s+a.debe,  0)),   icon: <ArrowUpRight    className="w-5 h-5 text-gray-500" />, bg: "bg-gray-500/10" },
     { label: "Total Haber",    value: fmt(asientos.reduce((s,a)=>s+a.haber, 0)),   icon: <ArrowDownRight  className="w-5 h-5 text-gray-500" />, bg: "bg-gray-500/10" },
   ];
@@ -344,18 +344,30 @@ export function JournalContent() {
   return (
     <div className="space-y-6">
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {metrics.map(m => <AccountingKpiCard key={m.label} label={m.label} value={m.value} icon={m.icon} iconBg={m.bg}/>)}
-      </div>
-
-      <div className={`border-t ${isLight?"border-gray-200":"border-white/10"}`}/>
-
       {/* Botones */}
       <div className="flex justify-end gap-2">
-        <button onClick={() => downloadJournalCSV(filtered)} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border transition-colors ${isLight?"border-gray-300 text-gray-600 hover:bg-gray-50":"border-white/10 text-gray-300 hover:bg-white/5"}`}><Download className="w-4 h-4"/> Exportar CSV</button>
-        <button onClick={() => printJournal(filtered)}       className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border transition-colors ${isLight?"border-gray-300 text-gray-600 hover:bg-gray-50":"border-white/10 text-gray-300 hover:bg-white/5"}`}><Printer  className="w-4 h-4"/> Imprimir</button>
-        <button onClick={openCreate}                         className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 bg-primary hover:bg-primary/90 text-white transition-colors"><Settings className="w-4 h-4"/> Asiento Manual</button>
+        <button 
+          onClick={() => downloadJournalCSV(filtered)} 
+          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border transition-colors ${
+            isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-300 hover:bg-white/5"
+          }`}
+        >
+          <Download className="w-4 h-4"/> Exportar CSV
+        </button>
+        <button 
+          onClick={() => printJournal(filtered)} 
+          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border transition-colors ${
+            isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-300 hover:bg-white/5"
+          }`}
+        >
+          <Printer className="w-4 h-4"/> Imprimir
+        </button>
+        <button 
+          onClick={openCreate} 
+          className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 bg-primary hover:bg-primary/90 text-white transition-colors"
+        >
+          <Settings className="w-4 h-4"/> Asiento Manual
+        </button>
       </div>
 
       {/* ── FILTROS ── */}
@@ -424,11 +436,11 @@ export function JournalContent() {
           <table className="w-full table-fixed">
             <thead>
               <tr className={isLight?"bg-gray-50 border-b border-gray-200":"bg-[#0D1B2A] border-b border-white/10"}>
-                <th className={thCls} style={{width:"130px"}}>N.º Asiento</th>
+                <th className={thCls} style={{width:"130px"}}>Fecha</th>
+                <th className={thCls} style={{width:"140px"}}>N.º Asiento</th>
                 <th className={thCls} style={{width:"auto"}}>Concepto</th>
-                <th className={thCls} style={{width:"120px"}}>Referencia</th>
+                <th className={thCls} style={{width:"140px"}}>Referencia</th>
                 <th className={thCls} style={{width:"110px"}}>Módulo</th>
-                <th className={thCls} style={{width:"100px"}}>Fecha</th>
                 <th className={thCls+" text-right"} style={{width:"110px"}}>Debe</th>
                 <th className={thCls+" text-right"} style={{width:"110px"}}>Haber</th>
                 <th className={thCls+" text-center"} style={{width:"88px"}}>Acciones</th>
@@ -445,6 +457,10 @@ export function JournalContent() {
                   <tr key={a.id}
                     className={`${idx>0?`border-t ${isLight?"border-gray-100":"border-white/5"}`:""} ${isLight?"hover:bg-gray-50":"hover:bg-white/[0.02]"} cursor-pointer transition-colors`}
                     onClick={() => setExpandedId(isExpanded ? null : a.id)}>
+
+                    <td className={tdCls}>
+                      <span className={`text-sm tabular-nums font-medium ${isLight?"text-gray-700":"text-gray-300"}`}>{a.fecha}</span>
+                    </td>
 
                     <td className={tdCls}>
                       <span className="text-sm font-mono font-semibold text-primary">{a.id}</span>
@@ -465,9 +481,6 @@ export function JournalContent() {
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${origenColor(a.origen)}`}>
                         {origenLabel(a.origen)}
                       </span>
-                    </td>
-                    <td className={tdCls}>
-                      <span className={`text-sm tabular-nums ${isLight?"text-gray-600":"text-gray-400"}`}>{a.fecha}</span>
                     </td>
                     <td className={tdCls+" text-right"}>
                       <span className={`text-sm font-mono tabular-nums ${isLight?"text-gray-800":"text-gray-200"}`}>{fmt(a.debe)}</span>

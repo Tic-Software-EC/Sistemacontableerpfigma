@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { TrendingUp, TrendingDown, DollarSign, Percent, Download, Printer, BarChart2 } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { printIncomeStatement, downloadIncomeStatementCSV } from "../utils/print-download";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { AccountingKpiCard } from "./ui/accounting-kpi-card";
 
 const PERIODOS = ["Enero 2026", "Febrero 2026", "Marzo 2026"];
 
@@ -68,12 +66,6 @@ const DATA_POR_PERIODO: Record<string, { ingresos: any[]; costos: any[]; gastos:
   },
 };
 
-const CHART_DATA = [
-  { id: "ene-2026", mes: "Ene", ingresos: 108700, costos: 57000, utilidad: 36010 },
-  { id: "feb-2026", mes: "Feb", ingresos: 124800, costos: 65900, utilidad: 42820 },
-  { id: "mar-2026", mes: "Mar", ingresos: 145500, costos: 79200, utilidad: 50000 },
-];
-
 const fmt = (v: number) => `$${v.toLocaleString("es-EC", { minimumFractionDigits: 2 })}`;
 
 export function IncomeStatementContent() {
@@ -93,149 +85,144 @@ export function IncomeStatementContent() {
   const margenBruto   = totalIngresos > 0 ? (utilidadBruta / totalIngresos * 100) : 0;
   const margenNeto    = totalIngresos > 0 ? (utilidadNeta / totalIngresos * 100) : 0;
 
-  const card = `rounded-xl ${isLight ? "bg-white border border-gray-200" : "bg-white/5 border border-white/10"}`;
+  const card = `rounded-lg border ${isLight ? "bg-white border-gray-200" : "bg-white/[0.03] border-white/10"}`;
+  const txt = isLight ? "text-gray-900" : "text-white";
+  const sub = isLight ? "text-gray-500" : "text-gray-400";
 
-  const section = (
-    titulo: string,
-    items: { nombre: string; valor: number }[],
-    total: number,
-    colorHdr: string,
-    colorTotal: string
-  ) => (
-    <div className={`${card} overflow-hidden`}>
-      <div className={`px-5 py-3 border-b ${colorHdr}`}>
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-sm">{titulo}</span>
-          <span className="font-bold font-mono text-sm">{fmt(total)}</span>
-        </div>
-      </div>
-      {items.map(item => (
-        <div key={item.nombre} className={`flex items-center justify-between px-5 py-2.5 border-b transition-colors ${isLight ? "border-gray-50 hover:bg-gray-50" : "border-white/[0.04] hover:bg-white/[0.02]"}`}>
-          <div className="flex items-center gap-2 pl-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary/40 flex-shrink-0" />
-            <span className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>{item.nombre}</span>
-          </div>
-          <span className={`text-sm font-mono ${item.valor < 0 ? "text-red-400" : isLight ? "text-gray-800" : "text-gray-200"}`}>
-            {item.valor < 0 ? `(${fmt(Math.abs(item.valor))})` : fmt(item.valor)}
-          </span>
-        </div>
-      ))}
-      <div className={`flex items-center justify-between px-5 py-3 ${colorTotal}`}>
-        <span className="text-sm font-bold">Total {titulo}</span>
-        <span className="text-sm font-bold font-mono">{fmt(total)}</span>
-      </div>
+  const incomeData = {
+    ingresos: data.ingresos, costos: data.costos, gastos: data.gastos,
+    totalIngresos, totalCostos, utilidadBruta, totalGastos, utilidadOper, impuesto, utilidadNeta, margenBruto, margenNeto,
+  };
+
+  const row = (nombre: string, valor: number, indent: boolean = false) => (
+    <div 
+      key={nombre} 
+      className={`flex items-center justify-between py-1.5 ${indent ? "pl-6" : "pl-4"} pr-4 border-t ${
+        isLight ? "border-gray-100" : "border-white/5"
+      }`}
+    >
+      <span className={`text-sm ${sub}`}>{nombre}</span>
+      <span className={`text-sm font-mono ${valor < 0 ? "text-red-600" : txt}`}>{fmt(valor)}</span>
     </div>
   );
 
+  const totalRow = (label: string, valor: number, level: "subtotal" | "total" | "grand" = "subtotal") => {
+    const bgClass = level === "grand" 
+      ? (isLight ? "bg-gray-100" : "bg-white/10")
+      : level === "total"
+      ? (isLight ? "bg-gray-50" : "bg-white/5")
+      : "";
+    
+    const fontWeight = level === "grand" ? "font-bold" : "font-semibold";
+    const colorClass = valor < 0 ? "text-red-600" : txt;
+
+    return (
+      <div className={`flex items-center justify-between px-4 py-2 border-t ${isLight ? "border-gray-200" : "border-white/10"} ${bgClass}`}>
+        <span className={`text-sm ${fontWeight} ${txt}`}>{label}</span>
+        <span className={`text-sm ${fontWeight} font-mono ${colorClass}`}>{fmt(valor)}</span>
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="space-y-4">
+      {/* Header */}
+      <div className={`flex items-start justify-between gap-4 pb-3 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+        <div>
+          <h2 className={`text-lg font-bold ${txt}`}>Estado de Resultados</h2>
+          <p className={`text-xs mt-0.5 ${sub}`}>Periodo: {periodo}</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <select
+            value={periodo}
+            onChange={(e) => setPeriodo(e.target.value)}
+            className={`px-3 py-2 border rounded-lg text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
+              isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"
+            }`}
+          >
+            {PERIODOS.map(p => (
+              <option key={p} value={p} className="bg-[#0D1B2A]">{p}</option>
+            ))}
+          </select>
+          <button 
+            onClick={() => { downloadIncomeStatementCSV(incomeData, periodo); toast.success("Estado de resultados exportado"); }}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+              isLight ? "border-gray-300 text-gray-700 hover:bg-gray-50" : "border-white/10 text-gray-300 hover:bg-white/5"
+            }`}
+          >
+            <Download className="w-4 h-4" />
+            Exportar
+          </button>
+          <button 
+            onClick={() => printIncomeStatement(incomeData, periodo)}
+            className="flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-semibold transition-colors"
+          >
+            <Printer className="w-4 h-4" />
+            Imprimir
+          </button>
+        </div>
+      </div>
+
+      {/* Resumen */}
+      <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Ingresos Totales", value: fmt(totalIngresos), icon: <TrendingUp className="w-5 h-5 text-green-400" />, iconBg: "bg-green-500/20" },
-          { label: "Utilidad Bruta",   value: fmt(utilidadBruta), icon: <BarChart2 className="w-5 h-5 text-blue-400" />,  iconBg: "bg-blue-500/20"  },
-          { label: "Utilidad Neta",    value: fmt(utilidadNeta),  icon: <DollarSign className="w-5 h-5 text-primary" />,  iconBg: "bg-primary/20"   },
-          { label: "Margen Neto",      value: `${margenNeto.toFixed(1)}%`, icon: <TrendingDown className="w-5 h-5 text-purple-400" />, iconBg: "bg-purple-500/20" },
-        ].map(m => (
-          <AccountingKpiCard key={m.label} label={m.label} value={m.value} icon={m.icon} iconBg={m.iconBg} />
+          { label: "Ingresos Totales", value: totalIngresos },
+          { label: "Utilidad Bruta", value: utilidadBruta },
+          { label: "Utilidad Operacional", value: utilidadOper },
+          { label: "Utilidad Neta", value: utilidadNeta },
+        ].map(item => (
+          null
         ))}
       </div>
-
-      <div className={`border-t ${isLight ? "border-gray-200" : "border-white/10"}`} />
-
-      {/* Selector de período + acciones */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className={`text-sm font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>Período:</span>
-          <div className="flex gap-1">
-            {PERIODOS.map(p => (
-              <button key={p} onClick={() => setPeriodo(p)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${periodo === p ? "bg-primary text-white" : isLight ? "bg-gray-100 text-gray-600 hover:bg-gray-200" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}>
-                {p.split(" ")[0]}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              downloadIncomeStatementCSV({
-                ingresos: data.ingresos, costos: data.costos, gastos: data.gastos,
-                totalIngresos, totalCostos, utilidadBruta, totalGastos,
-                utilidadOper, utilidadNeta, margenNeto,
-              }, periodo);
-              toast.success("Estado de resultados exportado");
-            }}
-            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border transition-colors ${isLight ? "border-gray-300 text-gray-700 hover:bg-gray-50" : "border-white/10 text-gray-300 hover:bg-white/5"}`}>
-            <Download className="w-4 h-4" /> Exportar CSV
-          </button>
-          <button
-            onClick={() => printIncomeStatement({
-              ingresos: data.ingresos, costos: data.costos, gastos: data.gastos,
-              totalIngresos, totalCostos, utilidadBruta, totalGastos,
-              utilidadOper, utilidadNeta, margenNeto,
-            }, periodo)}
-            className="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors shadow-lg shadow-primary/20">
-            <Printer className="w-4 h-4" /> Imprimir / PDF
-          </button>
-        </div>
-      </div>
-
-      {/* Gráfico de tendencia */}
-      
 
       {/* Estado de Resultados */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {section("Ingresos Operacionales", data.ingresos, totalIngresos,
-          isLight ? "bg-green-50 border-green-100 text-green-800" : "bg-green-500/10 border-green-500/20 text-green-300",
-          isLight ? "bg-green-50 text-green-800" : "bg-green-500/10 text-green-300")}
-        {section("Costos de Ventas", data.costos, totalCostos,
-          isLight ? "bg-red-50 border-red-100 text-red-800" : "bg-red-500/10 border-red-500/20 text-red-300",
-          isLight ? "bg-red-50 text-red-800" : "bg-red-500/10 text-red-300")}
-      </div>
-
-      {/* Utilidad Bruta */}
-      <div className={`rounded-xl px-5 py-4 flex items-center justify-between ${isLight ? "bg-blue-50 border border-blue-200" : "bg-blue-500/10 border border-blue-500/20"}`}>
-        <div>
-          <p className={`text-sm font-semibold ${isLight ? "text-blue-700" : "text-blue-300"}`}>UTILIDAD BRUTA</p>
-          <p className={`text-xs ${isLight ? "text-blue-500" : "text-blue-400"}`}>Margen Bruto: {margenBruto.toFixed(1)}%</p>
+      <div className={`${card} overflow-hidden`}>
+        {/* Ingresos */}
+        <div className={`px-4 py-2.5 border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+          <h3 className={`text-sm font-bold ${txt}`}>INGRESOS OPERACIONALES</h3>
         </div>
-        <span className={`font-bold font-mono text-xl ${isLight ? "text-blue-700" : "text-blue-300"}`}>{fmt(utilidadBruta)}</span>
-      </div>
+        {data.ingresos.map(i => row(i.nombre, i.valor, true))}
+        {totalRow("Total Ingresos", totalIngresos, "total")}
 
-      {/* Gastos */}
-      {section("Gastos Operacionales", data.gastos, totalGastos,
-        isLight ? "bg-orange-50 border-orange-100 text-orange-800" : "bg-orange-500/10 border-orange-500/20 text-orange-300",
-        isLight ? "bg-orange-50 text-orange-800" : "bg-orange-500/10 text-orange-300")}
+        {/* Costos */}
+        <div className={`px-4 py-2.5 border-t ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+          <h3 className={`text-sm font-bold ${txt}`}>COSTOS DE VENTAS</h3>
+        </div>
+        {data.costos.map(i => row(i.nombre, i.valor, true))}
+        {totalRow("Total Costos", totalCostos, "total")}
 
-      {/* Utilidad Operacional */}
-      <div className={`rounded-xl px-5 py-4 flex items-center justify-between ${isLight ? "bg-purple-50 border border-purple-200" : "bg-purple-500/10 border border-purple-500/20"}`}>
-        <span className={`text-sm font-semibold ${isLight ? "text-purple-700" : "text-purple-300"}`}>UTILIDAD OPERACIONAL</span>
-        <span className={`font-bold font-mono text-xl ${isLight ? "text-purple-700" : "text-purple-300"}`}>{fmt(utilidadOper)}</span>
-      </div>
+        {/* Utilidad Bruta */}
+        {totalRow("UTILIDAD BRUTA", utilidadBruta, "grand")}
+        <div className={`px-5 py-2 text-xs ${sub} border-b ${isLight ? "border-gray-100" : "border-white/5"}`}>
+          Margen bruto: {margenBruto.toFixed(1)}%
+        </div>
 
-      {/* Impuesto y Utilidad Neta */}
-      <div className={`rounded-xl overflow-hidden ${isLight ? "bg-white border border-gray-200" : "bg-white/5 border border-white/10"}`}>
-        {[
-          { label: "(-) Participación Trabajadores 15%", valor: utilidadOper * 0.15 },
-          { label: "(-) Impuesto a la Renta 25%", valor: impuesto },
-        ].map(r => (
-          <div key={r.label} className={`flex items-center justify-between px-5 py-3 border-b ${isLight ? "border-gray-100" : "border-white/5"}`}>
-            <span className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>{r.label}</span>
-            <span className={`text-sm font-mono text-red-400`}>({fmt(r.valor)})</span>
-          </div>
-        ))}
-        <div className="flex items-center justify-between px-5 py-4 bg-primary/10">
-          <div>
-            <p className="font-bold text-primary">UTILIDAD NETA DEL PERÍODO</p>
-            <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>Margen Neto: {margenNeto.toFixed(1)}%</p>
-          </div>
-          <span className="font-bold font-mono text-2xl text-primary">{fmt(utilidadNeta)}</span>
+        {/* Gastos */}
+        <div className={`px-4 py-2.5 border-t ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+          <h3 className={`text-sm font-bold ${txt}`}>GASTOS OPERACIONALES</h3>
+        </div>
+        {data.gastos.map(i => row(i.nombre, i.valor, true))}
+        {totalRow("Total Gastos", totalGastos, "total")}
+
+        {/* Utilidad Operacional */}
+        {totalRow("UTILIDAD OPERACIONAL", utilidadOper, "grand")}
+
+        {/* Impuestos */}
+        <div className={`px-4 py-2.5 border-t ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+          <h3 className={`text-sm font-bold ${txt}`}>OTROS</h3>
+        </div>
+        {row("Impuesto a la Renta (25%)", impuesto, true)}
+
+        {/* Utilidad Neta */}
+        {totalRow("UTILIDAD NETA DEL EJERCICIO", utilidadNeta, "grand")}
+        <div className={`px-5 py-2 text-xs ${sub}`}>
+          Margen neto: {margenNeto.toFixed(1)}%
         </div>
       </div>
 
-      <p className={`text-xs text-center ${isLight ? "text-gray-400" : "text-gray-500"}`}>
-        Estado de Resultados — {periodo} • Generado el 04 de marzo, 2026
+      <p className={`text-xs text-center ${sub}`}>
+        Generado el 04 de marzo, 2026
       </p>
     </div>
   );

@@ -122,23 +122,6 @@ export function FinancialReportsContent() {
 
   return (
     <div className="space-y-6">
-      {/* KPIs rápidos */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Ingresos Mar 2026", value: "$145,500",  icon: <TrendingUp className="w-5 h-5 text-green-400" />,  iconBg: "bg-green-500/20" },
-          { label: "Gastos Mar 2026",   value: "$95,500",   icon: <TrendingDown className="w-5 h-5 text-red-400" />,  iconBg: "bg-red-500/20"   },
-          { label: "Utilidad Neta",     value: "$37,500",   icon: <DollarSign className="w-5 h-5 text-primary" />,    iconBg: "bg-primary/20"   },
-          { label: "Margen Neto",       value: "25.8%",     icon: <BarChart2 className="w-5 h-5 text-purple-400" />,  iconBg: "bg-purple-500/20"},
-        ].map(m => (
-          <AccountingKpiCard key={m.label} label={m.label} value={m.value} icon={m.icon} iconBg={m.iconBg} />
-        ))}
-      </div>
-
-      <div className={`border-t ${isLight ? "border-gray-200" : "border-white/10"}`} />
-
-      {/* Gráficos */}
-      
-
       {/* Listado de reportes disponibles */}
       <div className={`${card} overflow-hidden`}>
         <div className={`px-5 py-4 border-b flex items-center justify-between ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/[0.03] border-white/10"}`}>

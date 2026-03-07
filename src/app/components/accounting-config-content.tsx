@@ -2,7 +2,8 @@ import { useState } from "react";
 import {
   ShoppingCart, ShoppingBag, Banknote, Package,
   Users, TrendingDown, ArrowRight, CheckCircle,
-  Send, Settings2, Percent, ChevronRight,
+  Send, Settings2, Percent, ChevronRight, BookOpen,
+  ArrowUpRight, ArrowDownRight, List,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { useAccountingConfig, type AccountingConfig, type CuentaMap } from "../contexts/accounting-config-context";
@@ -64,7 +65,7 @@ const OPERACIONES: OpDef[] = [
   { key: "depreciacion",   label: "Depreciación",           icon: TrendingDown,  pregunta: "Registras el desgaste mensual de un activo fijo" },
 ];
 
-/* ══════════════════════════════════════════════════
+/* ════════════════════════════��═════════════════════
    Genera líneas del asiento
 ══════════════════════════════════════════════════ */
 type Linea = { cuenta: string; nombre: string; debe: number; haber: number; rol: string };

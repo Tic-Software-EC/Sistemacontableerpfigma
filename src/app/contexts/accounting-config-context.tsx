@@ -26,6 +26,12 @@ export interface AccountingConfig {
   ivaCompras:        CuentaMap;   // 1.1.3 — IVA en compras (activo)
   retencionIva:      CuentaMap;   // 2.1.4 — Retención IVA por pagar
 
+  // ── Retenciones ─────────────────────────────────────────────────
+  retencionIvaPorPagar:    CuentaMap;   // 2.1.3.02 — Retención IVA por pagar
+  retencionRentaPorPagar:  CuentaMap;   // 2.1.3.03 — Retención Renta por pagar
+  retencionIvaPorCobrar:   CuentaMap;   // 1.1.3.02 — Retención IVA por cobrar
+  retencionRentaPorCobrar: CuentaMap;   // 1.1.3.03 — Retención Renta por cobrar
+
   // ── Cuentas por Cobrar ──────────────────────────────────────────
   cxcClientes:       CuentaMap;   // 1.1.2.01
   cxcAnticipos:      CuentaMap;   // 1.1.2.02
@@ -45,10 +51,20 @@ export interface AccountingConfig {
   // ── Nómina ──────────────────────────────────────────────────────
   nominaSueldos:     CuentaMap;   // 5.1.1.01
   nominaBeneficios:  CuentaMap;   // 5.1.2.01
+  nominaIESS:        CuentaMap;   // 5.1.3.01 — NUEVA
 
   // ── Activos Fijos ───────────────────────────────────────────────
   depreciacionGasto: CuentaMap;   // 5.2.1.01
   depreciacionAcum:  CuentaMap;   // 1.2.1.02
+
+  // ── Gastos Operacionales ────────────────────────────────────────
+  gastoServiciosBasicos: CuentaMap;   // 5.2.2.01 — NUEVA
+  gastoArriendo:         CuentaMap;   // 5.2.2.02 — NUEVA
+  gastoPublicidad:       CuentaMap;   // 5.2.2.03 — NUEVA
+
+  // ── Financieros ─────────────────────────────────────────────────
+  ingresosFinancieros:   CuentaMap;   // 4.2.1.01 — NUEVA
+  gastosFinancieros:     CuentaMap;   // 5.4.1.01 — NUEVA
 }
 
 const DEFAULT_CONFIG: AccountingConfig = {
@@ -66,6 +82,11 @@ const DEFAULT_CONFIG: AccountingConfig = {
   ivaCompras:        { codigo: "1.1.3.01", nombre: "IVA en Compras" },
   retencionIva:      { codigo: "2.1.4.01", nombre: "Retención IVA por Pagar" },
 
+  retencionIvaPorPagar:    { codigo: "2.1.3.02", nombre: "Retención IVA por Pagar" },
+  retencionRentaPorPagar:  { codigo: "2.1.3.03", nombre: "Retención Renta por Pagar" },
+  retencionIvaPorCobrar:   { codigo: "1.1.3.02", nombre: "Retención IVA por Cobrar" },
+  retencionRentaPorCobrar: { codigo: "1.1.3.03", nombre: "Retención Renta por Cobrar" },
+
   cxcClientes:       { codigo: "1.1.2.01", nombre: "Clientes Locales" },
   cxcAnticipos:      { codigo: "1.1.2.02", nombre: "Anticipos a Empleados" },
 
@@ -80,9 +101,17 @@ const DEFAULT_CONFIG: AccountingConfig = {
 
   nominaSueldos:     { codigo: "5.1.1.01", nombre: "Sueldos y Salarios" },
   nominaBeneficios:  { codigo: "5.1.2.01", nombre: "Beneficios Sociales" },
+  nominaIESS:        { codigo: "5.1.3.01", nombre: "IESS" },
 
   depreciacionGasto: { codigo: "5.2.1.01", nombre: "Gasto Depreciación" },
   depreciacionAcum:  { codigo: "1.2.1.02", nombre: "(-) Dep. Acum. Equipos" },
+
+  gastoServiciosBasicos: { codigo: "5.2.2.01", nombre: "Servicios Básicos" },
+  gastoArriendo:         { codigo: "5.2.2.02", nombre: "Arriendo" },
+  gastoPublicidad:       { codigo: "5.2.2.03", nombre: "Publicidad" },
+
+  ingresosFinancieros:   { codigo: "4.2.1.01", nombre: "Ingresos Financieros" },
+  gastosFinancieros:     { codigo: "5.4.1.01", nombre: "Gastos Financieros" },
 };
 
 /* ══════════════════════════════════════════════════════════════════

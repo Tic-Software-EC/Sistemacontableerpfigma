@@ -4,7 +4,7 @@ import { useBrand } from "../contexts/brand-context";
 import {
   BookOpen, ChevronLeft, Bell, Settings, LogOut,
   Sun, Moon, X,
-  BarChart2, PieChart, TrendingUp, FileText, Receipt, List, FileDown,
+  BarChart2, PieChart, TrendingUp, FileText, Receipt, List, FileDown, GitBranch,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
@@ -17,6 +17,8 @@ import { IncomeStatementContent } from "../components/income-statement-content";
 import { FinancialReportsContent } from "../components/financial-reports-content";
 import { AtsContent } from "../components/ats-content";
 import { AccountingConfigContent } from "../components/accounting-config-content";
+import { AccountingSettingsContent } from "../components/accounting-settings-content";
+import { ManualEntryContent } from "../components/manual-entry-content";
 
 const TABS = [
   { id: "journal",    name: "Libro Diario",          icon: BookOpen    },
@@ -26,7 +28,8 @@ const TABS = [
   { id: "income",     name: "Estado de Resultados",   icon: TrendingUp  },
   { id: "reports",    name: "Reportes Financieros",   icon: PieChart    },
   { id: "ats",        name: "ATS",                    icon: FileDown    },
-  { id: "config",     name: "Config. Contable",       icon: Settings    },
+  { id: "manual",     name: "Asiento Manual",         icon: FileText    },
+  { id: "config",     name: "Configuración",          icon: Settings    },
 ];
 
 export default function ModuleAccountingDetail() {
@@ -226,8 +229,11 @@ export default function ModuleAccountingDetail() {
         {/* ATS - Anexo Transaccional Simplificado */}
         {activeTab === "ats" && <AtsContent />}
 
-        {/* Configuración Contable */}
-        {activeTab === "config" && <AccountingConfigContent />}
+        {/* Asiento Manual */}
+        {activeTab === "manual" && <ManualEntryContent />}
+
+        {/* Configuración de Cuentas Contables */}
+        {activeTab === "config" && <AccountingSettingsContent />}
       </main>
 
       {/* ── Modales ──────────────────────────────────────────────────────────── */}

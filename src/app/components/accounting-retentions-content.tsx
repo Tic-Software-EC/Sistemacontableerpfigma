@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { printRetencion, printAllRetentions, downloadRetentionsCSV } from "../utils/print-download";
 import { SUPPLIERS_DATA } from "../data/suppliers-data";
 import { PURCHASE_INVOICES_DATA, PurchaseInvoice } from "../data/purchase-invoices-data";
-import { AccountingKpiCard } from "./ui/accounting-kpi-card";
 import { DatePicker } from "./date-picker-range";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -1928,7 +1927,7 @@ function RideViewer({ ret, onClose, onPrint, onAuthorize, onAnular, isLight }: {
                 </div>
                 <button
                   onClick={handleAuthorizeFlow}
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-bold transition-colors shadow-lg shadow-primary/20"
+                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-bold transition-colors"
                 >
                   <Send className="w-3.5 h-3.5" />
                   Enviar al SRI
@@ -2693,25 +2692,6 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
   ════════════════════════════════════════════════════════════════════ */
   return (
     <div className="flex flex-col gap-6 h-full">
-
-      {/* ── KPIs ─────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
-        {((filterByCategory === "ventas" || categoria === "ventas") ? [
-          // KPIs cuando estamos viendo solo VENTAS (retenciones recibidas)
-          { label: "Total Retenciones", value: kpi.ventas,                       icon: <Receipt      className="w-5 h-5 text-primary" />,      bg: "bg-primary/20"    },
-          { label: "Sincronizadas SRI", value: kpi.syncedSri,                    icon: <Cloud        className="w-5 h-5 text-blue-400" />,     bg: "bg-blue-500/20"   },
-          { label: "Por Cobrar",        value: `$${kpi.porCobrar.toFixed(2)}`,   icon: <TrendingUp   className="w-5 h-5 text-green-400" />,    bg: "bg-green-500/20"  },
-          { label: "Autorizadas",       value: kpi.autorizadas,                  icon: <CheckCircle className="w-5 h-5 text-green-500" />, bg: "bg-green-500/20" },
-        ] : [
-          // KPIs cuando estamos viendo TODAS o solo COMPRAS
-          { label: "Total Retenciones", value: kpi.total,                       icon: <Receipt      className="w-5 h-5 text-primary" />,      bg: "bg-primary/20"    },
-          { label: "De Compras",        value: kpi.compras,                     icon: <ShoppingCart className="w-5 h-5 text-blue-400" />,     bg: "bg-blue-500/20"   },
-          { label: "De Ventas",         value: kpi.ventas,                      icon: <TrendingUp   className="w-5 h-5 text-green-400" />,    bg: "bg-green-500/20"  },
-          { label: "Retenido Total",    value: `$${kpi.totalRet.toFixed(2)}`,   icon: <FileText     className="w-5 h-5 text-purple-400" />,   bg: "bg-purple-500/20" },
-        ]).map(m => (
-          <AccountingKpiCard key={m.label} label={m.label} value={m.value} icon={m.icon} iconBg={m.bg} />
-        ))}
-      </div>
 
       {/* ── Layout principal: lista + visor ──────────────────────────── */}
       <div className={`flex gap-0 rounded-xl border flex-1 min-h-0 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-white/5"}`}>
