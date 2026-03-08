@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { X, Upload, Package, DollarSign, Warehouse, Tag, Plus, Trash2, Settings, QrCode, Printer, Building2, Barcode as BarcodeIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import Barcode from "react-barcode";
+import { useTheme } from "../contexts/theme-context";
 
 interface NewProductModalProps {
   isOpen: boolean;
@@ -17,6 +18,9 @@ interface Characteristic {
 }
 
 export function NewProductModal({ isOpen, onClose, productData, mode = "create" }: NewProductModalProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
   // Obtener el porcentaje de ganancia desde localStorage (parametrizado)
   const defaultProfitMargin = parseFloat(localStorage.getItem("defaultProfitMargin") || "30");
 
@@ -148,7 +152,7 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
               display: flex;
               flex-direction: column;
               align-items: center;
-              justify-content: center;
+              justify-center;
               min-height: 100vh;
             }
             .code-container {
@@ -214,11 +218,17 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-xl p-5 my-8">
+      <div className={`w-full max-w-5xl border rounded-xl p-5 my-8 ${
+        isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+      }`}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+        <div className={`flex items-center justify-between mb-4 pb-3 border-b ${
+          isLight ? "border-gray-200" : "border-white/10"
+        }`}>
           <div>
-            <h3 className="text-white font-bold text-xl flex items-center gap-2">
+            <h3 className={`font-bold text-xl flex items-center gap-2 ${
+              isLight ? "text-gray-900" : "text-white"
+            }`}>
               <div className="w-9 h-9 bg-primary/20 rounded-lg flex items-center justify-center">
                 <Package className="w-5 h-5 text-primary" />
               </div>
@@ -227,14 +237,20 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+            className={`p-2 rounded-lg transition-colors ${
+              isLight 
+                ? "text-gray-400 hover:text-gray-900 hover:bg-gray-100" 
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-4 border-b border-white/10 overflow-x-auto">
+        <div className={`flex items-center gap-1 mb-4 border-b overflow-x-auto ${
+          isLight ? "border-gray-200" : "border-white/10"
+        }`}>
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -243,8 +259,12 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 font-medium text-sm whitespace-nowrap border-b-2 transition-all ${
                   activeTab === tab.id
-                    ? "border-primary text-white"
-                    : "border-transparent text-gray-400 hover:text-white"
+                    ? isLight
+                      ? "border-primary text-gray-900"
+                      : "border-primary text-white"
+                    : isLight
+                      ? "border-transparent text-gray-400 hover:text-gray-900"
+                      : "border-transparent text-gray-400 hover:text-white"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -256,7 +276,7 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
 
         <form onSubmit={handleSubmit}>
           {/* Tab Content */}
-          <div className="min-h-[420px]">
+          <div className="min-h-[300px]">
             {/* Información General */}
             {activeTab === "info" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -264,7 +284,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                 <div className="space-y-3">
                   {/* Upload de Imagen */}
                   <div>
-                    <label className="block text-gray-300 text-xs font-medium mb-1.5">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Imagen del Producto
                     </label>
                     <div className="relative">
@@ -277,7 +299,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       />
                       <label
                         htmlFor="product-image"
-                        className="block w-full h-36 bg-[#1a2332] border-2 border-dashed border-white/10 rounded-lg cursor-pointer hover:border-primary/50 transition-colors overflow-hidden"
+                        className={`block w-full h-36 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary/50 transition-colors overflow-hidden ${
+                          isLight 
+                            ? "bg-gray-50 border-gray-300" 
+                            : "bg-[#1a2332] border-white/10"
+                        }`}
                       >
                         {imagePreview ? (
                           <img
@@ -306,7 +332,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                 <div className="md:col-span-2 grid grid-cols-2 gap-3">
                   {/* Código */}
                   <div>
-                    <label className="block text-gray-300 text-xs font-medium mb-1.5">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Código del Producto *
                     </label>
                     <input
@@ -316,13 +344,19 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       onChange={handleChange}
                       placeholder="PROD-001"
                       required
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors font-mono"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors font-mono ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     />
                   </div>
 
                   {/* Nombre */}
                   <div>
-                    <label className="block text-gray-300 text-xs font-medium mb-1.5">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Nombre del Producto *
                     </label>
                     <input
@@ -332,13 +366,19 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       onChange={handleChange}
                       placeholder="Laptop Dell Inspiron 15"
                       required
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     />
                   </div>
 
                   {/* Categoría */}
                   <div>
-                    <label className="block text-gray-300 text-xs font-medium mb-1.5">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Categoría *
                     </label>
                     <select
@@ -346,7 +386,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       value={formData.category}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     >
                       <option value="">Seleccionar categoría</option>
                       <option value="Tecnología">Tecnología</option>
@@ -359,7 +403,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
 
                   {/* Proveedor */}
                   <div>
-                    <label className="block text-gray-300 text-xs font-medium mb-1.5">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Proveedor *
                     </label>
                     <select
@@ -367,7 +413,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       value={formData.supplier}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     >
                       <option value="">Seleccionar proveedor</option>
                       <option value="TechSupplies Ltda.">TechSupplies Ltda.</option>
@@ -380,7 +430,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
 
                   {/* Descripción */}
                   <div className="col-span-2">
-                    <label className="block text-gray-300 text-xs font-medium mb-1.5">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Descripción
                     </label>
                     <textarea
@@ -389,7 +441,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       onChange={handleChange}
                       placeholder="Descripción detallada del producto..."
                       rows={3}
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     />
                   </div>
                 </div>
@@ -403,12 +459,16 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Warehouse className="w-5 h-5 text-primary" />
-                    <h4 className="text-white font-semibold text-base">Inventario</h4>
+                    <h4 className={`font-semibold text-base ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Inventario</h4>
                   </div>
 
                   {/* Almacén */}
                   <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Almacén *
                     </label>
                     <select
@@ -416,7 +476,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       value={formData.warehouse}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     >
                       <option value="">Seleccionar almacén</option>
                       <option value="Almacén Principal">Almacén Principal</option>
@@ -427,7 +491,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
 
                   {/* Unidad de Medida */}
                   <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Unidad de Medida *
                     </label>
                     <select
@@ -435,7 +501,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       value={formData.unit}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     >
                       <option value="UND">Unidad (UND)</option>
                       <option value="KG">Kilogramo (KG)</option>
@@ -451,7 +521,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                   {/* Unidades por Empaque - Condicional */}
                   {needsPackageUnits && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-                      <label className="block text-gray-300 text-sm font-medium mb-2">
+                      <label className={`block text-xs font-medium mb-1.5 ${
+                        isLight ? "text-gray-600" : "text-gray-300"
+                      }`}>
                         Unidades por {formData.unit === "CAJA" ? "caja" : formData.unit === "PAQUETE" ? "paquete" : formData.unit === "DOCENA" ? "docena" : "pack"} *
                       </label>
                       <input
@@ -462,14 +534,20 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                         placeholder="Ej: 12"
                         min="1"
                         required
-                        className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                          isLight 
+                            ? "bg-white border-gray-300 text-gray-900" 
+                            : "bg-[#1a2332] border-white/10 text-white"
+                        }`}
                       />
                     </div>
                   )}
 
                   {/* Stock Inicial */}
                   <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Stock Inicial *
                     </label>
                     <input
@@ -480,7 +558,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       placeholder="0"
                       min="0"
                       required
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     />
                     {needsPackageUnits && formData.unitsPerPackage && formData.quantity && (
                       <p className="text-xs text-primary mt-1.5">
@@ -492,7 +574,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                   {/* Stock Mínimo y Máximo */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-gray-300 text-sm font-medium mb-2">
+                      <label className={`block text-xs font-medium mb-1.5 ${
+                        isLight ? "text-gray-600" : "text-gray-300"
+                      }`}>
                         Stock Mín. *
                       </label>
                       <input
@@ -503,11 +587,17 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                         placeholder="0"
                         min="0"
                         required
-                        className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                          isLight 
+                            ? "bg-white border-gray-300 text-gray-900" 
+                            : "bg-[#1a2332] border-white/10 text-white"
+                        }`}
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-300 text-sm font-medium mb-2">
+                      <label className={`block text-xs font-medium mb-1.5 ${
+                        isLight ? "text-gray-600" : "text-gray-300"
+                      }`}>
                         Stock Máx. *
                       </label>
                       <input
@@ -518,7 +608,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                         placeholder="0"
                         min="0"
                         required
-                        className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                          isLight 
+                            ? "bg-white border-gray-300 text-gray-900" 
+                            : "bg-[#1a2332] border-white/10 text-white"
+                        }`}
                       />
                     </div>
                   </div>
@@ -529,7 +623,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-5 h-5 text-primary" />
-                      <h4 className="text-white font-semibold text-base">Precios</h4>
+                      <h4 className={`font-semibold text-base ${
+                        isLight ? "text-gray-900" : "text-white"
+                      }`}>Precios</h4>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 rounded-md">
                       <Settings className="w-3.5 h-3.5 text-primary" />
@@ -539,7 +635,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
 
                   {/* Precio de Costo */}
                   <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Precio de Costo *
                     </label>
                     <div className="relative">
@@ -553,7 +651,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                         min="0"
                         step="0.01"
                         required
-                        className="w-full pl-7 pr-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                        className={`w-full pl-7 pr-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                          isLight 
+                            ? "bg-white border-gray-300 text-gray-900" 
+                            : "bg-[#1a2332] border-white/10 text-white"
+                        }`}
                       />
                     </div>
                     {!manualPriceEdit && formData.costPrice && (
@@ -565,7 +667,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
 
                   {/* Precio de Venta */}
                   <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                    <label className={`block text-xs font-medium mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-300"
+                    }`}>
                       Precio de Venta * {manualPriceEdit && <span className="text-yellow-400 text-xs">(Manual)</span>}
                     </label>
                     <div className="relative">
@@ -579,7 +683,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                         min="0"
                         step="0.01"
                         required
-                        className="w-full pl-7 pr-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                        className={`w-full pl-7 pr-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                          isLight 
+                            ? "bg-white border-gray-300 text-gray-900" 
+                            : "bg-[#1a2332] border-white/10 text-white"
+                        }`}
                       />
                     </div>
                     {manualPriceEdit && (
@@ -607,7 +715,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                       <p className="text-primary font-bold text-2xl">
                         {((parseFloat(formData.salePrice) - parseFloat(formData.costPrice)) / parseFloat(formData.costPrice) * 100).toFixed(2)}%
                       </p>
-                      <p className="text-sm text-gray-300 mt-1.5">
+                      <p className={`text-sm mt-1.5 ${
+                        isLight ? "text-gray-700" : "text-gray-300"
+                      }`}>
                         Ganancia: <span className="text-primary font-bold">${(parseFloat(formData.salePrice) - parseFloat(formData.costPrice)).toFixed(2)}</span>
                       </p>
                     </div>
@@ -621,8 +731,12 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h4 className="text-white font-semibold text-base">Características del Producto</h4>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <h4 className={`font-semibold text-base ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Características del Producto</h4>
+                    <p className={`text-sm mt-1 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
                       Agrega características específicas (color, tamaño, material, etc.)
                     </p>
                   </div>
@@ -636,15 +750,23 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                   </button>
                 </div>
 
-                <div className="space-y-3 max-h-[350px] overflow-y-auto">
+                <div className="space-y-3 max-h-[280px] overflow-y-auto">
                   {characteristics.length === 0 ? (
-                    <div className="text-center py-12 bg-[#1a2332] border border-white/10 rounded-lg">
+                    <div className={`text-center py-12 border rounded-lg ${
+                      isLight 
+                        ? "bg-gray-50 border-gray-200" 
+                        : "bg-[#1a2332] border-white/10"
+                    }`}>
                       <Package className="w-12 h-12 text-gray-500 mx-auto mb-2" />
                       <p className="text-gray-400 text-sm">No hay características agregadas</p>
                     </div>
                   ) : (
                     characteristics.map((char, index) => (
-                      <div key={char.id} className="flex gap-3 items-center bg-[#1a2332] p-3 rounded-lg border border-white/10">
+                      <div key={char.id} className={`flex gap-3 items-center p-3 rounded-lg border ${
+                        isLight 
+                          ? "bg-gray-50 border-gray-200" 
+                          : "bg-[#1a2332] border-white/10"
+                      }`}>
                         <div className="flex-shrink-0 w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center text-primary font-bold text-sm">
                           {index + 1}
                         </div>
@@ -653,14 +775,22 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                           placeholder="Característica"
                           value={char.name}
                           onChange={(e) => updateCharacteristic(char.id, "name", e.target.value)}
-                          className="flex-1 px-3 py-2 bg-secondary border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                          className={`flex-1 px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                            isLight 
+                              ? "bg-white border-gray-300 text-gray-900" 
+                              : "bg-secondary border-white/10 text-white"
+                          }`}
                         />
                         <input
                           type="text"
                           placeholder="Valor"
                           value={char.value}
                           onChange={(e) => updateCharacteristic(char.id, "value", e.target.value)}
-                          className="flex-1 px-3 py-2 bg-secondary border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                          className={`flex-1 px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                            isLight 
+                              ? "bg-white border-gray-300 text-gray-900" 
+                              : "bg-secondary border-white/10 text-white"
+                          }`}
                         />
                         <button
                           type="button"
@@ -681,13 +811,19 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h4 className="text-white font-semibold text-base">Códigos de Identificación</h4>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <h4 className={`font-semibold text-base ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Códigos de Identificación</h4>
+                    <p className={`text-sm mt-1 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
                       Genera e imprime códigos QR o de barras para tu producto
                     </p>
                   </div>
                   {/* Selector de tipo de código */}
-                  <div className="flex items-center gap-2 bg-[#1a2332] p-1 rounded-lg">
+                  <div className={`flex items-center gap-2 p-1 rounded-lg ${
+                    isLight ? "bg-gray-100" : "bg-[#1a2332]"
+                  }`}>
                     <button
                       type="button"
                       onClick={() => setCodeType("qr")}
@@ -715,7 +851,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                   </div>
                 </div>
 
-                <div className="bg-[#1a2332] border border-white/10 rounded-lg p-5">
+                <div className={`border rounded-lg p-5 ${
+                  isLight 
+                    ? "bg-gray-50 border-gray-200" 
+                    : "bg-[#1a2332] border-white/10"
+                }`}>
                   {/* Código QR */}
                   {codeType === "qr" && (
                     <div ref={qrRef} className="flex flex-col items-center justify-center">
@@ -730,7 +870,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                             />
                           </div>
                           <div className="text-center space-y-1.5">
-                            <p className="text-white font-bold text-base">{formData.name || "Producto sin nombre"}</p>
+                            <p className={`font-bold text-base ${
+                              isLight ? "text-gray-900" : "text-white"
+                            }`}>{formData.name || "Producto sin nombre"}</p>
                             <p className="text-gray-400 text-sm font-mono">COD: {formData.code || "PENDING"}</p>
                             {formData.salePrice && (
                               <p className="text-primary text-xl font-bold">${formData.salePrice}</p>
@@ -767,7 +909,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
                             />
                           </div>
                           <div className="text-center space-y-1.5">
-                            <p className="text-white font-bold text-base">{formData.name || "Producto sin nombre"}</p>
+                            <p className={`font-bold text-base ${
+                              isLight ? "text-gray-900" : "text-white"
+                            }`}>{formData.name || "Producto sin nombre"}</p>
                             {formData.salePrice && (
                               <p className="text-primary text-xl font-bold">${formData.salePrice}</p>
                             )}
@@ -788,7 +932,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
 
                   {/* Botón de imprimir */}
                   {((codeType === "qr" && (formData.code || formData.name)) || (codeType === "barcode" && formData.code)) && (
-                    <div className="mt-5 pt-4 border-t border-white/10">
+                    <div className={`mt-5 pt-4 border-t ${
+                      isLight ? "border-gray-200" : "border-white/10"
+                    }`}>
                       <button
                         type="button"
                         onClick={handlePrintQR}
@@ -808,7 +954,9 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
           </div>
 
           {/* Botones de Acción */}
-          <div className="flex items-center justify-between gap-3 pt-4 border-t border-white/10 mt-4">
+          <div className={`flex items-center justify-between gap-3 pt-4 border-t mt-4 ${
+            isLight ? "border-gray-200" : "border-white/10"
+          }`}>
             <div className="text-xs text-gray-500">
               {activeTab === "info" && "1/4"}
               {activeTab === "inventory" && "2/4"}
@@ -819,7 +967,11 @@ export function NewProductModal({ isOpen, onClose, productData, mode = "create" 
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors border border-white/10 text-xs"
+                className={`px-4 py-2 rounded-lg transition-colors border text-xs ${
+                  isLight 
+                    ? "bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300" 
+                    : "bg-white/5 hover:bg-white/10 text-white border-white/10"
+                }`}
               >
                 Cancelar
               </button>

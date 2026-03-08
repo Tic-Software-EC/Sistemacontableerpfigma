@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Package, Search, Calendar, Eye, CheckCircle, XCircle, Clock, AlertTriangle, Filter, Plus, X, Printer, Download, Truck, User, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Warehouse, ShoppingCart, Save, Edit } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "../contexts/theme-context";
 
 // Usuario logueado (esto vendría del contexto de autenticación)
 const LOGGED_USER = {
@@ -137,6 +138,22 @@ const MOCK_RECEPTIONS: Reception[] = [
 ];
 
 export function MerchandiseReceptionContent() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
+  // Estilos adaptativos
+  const txt = isLight ? "text-gray-900" : "text-white";
+  const txtSub = isLight ? "text-gray-600" : "text-gray-400";
+  const bg = isLight ? "bg-white" : "bg-white/5";
+  const bgHover = isLight ? "hover:bg-gray-50" : "hover:bg-white/10";
+  const border = isLight ? "border-gray-200" : "border-white/10";
+  const inputBg = isLight ? "bg-white" : "bg-white/5";
+  const inputBorder = isLight ? "border-gray-300" : "border-white/10";
+  const inputText = isLight ? "text-gray-900" : "text-white";
+  const placeholder = isLight ? "placeholder-gray-400" : "placeholder-gray-500";
+  const modal = isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10";
+  const headerBg = isLight ? "bg-gray-50" : "bg-white/5";
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterSupplier, setFilterSupplier] = useState("all");
@@ -354,29 +371,29 @@ export function MerchandiseReceptionContent() {
       </div>
 
       {/* Separador */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${border}`}></div>
 
       {/* Filtros */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Buscar */}
         <div className="relative">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <input
             type="text"
             placeholder="Buscar recepción..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm ${placeholder} focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all`}
           />
         </div>
 
         {/* Estado */}
         <div className="relative">
-          <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Filter className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todos los estados</option>
             <option value="completed">Completado</option>
@@ -388,11 +405,11 @@ export function MerchandiseReceptionContent() {
 
         {/* Proveedor */}
         <div className="relative">
-          <Truck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Truck className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterSupplier}
             onChange={(e) => setFilterSupplier(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todos los proveedores</option>
             {uniqueSuppliers.map((supplier) => (
@@ -405,83 +422,83 @@ export function MerchandiseReceptionContent() {
       </div>
 
       {/* Tabla de recepciones */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+      <div className={`${bg} border ${border} rounded-2xl overflow-hidden`}>
         {filteredReceptions.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Package className="w-8 h-8 text-gray-400" />
+            <div className={`w-16 h-16 ${bg} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+              <Package className={`w-8 h-8 ${txtSub}`} />
             </div>
-            <p className="text-gray-400 mb-2">No se encontraron recepciones</p>
-            <p className="text-gray-500 text-sm">
+            <p className={`${txtSub} mb-2`}>No se encontraron recepciones</p>
+            <p className={`${txtSub} text-sm`}>
               Intenta ajustar los filtros o crea una nueva recepción
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-white/5 border-b border-white/10">
+              <thead className={`${headerBg} border-b ${border}`}>
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Nº Recepción
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Orden de Compra
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Proveedor
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Fecha
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Recibido por
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-center text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Items
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-center text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Estado
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-center text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={`divide-y ${isLight ? "divide-gray-100" : "divide-white/5"}`}>
                 {currentItems.map((reception) => (
-                  <tr key={reception.id} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={reception.id} className={`${isLight ? "hover:bg-gray-50" : "hover:bg-white/[0.02]"} transition-colors`}>
                     {/* Número de Recepción */}
                     <td className="px-6 py-3">
-                      <span className="text-white font-bold font-mono">{reception.receptionNumber}</span>
+                      <span className={`${txt} font-bold font-mono`}>{reception.receptionNumber}</span>
                     </td>
 
                     {/* Orden de Compra */}
                     <td className="px-6 py-3">
-                      <span className="text-white text-sm font-mono">{reception.purchaseOrder}</span>
+                      <span className={`${txt} text-sm font-mono`}>{reception.purchaseOrder}</span>
                     </td>
 
                     {/* Proveedor */}
                     <td className="px-6 py-3">
-                      <span className="text-white text-sm">{reception.supplier}</span>
+                      <span className={`${txt} text-sm`}>{reception.supplier}</span>
                     </td>
 
                     {/* Fecha */}
                     <td className="px-6 py-3">
-                      <span className="text-white text-sm">
+                      <span className={`${txt} text-sm`}>
                         {new Date(reception.receptionDate).toLocaleDateString("es-EC")}
                       </span>
                     </td>
 
                     {/* Recibido por */}
                     <td className="px-6 py-3">
-                      <span className="text-white text-sm">{reception.receivedBy}</span>
+                      <span className={`${txt} text-sm`}>{reception.receivedBy}</span>
                     </td>
 
                     {/* Items */}
                     <td className="px-6 py-3 text-center">
                       <div className="flex flex-col items-center">
-                        <span className="text-white font-bold">{reception.receivedItems}/{reception.totalItems}</span>
-                        <span className="text-gray-500 text-xs">productos</span>
+                        <span className={`${txt} font-bold`}>{reception.receivedItems}/{reception.totalItems}</span>
+                        <span className={`${txtSub} text-xs`}>productos</span>
                       </div>
                     </td>
 
@@ -604,20 +621,20 @@ export function MerchandiseReceptionContent() {
       {/* Modal de detalle */}
       {showDetailModal && selectedReception && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`w-full max-w-2xl ${modal} rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl`}>
             {/* Header del modal */}
-            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
+            <div className={`sticky top-0 ${isLight ? "bg-white" : "bg-secondary"} border-b ${border} px-6 py-4 flex items-center justify-between z-10`}>
               <div>
-                <h3 className="text-white font-bold text-xl font-mono">
+                <h3 className={`${txt} font-bold text-xl font-mono`}>
                   {selectedReception.receptionNumber}
                 </h3>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className={`${txtSub} text-sm mt-1`}>
                   Orden de Compra: {selectedReception.purchaseOrder}
                 </p>
               </div>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`p-2 ${txtSub} ${isLight ? "hover:text-gray-900 hover:bg-gray-100" : "hover:text-white hover:bg-white/5"} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -627,22 +644,22 @@ export function MerchandiseReceptionContent() {
             <div className="p-6 space-y-6">
               {/* Información general */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white/5 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-2">Proveedor</p>
-                  <p className="text-white font-medium flex items-center gap-2">
+                <div className={`${bg} rounded-xl p-4`}>
+                  <p className={`${txtSub} text-xs mb-2`}>Proveedor</p>
+                  <p className={`${txt} font-medium flex items-center gap-2`}>
                     <Truck className="w-4 h-4 text-primary" />
                     {selectedReception.supplier}
                   </p>
                 </div>
-                <div className="bg-white/5 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-2">Fecha de Recepción</p>
-                  <p className="text-white font-medium flex items-center gap-2">
+                <div className={`${bg} rounded-xl p-4`}>
+                  <p className={`${txtSub} text-xs mb-2`}>Fecha de Recepción</p>
+                  <p className={`${txt} font-medium flex items-center gap-2`}>
                     <Calendar className="w-4 h-4 text-primary" />
                     {new Date(selectedReception.receptionDate).toLocaleDateString("es-EC")}
                   </p>
                 </div>
-                <div className="bg-white/5 rounded-xl p-4">
-                  <p className="text-gray-400 text-xs mb-2">Recibido por</p>
+                <div className={`${bg} rounded-xl p-4`}>
+                  <p className={`${txtSub} text-xs mb-2`}>Recibido por</p>
                   <p className="text-white font-medium flex items-center gap-2">
                     <User className="w-4 h-4 text-primary" />
                     {selectedReception.receivedBy}
@@ -755,20 +772,20 @@ export function MerchandiseReceptionContent() {
       {/* Modal de nueva recepción */}
       {showNewReceptionModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`w-full max-w-2xl ${modal} rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl`}>
             {/* Header del modal */}
-            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
+            <div className={`sticky top-0 ${isLight ? "bg-white" : "bg-secondary"} border-b ${border} px-6 py-4 flex items-center justify-between z-10`}>
               <div>
-                <h3 className="text-white font-bold text-xl font-mono">
+                <h3 className={`${txt} font-bold text-xl font-mono`}>
                   Nueva Recepción
                 </h3>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className={`${txtSub} text-sm mt-1`}>
                   Proceso de recepción de mercadería
                 </p>
               </div>
               <button
                 onClick={() => setShowNewReceptionModal(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`p-2 ${txtSub} ${isLight ? "hover:text-gray-900 hover:bg-gray-100" : "hover:text-white hover:bg-white/5"} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>

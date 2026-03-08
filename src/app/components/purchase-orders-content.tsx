@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ShoppingCart, Plus, Pencil, Trash2, Search, Eye, CheckCircle, Clock, XCircle, FileText, Package, DollarSign, Calendar, Truck, X, Check, Filter, Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PackageCheck, AlertCircle, Warehouse } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "../contexts/theme-context";
 
 interface OrderItem {
   id: string;
@@ -104,6 +105,23 @@ const WAREHOUSES = [
 ];
 
 export function PurchaseOrdersContent() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
+  // Estilos adaptativos
+  const txt = isLight ? "text-gray-900" : "text-white";
+  const txtSub = isLight ? "text-gray-600" : "text-gray-400";
+  const bg = isLight ? "bg-white" : "bg-white/5";
+  const bgHover = isLight ? "hover:bg-gray-50" : "hover:bg-white/10";
+  const border = isLight ? "border-gray-200" : "border-white/10";
+  const borderHover = isLight ? "hover:border-gray-300" : "hover:border-white/20";
+  const inputBg = isLight ? "bg-white" : "bg-white/5";
+  const inputBorder = isLight ? "border-gray-300" : "border-white/10";
+  const inputText = isLight ? "text-gray-900" : "text-white";
+  const placeholder = isLight ? "placeholder-gray-400" : "placeholder-gray-500";
+  const modal = isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10";
+  const headerBg = isLight ? "bg-gray-50" : "bg-white/5";
+  
   const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showReceivingModal, setShowReceivingModal] = useState(false);
@@ -780,29 +798,29 @@ export function PurchaseOrdersContent() {
       </div>
 
       {/* Separador */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${border}`}></div>
 
       {/* Sección de filtros */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         {/* Buscar */}
         <div className="relative">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <input
             type="text"
             placeholder="Buscar orden..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm ${placeholder} focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all`}
           />
         </div>
 
         {/* Estado */}
         <div className="relative">
-          <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Filter className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             {ORDER_STATUSES.map((status) => (
               <option key={status.id} value={status.id}>
@@ -814,11 +832,11 @@ export function PurchaseOrdersContent() {
 
         {/* Proveedor */}
         <div className="relative">
-          <Truck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Truck className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterSupplier}
             onChange={(e) => setFilterSupplier(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todos los proveedores</option>
             {SUPPLIERS.map((supplier) => (
@@ -831,7 +849,7 @@ export function PurchaseOrdersContent() {
 
         {/* Rango de fechas en un solo campo */}
         <div className="relative">
-          <Calendar className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Calendar className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             onChange={(e) => {
               const value = e.target.value;
@@ -860,7 +878,7 @@ export function PurchaseOrdersContent() {
               setFilterDateTo(to);
               setCurrentPage(1);
             }}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todas las fechas</option>
             <option value="today">Hoy</option>
@@ -871,13 +889,13 @@ export function PurchaseOrdersContent() {
       </div>
 
       {/* Lista de órdenes - Tabla */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+      <div className={`${bg} border ${border} rounded-2xl overflow-hidden`}>
         {filteredOrders.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <ShoppingCart className="w-8 h-8 text-gray-400" />
+            <div className={`w-16 h-16 ${bg} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+              <ShoppingCart className={`w-8 h-8 ${txtSub}`} />
             </div>
-            <p className="text-gray-400 mb-2">No se encontraron órdenes de compra</p>
+            <p className={`${txtSub} mb-2`}>No se encontraron órdenes de compra</p>
             <p className="text-gray-500 text-sm">
               Intenta ajustar los filtros o crea una nueva orden
             </p>
@@ -885,54 +903,54 @@ export function PurchaseOrdersContent() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-white/5 border-b border-white/10">
+              <thead className={`${headerBg} border-b ${border}`}>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className={`px-4 py-3 text-left text-xs font-medium ${txtSub} uppercase tracking-wider whitespace-nowrap`}>
                     Número de Orden
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className={`px-4 py-3 text-left text-xs font-medium ${txtSub} uppercase tracking-wider whitespace-nowrap`}>
                     Proveedor
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className={`px-4 py-3 text-left text-xs font-medium ${txtSub} uppercase tracking-wider whitespace-nowrap`}>
                     Fecha
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className={`px-4 py-3 text-left text-xs font-medium ${txtSub} uppercase tracking-wider whitespace-nowrap`}>
                     Entrega
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className={`px-4 py-3 text-left text-xs font-medium ${txtSub} uppercase tracking-wider whitespace-nowrap`}>
                     Estado
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className={`px-4 py-3 text-right text-xs font-medium ${txtSub} uppercase tracking-wider whitespace-nowrap`}>
                     Total
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className={`px-4 py-3 text-center text-xs font-medium ${txtSub} uppercase tracking-wider whitespace-nowrap`}>
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={`divide-y ${isLight ? "divide-gray-100" : "divide-white/5"}`}>
                 {currentItems.map((order) => (
-                  <tr key={order.id} className="hover:bg-white/[0.02] transition-colors h-12">
+                  <tr key={order.id} className={`${isLight ? "hover:bg-gray-50" : "hover:bg-white/[0.02]"} transition-colors h-12`}>
                     {/* Número de Orden */}
                     <td className="px-4 py-2 whitespace-nowrap">
-                      <span className="text-white font-mono text-sm">{order.orderNumber}</span>
+                      <span className={`${txt} font-mono text-sm`}>{order.orderNumber}</span>
                     </td>
 
                     {/* Proveedor */}
                     <td className="px-4 py-2 whitespace-nowrap">
-                      <span className="text-white text-sm">{order.supplierName}</span>
+                      <span className={`${txt} text-sm`}>{order.supplierName}</span>
                     </td>
 
                     {/* Fecha */}
                     <td className="px-4 py-2 whitespace-nowrap">
-                      <span className="text-white text-sm font-mono">
+                      <span className={`${txt} text-sm font-mono`}>
                         {new Date(order.date).toLocaleDateString("es-EC")}
                       </span>
                     </td>
 
                     {/* Fecha de Entrega */}
                     <td className="px-4 py-2 whitespace-nowrap">
-                      <span className="text-white text-sm font-mono">
+                      <span className={`${txt} text-sm font-mono`}>
                         {new Date(order.deliveryDate).toLocaleDateString("es-EC")}
                       </span>
                     </td>
@@ -947,7 +965,7 @@ export function PurchaseOrdersContent() {
 
                     {/* Total */}
                     <td className="px-4 py-2 text-right whitespace-nowrap">
-                      <span className="text-white font-mono text-sm">
+                      <span className={`${txt} font-mono text-sm`}>
                         ${parseFloat(order.total).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
                     </td>
@@ -987,7 +1005,7 @@ export function PurchaseOrdersContent() {
                         {(order.status === "draft" || order.status === "pending") && (
                           <button
                             onClick={() => handleOpenModal(order)}
-                            className="p-1.5 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors"
+                            className={`p-1.5 ${bg} ${bgHover} ${txt} rounded-lg transition-colors`}
                             title="Editar"
                           >
                             <Pencil className="w-4 h-4" />
@@ -1016,15 +1034,15 @@ export function PurchaseOrdersContent() {
       {/* Modal de crear/editar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`w-full max-w-2xl ${modal} rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl`}>
             {/* Header del modal */}
-            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
-              <h3 className="text-white font-bold text-xl">
+            <div className={`sticky top-0 ${isLight ? "bg-white" : "bg-secondary"} border-b ${border} px-6 py-4 flex items-center justify-between z-10`}>
+              <h3 className={`${txt} font-bold text-xl`}>
                 {editingOrder ? "Editar Orden de Compra" : "Nueva Orden de Compra"}
               </h3>
               <button
                 onClick={handleCloseModal}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`p-2 ${txtSub} ${isLight ? "hover:text-gray-900 hover:bg-gray-100" : "hover:text-white hover:bg-white/5"} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1035,14 +1053,14 @@ export function PurchaseOrdersContent() {
               {/* Información básica */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-gray-300 text-sm mb-2 font-medium">
+                  <label className={`block ${txtSub} text-sm mb-2 font-medium`}>
                     Número de Orden
                   </label>
                   <input
                     type="text"
                     value={formData.orderNumber || ""}
                     disabled
-                    className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-gray-500 text-sm font-mono"
+                    className={`w-full px-3 py-2 ${isLight ? "bg-gray-100" : "bg-[#0f1825]"} border ${border} rounded-lg ${txtSub} text-sm font-mono`}
                   />
                 </div>
 
@@ -1284,20 +1302,20 @@ export function PurchaseOrdersContent() {
       {/* Modal de vista detallada */}
       {showViewModal && viewingOrder && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`w-full max-w-2xl ${modal} rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl`}>
             {/* Header del modal */}
-            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
+            <div className={`sticky top-0 ${isLight ? "bg-white" : "bg-secondary"} border-b ${border} px-6 py-4 flex items-center justify-between z-10`}>
               <div>
-                <h3 className="text-white font-bold text-xl font-mono">
+                <h3 className={`${txt} font-bold text-xl font-mono`}>
                   {viewingOrder.orderNumber}
                 </h3>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className={`${txtSub} text-sm mt-1`}>
                   Orden de Compra - {getStatusName(viewingOrder.status)}
                 </p>
               </div>
               <button
                 onClick={() => setShowViewModal(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`p-2 ${txtSub} ${isLight ? "hover:text-gray-900 hover:bg-gray-100" : "hover:text-white hover:bg-white/5"} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1307,34 +1325,34 @@ export function PurchaseOrdersContent() {
             <div className="p-6 space-y-6">
               {/* Info general */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white/5 rounded-xl p-5">
-                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                <div className={`${bg} rounded-xl p-5`}>
+                  <h4 className={`${txtSub} text-xs font-medium mb-4 uppercase flex items-center gap-2`}>
                     <Truck className="w-4 h-4" />
                     Información del Proveedor
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <p className="text-gray-500 text-xs">Proveedor</p>
-                      <p className="text-white font-medium">{viewingOrder.supplierName}</p>
+                      <p className={`${txtSub} text-xs`}>Proveedor</p>
+                      <p className={`${txt} font-medium`}>{viewingOrder.supplierName}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-5">
-                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                <div className={`${bg} rounded-xl p-5`}>
+                  <h4 className={`${txtSub} text-xs font-medium mb-4 uppercase flex items-center gap-2`}>
                     <Calendar className="w-4 h-4" />
                     Fechas
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Fecha de orden:</span>
-                      <span className="text-white font-medium">
+                      <span className={txtSub}>Fecha de orden:</span>
+                      <span className={`${txt} font-medium`}>
                         {new Date(viewingOrder.date).toLocaleDateString("es-EC")}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Fecha de entrega:</span>
-                      <span className="text-white font-medium">
+                      <span className={txtSub}>Fecha de entrega:</span>
+                      <span className={`${txt} font-medium`}>
                         {new Date(viewingOrder.deliveryDate).toLocaleDateString("es-EC")}
                       </span>
                     </div>
@@ -1344,34 +1362,34 @@ export function PurchaseOrdersContent() {
 
               {/* Productos */}
               <div>
-                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                <h4 className={`${txt} font-bold text-lg mb-4 flex items-center gap-2`}>
                   <Package className="w-5 h-5 text-primary" />
                   Productos ({viewingOrder.items.length})
                 </h4>
-                <div className="bg-white/5 rounded-xl overflow-hidden">
+                <div className={`${bg} rounded-xl overflow-hidden`}>
                   <table className="w-full">
-                    <thead className="bg-white/5">
+                    <thead className={headerBg}>
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Producto</th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Cant.</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Precio</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Desc%</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Subtotal</th>
+                        <th className={`px-4 py-3 text-left text-xs font-medium ${txtSub} uppercase`}>Producto</th>
+                        <th className={`px-4 py-3 text-center text-xs font-medium ${txtSub} uppercase`}>Cant.</th>
+                        <th className={`px-4 py-3 text-right text-xs font-medium ${txtSub} uppercase`}>Precio</th>
+                        <th className={`px-4 py-3 text-right text-xs font-medium ${txtSub} uppercase`}>Desc%</th>
+                        <th className={`px-4 py-3 text-right text-xs font-medium ${txtSub} uppercase`}>Subtotal</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className={`divide-y ${isLight ? "divide-gray-100" : "divide-white/5"}`}>
                       {viewingOrder.items.map((item) => (
                         <tr key={item.id}>
                           <td className="px-4 py-3">
-                            <p className="text-white font-medium text-sm">{item.productName}</p>
-                            <p className="text-gray-500 text-xs">{item.productCode}</p>
+                            <p className={`${txt} font-medium text-sm`}>{item.productName}</p>
+                            <p className={`${txtSub} text-xs`}>{item.productCode}</p>
                           </td>
-                          <td className="px-4 py-3 text-center text-white font-medium">{item.quantity}</td>
-                          <td className="px-4 py-3 text-right text-white">
+                          <td className={`px-4 py-3 text-center ${txt} font-medium`}>{item.quantity}</td>
+                          <td className={`px-4 py-3 text-right ${txt}`}>
                             ${parseFloat(item.unitPrice).toFixed(2)}
                           </td>
-                          <td className="px-4 py-3 text-right text-gray-400">{item.discount}%</td>
-                          <td className="px-4 py-3 text-right text-white font-bold">
+                          <td className={`px-4 py-3 text-right ${txtSub}`}>{item.discount}%</td>
+                          <td className={`px-4 py-3 text-right ${txt} font-bold`}>
                             ${parseFloat(item.subtotal).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                           </td>
                         </tr>
@@ -1386,29 +1404,29 @@ export function PurchaseOrdersContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Subtotal:</span>
-                      <span className="text-white font-medium">
+                      <span className={txtSub}>Subtotal:</span>
+                      <span className={`${txt} font-medium`}>
                         ${parseFloat(viewingOrder.subtotal).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
                     </div>
                     {parseFloat(viewingOrder.discountAmount) > 0 && (
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Descuento:</span>
+                        <span className={txtSub}>Descuento:</span>
                         <span className="text-red-400 font-medium">
                           -${parseFloat(viewingOrder.discountAmount).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Impuestos:</span>
-                      <span className="text-white font-medium">
+                      <span className={txtSub}>Impuestos:</span>
+                      <span className={`${txt} font-medium`}>
                         ${parseFloat(viewingOrder.taxAmount).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-center md:justify-end">
                     <div className="text-right">
-                      <p className="text-gray-400 text-sm mb-1">Total de la Orden</p>
+                      <p className={`${txtSub} text-sm mb-1`}>Total de la Orden</p>
                       <p className="text-primary font-bold text-4xl">
                         ${parseFloat(viewingOrder.total).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </p>
@@ -1419,18 +1437,18 @@ export function PurchaseOrdersContent() {
 
               {/* Notas */}
               {viewingOrder.notes && (
-                <div className="bg-white/5 rounded-xl p-5">
-                  <h4 className="text-gray-400 text-xs font-medium mb-2 uppercase">Notas</h4>
-                  <p className="text-white text-sm">{viewingOrder.notes}</p>
+                <div className={`${bg} rounded-xl p-5`}>
+                  <h4 className={`${txtSub} text-xs font-medium mb-2 uppercase`}>Notas</h4>
+                  <p className={`${txt} text-sm`}>{viewingOrder.notes}</p>
                 </div>
               )}
             </div>
 
             {/* Footer del modal */}
-            <div className="sticky bottom-0 bg-secondary border-t border-white/10 px-6 py-4 flex items-center justify-end gap-3">
+            <div className={`sticky bottom-0 ${isLight ? "bg-white" : "bg-secondary"} border-t ${border} px-6 py-4 flex items-center justify-end gap-3`}>
               <button
                 onClick={() => setShowViewModal(false)}
-                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
+                className={`px-6 py-2.5 ${bg} ${bgHover} ${txt} rounded-xl transition-colors font-medium`}
               >
                 Cerrar
               </button>
@@ -1519,21 +1537,21 @@ export function PurchaseOrdersContent() {
       {/* Modal de Recepción de Mercancía */}
       {showReceivingModal && receivingOrder && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`w-full max-w-2xl ${modal} rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl`}>
             {/* Header del modal */}
-            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
+            <div className={`sticky top-0 ${isLight ? "bg-white" : "bg-secondary"} border-b ${border} px-6 py-4 flex items-center justify-between z-10`}>
               <div>
-                <h3 className="text-white font-bold text-xl flex items-center gap-2">
+                <h3 className={`${txt} font-bold text-xl flex items-center gap-2`}>
                   <PackageCheck className="w-6 h-6 text-green-400" />
                   Recepción de Mercancía
                 </h3>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className={`${txtSub} text-sm mt-1`}>
                   Orden: <span className="font-mono text-primary">{receivingOrder.orderNumber}</span> - {receivingOrder.supplierName}
                 </p>
               </div>
               <button
                 onClick={handleCloseReceivingModal}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`p-2 ${txtSub} ${isLight ? "hover:text-gray-900 hover:bg-gray-100" : "hover:text-white hover:bg-white/5"} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1542,18 +1560,18 @@ export function PurchaseOrdersContent() {
             {/* Contenido del modal */}
             <div className="p-6 space-y-6">
               {/* Información de la Orden */}
-              <div className="bg-white/5 rounded-xl p-5">
+              <div className={`${bg} rounded-xl p-5`}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <p className="text-gray-400 text-xs mb-1">Fecha de Orden</p>
-                    <p className="text-white font-medium">{new Date(receivingOrder.date).toLocaleDateString("es-EC")}</p>
+                    <p className={`${txtSub} text-xs mb-1`}>Fecha de Orden</p>
+                    <p className={`${txt} font-medium`}>{new Date(receivingOrder.date).toLocaleDateString("es-EC")}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-xs mb-1">Fecha de Entrega</p>
-                    <p className="text-white font-medium">{new Date(receivingOrder.deliveryDate).toLocaleDateString("es-EC")}</p>
+                    <p className={`${txtSub} text-xs mb-1`}>Fecha de Entrega</p>
+                    <p className={`${txt} font-medium`}>{new Date(receivingOrder.deliveryDate).toLocaleDateString("es-EC")}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-xs mb-1">Total de la Orden</p>
+                    <p className={`${txtSub} text-xs mb-1`}>Total de la Orden</p>
                     <p className="text-primary font-bold text-xl">${parseFloat(receivingOrder.total).toLocaleString("en-US", { minimumFractionDigits: 2 })}</p>
                   </div>
                 </div>
@@ -1561,14 +1579,14 @@ export function PurchaseOrdersContent() {
 
               {/* Selección de Bodega */}
               <div>
-                <label className="block text-gray-300 text-sm mb-2 font-medium flex items-center gap-2">
+                <label className={`block ${txtSub} text-sm mb-2 font-medium flex items-center gap-2`}>
                   <Warehouse className="w-4 h-4 text-primary" />
                   Bodega de Destino
                 </label>
                 <select
                   value={receivingWarehouse}
                   onChange={(e) => setReceivingWarehouse(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#0f1825] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                  className={`w-full px-3 py-2 ${isLight ? "bg-white" : "bg-[#0f1825]"} border ${border} rounded-lg ${inputText} text-sm focus:outline-none focus:border-primary/50 transition-colors`}
                 >
                   {WAREHOUSES.map((warehouse) => (
                     <option key={warehouse.id} value={warehouse.id}>
@@ -1580,51 +1598,51 @@ export function PurchaseOrdersContent() {
 
               {/* Tabla de Productos */}
               <div>
-                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                <h4 className={`${txt} font-bold text-lg mb-4 flex items-center gap-2`}>
                   <Package className="w-5 h-5 text-primary" />
                   Productos a Recibir
                 </h4>
                 
-                <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                <div className={`${bg} border ${border} rounded-xl overflow-hidden`}>
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-white/5 border-b border-white/10">
+                      <thead className={`${headerBg} border-b ${border}`}>
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+                          <th className={`px-4 py-3 text-left text-xs font-medium ${txtSub} uppercase`}>
                             Producto
                           </th>
-                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">
+                          <th className={`px-4 py-3 text-center text-xs font-medium ${txtSub} uppercase`}>
                             Ordenado
                           </th>
-                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">
+                          <th className={`px-4 py-3 text-center text-xs font-medium ${txtSub} uppercase`}>
                             Ya Recibido
                           </th>
-                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">
+                          <th className={`px-4 py-3 text-center text-xs font-medium ${txtSub} uppercase`}>
                             Pendiente
                           </th>
-                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">
+                          <th className={`px-4 py-3 text-center text-xs font-medium ${txtSub} uppercase`}>
                             Recibir Ahora
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/5">
+                      <tbody className={`divide-y ${isLight ? "divide-gray-100" : "divide-white/5"}`}>
                         {receivingItems.map((item) => {
                           const pending = item.orderedQuantity - item.previouslyReceived;
                           const exceedsOrdered = item.previouslyReceived + item.receivingNow > item.orderedQuantity;
                           
                           return (
-                            <tr key={item.productCode} className="hover:bg-white/[0.02]">
+                            <tr key={item.productCode} className={isLight ? "hover:bg-gray-50" : "hover:bg-white/[0.02]"}>
                               {/* Producto */}
                               <td className="px-4 py-4">
                                 <div>
-                                  <p className="text-white font-medium text-sm">{item.productName}</p>
-                                  <p className="text-gray-500 text-xs font-mono">{item.productCode}</p>
+                                  <p className={`${txt} font-medium text-sm`}>{item.productName}</p>
+                                  <p className={`${txtSub} text-xs font-mono`}>{item.productCode}</p>
                                 </div>
                               </td>
 
                               {/* Ordenado */}
                               <td className="px-4 py-4 text-center">
-                                <span className="text-white font-bold">{item.orderedQuantity}</span>
+                                <span className={`${txt} font-bold`}>{item.orderedQuantity}</span>
                               </td>
 
                               {/* Ya Recibido */}
@@ -1751,36 +1769,36 @@ export function PurchaseOrdersContent() {
       {/* Modal de Búsqueda de Productos */}
       {showProductSearchModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className={`w-full max-w-2xl ${modal} rounded-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl`}>
             {/* Header del modal */}
-            <div className="bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between">
+            <div className={`${isLight ? "bg-white" : "bg-secondary"} border-b ${border} px-6 py-4 flex items-center justify-between`}>
               <div>
-                <h3 className="text-white font-bold text-xl flex items-center gap-2">
+                <h3 className={`${txt} font-bold text-xl flex items-center gap-2`}>
                   <Search className="w-6 h-6 text-primary" />
                   Buscar Productos
                 </h3>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className={`${txtSub} text-sm mt-1`}>
                   Selecciona los productos del proveedor {SUPPLIERS.find(s => s.id === formData.supplierId)?.name}
                 </p>
               </div>
               <button
                 onClick={() => setShowProductSearchModal(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`p-2 ${txtSub} ${isLight ? "hover:text-gray-900 hover:bg-gray-100" : "hover:text-white hover:bg-white/5"} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Barra de búsqueda */}
-            <div className="px-6 py-4 bg-white/5 border-b border-white/10">
+            <div className={`px-6 py-4 ${bg} border-b ${border}`}>
               <div className="relative">
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className={`w-5 h-5 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
                 <input
                   type="text"
                   placeholder="Buscar por código o nombre de producto..."
                   value={productSearchTerm}
                   onChange={(e) => setProductSearchTerm(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-[#0f1825] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  className={`w-full pl-11 pr-4 py-3 ${isLight ? "bg-white" : "bg-[#0f1825]"} border ${border} rounded-xl ${inputText} ${placeholder} focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all`}
                   autoFocus
                 />
               </div>

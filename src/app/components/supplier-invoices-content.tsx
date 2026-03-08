@@ -3,6 +3,7 @@ import { FileText, Search, Calendar, Eye, Plus, X, Printer, Download, Truck, Use
 import { NewSupplierInvoiceModal } from "./new-supplier-invoice-modal";
 import { useAccounting, buildAsientoCompra } from "../contexts/accounting-context";
 import { toast } from "sonner";
+import { useTheme } from "../contexts/theme-context";
 
 // Usuario logueado
 const LOGGED_USER = {
@@ -301,6 +302,22 @@ const MOCK_SUPPLIER_INVOICES: SupplierInvoice[] = [
 ];
 
 export function SupplierInvoicesContent() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
+  // Estilos adaptativos
+  const txt = isLight ? "text-gray-900" : "text-white";
+  const txtSub = isLight ? "text-gray-600" : "text-gray-400";
+  const bg = isLight ? "bg-white" : "bg-white/5";
+  const bgHover = isLight ? "hover:bg-gray-50" : "hover:bg-white/10";
+  const border = isLight ? "border-gray-200" : "border-white/10";
+  const inputBg = isLight ? "bg-white" : "bg-white/5";
+  const inputBorder = isLight ? "border-gray-300" : "border-white/10";
+  const inputText = isLight ? "text-gray-900" : "text-white";
+  const placeholder = isLight ? "placeholder-gray-400" : "placeholder-gray-500";
+  const modal = isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10";
+  const headerBg = isLight ? "bg-gray-50" : "bg-white/5";
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterSupplier, setFilterSupplier] = useState("all");
@@ -486,23 +503,23 @@ export function SupplierInvoicesContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         {/* Buscar */}
         <div className="relative">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <input
             type="text"
             placeholder="Buscar factura..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm ${placeholder} focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all`}
           />
         </div>
 
         {/* Estado */}
         <div className="relative">
-          <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Filter className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todos los estados</option>
             <option value="pending">Pendiente</option>
@@ -515,11 +532,11 @@ export function SupplierInvoicesContent() {
 
         {/* Proveedor */}
         <div className="relative">
-          <Truck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Truck className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterSupplier}
             onChange={(e) => setFilterSupplier(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todos los proveedores</option>
             {uniqueSuppliers.map((supplier) => (
@@ -532,11 +549,11 @@ export function SupplierInvoicesContent() {
 
         {/* Fecha */}
         <div className="relative">
-          <Calendar className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Calendar className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todas las fechas</option>
             {uniqueDates.map((date) => (
@@ -549,40 +566,40 @@ export function SupplierInvoicesContent() {
       </div>
 
       {/* Tabla de facturas */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+      <div className={`${bg} border ${border} rounded-2xl overflow-hidden`}>
         {filteredInvoices.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-8 h-8 text-gray-400" />
+            <div className={`w-16 h-16 ${bg} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+              <FileText className={`w-8 h-8 ${txtSub}`} />
             </div>
-            <p className="text-gray-400 mb-2">No se encontraron facturas</p>
-            <p className="text-gray-500 text-sm">
+            <p className={`${txtSub} mb-2`}>No se encontraron facturas</p>
+            <p className={`${txtSub} text-sm`}>
               Intenta ajustar los filtros o crea una nueva factura
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-white/5 border-b border-white/10">
+              <thead className={`${headerBg} border-b ${border}`}>
                 <tr>
                   {/* Col 1 */}
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Nº Factura
                   </th>
                   {/* Col 2 */}
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Proveedor
                   </th>
                   {/* Col 3 */}
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Orden Compra
                   </th>
                   {/* Col 4 */}
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Fecha Emisión
                   </th>
                   {/* Col 5 - AUTORIZACIÓN SRI */}
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Autorización SRI
                   </th>
                   {/* Col 6 */}

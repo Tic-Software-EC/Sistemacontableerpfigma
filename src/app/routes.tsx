@@ -63,15 +63,17 @@ export const router = createBrowserRouter([
 
       // ── Compras ────────────────────────────────────────────────────────────
       { path: "/module-compras-detail/:tab", element: <ModuleComprasDetail /> },
+      { path: "/module-compras-detail", element: <ModuleComprasDetail /> },
 
       // ── Ventas ─────────────────────────────────────────────────────────────
       { path: "/module-ventas-detail/:tab", element: <ModuleVentasDetail /> },
 
       // ── Punto de Venta ─────────────────────────────────────────────────────
-      { path: "/module-pos-detail/:tab",     element: <ModulePosDetail /> },
+      { path: "/module-pos-detail/:tab", element: <ModulePosDetail /> },
 
       // ── Inventario ─────────────────────────────────────────────────────────
       { path: "/module-inventory-detail/:tab", element: <ModuleInventoryDetail /> },
+      { path: "/module-inventory-detail", element: <ModuleInventoryDetail /> },
 
       // ── Contabilidad ───────────────────────────────────────────────────────
       { path: "/module-accounting-detail/:tab", element: <ModuleAccountingDetail /> },
@@ -82,20 +84,12 @@ export const router = createBrowserRouter([
         element: <Navigate to="/module-config-detail/general-settings" replace />,
       },
       {
-        path: "/module-compras-detail",
-        element: <Navigate to="/module-compras-detail/orders" replace />,
-      },
-      {
         path: "/module-ventas-detail",
         element: <Navigate to="/module-ventas-detail/invoices" replace />,
       },
       {
         path: "/module-pos-detail",
         element: <Navigate to="/module-pos-detail/pos" replace />,
-      },
-      {
-        path: "/module-inventory-detail",
-        element: <Navigate to="/module-inventory-detail/stock" replace />,
       },
       {
         path: "/module-accounting-detail",

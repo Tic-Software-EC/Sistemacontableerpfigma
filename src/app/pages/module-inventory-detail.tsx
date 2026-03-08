@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Package, TrendingUp, ArrowLeftRight, Plus, Bell, FileText, Sun, Moon } from "lucide-react";
+import { ArrowLeft, Package, TrendingUp, ArrowLeftRight, Plus, Bell, FileText, Sun, Moon, Info } from "lucide-react";
 import { InventoryStockList } from "../components/inventory-stock-list";
 import { InventoryMovementsList } from "../components/inventory-movements-list";
 import { InventoryTransfersList } from "../components/inventory-transfers-list";
@@ -17,7 +17,7 @@ export default function ModuleInventoryDetail() {
 
   const validTabs = ["stock", "movements", "transfers", "kardex"] as const;
   type TabType = typeof validTabs[number];
-  const activeTab: TabType = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : "stock";
+  const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : null;
   const setActiveTab = (tab: TabType) => {
     navigate(`/module-inventory-detail/${tab}`, { replace: true });
   };
@@ -53,15 +53,272 @@ export default function ModuleInventoryDetail() {
     return <Package className="w-5 h-5 text-white" />;
   };
 
+  // Descripciones de cada submódulo
+  const moduleDescriptions = {
+    stock: {
+      title: "Stock Actual",
+      description: "Control completo del inventario disponible",
+      features: [
+        "Consulta las existencias actuales de todos tus productos",
+        "Visualiza precios de compra, venta y márgenes de ganancia",
+        "Identifica productos con stock bajo o crítico",
+        "Gestiona categorías, unidades de medida y códigos de productos",
+      ]
+    },
+    movements: {
+      title: "Movimientos de Inventario",
+      description: "Registro de todas las operaciones que afectan el inventario",
+      features: [
+        "Entradas: Compras a proveedores, devoluciones de clientes, producción interna",
+        "Salidas: Ventas a clientes, devoluciones a proveedores, consumo interno",
+        "Ajustes: Correcciones de inventario físico, mermas, productos vencidos",
+        "Transferencias: Redistribución de stock entre almacenes (también desde pestaña Transferencias)",
+      ]
+    },
+    transfers: {
+      title: "Transferencias Entre Almacenes",
+      description: "Gestión especializada de movimientos internos de mercadería",
+      features: [
+        "Redistribuye productos entre diferentes almacenes o sucursales",
+        "El stock total de la empresa NO cambia, solo la ubicación",
+        "Seguimiento de transferencias en tránsito y pendientes",
+        "Historial completo de movimientos entre bodegas",
+      ]
+    },
+    kardex: {
+      title: "Kardex de Productos",
+      description: "Historial detallado de movimientos por producto",
+      features: [
+        "Visualiza todo el historial de entradas y salidas de un producto específico",
+        "Análisis de movimientos por fecha, tipo, almacén y motivo",
+        "Seguimiento de saldos anteriores y resultantes por operación",
+        "Ideal para auditorías, conciliaciones y análisis de rotación",
+      ]
+    }
+  };
+
   const renderContent = () => {
+    // Vista general cuando no hay pestaña seleccionada
+    if (activeTab === null) {
+      return (
+        <div>
+          {/* Bienvenida al módulo */}
+          <div className={`mb-8 border rounded-xl p-8 text-center ${
+            isLight 
+              ? "bg-gradient-to-br from-blue-50 to-white border-blue-200" 
+              : "bg-gradient-to-br from-blue-500/10 to-secondary border-blue-500/20"
+          }`}>
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Package className="w-9 h-9 text-white" />
+            </div>
+            <h2 className={`text-2xl font-bold mb-2 ${
+              isLight ? "text-gray-900" : "text-white"
+            }`}>Módulo de Inventario</h2>
+            <p className={`text-sm max-w-2xl mx-auto ${
+              isLight ? "text-gray-600" : "text-gray-400"
+            }`}>
+              Sistema completo para la gestión y control de inventarios, movimientos de mercadería, 
+              transferencias entre almacenes y análisis detallado por producto
+            </p>
+          </div>
+
+          {/* Grid de submódulos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Stock Actual */}
+            <button
+              onClick={() => setActiveTab("stock")}
+              className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                isLight 
+                  ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                  : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Package className="w-6 h-6 text-green-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className={`font-bold text-lg mb-2 ${
+                    isLight ? "text-gray-900" : "text-white"
+                  }`}>Stock Actual</h3>
+                  <p className={`text-sm mb-4 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>Control completo del inventario disponible</p>
+                  <ul className="space-y-2">
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Consulta existencias actuales de productos</span>
+                    </li>
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Visualiza precios y márgenes de ganancia</span>
+                    </li>
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Identifica productos con stock bajo o crítico</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </button>
+
+            {/* Movimientos de Inventario */}
+            <button
+              onClick={() => setActiveTab("movements")}
+              className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                isLight 
+                  ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                  : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-6 h-6 text-blue-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className={`font-bold text-lg mb-2 ${
+                    isLight ? "text-gray-900" : "text-white"
+                  }`}>Movimientos de Inventario</h3>
+                  <p className={`text-sm mb-4 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>Registro de todas las operaciones que afectan el inventario</p>
+                  <ul className="space-y-2">
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-blue-500 mt-0.5">✓</span>
+                      <span>Entradas: Compras, devoluciones de clientes</span>
+                    </li>
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-blue-500 mt-0.5">✓</span>
+                      <span>Salidas: Ventas, consumo interno</span>
+                    </li>
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-blue-500 mt-0.5">✓</span>
+                      <span>Ajustes: Correcciones, mermas, vencimientos</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </button>
+
+            {/* Transferencias */}
+            <button
+              onClick={() => setActiveTab("transfers")}
+              className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                isLight 
+                  ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                  : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <ArrowLeftRight className="w-6 h-6 text-purple-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className={`font-bold text-lg mb-2 ${
+                    isLight ? "text-gray-900" : "text-white"
+                  }`}>Transferencias Entre Almacenes</h3>
+                  <p className={`text-sm mb-4 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>Gestión especializada de movimientos internos de mercadería</p>
+                  <ul className="space-y-2">
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-purple-500 mt-0.5">✓</span>
+                      <span>Redistribuye productos entre almacenes</span>
+                    </li>
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-purple-500 mt-0.5">✓</span>
+                      <span>Stock total NO cambia, solo la ubicación</span>
+                    </li>
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-purple-500 mt-0.5">✓</span>
+                      <span>Seguimiento de transferencias en tránsito</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </button>
+
+            {/* Kardex */}
+            <button
+              onClick={() => setActiveTab("kardex")}
+              className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                isLight 
+                  ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                  : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-6 h-6 text-orange-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className={`font-bold text-lg mb-2 ${
+                    isLight ? "text-gray-900" : "text-white"
+                  }`}>Kardex de Productos</h3>
+                  <p className={`text-sm mb-4 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>Historial detallado de movimientos por producto</p>
+                  <ul className="space-y-2">
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-orange-500 mt-0.5">✓</span>
+                      <span>Historial completo de entradas y salidas</span>
+                    </li>
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-orange-500 mt-0.5">✓</span>
+                      <span>Análisis por fecha, tipo y almacén</span>
+                    </li>
+                    <li className={`text-xs flex items-start gap-2 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
+                      <span className="text-orange-500 mt-0.5">✓</span>
+                      <span>Ideal para auditorías y conciliaciones</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    const currentModule = moduleDescriptions[activeTab];
+    
     switch (activeTab) {
       case "stock":
         return (
           <div>
+            {/* Presentación del módulo */}
+            
+
             {/* Título y botón de acción */}
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">
+                <p className={`text-sm ${
+                  isLight ? "text-gray-600" : "text-gray-400"
+                }`}>
                   Gestiona el inventario disponible y realiza seguimiento de productos
                 </p>
               </div>
@@ -80,10 +337,15 @@ export default function ModuleInventoryDetail() {
       case "movements":
         return (
           <div>
+            {/* Presentación del módulo */}
+            
+
             {/* Título y botón de acción */}
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">
+                <p className={`text-sm ${
+                  isLight ? "text-gray-600" : "text-gray-400"
+                }`}>
                   Visualiza todas las entradas, salidas y ajustes del inventario
                 </p>
               </div>
@@ -102,10 +364,15 @@ export default function ModuleInventoryDetail() {
       case "transfers":
         return (
           <div>
+            {/* Presentación del módulo */}
+            
+
             {/* Título y botón de acción */}
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">
+                <p className={`text-sm ${
+                  isLight ? "text-gray-600" : "text-gray-400"
+                }`}>
                   Gestiona las transferencias entre almacenes
                 </p>
               </div>
@@ -121,10 +388,15 @@ export default function ModuleInventoryDetail() {
       case "kardex":
         return (
           <div>
+            {/* Presentación del módulo */}
+            
+
             {/* Título y botón de acción */}
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">
+                <p className={`text-sm ${
+                  isLight ? "text-gray-600" : "text-gray-400"
+                }`}>
                   Visualiza el historial de movimientos de un producto específico
                 </p>
               </div>

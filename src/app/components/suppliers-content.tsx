@@ -33,6 +33,20 @@ const PAYMENT_TERMS = [
 export function SuppliersContent() {
   const { theme } = useTheme();
   const isLight = theme === "light";
+  
+  // Estilos adaptativos
+  const txt = isLight ? "text-gray-900" : "text-white";
+  const txtSub = isLight ? "text-gray-600" : "text-gray-400";
+  const bg = isLight ? "bg-white" : "bg-white/5";
+  const bgHover = isLight ? "hover:bg-gray-50" : "hover:bg-white/10";
+  const border = isLight ? "border-gray-200" : "border-white/10";
+  const inputBg = isLight ? "bg-white" : "bg-white/5";
+  const inputBorder = isLight ? "border-gray-300" : "border-white/10";
+  const inputText = isLight ? "text-gray-900" : "text-white";
+  const placeholder = isLight ? "placeholder-gray-400" : "placeholder-gray-500";
+  const modal = isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10";
+  const headerBg = isLight ? "bg-gray-50" : "bg-white/5";
+  
   const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
@@ -170,48 +184,48 @@ export function SuppliersContent() {
 
 
       {/* Línea separatoria */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${border}`}></div>
 
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+        <div className={`${bg} border ${border} rounded-xl p-4`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-xs mb-1">Total Proveedores</p>
-              <p className="text-white font-bold text-2xl">{suppliers.length}</p>
+              <p className={`${txtSub} text-xs mb-1`}>Total Proveedores</p>
+              <p className={`${txt} font-bold text-2xl`}>{suppliers.length}</p>
             </div>
             <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
               <Truck className="w-5 h-5 text-primary" />
             </div>
           </div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+        <div className={`${bg} border ${border} rounded-xl p-4`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-xs mb-1">Activos</p>
-              <p className="text-white font-bold text-2xl">{suppliers.filter(s => s.status === "active").length}</p>
+              <p className={`${txtSub} text-xs mb-1`}>Activos</p>
+              <p className={`${txt} font-bold text-2xl`}>{suppliers.filter(s => s.status === "active").length}</p>
             </div>
             <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-green-400" />
             </div>
           </div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+        <div className={`${bg} border ${border} rounded-xl p-4`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-xs mb-1">Inactivos</p>
-              <p className="text-white font-bold text-2xl">{suppliers.filter(s => s.status === "inactive").length}</p>
+              <p className={`${txtSub} text-xs mb-1`}>Inactivos</p>
+              <p className={`${txt} font-bold text-2xl`}>{suppliers.filter(s => s.status === "inactive").length}</p>
             </div>
             <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
               <X className="w-5 h-5 text-red-400" />
             </div>
           </div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+        <div className={`${bg} border ${border} rounded-xl p-4`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-xs mb-1">En Búsqueda</p>
-              <p className="text-white font-bold text-2xl">{filteredSuppliers.length}</p>
+              <p className={`${txtSub} text-xs mb-1`}>En Búsqueda</p>
+              <p className={`${txt} font-bold text-2xl`}>{filteredSuppliers.length}</p>
             </div>
             <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
               <Search className="w-5 h-5 text-blue-400" />
@@ -221,7 +235,7 @@ export function SuppliersContent() {
       </div>
 
       {/* Segunda línea separatoria */}
-      <div className="border-t border-white/10"></div>
+      <div className={`border-t ${border}`}></div>
 
       {/* Botón de acción */}
       <div className="flex justify-end">
@@ -238,23 +252,23 @@ export function SuppliersContent() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Buscar */}
         <div className="relative">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <input
             type="text"
             placeholder="Buscar proveedor..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm ${placeholder} focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all`}
           />
         </div>
 
         {/* Categoría */}
         <div className="relative">
-          <Building2 className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Building2 className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todas las categorías</option>
             {SUPPLIER_CATEGORIES.filter(cat => cat !== "all").map((category) => (
@@ -267,11 +281,11 @@ export function SuppliersContent() {
 
         {/* Estado */}
         <div className="relative">
-          <FileText className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <FileText className={`w-4 h-4 ${txtSub} absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none`} />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer"
+            className={`w-full pl-10 pr-4 py-2.5 ${inputBg} border ${inputBorder} rounded-lg ${inputText} text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all appearance-none cursor-pointer`}
           >
             <option value="all">Todos los estados</option>
             <option value="active">Activos</option>
@@ -281,73 +295,73 @@ export function SuppliersContent() {
       </div>
 
       {/* Lista de proveedores - Tabla */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+      <div className={`${bg} border ${border} rounded-2xl overflow-hidden`}>
         {filteredSuppliers.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Truck className="w-8 h-8 text-gray-400" />
+            <div className={`w-16 h-16 ${bg} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+              <Truck className={`w-8 h-8 ${txtSub}`} />
             </div>
-            <p className="text-gray-400 mb-2">No se encontraron proveedores</p>
-            <p className="text-gray-500 text-sm">
+            <p className={`${txtSub} mb-2`}>No se encontraron proveedores</p>
+            <p className={`${txtSub} text-sm`}>
               Intenta ajustar los filtros o crea un nuevo proveedor
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-white/5 border-b border-white/10">
+              <thead className={`${headerBg} border-b ${border}`}>
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Código
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Proveedor
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     RUC
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Categoría
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-left text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Contacto
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-center text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Estado
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className={`px-6 py-4 text-center text-xs font-medium ${txtSub} uppercase tracking-wider`}>
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={`divide-y ${isLight ? "divide-gray-100" : "divide-white/5"}`}>
                 {currentItems.map((supplier) => (
-                  <tr key={supplier.id} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={supplier.id} className={`${isLight ? "hover:bg-gray-50" : "hover:bg-white/[0.02]"} transition-colors`}>
                     {/* Código */}
                     <td className="px-6 py-4">
-                      <span className="text-white font-mono font-bold">{supplier.code}</span>
+                      <span className={`${txt} font-mono font-bold`}>{supplier.code}</span>
                     </td>
 
                     {/* Proveedor */}
                     <td className="px-6 py-3">
-                      <span className="text-white font-medium">{supplier.name}</span>
+                      <span className={`${txt} font-medium`}>{supplier.name}</span>
                     </td>
 
                     {/* RUC */}
                     <td className="px-6 py-3">
-                      <span className="text-white text-sm font-mono">{supplier.ruc}</span>
+                      <span className={`${txt} text-sm font-mono`}>{supplier.ruc}</span>
                     </td>
 
                     {/* Categoría */}
                     <td className="px-6 py-3">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-medium text-gray-300">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 ${bg} border ${border} rounded-lg text-xs font-medium ${txtSub}`}>
                         {supplier.category}
                       </span>
                     </td>
 
                     {/* Contacto */}
                     <td className="px-6 py-3">
-                      <span className="text-white text-sm">{supplier.contactName}</span>
+                      <span className={`${txt} text-sm`}>{supplier.contactName}</span>
                     </td>
 
                     {/* Estado */}
@@ -473,15 +487,15 @@ export function SuppliersContent() {
       {/* Modal de crear/editar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`w-full max-w-2xl ${modal} rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl`}>
             {/* Header del modal */}
-            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
-              <h3 className="text-white font-bold text-xl">
+            <div className={`sticky top-0 ${isLight ? "bg-white" : "bg-secondary"} border-b ${border} px-6 py-4 flex items-center justify-between z-10`}>
+              <h3 className={`${txt} font-bold text-xl`}>
                 {editingSupplier ? "Editar Proveedor" : "Nuevo Proveedor"}
               </h3>
               <button
                 onClick={handleCloseModal}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`p-2 ${txtSub} ${isLight ? "hover:text-gray-900 hover:bg-gray-100" : "hover:text-white hover:bg-white/5"} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -491,13 +505,13 @@ export function SuppliersContent() {
             <div className="p-6 space-y-6">
               {/* Información Básica */}
               <div>
-                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                <h4 className={`${txt} font-bold text-lg mb-4 flex items-center gap-2`}>
                   <Building2 className="w-5 h-5 text-primary" />
                   Información Básica
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                    <label className={`block ${txtSub} text-sm mb-2 font-medium`}>
                       Código
                     </label>
                     <input
@@ -509,7 +523,7 @@ export function SuppliersContent() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                    <label className={`block ${txtSub} text-sm mb-2 font-medium`}>
                       RUC/Tax ID <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -522,7 +536,7 @@ export function SuppliersContent() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                    <label className={`block ${txtSub} text-sm mb-2 font-medium`}>
                       Nombre del Proveedor <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -536,7 +550,7 @@ export function SuppliersContent() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                    <label className={`block ${txtSub} text-sm mb-2 font-medium`}>
                       Categoría
                     </label>
                     <select
@@ -555,7 +569,7 @@ export function SuppliersContent() {
                   {/* Estado — solo en edición */}
                   {editingSupplier && (
                   <div>
-                    <label className="block text-gray-300 text-sm mb-2 font-medium">
+                    <label className={`block ${txtSub} text-sm mb-2 font-medium`}>
                       Estado
                     </label>
                     <select
@@ -778,20 +792,20 @@ export function SuppliersContent() {
       {/* Modal de vista detallada */}
       {showViewModal && viewingSupplier && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`w-full max-w-2xl ${modal} rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl`}>
             {/* Header del modal */}
-            <div className="sticky top-0 bg-secondary border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
+            <div className={`sticky top-0 ${isLight ? "bg-white" : "bg-secondary"} border-b ${border} px-6 py-4 flex items-center justify-between z-10`}>
               <div>
-                <h3 className="text-white font-bold text-xl font-mono">
+                <h3 className={`${txt} font-bold text-xl font-mono`}>
                   {viewingSupplier.code}
                 </h3>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className={`${txtSub} text-sm mt-1`}>
                   {viewingSupplier.name}
                 </p>
               </div>
               <button
                 onClick={() => setShowViewModal(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className={`p-2 ${txtSub} ${isLight ? "hover:text-gray-900 hover:bg-gray-100" : "hover:text-white hover:bg-white/5"} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -801,22 +815,22 @@ export function SuppliersContent() {
             <div className="p-6 space-y-6">
               {/* Información general en cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white/5 rounded-xl p-5">
-                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                <div className={`${bg} rounded-xl p-5`}>
+                  <h4 className={`${txtSub} text-xs font-medium mb-4 uppercase flex items-center gap-2`}>
                     <Building2 className="w-4 h-4" />
                     Información de la Empresa
                   </h4>
                   <div className="space-y-3 text-sm">
                     <div>
-                      <p className="text-gray-500 text-xs">RUC</p>
-                      <p className="text-white font-medium font-mono">{viewingSupplier.ruc}</p>
+                      <p className={`${txtSub} text-xs`}>RUC</p>
+                      <p className={`${txt} font-medium font-mono`}>{viewingSupplier.ruc}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs">Categoría</p>
-                      <p className="text-white font-medium">{viewingSupplier.category}</p>
+                      <p className={`${txtSub} text-xs`}>Categoría</p>
+                      <p className={`${txt} font-medium`}>{viewingSupplier.category}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs">Estado</p>
+                      <p className={`${txtSub} text-xs`}>Estado</p>
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
                         viewingSupplier.status === "active"
                           ? "bg-green-500/10 border border-green-500/20 text-green-400"
@@ -828,64 +842,64 @@ export function SuppliersContent() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-5">
-                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                <div className={`${bg} rounded-xl p-5`}>
+                  <h4 className={`${txtSub} text-xs font-medium mb-4 uppercase flex items-center gap-2`}>
                     <User className="w-4 h-4" />
                     Persona de Contacto
                   </h4>
                   <div className="space-y-3 text-sm">
                     <div>
-                      <p className="text-gray-500 text-xs">Nombre</p>
-                      <p className="text-white font-medium">{viewingSupplier.contactName}</p>
+                      <p className={`${txtSub} text-xs`}>Nombre</p>
+                      <p className={`${txt} font-medium`}>{viewingSupplier.contactName}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs">Teléfono</p>
-                      <p className="text-white font-medium flex items-center gap-2">
-                        <Phone className="w-3 h-3 text-gray-400" />
+                      <p className={`${txtSub} text-xs`}>Teléfono</p>
+                      <p className={`${txt} font-medium flex items-center gap-2`}>
+                        <Phone className={`w-3 h-3 ${txtSub}`} />
                         {viewingSupplier.contactPhone}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs">Email</p>
-                      <p className="text-white font-medium flex items-center gap-2">
-                        <Mail className="w-3 h-3 text-gray-400" />
+                      <p className={`${txtSub} text-xs`}>Email</p>
+                      <p className={`${txt} font-medium flex items-center gap-2`}>
+                        <Mail className={`w-3 h-3 ${txtSub}`} />
                         {viewingSupplier.contactEmail}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-5">
-                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                <div className={`${bg} rounded-xl p-5`}>
+                  <h4 className={`${txtSub} text-xs font-medium mb-4 uppercase flex items-center gap-2`}>
                     <MapPin className="w-4 h-4" />
                     Ubicación
                   </h4>
                   <div className="space-y-2 text-sm">
-                    <p className="text-white">{viewingSupplier.address}</p>
-                    <p className="text-gray-400">{viewingSupplier.city}, {viewingSupplier.country}</p>
+                    <p className={txt}>{viewingSupplier.address}</p>
+                    <p className={txtSub}>{viewingSupplier.city}, {viewingSupplier.country}</p>
                     <div className="flex items-center gap-2 mt-3">
-                      <Phone className="w-3 h-3 text-gray-400" />
-                      <span className="text-white">{viewingSupplier.phone}</span>
+                      <Phone className={`w-3 h-3 ${txtSub}`} />
+                      <span className={txt}>{viewingSupplier.phone}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Mail className="w-3 h-3 text-gray-400" />
-                      <span className="text-white">{viewingSupplier.email}</span>
+                      <Mail className={`w-3 h-3 ${txtSub}`} />
+                      <span className={txt}>{viewingSupplier.email}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-5">
-                  <h4 className="text-gray-400 text-xs font-medium mb-4 uppercase flex items-center gap-2">
+                <div className={`${bg} rounded-xl p-5`}>
+                  <h4 className={`${txtSub} text-xs font-medium mb-4 uppercase flex items-center gap-2`}>
                     <FileText className="w-4 h-4" />
                     Condiciones Comerciales
                   </h4>
                   <div className="space-y-3 text-sm">
                     <div>
-                      <p className="text-gray-500 text-xs">Términos de Pago</p>
-                      <p className="text-white font-medium">{viewingSupplier.paymentTerms}</p>
+                      <p className={`${txtSub} text-xs`}>Términos de Pago</p>
+                      <p className={`${txt} font-medium`}>{viewingSupplier.paymentTerms}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-xs">Días de Crédito</p>
+                      <p className={`${txtSub} text-xs`}>Días de Crédito</p>
                       <p className="text-primary font-bold text-2xl">{viewingSupplier.creditDays}</p>
                     </div>
                   </div>
@@ -894,18 +908,18 @@ export function SuppliersContent() {
 
               {/* Notas */}
               {viewingSupplier.notes && (
-                <div className="bg-white/5 rounded-xl p-5">
-                  <h4 className="text-gray-400 text-xs font-medium mb-2 uppercase">Notas</h4>
-                  <p className="text-white text-sm">{viewingSupplier.notes}</p>
+                <div className={`${bg} rounded-xl p-5`}>
+                  <h4 className={`${txtSub} text-xs font-medium mb-2 uppercase`}>Notas</h4>
+                  <p className={`${txt} text-sm`}>{viewingSupplier.notes}</p>
                 </div>
               )}
             </div>
 
             {/* Footer del modal */}
-            <div className="sticky bottom-0 bg-secondary border-t border-white/10 px-6 py-4 flex items-center justify-end gap-3">
+            <div className={`sticky bottom-0 ${isLight ? "bg-white" : "bg-secondary"} border-t ${border} px-6 py-4 flex items-center justify-end gap-3`}>
               <button
                 onClick={() => setShowViewModal(false)}
-                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium"
+                className={`px-6 py-2.5 ${bg} ${bgHover} ${txt} rounded-xl transition-colors font-medium`}
               >
                 Cerrar
               </button>

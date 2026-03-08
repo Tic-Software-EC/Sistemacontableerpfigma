@@ -396,7 +396,7 @@ export function InventoryKardex() {
                   <tr key={entry.id} className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/[0.02] transition-colors"}>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className={`w-3.5 h-3.5 ${isLight ? "text-gray-400" : "text-gray-500"}`} />
+                        
                         <span className={`text-xs ${isLight ? "text-gray-900" : "text-white"}`}>
                           {new Date(entry.date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                         </span>

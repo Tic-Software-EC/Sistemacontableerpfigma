@@ -28,6 +28,7 @@ import {
   CreditCard as CardIcon,
   Sun,
   Moon,
+  Info,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
@@ -231,9 +232,10 @@ export default function ModuleComprasDetail() {
   const params = useParams<{ tab?: string }>();
   const { logoUrl } = useBrand();
 
-  const validTabs = ["orders", "reception", "suppliers", "invoices", "retentions", "payments", "config"];
-  const activeTab = validTabs.includes(params.tab ?? "") ? params.tab! : "orders";
-  const setActiveTab = (tab: string) => {
+  const validTabs = ["orders", "reception", "suppliers", "invoices", "retentions", "payments"];
+  type TabType = typeof validTabs[number];
+  const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : null;
+  const setActiveTab = (tab: TabType) => {
     navigate(`/module-compras-detail/${tab}`, { replace: true });
   };
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -503,6 +505,299 @@ export default function ModuleComprasDetail() {
       {/* Contenido principal */}
       <main className={activeTab === "retentions" ? "p-6 flex flex-col" : "p-6"}
             style={activeTab === "retentions" ? { height: "calc(100vh - 165px)" } : undefined}>
+        
+        {/* Vista general cuando no hay pestaña seleccionada */}
+        {activeTab === null && (
+          <div>
+            {/* Bienvenida al módulo */}
+            <div className={`mb-8 border rounded-xl p-8 text-center ${
+              isLight 
+                ? "bg-gradient-to-br from-blue-50 to-white border-blue-200" 
+                : "bg-gradient-to-br from-blue-500/10 to-secondary border-blue-500/20"
+            }`}>
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <ShoppingCart className="w-9 h-9 text-white" />
+              </div>
+              <h2 className={`text-2xl font-bold mb-2 ${
+                isLight ? "text-gray-900" : "text-white"
+              }`}>Módulo de Compras</h2>
+              <p className={`text-sm max-w-2xl mx-auto ${
+                isLight ? "text-gray-600" : "text-gray-400"
+              }`}>
+                Sistema completo para la gestión de adquisiciones, control de proveedores, 
+                recepción de mercadería y administración de cuentas por pagar
+              </p>
+            </div>
+
+            {/* Grid de submódulos */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Órdenes de Compra */}
+              <button
+                onClick={() => setActiveTab("orders")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <ShoppingCart className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Órdenes de Compra</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Gestión completa del ciclo de pedidos a proveedores</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Crea y aprueba órdenes de compra</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Seguimiento por estados: Pendiente, Aprobada, Entregada</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Control de fechas de entrega y vencimiento</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Recepción de Mercadería */}
+              <button
+                onClick={() => setActiveTab("reception")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Package className="w-6 h-6 text-green-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Recepción de Mercadería</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Registro y validación de productos recibidos</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Verifica cantidades y calidad de productos</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Actualización automática de inventario</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Registro de diferencias y devoluciones</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Proveedores */}
+              <button
+                onClick={() => setActiveTab("suppliers")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <User className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Proveedores</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Directorio completo de proveedores y contactos</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Administra datos de contacto y fiscales</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Historial de compras y pagos realizados</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Evaluación de desempeño y calificación</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Facturas a Proveedores */}
+              <button
+                onClick={() => setActiveTab("invoices")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Facturas a Proveedores</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Control de facturas recibidas y cuentas por pagar</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-orange-500 mt-0.5">✓</span>
+                        <span>Registro de facturas de compra recibidas</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-orange-500 mt-0.5">✓</span>
+                        <span>Control de fechas de pago y vencimientos</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-orange-500 mt-0.5">✓</span>
+                        <span>Integración con contabilidad y retenciones</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Retenciones */}
+              <button
+                onClick={() => setActiveTab("retentions")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Receipt className="w-6 h-6 text-red-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Retenciones a Proveedores</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Gestión de retenciones fiscales en la fuente</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-red-500 mt-0.5">✓</span>
+                        <span>Emisión de comprobantes de retención</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-red-500 mt-0.5">✓</span>
+                        <span>Cálculo automático según normativa SRI</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-red-500 mt-0.5">✓</span>
+                        <span>Reporte para declaraciones mensuales</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Pagos a Proveedores */}
+              <button
+                onClick={() => setActiveTab("payments")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <DollarSign className="w-6 h-6 text-yellow-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Pagos a Proveedores</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Administración de pagos y cuentas por pagar</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-yellow-500 mt-0.5">✓</span>
+                        <span>Registro de pagos por múltiples métodos</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-yellow-500 mt-0.5">✓</span>
+                        <span>Control de saldos pendientes por proveedor</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-yellow-500 mt-0.5">✓</span>
+                        <span>Histórico de transacciones y conciliación</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+
         {activeTab === "orders" && (
           <PurchaseOrdersContent />
         )}

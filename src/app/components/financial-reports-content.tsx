@@ -160,8 +160,8 @@ export function FinancialReportsContent() {
                   dataKey="value"
                   nameKey="name"
                 >
-                  {GASTOS_PIE.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  {GASTOS_PIE.map((entry) => (
+                    <Cell key={`cell-${entry.name}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip

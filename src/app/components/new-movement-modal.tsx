@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Plus, Trash2, Package, TrendingUp, FileText, Search, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "../contexts/theme-context";
 
 interface NewMovementModalProps {
   isOpen: boolean;
@@ -58,6 +59,9 @@ const REASONS_BY_TYPE = {
 };
 
 export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
   const [formData, setFormData] = useState({
     type: "entrada",
     date: new Date().toISOString().split('T')[0],
@@ -154,18 +158,30 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-xl shadow-2xl my-8">
+      <div className={`w-full max-w-5xl border rounded-xl shadow-2xl my-8 ${
+        isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+      }`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+        <div className={`flex items-center justify-between px-6 py-4 border-b ${
+          isLight ? "border-gray-200" : "border-white/10"
+        }`}>
           <div>
-            <h3 className="text-white font-bold text-lg">Nuevo Movimiento de Inventario</h3>
-            <p className="text-gray-400 text-xs mt-0.5">
+            <h3 className={`font-bold text-lg ${
+              isLight ? "text-gray-900" : "text-white"
+            }`}>Nuevo Movimiento de Inventario</h3>
+            <p className={`text-xs mt-0.5 ${
+              isLight ? "text-gray-600" : "text-gray-400"
+            }`}>
               Complete los datos del movimiento y agregue los productos
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+            className={`p-2 rounded-lg transition-colors ${
+              isLight 
+                ? "text-gray-400 hover:text-gray-900 hover:bg-gray-100" 
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
           >
             <X className="w-5 h-5" />
           </button>
@@ -176,7 +192,9 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
           <div className="p-6 space-y-5">
             {/* Información General */}
             <div>
-              <h4 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
+              <h4 className={`font-semibold text-sm mb-3 flex items-center gap-2 ${
+                isLight ? "text-gray-900" : "text-white"
+              }`}>
                 <FileText className="w-4 h-4 text-primary" />
                 Información del Movimiento
               </h4>
@@ -184,7 +202,9 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Tipo de Movimiento */}
                 <div>
-                  <label className="block text-gray-400 text-xs mb-1.5">
+                  <label className={`block text-xs mb-1.5 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>
                     Tipo <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -192,7 +212,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                     value={formData.type}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                      isLight 
+                        ? "bg-white border-gray-300 text-gray-900" 
+                        : "bg-[#1a2332] border-white/10 text-white"
+                    }`}
                   >
                     <option value="entrada">Entrada</option>
                     <option value="salida">Salida</option>
@@ -203,7 +227,9 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
 
                 {/* Fecha */}
                 <div>
-                  <label className="block text-gray-400 text-xs mb-1.5">
+                  <label className={`block text-xs mb-1.5 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>
                     Fecha <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -212,13 +238,19 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                     value={formData.date}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                      isLight 
+                        ? "bg-white border-gray-300 text-gray-900" 
+                        : "bg-[#1a2332] border-white/10 text-white"
+                    }`}
                   />
                 </div>
 
                 {/* Referencia */}
                 <div>
-                  <label className="block text-gray-400 text-xs mb-1.5">
+                  <label className={`block text-xs mb-1.5 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>
                     Referencia #
                   </label>
                   <input
@@ -227,13 +259,19 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                     value={formData.reference}
                     onChange={handleChange}
                     placeholder="#REF-0001"
-                    className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors ${
+                      isLight 
+                        ? "bg-white border-gray-300 text-gray-900" 
+                        : "bg-[#1a2332] border-white/10 text-white"
+                    }`}
                   />
                 </div>
 
                 {/* Almacén Origen */}
                 <div>
-                  <label className="block text-gray-400 text-xs mb-1.5">
+                  <label className={`block text-xs mb-1.5 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>
                     {formData.type === "transferencia" ? "Almacén Origen" : "Almacén"} <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -241,7 +279,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                     value={formData.warehouse}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                      isLight 
+                        ? "bg-white border-gray-300 text-gray-900" 
+                        : "bg-[#1a2332] border-white/10 text-white"
+                    }`}
                   >
                     <option value="">Seleccionar...</option>
                     <option value="Almacén Principal">Almacén Principal</option>
@@ -253,7 +295,9 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                 {/* Almacén Destino (solo para transferencias) */}
                 {formData.type === "transferencia" && (
                   <div>
-                    <label className="block text-gray-400 text-xs mb-1.5">
+                    <label className={`block text-xs mb-1.5 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>
                       Almacén Destino <span className="text-red-400">*</span>
                     </label>
                     <select
@@ -261,7 +305,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                       value={formData.warehouseTo}
                       onChange={handleChange}
                       required={formData.type === "transferencia"}
-                      className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-[#1a2332] border-white/10 text-white"
+                      }`}
                     >
                       <option value="">Seleccionar...</option>
                       <option value="Almacén Principal">Almacén Principal</option>
@@ -273,7 +321,9 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
 
                 {/* Motivo */}
                 <div className={formData.type === "transferencia" ? "" : "md:col-span-2"}>
-                  <label className="block text-gray-400 text-xs mb-1.5">
+                  <label className={`block text-xs mb-1.5 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>
                     Motivo <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -281,7 +331,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                     value={formData.reason}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 transition-colors ${
+                      isLight 
+                        ? "bg-white border-gray-300 text-gray-900" 
+                        : "bg-[#1a2332] border-white/10 text-white"
+                    }`}
                   >
                     <option value="">Seleccionar motivo...</option>
                     {REASONS_BY_TYPE[formData.type as keyof typeof REASONS_BY_TYPE].map(reason => (
@@ -292,7 +346,9 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
 
                 {/* Notas */}
                 <div className="md:col-span-3">
-                  <label className="block text-gray-400 text-xs mb-1.5">
+                  <label className={`block text-xs mb-1.5 ${
+                    isLight ? "text-gray-600" : "text-gray-400"
+                  }`}>
                     Notas
                   </label>
                   <textarea
@@ -301,7 +357,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                     onChange={handleChange}
                     rows={2}
                     placeholder="Información adicional..."
-                    className="w-full px-3 py-2 bg-[#1a2332] border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors resize-none ${
+                      isLight 
+                        ? "bg-white border-gray-300 text-gray-900" 
+                        : "bg-[#1a2332] border-white/10 text-white"
+                    }`}
                   />
                 </div>
               </div>
@@ -310,7 +370,9 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
             {/* Productos */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-white font-semibold text-sm flex items-center gap-2">
+                <h4 className={`font-semibold text-sm flex items-center gap-2 ${
+                  isLight ? "text-gray-900" : "text-white"
+                }`}>
                   <Package className="w-4 h-4 text-primary" />
                   Detalle de Productos
                 </h4>
@@ -326,7 +388,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
 
               {/* Buscador de Productos */}
               {showProductSearch && (
-                <div className="mb-3 bg-[#1a2332] border border-white/10 rounded-lg p-3">
+                <div className={`mb-3 border rounded-lg p-3 ${
+                  isLight 
+                    ? "bg-gray-50 border-gray-200" 
+                    : "bg-[#1a2332] border-white/10"
+                }`}>
                   <div className="relative mb-2">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -334,7 +400,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                       placeholder="Buscar por código o nombre de producto..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-3 py-2 bg-secondary border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50"
+                      className={`w-full pl-10 pr-3 py-2 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:border-primary/50 ${
+                        isLight 
+                          ? "bg-white border-gray-300 text-gray-900" 
+                          : "bg-secondary border-white/10 text-white"
+                      }`}
                       autoFocus
                     />
                   </div>
@@ -345,11 +415,17 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                         type="button"
                         onClick={() => addProduct(product)}
                         disabled={products.some(p => p.productCode === product.code)}
-                        className="w-full text-left px-3 py-2 bg-secondary hover:bg-white/5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                          isLight 
+                            ? "bg-white hover:bg-gray-100 border border-gray-200" 
+                            : "bg-secondary hover:bg-white/5"
+                        }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-white text-sm font-medium">{product.name}</p>
+                            <p className={`text-sm font-medium ${
+                              isLight ? "text-gray-900" : "text-white"
+                            }`}>{product.name}</p>
                             <p className="text-gray-400 text-xs">{product.code}</p>
                           </div>
                           <div className="text-right">
@@ -368,30 +444,58 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
 
               {/* Tabla de Productos */}
               {products.length > 0 ? (
-                <div className="bg-[#1a2332] border border-white/10 rounded-lg overflow-hidden">
+                <div className={`border rounded-lg overflow-hidden ${
+                  isLight 
+                    ? "bg-white border-gray-200" 
+                    : "bg-[#1a2332] border-white/10"
+                }`}>
                   <table className="w-full">
-                    <thead className="bg-[#151f2e]">
+                    <thead className={isLight ? "bg-gray-50" : "bg-[#151f2e]"}>
                       <tr>
-                        <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">#</th>
-                        <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Código</th>
-                        <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Producto</th>
-                        <th className="px-4 py-2.5 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Stock Actual</th>
-                        <th className="px-4 py-2.5 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Cantidad</th>
-                        <th className="px-4 py-2.5 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Unidad</th>
-                        <th className="px-4 py-2.5 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
+                        <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                          isLight ? "text-gray-500" : "text-gray-400"
+                        }`}>#</th>
+                        <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                          isLight ? "text-gray-500" : "text-gray-400"
+                        }`}>Código</th>
+                        <th className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
+                          isLight ? "text-gray-500" : "text-gray-400"
+                        }`}>Producto</th>
+                        <th className={`px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider ${
+                          isLight ? "text-gray-500" : "text-gray-400"
+                        }`}>Stock Actual</th>
+                        <th className={`px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider ${
+                          isLight ? "text-gray-500" : "text-gray-400"
+                        }`}>Cantidad</th>
+                        <th className={`px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider ${
+                          isLight ? "text-gray-500" : "text-gray-400"
+                        }`}>Unidad</th>
+                        <th className={`px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider ${
+                          isLight ? "text-gray-500" : "text-gray-400"
+                        }`}>Acciones</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className={`divide-y ${
+                      isLight ? "divide-gray-200" : "divide-white/5"
+                    }`}>
                       {products.map((product, index) => (
-                        <tr key={product.id} className="hover:bg-white/[0.02] transition-colors">
+                        <tr key={product.id} className={
+                          isLight 
+                            ? "hover:bg-gray-50 transition-colors" 
+                            : "hover:bg-white/[0.02] transition-colors"
+                        }>
                           <td className="px-4 py-2.5">
                             <span className="text-gray-400 text-sm font-mono">{index + 1}</span>
                           </td>
                           <td className="px-4 py-2.5">
-                            <span className="text-gray-300 text-sm font-mono">{product.productCode}</span>
+                            <span className={`text-sm font-mono ${
+                              isLight ? "text-gray-700" : "text-gray-300"
+                            }`}>{product.productCode}</span>
                           </td>
                           <td className="px-4 py-2.5">
-                            <span className="text-white text-sm">{product.productName}</span>
+                            <span className={`text-sm ${
+                              isLight ? "text-gray-900" : "text-white"
+                            }`}>{product.productName}</span>
                           </td>
                           <td className="px-4 py-2.5 text-center">
                             <span className="text-gray-400 text-sm">{product.currentStock}</span>
@@ -406,7 +510,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                               }}
                               min="1"
                               max={formData.type === "salida" ? product.currentStock : undefined}
-                              className="w-20 px-2 py-1.5 bg-secondary border border-white/10 rounded-lg text-white text-sm text-center focus:outline-none focus:border-primary/50"
+                              className={`w-20 px-2 py-1.5 border rounded-lg text-sm text-center focus:outline-none focus:border-primary/50 ${
+                                isLight 
+                                  ? "bg-white border-gray-300 text-gray-900" 
+                                  : "bg-secondary border-white/10 text-white"
+                              }`}
                             />
                           </td>
                           <td className="px-4 py-2.5 text-center">
@@ -425,13 +533,19 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot className="bg-[#151f2e] border-t border-white/10">
+                    <tfoot className={`border-t ${
+                      isLight 
+                        ? "bg-gray-50 border-gray-200" 
+                        : "bg-[#151f2e] border-white/10"
+                    }`}>
                       <tr>
                         <td colSpan={4} className="px-4 py-2.5 text-right">
                           <span className="text-gray-400 text-sm font-semibold">Total:</span>
                         </td>
                         <td className="px-4 py-2.5 text-center">
-                          <span className="text-white text-sm font-bold">{totalQuantity}</span>
+                          <span className={`text-sm font-bold ${
+                            isLight ? "text-gray-900" : "text-white"
+                          }`}>{totalQuantity}</span>
                         </td>
                         <td colSpan={2} className="px-4 py-2.5 text-center">
                           <span className="text-gray-400 text-xs">{products.length} producto(s)</span>
@@ -441,7 +555,11 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-12 bg-[#1a2332] border border-white/10 border-dashed rounded-lg">
+                <div className={`text-center py-12 border border-dashed rounded-lg ${
+                  isLight 
+                    ? "bg-gray-50 border-gray-300" 
+                    : "bg-[#1a2332] border-white/10"
+                }`}>
                   <Package className="w-12 h-12 text-gray-600 mx-auto mb-2" />
                   <p className="text-gray-400 text-sm">No hay productos agregados</p>
                   <p className="text-gray-500 text-xs mt-1">Haz clic en "Agregar" para seleccionar productos</p>
@@ -464,11 +582,19 @@ export function NewMovementModal({ isOpen, onClose }: NewMovementModalProps) {
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10 bg-[#1a2332]">
+          <div className={`flex items-center justify-end gap-3 px-6 py-4 border-t ${
+            isLight 
+              ? "border-gray-200 bg-gray-50" 
+              : "border-white/10 bg-[#1a2332]"
+          }`}>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors font-medium text-xs"
+              className={`px-4 py-2 rounded-lg transition-colors font-medium text-xs ${
+                isLight 
+                  ? "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300" 
+                  : "bg-white/5 hover:bg-white/10 text-white"
+              }`}
             >
               Cancelar
             </button>
