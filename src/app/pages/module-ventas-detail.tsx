@@ -10,8 +10,6 @@ import {
   CreditCard,
   LogOut,
   FileText,
-  X,
-  Receipt,
   DollarSign,
   Sun,
   Moon,
@@ -22,8 +20,9 @@ import {
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
-import { AccountingRetentionsContent } from "../components/accounting-retentions-content";
-import { SalesInvoicesContent } from "../components/sales-invoices-content";
+import { SalesCustomersContent } from "../components/sales-customers-content";
+import { SalesQuotesContent } from "../components/sales-quotes-content";
+import { SalesElectronicDocumentsContent } from "../components/sales-electronic-documents-content";
 
 export default function ModuleVentasDetail() {
   const navigate = useNavigate();
@@ -32,7 +31,9 @@ export default function ModuleVentasDetail() {
   const { theme, toggleTheme } = useTheme();
   const isLight = theme === "light";
 
-  const validTabs = ["quotes", "orders", "customers", "invoices", "retentions", "collections"];
+  // Module: Sales Management
+
+  const validTabs = ["quotes", "orders", "customers", "electronic-documents", "collections"];
   const activeTab = validTabs.includes(params.tab ?? "") ? params.tab! : "quotes";
   const setActiveTab = (tab: string) => {
     navigate(`/module-ventas-detail/${tab}`, { replace: true });
@@ -52,8 +53,7 @@ export default function ModuleVentasDetail() {
     { id: "quotes", name: "Cotizaciones", icon: FileText },
     { id: "orders", name: "Pedidos de Venta", icon: ShoppingCart },
     { id: "customers", name: "Clientes", icon: Users },
-    { id: "invoices", name: "Facturas de Venta", icon: Receipt },
-    { id: "retentions", name: "Retenciones Recibidas", icon: FileCheck },
+    { id: "electronic-documents", name: "Documentos Electrónicos", icon: FileCheck },
     { id: "collections", name: "Cobros", icon: DollarSign },
   ];
 
@@ -262,33 +262,15 @@ export default function ModuleVentasDetail() {
       </header>
 
       {/* ── Contenido principal ────────────────────────────────────────────── */}
-      <main className={activeTab === "retentions" ? "p-6 flex flex-col" : "p-6"}
-            style={activeTab === "retentions" ? { height: "calc(100vh - 165px)" } : undefined}>
+      <main className="p-6">
         {activeTab === "quotes" && (
           <div className="space-y-6">
-            <div>
-              <h2 className={`text-2xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                <FileText className="w-7 h-7 text-primary inline-block mr-2" />
-                Cotizaciones
-              </h2>
-              <p className="text-gray-400 text-sm">Gestión de cotizaciones a clientes</p>
-            </div>
-            <div className={`p-8 rounded-xl border text-center ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
-              <FileText className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
-              <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulo de cotizaciones en desarrollo</p>
-            </div>
+            <SalesQuotesContent />
           </div>
         )}
 
         {activeTab === "orders" && (
           <div className="space-y-6">
-            <div>
-              <h2 className={`text-2xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                <ShoppingCart className="w-7 h-7 text-primary inline-block mr-2" />
-                Pedidos de Venta
-              </h2>
-              <p className="text-gray-400 text-sm">Administración de pedidos de clientes</p>
-            </div>
             <div className={`p-8 rounded-xl border text-center ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
               <ShoppingCart className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
               <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulo de pedidos en desarrollo</p>
@@ -298,48 +280,18 @@ export default function ModuleVentasDetail() {
 
         {activeTab === "customers" && (
           <div className="space-y-6">
-            <div>
-              <h2 className={`text-2xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                <Users className="w-7 h-7 text-primary inline-block mr-2" />
-                Clientes
-              </h2>
-              <p className="text-gray-400 text-sm">Gestión de base de clientes</p>
-            </div>
-            <div className={`p-8 rounded-xl border text-center ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
-              <Users className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
-              <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulo de clientes en desarrollo</p>
-            </div>
+            <SalesCustomersContent />
           </div>
         )}
 
-        {activeTab === "invoices" && (
+        {activeTab === "electronic-documents" && (
           <div className="space-y-6">
-            <div>
-              <h2 className={`text-2xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                <Receipt className="w-7 h-7 text-primary inline-block mr-2" />
-                Facturas de Venta
-              </h2>
-              <p className="text-gray-400 text-sm">Administración de facturas emitidas a clientes</p>
-            </div>
-            <SalesInvoicesContent />
-          </div>
-        )}
-
-        {activeTab === "retentions" && (
-          <div className="flex flex-col flex-1 min-h-0">
-            <AccountingRetentionsContent filterByCategory="ventas" />
+            <SalesElectronicDocumentsContent />
           </div>
         )}
 
         {activeTab === "collections" && (
           <div className="space-y-6">
-            <div>
-              <h2 className={`text-2xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                <DollarSign className="w-7 h-7 text-primary inline-block mr-2" />
-                Cobros
-              </h2>
-              <p className="text-gray-400 text-sm">Registro y seguimiento de cobros a clientes</p>
-            </div>
             <div className={`p-8 rounded-xl border text-center ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
               <DollarSign className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
               <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulo de cobros en desarrollo</p>

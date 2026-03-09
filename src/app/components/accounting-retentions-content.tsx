@@ -16,6 +16,7 @@ import { PURCHASE_INVOICES_DATA, PurchaseInvoice } from "../data/purchase-invoic
 import { DatePicker } from "./date-picker-range";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { ManualRetentionModal } from "./manual-retention-modal";
 
 /* ══════════════════════════════════════════════════════════════════════
    TIPOS
@@ -852,19 +853,20 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: EMPRESA.ruc,
     direccion_sujeto: EMPRESA.dir,
     comprobante: "001-001-000004123",
-    tipo_comprobante: "Boleto de Transporte Aéreo",
+    tipo_comprobante: "Factura",
     fecha_comprobante: "2026-03-02",
     periodo_fiscal: "03/2026",
     detalles: [
       { codigo: "312", concepto: "Servicios prestados por medios de comunicación y agencias de publicidad", tipo: "Fuente", base_imponible: 8400.00, porcentaje: 1, valor_retenido: 84.00 },
+      { codigo: "721", concepto: "IVA 30% - Servicios (Persona Jurídica)", tipo: "IVA", base_imponible: 1008.00, porcentaje: 30, valor_retenido: 302.40 },
     ],
-    estado: "autorizada",
+    estado: "pendiente",
     categoria: "ventas",
-    autorizacion_sri: "4503202601795678901001100100300000890121234567892",
+    autorizacion_sri: "",
     ambiente: "Producción",
-    total_retenido: 84.00,
+    total_retenido: 386.40,
     syncedFromSri: true,
-    sriAuthDate: "2026-03-02T09:45:00",
+    sriAuthDate: "",
   },
   {
     id: "RET-V-2026-003",
@@ -880,20 +882,20 @@ const RETENCIONES_INIT: Retencion[] = [
     ruc: EMPRESA.ruc,
     direccion_sujeto: EMPRESA.dir,
     comprobante: "001-001-000005890",
-    tipo_comprobante: "Documento Electronico Instituciones Financieras",
+    tipo_comprobante: "Factura",
     fecha_comprobante: "2026-03-03",
     periodo_fiscal: "03/2026",
     detalles: [
       { codigo: "340", concepto: "Otras retenciones aplicables al 2%", tipo: "Fuente", base_imponible: 15000.00, porcentaje: 2, valor_retenido: 300.00 },
       { codigo: "723", concepto: "IVA 100% - Servicios (Sector Público)", tipo: "IVA", base_imponible: 1800.00, porcentaje: 100, valor_retenido: 1800.00 },
     ],
-    estado: "autorizada",
+    estado: "rechazada",
     categoria: "ventas",
-    autorizacion_sri: "4503202601792234567001100200100004567812345678910",
+    autorizacion_sri: "",
     ambiente: "Producción",
     total_retenido: 2100.00,
     syncedFromSri: true,
-    sriAuthDate: "2026-03-03T16:12:00",
+    sriAuthDate: "",
   },
   {
     id: "RET-V-2026-004",
@@ -2201,6 +2203,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
   const [editingRet, setEditingRet] = useState<Retencion | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsRet, setDetailsRet] = useState<Retencion | null>(null);
+  const [showManualModal, setShowManualModal] = useState(false);
 
   // Actualizar selección cuando cambie la categoría o el filtro
   useEffect(() => {
@@ -2798,11 +2801,27 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
               </>
             )}
             
-            {/* Solo mostrar botón de Nueva Retención para COMPRAS */}
+            {/* Botones de Nueva Retención */}
             {categoria === "compras" && (
-              <button onClick={() => setShowModal(true)}
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowModal(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30">
+                  <Plus className="w-3.5 h-3.5" /> Retención Asistida
+                </button>
+                <button onClick={() => setShowManualModal(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isLight ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-white/5 hover:bg-white/10 text-white"
+                  }`}>
+                  <Plus className="w-3.5 h-3.5" /> Ingreso Manual
+                </button>
+              </div>
+            )}
+            
+            {/* Botón de Ingreso Manual para VENTAS */}
+            {categoria === "ventas" && (
+              <button onClick={() => setShowManualModal(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30">
-                <Plus className="w-3.5 h-3.5" /> Nueva Retención
+                <Plus className="w-3.5 h-3.5" /> Ingreso Manual
               </button>
             )}
           </div>
@@ -3518,6 +3537,19 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           </div>
         </div>
       )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MODAL: INGRESO MANUAL DE RETENCIÓN
+         ══════════════════════════════════════════════════════════════════════ */}
+      <ManualRetentionModal
+        isOpen={showManualModal}
+        onClose={() => setShowManualModal(false)}
+        onSave={(retention) => {
+          setRetenciones([retention, ...retenciones]);
+          setSelected(retention);
+        }}
+        categoria={categoria === "todas" ? "compras" : categoria}
+      />
     </div>
   );
 }

@@ -22,7 +22,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     errorElement: <RouteError />,
     children: [
-      // ── Login ──────────────────────────────────────────────────────────────
+      // ── Login ───────────────────────────────────────��──────────────────────
       {
         path: "/",
         element: (
@@ -85,7 +85,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/module-ventas-detail",
-        element: <Navigate to="/module-ventas-detail/invoices" replace />,
+        element: <Navigate to="/module-ventas-detail/electronic-documents" replace />,
       },
       {
         path: "/module-pos-detail",

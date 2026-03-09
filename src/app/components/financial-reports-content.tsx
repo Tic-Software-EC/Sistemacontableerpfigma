@@ -160,8 +160,8 @@ export function FinancialReportsContent() {
                   dataKey="value"
                   nameKey="name"
                 >
-                  {GASTOS_PIE.map((entry) => (
-                    <Cell key={`cell-${entry.name}`} fill={entry.color} />
+                  {GASTOS_PIE.map((entry, index) => (
+                    <Cell key={`cell-gastos-${index}-${entry.name}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -175,8 +175,8 @@ export function FinancialReportsContent() {
               </RechartsPieChart>
             </ResponsiveContainer>
             <div className="grid grid-cols-2 gap-2 mt-3">
-              {GASTOS_PIE.map(item => (
-                <div key={item.name} className="flex items-center gap-2">
+              {GASTOS_PIE.map((item, idx) => (
+                <div key={`legend-${idx}-${item.name}`} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
                   <span className={`text-xs ${txt}`}>{item.name}</span>
                   <span className={`text-xs ${sub} ml-auto`}>{fmt(item.value)}</span>

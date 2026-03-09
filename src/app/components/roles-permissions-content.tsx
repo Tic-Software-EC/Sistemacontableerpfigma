@@ -2,9 +2,9 @@ import { useState } from "react";
 import {
   Plus, Search, Edit2, Trash2, X, Save, Shield,
   Eye, FilePlus, Edit, Trash, FileDown,
-  CheckCircle2, Users, Lock, Settings, Filter,
+  CheckCircle2, Users, Lock, Settings, Filter, ChevronDown, ChevronRight,
 } from "lucide-react";
-import { useRoles, SystemRole, Permission } from "../contexts/roles-context";
+import { useRoles, SystemRole, Permission, MODULE_STRUCTURE, ModulePermission, MenuPermission } from "../contexts/roles-context";
 import { useTheme } from "../contexts/theme-context";
 import React from "react";
 
@@ -37,14 +37,31 @@ export function RolesPermissionsContent() {
   const [showViewModal, setShowViewModal]     = useState(false);
   const [selectedRole, setSelectedRole]       = useState<Role | null>(null);
   const [showCopyModal, setShowCopyModal]     = useState(false);
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   const emptyPerms = () =>
     modules.map((module) => ({
       module, view: false, create: false, edit: false, delete: false, export: false,
     }));
 
+  const emptyModulePerms = (): ModulePermission[] =>
+    MODULE_STRUCTURE.map(moduleStruct => ({
+      module: moduleStruct.module,
+      menus: moduleStruct.menus.map(menu => ({
+        menu,
+        view: false,
+        create: false,
+        edit: false,
+        delete: false,
+        export: false
+      }))
+    }));
+
   const [formData, setFormData] = useState({
-    name: "", description: "", permissions: emptyPerms(),
+    name: "", 
+    description: "", 
+    permissions: emptyPerms(),
+    modulePermissions: emptyModulePerms()
   });
 
   // ── Filtrado ───────────────────────────────────────────────────────────────
@@ -56,8 +73,8 @@ export function RolesPermissionsContent() {
     return matchSearch && matchType;
   });
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  const resetForm = () => setFormData({ name: "", description: "", permissions: emptyPerms() });
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const resetForm = () => setFormData({ name: "", description: "", permissions: emptyPerms(), modulePermissions: emptyModulePerms() });
   const closeModals = () => {
     setShowCreateModal(false); setShowEditModal(false); setShowCopyModal(false); resetForm();
   };
@@ -105,7 +122,12 @@ export function RolesPermissionsContent() {
   const openViewModal = (role: Role) => { setSelectedRole(role); setShowViewModal(true); };
   const openEditModal = (role: Role) => {
     setSelectedRole(role);
-    setFormData({ name: role.name, description: role.description, permissions: role.permissions });
+    setFormData({ 
+      name: role.name, 
+      description: role.description, 
+      permissions: role.permissions,
+      modulePermissions: role.modulePermissions || emptyModulePerms()
+    });
     setShowEditModal(true);
   };
   const openDeleteModal = (role: Role) => { setSelectedRole(role); setShowDeleteModal(true); };
@@ -290,7 +312,7 @@ export function RolesPermissionsContent() {
       {/* ══ Modal Ver Permisos ══════════════════════════════════════════════════ */}
       {showViewModal && selectedRole && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-2xl ${modal} max-h-[90vh] overflow-y-auto`}>
+          <div className={`w-full max-w-3xl ${modal} max-h-[90vh] overflow-y-auto`}>
 
             {/* Header */}
             <div className={`sticky top-0 z-10 border-b ${divB} px-6 py-4 flex items-center justify-between rounded-t-2xl ${isLight ? "bg-white" : "bg-[#0D1B2A]"}`}>
@@ -313,49 +335,96 @@ export function RolesPermissionsContent() {
 
             {/* Body */}
             <div className="p-6">
-              <div className={`border rounded-xl overflow-hidden ${isLight ? "border-gray-200" : "border-white/10"}`}>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className={`border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-black/20 border-white/10"}`}>
-                        <th className={`text-left text-xs font-semibold p-3 ${sub}`}>Módulo</th>
-                        {[
-                          { icon: <Eye className="w-3.5 h-3.5" />,      label: "Ver"      },
-                          { icon: <FilePlus className="w-3.5 h-3.5" />, label: "Crear"    },
-                          { icon: <Edit className="w-3.5 h-3.5" />,     label: "Editar"   },
-                          { icon: <Trash className="w-3.5 h-3.5" />,    label: "Eliminar" },
-                          { icon: <FileDown className="w-3.5 h-3.5" />, label: "Exportar" },
-                        ].map(({ icon, label }) => (
-                          <th key={label} className={`text-center text-xs font-semibold p-3 ${sub}`}>
-                            <div className="flex flex-col items-center gap-0.5">{icon}<span>{label}</span></div>
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className={`divide-y ${divB}`}>
-                      {selectedRole.permissions.map((perm, idx) => (
-                        <tr key={idx} className={`transition-colors ${hoverRow}`}>
-                          <td className={`p-3 text-sm font-medium ${txt}`}>{perm.module}</td>
-                          {(["view","create","edit","delete","export"] as const).map(f => (
-                            <td key={f} className="text-center p-3">
-                              {perm[f]
-                                ? <CheckCircle2 className="w-4 h-4 text-green-500 mx-auto" />
-                                : <span className={`block w-3 h-3 mx-auto rounded-full border ${isLight ? "border-gray-200" : "border-white/10"}`} />
-                              }
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-primary" />
                 </div>
+                <h4 className={`font-bold text-sm ${txt}`}>Permisos Configurados por Módulo y Menú</h4>
+              </div>
+
+              {/* Lista de módulos expandibles */}
+              <div className="space-y-3">
+                {(selectedRole.modulePermissions || emptyModulePerms()).map((modulePerm, moduleIdx) => {
+                  const isExpanded = expandedModules.has(modulePerm.module);
+                  const moduleStruct = MODULE_STRUCTURE.find(m => m.module === modulePerm.module);
+                  
+                  // Contar permisos activos del módulo
+                  const activePerms = modulePerm.menus.reduce((acc, menu) => 
+                    acc + [menu.view, menu.create, menu.edit, menu.delete, menu.export].filter(Boolean).length, 0
+                  );
+                  const totalPerms = modulePerm.menus.length * 5;
+                  
+                  return (
+                    <div key={modulePerm.module} className={`border rounded-xl overflow-hidden ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                      {/* Header del módulo */}
+                      <button
+                        onClick={() => {
+                          const newExpanded = new Set(expandedModules);
+                          if (isExpanded) newExpanded.delete(modulePerm.module);
+                          else newExpanded.add(modulePerm.module);
+                          setExpandedModules(newExpanded);
+                        }}
+                        className={`w-full px-4 py-3 flex items-center justify-between transition-colors ${isLight ? "bg-gray-50 hover:bg-gray-100" : "bg-white/[0.03] hover:bg-white/[0.05]"}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {isExpanded ? <ChevronDown className={`w-4 h-4 ${sub}`} /> : <ChevronRight className={`w-4 h-4 ${sub}`} />}
+                          <Settings className="w-4 h-4 text-primary" />
+                          <span className={`text-sm font-semibold ${txt}`}>{modulePerm.module}</span>
+                          <span className={`text-xs ${sub}`}>({modulePerm.menus.length} menús)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-medium ${activePerms > 0 ? "text-green-500" : sub}`}>
+                            {activePerms} de {totalPerms} permisos
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* Menús del módulo (expandible) */}
+                      {isExpanded && (
+                        <div className={`border-t ${divB}`}>
+                          <table className="w-full">
+                            <thead>
+                              <tr className={`border-b ${isLight ? "bg-white border-gray-200" : "bg-white/[0.02] border-white/10"}`}>
+                                <th className={`text-left text-xs font-semibold p-3 pl-12 ${sub}`}>Menú</th>
+                                {[["Ver", Eye], ["Crear", FilePlus], ["Editar", Edit], ["Eliminar", Trash], ["Exportar", FileDown]].map(([label, Icon]: any) => (
+                                  <th key={label} className={`text-center text-xs font-semibold p-2 ${sub}`}>
+                                    <div className="flex flex-col items-center gap-0.5">
+                                      <Icon className="w-3 h-3" />
+                                      <span className="text-[10px]">{label}</span>
+                                    </div>
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody className={`divide-y ${divB}`}>
+                              {modulePerm.menus.map((menuPerm, menuIdx) => (
+                                <tr key={menuPerm.menu} className={`transition-colors ${hoverRow}`}>
+                                  <td className={`p-3 pl-12 text-sm ${txt}`}>{menuPerm.menu}</td>
+                                  {(["view","create","edit","delete","export"] as const).map(field => (
+                                    <td key={field} className="text-center p-2">
+                                      {menuPerm[field] ? (
+                                        <CheckCircle2 className="w-4 h-4 text-green-500 mx-auto" />
+                                      ) : (
+                                        <span className={`block w-3 h-3 mx-auto rounded-full border-2 ${isLight ? "border-gray-200" : "border-white/10"}`} />
+                                      )}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             {/* Footer */}
             <div className={`sticky bottom-0 border-t ${divB} px-6 py-4 flex justify-between items-center rounded-b-2xl ${isLight ? "bg-white" : "bg-[#0D1B2A]"}`}>
               <p className={`text-xs ${sub}`}>
-                <span className="font-semibold text-green-500">{permCount(selectedRole)}</span> de {permTotal(selectedRole)} permisos activos
+                Rol: <span className={`font-semibold ${txt}`}>{selectedRole.name}</span>
               </p>
               <div className="flex gap-3">
                 <button
@@ -397,78 +466,124 @@ export function RolesPermissionsContent() {
             </div>
 
             {/* Body */}
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-6">
+              {/* ═══ SECCIÓN 1: DATOS DEL ROL ═══ */}
               <div>
-                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Nombre del Rol <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Ej: Gerente de Ventas"
-                  className={IN}
-                />
-              </div>
-              <div>
-                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Descripción <span className="text-red-500">*</span></label>
-                <textarea
-                  value={formData.description}
-                  onChange={e => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe las responsabilidades de este rol..."
-                  rows={3}
-                  className={`${IN} resize-none`}
-                />
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-blue-500/15 rounded-lg flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <h4 className={`font-bold text-sm ${txt}`}>Información del Rol</h4>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Nombre del Rol <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Ej: Gerente de Ventas"
+                      className={IN}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Descripción <span className="text-red-500">*</span></label>
+                    <textarea
+                      value={formData.description}
+                      onChange={e => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Describe las responsabilidades de este rol..."
+                      rows={3}
+                      className={`${IN} resize-none`}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Tabla permisos */}
+              {/* Separador */}
+              <div className={`border-t ${divB}`}></div>
+
+              {/* ═══ SECCIÓN 2: PERMISOS POR MÓDULO Y MENÚ ═══ */}
               <div>
-                <label className={`block mb-2 text-xs font-medium ${lbl}`}>Configurar Permisos</label>
-                <div className={`border rounded-xl overflow-hidden ${isLight ? "border-gray-200" : "border-white/10"}`}>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className={`border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-black/20 border-white/10"}`}>
-                          <th className={`text-left text-xs font-semibold p-3 ${sub}`}>Módulo</th>
-                          {[["Ver", Eye], ["Crear", FilePlus], ["Editar", Edit], ["Eliminar", Trash], ["Exportar", FileDown]].map(([label, Icon]: any) => (
-                            <th key={label} className={`text-center text-xs font-semibold p-3 ${sub}`}>
-                              <div className="flex flex-col items-center gap-0.5">
-                                <Icon className="w-3.5 h-3.5" />
-                                <span>{label}</span>
-                              </div>
-                            </th>
-                          ))}
-                          <th className={`text-center text-xs font-semibold p-3 ${sub}`}>Todos</th>
-                        </tr>
-                      </thead>
-                      <tbody className={`divide-y ${divB}`}>
-                        {formData.permissions.map((perm, idx) => {
-                          const allChecked = perm.view && perm.create && perm.edit && perm.delete && perm.export;
-                          return (
-                            <tr key={idx} className={`transition-colors ${hoverRow}`}>
-                              <td className={`p-3 text-sm font-medium ${txt}`}>{perm.module}</td>
-                              {(["view","create","edit","delete","export"] as const).map(f => (
-                                <td key={f} className="text-center p-3">
-                                  <input
-                                    type="checkbox"
-                                    checked={perm[f]}
-                                    onChange={e => updatePermission(idx, f, e.target.checked)}
-                                    className="w-4 h-4 rounded accent-primary cursor-pointer"
-                                  />
-                                </td>
-                              ))}
-                              <td className="text-center p-3">
-                                <button
-                                  onClick={() => toggleAllPermissions(idx, !allChecked)}
-                                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${allChecked ? "bg-primary/20 text-primary hover:bg-primary/30" : isLight ? "bg-gray-100 text-gray-500 hover:bg-gray-200" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
-                                >
-                                  {allChecked ? "Quitar" : "Todo"}
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+                    <Lock className="w-4 h-4 text-primary" />
                   </div>
+                  <h4 className={`font-bold text-sm ${txt}`}>Configurar Permisos por Módulo y Menú</h4>
+                </div>
+
+                {/* Lista de módulos expandibles */}
+                <div className="space-y-3">
+                  {formData.modulePermissions.map((modulePerm, moduleIdx) => {
+                    const isExpanded = expandedModules.has(modulePerm.module);
+                    const moduleStruct = MODULE_STRUCTURE.find(m => m.module === modulePerm.module);
+                    
+                    return (
+                      <div key={modulePerm.module} className={`border rounded-xl overflow-hidden ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                        {/* Header del módulo */}
+                        <button
+                          onClick={() => {
+                            const newExpanded = new Set(expandedModules);
+                            if (isExpanded) newExpanded.delete(modulePerm.module);
+                            else newExpanded.add(modulePerm.module);
+                            setExpandedModules(newExpanded);
+                          }}
+                          className={`w-full px-4 py-3 flex items-center justify-between transition-colors ${isLight ? "bg-gray-50 hover:bg-gray-100" : "bg-white/[0.03] hover:bg-white/[0.05]"}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {isExpanded ? <ChevronDown className={`w-4 h-4 ${sub}`} /> : <ChevronRight className={`w-4 h-4 ${sub}`} />}
+                            <Settings className="w-4 h-4 text-primary" />
+                            <span className={`text-sm font-semibold ${txt}`}>{modulePerm.module}</span>
+                            <span className={`text-xs ${sub}`}>({modulePerm.menus.length} menús)</span>
+                          </div>
+                        </button>
+
+                        {/* Menús del módulo (expandible) */}
+                        {isExpanded && (
+                          <div className={`border-t ${divB}`}>
+                            <table className="w-full">
+                              <thead>
+                                <tr className={`border-b ${isLight ? "bg-white border-gray-200" : "bg-white/[0.02] border-white/10"}`}>
+                                  <th className={`text-left text-xs font-semibold p-3 pl-12 ${sub}`}>Menú</th>
+                                  {[["Ver", Eye], ["Crear", FilePlus], ["Editar", Edit], ["Eliminar", Trash], ["Exportar", FileDown]].map(([label, Icon]: any) => (
+                                    <th key={label} className={`text-center text-xs font-semibold p-2 ${sub}`}>
+                                      <div className="flex flex-col items-center gap-0.5">
+                                        <Icon className="w-3 h-3" />
+                                        <span className="text-[10px]">{label}</span>
+                                      </div>
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody className={`divide-y ${divB}`}>
+                                {modulePerm.menus.map((menuPerm, menuIdx) => (
+                                  <tr key={menuPerm.menu} className={`transition-colors ${hoverRow}`}>
+                                    <td className={`p-3 pl-12 text-sm ${txt}`}>{menuPerm.menu}</td>
+                                    {(["view","create","edit","delete","export"] as const).map(field => (
+                                      <td key={field} className="text-center p-2">
+                                        <input
+                                          type="checkbox"
+                                          checked={menuPerm[field]}
+                                          onChange={e => {
+                                            const newModulePerms = [...formData.modulePermissions];
+                                            newModulePerms[moduleIdx].menus[menuIdx] = {
+                                              ...menuPerm,
+                                              [field]: e.target.checked
+                                            };
+                                            setFormData({ ...formData, modulePermissions: newModulePerms });
+                                          }}
+                                          className="w-4 h-4 rounded accent-primary cursor-pointer"
+                                        />
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

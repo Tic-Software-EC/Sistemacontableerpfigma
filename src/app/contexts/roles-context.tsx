@@ -1,6 +1,20 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 // ── Tipos compartidos ─────────────────────────────────────────────────────────
+export interface MenuPermission {
+  menu: string;
+  view: boolean;
+  create: boolean;
+  edit: boolean;
+  delete: boolean;
+  export: boolean;
+}
+
+export interface ModulePermission {
+  module: string;
+  menus: MenuPermission[];
+}
+
 export interface Permission {
   module: string;
   view: boolean;
@@ -18,10 +32,76 @@ export interface SystemRole {
   type: "predefined" | "custom";
   usersCount: number;
   permissions: Permission[];
+  modulePermissions?: ModulePermission[]; // Nueva estructura jerárquica
   color: string;
 }
 
-const MODULES = ["Configuración", "Ventas", "Inventario", "Contabilidad", "Compras"];
+// ── Estructura de Módulos y Menús ─────────────────────────────────────────────
+export interface ModuleStructure {
+  module: string;
+  icon: string;
+  menus: string[];
+}
+
+export const MODULE_STRUCTURE: ModuleStructure[] = [
+  {
+    module: "Configuración",
+    icon: "Settings",
+    menus: ["Empresa", "Usuarios", "Roles y Permisos", "Puntos de Venta", "Impuestos", "Formas de Pago"]
+  },
+  {
+    module: "Ventas",
+    icon: "ShoppingCart",
+    menus: ["Clientes", "Cotizaciones", "Facturas", "Notas de Crédito", "Punto de Venta", "Reportes de Ventas"]
+  },
+  {
+    module: "Inventario",
+    icon: "Package",
+    menus: ["Productos", "Categorías", "Bodegas", "Transferencias", "Ajustes de Inventario", "Kardex"]
+  },
+  {
+    module: "Contabilidad",
+    icon: "Calculator",
+    menus: ["Plan de Cuentas", "Asientos Contables", "Libro Diario", "Libro Mayor", "Balance General", "Estado de Resultados"]
+  },
+  {
+    module: "Compras",
+    icon: "ShoppingBag",
+    menus: ["Proveedores", "Órdenes de Compra", "Recepción de Mercadería", "Facturas de Proveedor", "Reportes de Compras"]
+  }
+];
+
+const MODULES = MODULE_STRUCTURE.map(m => m.module);
+
+// Helper para crear permisos vacíos por módulo
+function createEmptyModulePermissions(): ModulePermission[] {
+  return MODULE_STRUCTURE.map(moduleStruct => ({
+    module: moduleStruct.module,
+    menus: moduleStruct.menus.map(menu => ({
+      menu,
+      view: false,
+      create: false,
+      edit: false,
+      delete: false,
+      export: false
+    }))
+  }));
+}
+
+// Helper para crear permisos completos por módulo
+function createFullModulePermissions(): ModulePermission[] {
+  return MODULE_STRUCTURE.map(moduleStruct => ({
+    module: moduleStruct.module,
+    menus: moduleStruct.menus.map(menu => ({
+      menu,
+      view: true,
+      create: true,
+      edit: true,
+      delete: true,
+      export: true
+    }))
+  }));
+}
 
 // ── Roles predefinidos iniciales ──────────────────────────────────────────────
 const INITIAL_ROLES: SystemRole[] = [
@@ -36,6 +116,7 @@ const INITIAL_ROLES: SystemRole[] = [
     permissions: MODULES.map((module) => ({
       module, view: true, create: true, edit: true, delete: true, export: true,
     })),
+    modulePermissions: createFullModulePermissions()
   },
   {
     id: "3",
@@ -52,6 +133,7 @@ const INITIAL_ROLES: SystemRole[] = [
       { module: "Contabilidad",  view: true,  create: true,  edit: true,  delete: true,  export: true  },
       { module: "Compras",       view: true,  create: false, edit: false, delete: false, export: true  },
     ],
+    modulePermissions: createEmptyModulePermissions()
   },
   {
     id: "4",
@@ -68,6 +150,7 @@ const INITIAL_ROLES: SystemRole[] = [
       { module: "Contabilidad",  view: false, create: false, edit: false, delete: false, export: false },
       { module: "Compras",       view: false, create: false, edit: false, delete: false, export: false },
     ],
+    modulePermissions: createEmptyModulePermissions()
   },
   {
     id: "5",
@@ -84,6 +167,7 @@ const INITIAL_ROLES: SystemRole[] = [
       { module: "Contabilidad",  view: false, create: false, edit: false, delete: false, export: false },
       { module: "Compras",       view: false, create: false, edit: false, delete: false, export: false },
     ],
+    modulePermissions: createEmptyModulePermissions()
   },
   {
     id: "6",
@@ -100,6 +184,7 @@ const INITIAL_ROLES: SystemRole[] = [
       { module: "Contabilidad",  view: false, create: false, edit: false, delete: false, export: false },
       { module: "Compras",       view: true,  create: true,  edit: true,  delete: false, export: true  },
     ],
+    modulePermissions: createEmptyModulePermissions()
   },
   {
     id: "7",
@@ -116,6 +201,7 @@ const INITIAL_ROLES: SystemRole[] = [
       { module: "Contabilidad",  view: false, create: false, edit: false, delete: false, export: false },
       { module: "Compras",       view: true,  create: false, edit: false, delete: false, export: false },
     ],
+    modulePermissions: createEmptyModulePermissions()
   },
 ];
 
