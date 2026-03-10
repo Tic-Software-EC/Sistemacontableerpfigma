@@ -1,5 +1,17 @@
 import { useState } from "react";
-import { X, Plus, Trash2, Search, User, ShoppingCart, DollarSign } from "lucide-react";
+import { X, Plus, Trash2, Search, User, ShoppingCart, DollarSign, Package, Grid3x3, Minus, CreditCard, Clock, Pause } from "lucide-react";
+import { 
+  PRODUCTS_CATALOG, 
+  CUSTOMERS, 
+  COMPANY_INFO, 
+  PAYMENT_METHODS,
+  generateDocumentNumber,
+  getCurrentDate,
+  getCurrentTime,
+  getCurrentPeriod,
+  type Product,
+  type Customer
+} from "../data/test-data";
 
 interface InvoiceItem {
   code: string;
@@ -11,15 +23,6 @@ interface InvoiceItem {
   total: number;
 }
 
-interface Product {
-  code: string;
-  name: string;
-  price: number;
-  tax: number;
-  stock: number;
-  category: string;
-}
-
 interface CreateInvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,49 +30,13 @@ interface CreateInvoiceModalProps {
   isLight: boolean;
 }
 
-// Catálogo de productos
-const PRODUCTS_CATALOG: Product[] = [
-  { code: "PROD001", name: "Laptop HP 15-dy Intel Core i5", price: 850.00, tax: 12, stock: 15, category: "Computadoras" },
-  { code: "PROD002", name: "Mouse Logitech MX Master 3", price: 45.00, tax: 12, stock: 50, category: "Accesorios" },
-  { code: "PROD003", name: "Teclado Mecánico RGB Corsair K95", price: 120.00, tax: 12, stock: 25, category: "Accesorios" },
-  { code: "PROD004", name: "Monitor Samsung 24\" Full HD", price: 280.00, tax: 12, stock: 30, category: "Monitores" },
-  { code: "PROD005", name: "Impresora Epson L3210 Multifunción", price: 285.00, tax: 12, stock: 20, category: "Impresoras" },
-  { code: "PROD006", name: "Disco Duro Externo Seagate 2TB", price: 95.00, tax: 12, stock: 40, category: "Almacenamiento" },
-  { code: "PROD007", name: "Memoria RAM DDR4 16GB Kingston", price: 75.00, tax: 12, stock: 60, category: "Componentes" },
-  { code: "PROD008", name: "SSD M.2 NVMe 500GB Samsung", price: 85.00, tax: 12, stock: 35, category: "Almacenamiento" },
-  { code: "PROD009", name: "Webcam Logitech C920 Pro HD", price: 95.00, tax: 12, stock: 28, category: "Accesorios" },
-  { code: "PROD010", name: "Router TP-Link AC1200 Dual Band", price: 65.00, tax: 12, stock: 45, category: "Redes" },
-  { code: "PROD011", name: "Switch Gigabit 8 puertos", price: 85.00, tax: 12, stock: 22, category: "Redes" },
-  { code: "PROD012", name: "UPS APC 1500VA Back-UPS Pro", price: 320.00, tax: 12, stock: 12, category: "Energía" },
-  { code: "PROD013", name: "Proyector Epson EB-X06 3600 Lúmenes", price: 485.00, tax: 12, stock: 8, category: "Proyección" },
-  { code: "PROD014", name: "Pantalla de Proyección 100\" Portátil", price: 125.00, tax: 12, stock: 15, category: "Proyección" },
-  { code: "PROD015", name: "Audífonos Sony WH-1000XM4 Bluetooth", price: 320.00, tax: 12, stock: 18, category: "Audio" },
-  { code: "SERV001", name: "Consultoría IT - Hora", price: 60.00, tax: 12, stock: 999, category: "Servicios" },
-  { code: "SERV002", name: "Soporte Técnico - Mensual", price: 150.00, tax: 12, stock: 999, category: "Servicios" },
-  { code: "SERV003", name: "Instalación y Configuración", price: 80.00, tax: 12, stock: 999, category: "Servicios" },
-];
-
-// Clientes
-const CUSTOMERS = [
-  { name: "Corporación Favorita C.A.", ruc: "1790016919001", address: "Av. General Enríquez km 4.5, Sangolquí", email: "facturacion@favorita.com", phone: "02-3456789" },
-  { name: "Importadora del Pacífico Cía. Ltda.", ruc: "1712345678001", address: "Av. de las Américas y José Mascote, Guayaquil", email: "info@importadorapacifico.com", phone: "04-2567890" },
-  { name: "Distribuidora El Sol S.A.", ruc: "1891234567001", address: "Calle Bolívar 234 y Rocafuerte, Cuenca", email: "ventas@elsol.com.ec", phone: "07-2890123" },
-  { name: "Comercial Andina Ltda.", ruc: "0992345678001", address: "Av. 6 de Diciembre N34-45, Quito", email: "compras@andina.ec", phone: "02-2445566" },
-  { name: "Supermercados La Rebaja S.A.", ruc: "1790345678001", address: "Av. Maldonado S15-78, Quito", email: "facturacion@larebaja.com", phone: "02-2667788" },
-  { name: "Ferretería Industrial S.A.", ruc: "1791456789001", address: "Av. Mariscal Sucre Km 7.5, Quito", email: "ventas@ferreteriaind.com", phone: "02-2334455" },
-  { name: "Tecnología Avanzada Cía. Ltda.", ruc: "1792567890001", address: "Av. González Suárez N27-142, Quito", email: "compras@tecnoavanzada.ec", phone: "02-2998877" },
-  { name: "Almacenes Japón S.A.", ruc: "1790567890001", address: "Av. Amazonas y Naciones Unidas, Quito", email: "facturas@almjapon.com", phone: "02-2556677" },
-  { name: "Megamaxi S.A.", ruc: "1790987654001", address: "Av. 6 de Diciembre y Eloy Alfaro, Quito", email: "proveedores@megamaxi.com", phone: "02-2443322" },
-  { name: "TecnoComputer S.A.", ruc: "1790123456001", address: "Av. América N35-87, Quito", email: "info@tecnocomputer.com", phone: "02-2456789" },
-];
-
 export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateInvoiceModalProps) {
   const [customerSearch, setCustomerSearch] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showCustomerList, setShowCustomerList] = useState(false);
   
   const [productSearch, setProductSearch] = useState("");
-  const [showProductList, setShowProductList] = useState(false);
+  const [showCatalog, setShowCatalog] = useState(false);
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("cash");
 
@@ -88,17 +55,14 @@ export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateI
 
   // Agregar producto desde el catálogo
   const addProduct = (product: Product) => {
-    // Verificar si el producto ya está en la lista
     const existingIndex = items.findIndex(item => item.code === product.code);
     
     if (existingIndex >= 0) {
-      // Si ya existe, incrementar cantidad
       const newItems = [...items];
       newItems[existingIndex].quantity += 1;
       newItems[existingIndex].total = newItems[existingIndex].quantity * newItems[existingIndex].price - newItems[existingIndex].discount;
       setItems(newItems);
     } else {
-      // Si no existe, agregar nuevo
       const newItem: InvoiceItem = {
         code: product.code,
         name: product.name,
@@ -112,7 +76,7 @@ export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateI
     }
     
     setProductSearch("");
-    setShowProductList(false);
+    setShowCatalog(false);
   };
 
   // Actualizar cantidad
@@ -124,26 +88,30 @@ export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateI
     setItems(newItems);
   };
 
-  // Actualizar descuento
-  const updateDiscount = (index: number, discount: number) => {
-    if (discount < 0) return;
-    const newItems = [...items];
-    newItems[index].discount = discount;
-    newItems[index].total = newItems[index].quantity * newItems[index].price - discount;
-    setItems(newItems);
+  // Incrementar/Decrementar cantidad
+  const incrementQuantity = (index: number) => {
+    updateQuantity(index, items[index].quantity + 1);
+  };
+
+  const decrementQuantity = (index: number) => {
+    if (items[index].quantity > 1) {
+      updateQuantity(index, items[index].quantity - 1);
+    }
   };
 
   const removeItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
   };
 
+  const clearCart = () => {
+    setItems([]);
+  };
+
   // Cálculos
-  const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
   const totalDiscount = items.reduce((sum, item) => sum + item.discount, 0);
-  const subtotal12 = items.reduce((sum, item) => item.tax === 12 ? sum + item.total : sum, 0);
-  const subtotal0 = items.reduce((sum, item) => item.tax === 0 ? sum + item.total : sum, 0);
-  const tax = subtotal12 * 0.12;
-  const total = subtotal12 + subtotal0 + tax;
+  const tax = subtotal * 0.15; // IVA 15% como en la imagen
+  const total = subtotal + tax;
 
   const handleSave = () => {
     if (!selectedCustomer) {
@@ -155,12 +123,14 @@ export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateI
       return;
     }
 
-    const now = new Date();
+    const subtotal12 = items.reduce((sum, item) => item.tax === 12 ? sum + item.total : sum, 0);
+    const subtotal0 = items.reduce((sum, item) => item.tax === 0 ? sum + item.total : sum, 0);
+
     const invoice = {
       id: Date.now().toString(),
-      invoiceNumber: `001-001-${String(Math.floor(Math.random() * 900000) + 100000).padStart(9, "0")}`,
-      date: now.toISOString().split("T")[0],
-      time: now.toTimeString().split(" ")[0].substring(0, 5),
+      invoiceNumber: generateDocumentNumber("01"),
+      date: getCurrentDate(),
+      time: getCurrentTime(),
       customer: selectedCustomer,
       items,
       subtotal,
@@ -174,13 +144,13 @@ export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateI
       seller: "Usuario Actual",
       branch: "Sucursal Centro",
       sriStatus: "pending",
-      emisor_razon: "TICSOFTEC S.A.",
-      emisor_dir: "Av. Principal 123",
-      emisor_ruc: "1790012345001",
-      emisor_telefono: "02-2345678",
-      emisor_email: "info@ticsoftec.com",
+      emisor_razon: COMPANY_INFO.razon_social,
+      emisor_dir: COMPANY_INFO.address,
+      emisor_ruc: COMPANY_INFO.ruc,
+      emisor_telefono: COMPANY_INFO.phone,
+      emisor_email: COMPANY_INFO.email,
       ambiente: "Pruebas",
-      periodo_fiscal: `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`,
+      periodo_fiscal: getCurrentPeriod(),
     };
 
     onSave(invoice);
@@ -191,66 +161,59 @@ export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateI
     setItems([]);
     setProductSearch("");
     setPaymentMethod("cash");
+    setShowCatalog(false);
+    onClose();
+  };
+
+  // Manejar tecla F3
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "F3") {
+      e.preventDefault();
+      setShowCatalog(!showCatalog);
+    }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className={`w-full max-w-6xl max-h-[90vh] rounded-xl shadow-2xl flex flex-col ${isLight ? "bg-white" : "bg-[#0d1724]"}`}>
-        {/* Header */}
-        <div className={`flex items-center justify-between px-6 py-4 border-b ${isLight ? "border-gray-200 bg-gradient-to-r from-primary/5 to-primary/10" : "border-white/10 bg-gradient-to-r from-primary/10 to-primary/5"}`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg">
-              <ShoppingCart className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                Punto de Venta - Nueva Factura
-              </h2>
-              <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                Busque cliente y productos para generar la factura
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"}`}
-          >
-            <X className={`w-5 h-5 ${isLight ? "text-gray-500" : "text-gray-400"}`} />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-hidden flex gap-4 p-6">
-          {/* Panel Izquierdo: Productos y Cliente */}
-          <div className="flex-1 flex flex-col gap-4 min-w-0">
-            
-            {/* Búsqueda de Cliente */}
-            <div>
-              <label className={`block text-xs font-bold mb-2 uppercase tracking-wide flex items-center gap-2 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                <User className="w-4 h-4" />
-                Cliente
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+    <>
+      {/* Modal Principal */}
+      <div 
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        onKeyDown={handleKeyDown}
+        tabIndex={-1}
+      >
+        <div className={`w-full max-w-5xl max-h-[92vh] rounded-xl shadow-2xl flex flex-col ${isLight ? "bg-white" : "bg-[#0d1724]"}`}>
+          
+          {/* Header con búsqueda de cliente */}
+          <div className={`px-6 py-4 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+            <div className="flex items-center gap-4">
+              <div className="flex-1 relative">
+                <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isLight ? "text-gray-400" : "text-gray-500"}`} />
                 <input
                   type="text"
-                  placeholder="Buscar por nombre o RUC..."
+                  placeholder={selectedCustomer ? selectedCustomer.name : "Buscar cliente por nombre o RUC..."}
                   value={customerSearch}
                   onChange={(e) => {
                     setCustomerSearch(e.target.value);
                     setShowCustomerList(true);
+                    if (selectedCustomer && e.target.value !== selectedCustomer.name) {
+                      setSelectedCustomer(null);
+                    }
                   }}
-                  onFocus={() => setShowCustomerList(true)}
-                  className={`w-full pl-10 pr-3 py-2.5 border-2 rounded-lg text-sm transition-all ${
-                    selectedCustomer 
-                      ? "border-green-500 bg-green-50" 
-                      : isLight ? "bg-white border-gray-300 text-gray-900 focus:border-primary" : "bg-[#1a2332] border-white/10 text-white focus:border-primary"
+                  onFocus={() => !selectedCustomer && setShowCustomerList(true)}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm font-medium transition-all ${
+                    selectedCustomer
+                      ? isLight 
+                        ? "bg-green-50 border-green-500 text-gray-900" 
+                        : "bg-green-500/10 border-green-500 text-white"
+                      : isLight 
+                        ? "bg-gray-50 border-gray-300 text-gray-900 focus:border-primary" 
+                        : "bg-[#1a2332] border-white/10 text-white focus:border-primary"
                   }`}
                 />
                 {showCustomerList && customerSearch && filteredCustomers.length > 0 && !selectedCustomer && (
-                  <div className={`absolute z-20 w-full mt-1 border-2 rounded-lg shadow-xl max-h-64 overflow-y-auto ${isLight ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"}`}>
+                  <div className={`absolute z-20 w-full mt-2 border rounded-lg shadow-2xl max-h-72 overflow-y-auto ${isLight ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"}`}>
                     {filteredCustomers.map((customer, idx) => (
                       <button
                         key={idx}
@@ -259,271 +222,254 @@ export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateI
                           setCustomerSearch(customer.name);
                           setShowCustomerList(false);
                         }}
-                        className={`w-full text-left px-4 py-3 text-sm transition-colors border-b ${
+                        className={`w-full text-left px-4 py-3 text-sm transition-colors border-b last:border-b-0 ${
                           isLight 
                             ? "hover:bg-primary/5 border-gray-100" 
                             : "hover:bg-white/5 border-white/5"
                         }`}
                       >
-                        <div className={`font-bold ${isLight ? "text-gray-900" : "text-white"}`}>{customer.name}</div>
+                        <div className={`font-semibold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>{customer.name}</div>
                         <div className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                          RUC: {customer.ruc} • {customer.address}
+                          RUC/CI: {customer.ruc} • {customer.email}
                         </div>
                       </button>
                     ))}
                   </div>
                 )}
               </div>
+              
               {selectedCustomer && (
-                <div className={`mt-2 p-3 rounded-lg border-2 border-green-500 text-xs ${isLight ? "bg-green-50" : "bg-green-500/10"}`}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className={`font-bold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>{selectedCustomer.name}</div>
-                      <div className={isLight ? "text-gray-700" : "text-gray-300"}>RUC: {selectedCustomer.ruc}</div>
-                      <div className={isLight ? "text-gray-600" : "text-gray-400"}>{selectedCustomer.address}</div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedCustomer(null);
-                        setCustomerSearch("");
-                      }}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+                <button
+                  onClick={() => {
+                    setSelectedCustomer(null);
+                    setCustomerSearch("");
+                  }}
+                  className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-red-50 text-red-600" : "hover:bg-red-500/10 text-red-500"}`}
+                  title="Quitar cliente"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               )}
             </div>
-
-            {/* Búsqueda de Productos */}
-            <div className="flex-1 flex flex-col min-h-0">
-              <label className={`block text-xs font-bold mb-2 uppercase tracking-wide flex items-center gap-2 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                <ShoppingCart className="w-4 h-4" />
-                Buscar Productos
-              </label>
-              <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar por código, nombre o categoría..."
-                  value={productSearch}
-                  onChange={(e) => {
-                    setProductSearch(e.target.value);
-                    setShowProductList(true);
-                  }}
-                  onFocus={() => setShowProductList(true)}
-                  className={`w-full pl-10 pr-3 py-2.5 border-2 rounded-lg text-sm transition-all ${isLight ? "bg-white border-gray-300 text-gray-900 focus:border-primary" : "bg-[#1a2332] border-white/10 text-white focus:border-primary"}`}
-                />
+            
+            {/* Información del Cliente Seleccionado */}
+            {selectedCustomer && (
+              <div className={`mt-3 p-3 rounded-lg border-2 ${isLight ? "bg-green-50 border-green-500" : "bg-green-500/10 border-green-500"}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <User className="w-4 h-4 text-green-600" />
+                      <div className={`font-bold text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                        {selectedCustomer.name}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className={isLight ? "text-gray-700" : "text-gray-300"}>
+                        <span className="font-medium">RUC/CI:</span> {selectedCustomer.ruc}
+                      </div>
+                      <div className={isLight ? "text-gray-700" : "text-gray-300"}>
+                        <span className="font-medium">Teléfono:</span> {selectedCustomer.phone}
+                      </div>
+                      <div className={`col-span-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="font-medium">Dirección:</span> {selectedCustomer.address}
+                      </div>
+                      <div className={`col-span-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="font-medium">Email:</span> {selectedCustomer.email}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedCustomer(null);
+                      setCustomerSearch("");
+                    }}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-100 rounded p-1 transition-colors"
+                    title="Cambiar cliente"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
+            )}
+          </div>
 
-              {/* Catálogo de Productos */}
-              {showProductList && productSearch && (
-                <div className={`flex-1 border-2 rounded-lg overflow-hidden flex flex-col ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#1a2332]"}`}>
-                  <div className={`px-3 py-2 border-b text-xs font-bold uppercase ${isLight ? "bg-gray-200 text-gray-700 border-gray-300" : "bg-[#0d1724] text-gray-400 border-white/10"}`}>
-                    {filteredProducts.length} productos encontrados
-                  </div>
-                  <div className="flex-1 overflow-y-auto">
-                    {filteredProducts.map((product) => (
-                      <button
-                        key={product.code}
-                        onClick={() => addProduct(product)}
-                        className={`w-full text-left px-3 py-2.5 border-b transition-colors ${
-                          isLight 
-                            ? "hover:bg-primary/5 border-gray-200" 
-                            : "hover:bg-white/5 border-white/5"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`font-mono font-bold text-xs px-2 py-0.5 rounded ${isLight ? "bg-primary/10 text-primary" : "bg-primary/20 text-primary"}`}>
-                                {product.code}
-                              </span>
-                              <span className={`text-xs px-2 py-0.5 rounded ${isLight ? "bg-gray-200 text-gray-700" : "bg-white/10 text-gray-400"}`}>
-                                {product.category}
-                              </span>
-                            </div>
-                            <div className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
-                              {product.name}
-                            </div>
-                            <div className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                              Stock: {product.stock} unidades
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className={`font-bold text-base ${isLight ? "text-primary" : "text-primary"}`}>
-                              ${product.price.toFixed(2)}
-                            </div>
-                            <div className={`text-xs ${isLight ? "text-gray-500" : "text-gray-500"}`}>
-                              +IVA {product.tax}%
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Mensaje inicial */}
-              {!productSearch && (
-                <div className={`flex-1 border-2 border-dashed rounded-lg flex items-center justify-center ${isLight ? "border-gray-300 bg-gray-50" : "border-white/10 bg-[#1a2332]/50"}`}>
-                  <div className="text-center">
-                    <Search className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
-                    <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>
-                      Busque productos para agregar a la factura
-                    </p>
-                  </div>
-                </div>
-              )}
+          {/* Carrito Header */}
+          <div className={`px-6 py-3 border-b flex items-center justify-between ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0a0f1a]"}`}>
+            <div className="flex items-center gap-2">
+              <ShoppingCart className={`w-3.5 h-3.5 ${isLight ? "text-primary" : "text-primary"}`} />
+              <span className={`font-bold text-xs ${isLight ? "text-gray-900" : "text-white"}`}>
+                Carrito
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isLight ? "bg-gray-200 text-gray-700" : "bg-white/10 text-gray-300"}`}>
+                {items.length}
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowCatalog(true)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${isLight ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50" : "bg-[#1a2332] border-white/10 text-gray-300 hover:bg-white/5"}`}
+              >
+                <Grid3x3 className="w-3 h-3" />
+                Catálogo
+                <kbd className={`px-1.5 py-0.5 rounded text-[9px] font-mono ${isLight ? "bg-gray-200" : "bg-white/10"}`}>
+                  F3
+                </kbd>
+              </button>
+              
+              <button
+                onClick={clearCart}
+                disabled={items.length === 0}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
+                  items.length === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                } ${isLight ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50" : "bg-[#1a2332] border-white/10 text-gray-300 hover:bg-white/5"}`}
+              >
+                <Trash2 className="w-3 h-3" />
+                Limpiar
+              </button>
             </div>
           </div>
 
-          {/* Panel Derecho: Carrito y Totales */}
-          <div className={`w-[420px] flex flex-col border-2 rounded-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#1a2332]"}`}>
-            {/* Header del carrito */}
-            <div className={`px-4 py-3 border-b ${isLight ? "bg-gray-200 border-gray-300" : "bg-[#0d1724] border-white/10"}`}>
-              <div className="flex items-center justify-between">
-                <span className={`text-sm font-bold uppercase ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                  Carrito de Compras
-                </span>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${isLight ? "bg-primary text-white" : "bg-primary text-white"}`}>
-                  {items.length} items
-                </span>
-              </div>
-            </div>
-
-            {/* Lista de items */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
-              {items.length > 0 ? (
-                items.map((item, idx) => (
-                  <div key={idx} className={`p-3 rounded-lg border ${isLight ? "bg-white border-gray-200" : "bg-[#0d1724] border-white/10"}`}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0 pr-2">
-                        <div className={`font-mono text-xs font-bold mb-1 ${isLight ? "text-primary" : "text-primary"}`}>
-                          {item.code}
+          {/* Tabla de Items */}
+          <div className="flex-1 overflow-y-auto">
+            {items.length > 0 ? (
+              <table className="w-full">
+                <thead className={`sticky top-0 ${isLight ? "bg-gray-100 border-b border-gray-200" : "bg-[#0a0f1a] border-b border-white/10"}`}>
+                  <tr>
+                    <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Código
+                    </th>
+                    <th className={`px-6 py-3 text-left text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Producto
+                    </th>
+                    <th className={`px-6 py-3 text-center text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Cantidad
+                    </th>
+                    <th className={`px-6 py-3 text-right text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      P. Unit.
+                    </th>
+                    <th className={`px-6 py-3 text-right text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Total
+                    </th>
+                    <th className="px-6 py-3 w-12"></th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/10"}`}>
+                  {items.map((item, idx) => (
+                    <tr key={idx} className={`${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"} transition-colors`}>
+                      <td className={`px-6 py-4 text-sm font-mono font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                        {item.code}
+                      </td>
+                      <td className={`px-6 py-4 text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                        {item.name}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => decrementQuantity(idx)}
+                            className={`w-7 h-7 flex items-center justify-center rounded border transition-colors ${isLight ? "bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-700" : "bg-[#1a2332] border-white/10 hover:bg-white/10 text-gray-300"}`}
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className={`w-10 text-center font-bold text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => incrementQuantity(idx)}
+                            className={`w-7 h-7 flex items-center justify-center rounded border transition-colors ${isLight ? "bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-700" : "bg-[#1a2332] border-white/10 hover:bg-white/10 text-gray-300"}`}
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
                         </div>
-                        <div className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                          {item.name}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => removeItem(idx)}
-                        className="text-red-600 hover:text-red-700 p-1"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div>
-                        <label className={`block mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>Cant.</label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          onChange={(e) => updateQuantity(idx, parseInt(e.target.value) || 1)}
-                          className={`w-full px-2 py-1 border rounded text-center font-bold ${isLight ? "bg-white border-gray-300" : "bg-[#1a2332] border-white/10 text-white"}`}
-                        />
-                      </div>
-                      <div>
-                        <label className={`block mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>P. Unit</label>
-                        <div className={`px-2 py-1 border rounded text-center font-mono ${isLight ? "bg-gray-100 border-gray-300 text-gray-700" : "bg-white/5 border-white/10 text-gray-300"}`}>
-                          ${item.price.toFixed(2)}
-                        </div>
-                      </div>
-                      <div>
-                        <label className={`block mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>Desc.</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={item.discount}
-                          onChange={(e) => updateDiscount(idx, parseFloat(e.target.value) || 0)}
-                          className={`w-full px-2 py-1 border rounded text-center ${isLight ? "bg-white border-gray-300" : "bg-[#1a2332] border-white/10 text-white"}`}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className={`mt-2 pt-2 border-t flex justify-between items-center ${isLight ? "border-gray-200" : "border-white/10"}`}>
-                      <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>Subtotal:</span>
-                      <span className={`font-bold text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                      </td>
+                      <td className={`px-6 py-4 text-sm text-right font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
+                        ${item.price.toFixed(2)}
+                      </td>
+                      <td className={`px-6 py-4 text-sm text-right font-mono font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
                         ${item.total.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full py-12">
-                  <ShoppingCart className={`w-16 h-16 mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
-                  <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>
-                    Carrito vacío
-                  </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => removeItem(idx)}
+                          className="text-gray-400 hover:text-red-600 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full py-20">
+                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-4 ${isLight ? "bg-gray-100" : "bg-white/5"}`}>
+                  <ShoppingCart className={`w-10 h-10 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
                 </div>
-              )}
-            </div>
+                <h3 className={`text-base font-bold mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  El carrito está vacío
+                </h3>
+                <p className={`text-sm text-center mb-4 ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                  Presiona <kbd className={`px-2 py-1 rounded text-xs font-mono ${isLight ? "bg-gray-200" : "bg-white/10"}`}>F3</kbd> para abrir el catálogo
+                </p>
+                <button
+                  onClick={() => setShowCatalog(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-primary/30"
+                >
+                  <Package className="w-4 h-4" />
+                  Abrir Catálogo de Productos
+                </button>
+              </div>
+            )}
+          </div>
 
-            {/* Método de Pago */}
-            <div className={`px-4 py-3 border-t ${isLight ? "border-gray-300" : "border-white/10"}`}>
-              <label className={`block text-xs font-bold mb-2 uppercase ${isLight ? "text-gray-700" : "text-gray-400"}`}>
-                Método de Pago
-              </label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg text-sm font-medium ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0d1724] border-white/10 text-white"}`}
-              >
-                <option value="cash">💵 Efectivo</option>
-                <option value="card">💳 Tarjeta</option>
-                <option value="transfer">🏦 Transferencia</option>
-                <option value="credit">📋 Crédito</option>
-              </select>
-            </div>
-
-            {/* Totales */}
-            <div className={`px-4 py-4 border-t space-y-2 ${isLight ? "bg-white border-gray-300" : "bg-[#0d1724] border-white/10"}`}>
-              <div className="flex justify-between text-sm">
-                <span className={isLight ? "text-gray-600" : "text-gray-400"}>Subtotal:</span>
-                <span className={`font-mono font-medium ${isLight ? "text-gray-900" : "text-white"}`}>${subtotal.toFixed(2)}</span>
+          {/* Footer con Totales */}
+          <div className={`px-6 py-4 border-t ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0a0f1a]"}`}>
+            {/* Subtotales */}
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between items-center">
+                <span className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>Subtotal:</span>
+                <span className={`text-base font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
+                  ${subtotal.toFixed(2)}
+                </span>
               </div>
-              {totalDiscount > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className={isLight ? "text-gray-600" : "text-gray-400"}>Descuento:</span>
-                  <span className={`font-mono font-medium text-red-600`}>-${totalDiscount.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-sm">
-                <span className={isLight ? "text-gray-600" : "text-gray-400"}>Subtotal 12%:</span>
-                <span className={`font-mono font-medium ${isLight ? "text-gray-900" : "text-white"}`}>${subtotal12.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className={isLight ? "text-gray-600" : "text-gray-400"}>IVA 12%:</span>
-                <span className={`font-mono font-medium ${isLight ? "text-gray-900" : "text-white"}`}>${tax.toFixed(2)}</span>
-              </div>
-              <div className={`pt-3 border-t flex justify-between items-center ${isLight ? "border-gray-300" : "border-white/10"}`}>
-                <span className={`font-bold text-base ${isLight ? "text-gray-900" : "text-white"}`}>TOTAL:</span>
-                <span className="font-bold text-2xl text-primary">${total.toFixed(2)}</span>
+              <div className="flex justify-between items-center">
+                <span className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>IVA (15%):</span>
+                <span className={`text-base font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
+                  ${tax.toFixed(2)}
+                </span>
               </div>
             </div>
 
-            {/* Botones de acción */}
-            <div className={`p-4 border-t space-y-2 ${isLight ? "border-gray-300" : "border-white/10"}`}>
+            {/* Total a Pagar */}
+            <div className={`flex justify-between items-center mb-4 pb-4 border-b ${isLight ? "border-gray-300" : "border-white/10"}`}>
+              <span className={`text-base font-bold uppercase ${isLight ? "text-gray-900" : "text-white"}`}>
+                Total a Pagar:
+              </span>
+              <span className="text-3xl font-bold text-primary">
+                ${total.toFixed(2)}
+              </span>
+            </div>
+
+            {/* Botones */}
+            <div className="space-y-2">
               <button
                 onClick={handleSave}
                 disabled={!selectedCustomer || items.length === 0}
-                className={`w-full py-3 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
+                className={`w-full py-3.5 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
                   !selectedCustomer || items.length === 0
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30"
                 }`}
               >
-                <DollarSign className="w-5 h-5" />
-                Generar Factura
+                <CreditCard className="w-5 h-5" />
+                Procesar Pago
               </button>
+              
               <button
                 onClick={onClose}
-                className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${isLight ? "bg-gray-200 hover:bg-gray-300 text-gray-700" : "bg-white/5 hover:bg-white/10 text-gray-300"}`}
+                className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors border ${isLight ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50" : "bg-[#1a2332] border-white/10 text-gray-300 hover:bg-white/5"}`}
               >
                 Cancelar
               </button>
@@ -531,6 +477,185 @@ export function CreateInvoiceModal({ isOpen, onClose, onSave, isLight }: CreateI
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Modal del Catálogo */}
+      {showCatalog && (
+        <div 
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4"
+          onClick={() => setShowCatalog(false)}
+        >
+          <div 
+            className={`w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col ${isLight ? "bg-white" : "bg-[#0d1724]"}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header Catálogo */}
+            <div className={`px-6 py-4 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${isLight ? "bg-primary/10" : "bg-primary/20"}`}>
+                    <Package className="w-4 h-4 text-primary" />
+                  </div>
+                  <h3 className={`text-base font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    Catálogo de Productos
+                  </h3>
+                  <kbd className={`px-2 py-1 rounded text-[10px] font-mono ${isLight ? "bg-gray-200 text-gray-600" : "bg-white/10 text-gray-400"}`}>
+                    F3
+                  </kbd>
+                </div>
+                <button
+                  onClick={() => setShowCatalog(false)}
+                  className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"}`}
+                >
+                  <X className={`w-4 h-4 ${isLight ? "text-gray-500" : "text-gray-400"}`} />
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar por nombre o código..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    autoFocus
+                    className={`w-full pl-10 pr-3 py-2 border rounded-lg text-sm transition-all ${isLight ? "bg-gray-50 border-gray-300 text-gray-900 focus:border-primary" : "bg-[#1a2332] border-white/10 text-white focus:border-primary"}`}
+                  />
+                </div>
+                <select
+                  className={`px-4 py-2 border rounded-lg text-sm transition-all ${isLight ? "bg-gray-50 border-gray-300 text-gray-900" : "bg-[#1a2332] border-white/10 text-white"}`}
+                >
+                  <option>Todas</option>
+                  <option>Computadoras</option>
+                  <option>Monitores</option>
+                  <option>Accesorios</option>
+                  <option>Servicios</option>
+                </select>
+              </div>
+              
+              <div className={`mt-3 text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                {filteredProducts.length} productos encontrados
+              </div>
+            </div>
+
+            {/* Tabla de Productos */}
+            <div className="flex-1 overflow-y-auto">
+              <table className="w-full">
+                <thead className={`sticky top-0 ${isLight ? "bg-gray-50 border-b border-gray-200" : "bg-[#0a0f1a] border-b border-white/10"}`}>
+                  <tr>
+                    <th className={`px-4 py-3 text-left text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                      Código
+                    </th>
+                    <th className={`px-4 py-3 text-left text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                      Producto
+                    </th>
+                    <th className={`px-4 py-3 text-right text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                      Precio
+                    </th>
+                    <th className={`px-4 py-3 text-center text-xs font-bold uppercase tracking-wide ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                      Stock
+                    </th>
+                    <th className="px-4 py-3 w-16"></th>
+                    <th className="px-4 py-3 w-12"></th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isLight ? "divide-gray-100" : "divide-white/5"}`}>
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map((product) => (
+                      <tr 
+                        key={product.code} 
+                        className={`group cursor-pointer transition-colors ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"}`}
+                        onClick={() => addProduct(product)}
+                      >
+                        <td className={`px-4 py-3.5 text-sm font-mono ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                          {product.code}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className={`font-semibold text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                            {product.name}
+                          </div>
+                          <div className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                            {product.category}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <div className="font-bold text-primary text-base">
+                            ${product.price.toFixed(2)}
+                          </div>
+                          <div className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                            IVA {product.tax}%
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className={`flex justify-center`}>
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                              product.stock > 50 
+                                ? "bg-green-100 text-green-700" 
+                                : product.stock > 20
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-red-100 text-red-700"
+                            }`}>
+                              {product.stock}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addProduct(product);
+                            }}
+                            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${isLight ? "bg-primary/10 text-primary hover:bg-primary hover:text-white" : "bg-primary/20 text-primary hover:bg-primary hover:text-white"}`}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isLight ? "text-gray-400 hover:bg-gray-100" : "text-gray-500 hover:bg-white/5"}`}
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-12">
+                        <div className="flex flex-col items-center justify-center">
+                          <Package className={`w-12 h-12 mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                          <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                            No se encontraron productos
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer */}
+            <div className={`px-6 py-4 border-t flex items-center justify-between ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0a0f1a]"}`}>
+              <div className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                Clic en una fila o en <span className="text-primary font-semibold">+</span> para agregar al carrito
+              </div>
+              <button
+                onClick={() => setShowCatalog(false)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${isLight ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50" : "bg-[#1a2332] border-white/10 text-gray-300 hover:bg-white/5"}`}
+              >
+                Cerrar
+                <kbd className={`px-1.5 py-0.5 rounded text-xs font-mono ${isLight ? "bg-gray-200" : "bg-white/10"}`}>
+                  Esc
+                </kbd>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

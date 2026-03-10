@@ -1,12 +1,12 @@
 import { useState } from "react";
-import {
-  Search, Plus, Download, Printer, CheckCircle, Clock,
-  AlertTriangle, X, FileText, ZoomIn, ZoomOut,
-  Shield, Code2, RefreshCw, FileCode, RotateCcw,
-} from "lucide-react";
-import { useTheme } from "../contexts/theme-context";
+import { Search, FileText, Download, Printer, Plus, CheckCircle, Clock, AlertTriangle, XCircle, Shield, RotateCcw, ZoomIn, ZoomOut, RefreshCw, Code2, X, FileCode } from "lucide-react";
 import { toast } from "sonner";
 import { DatePicker } from "./date-picker-range";
+import { CreateCreditNoteModal } from "./create-credit-note-modal";
+import { CancelCreditNoteModal } from "./cancel-credit-note-modal";
+import { CancelCreditNoteSearchModal } from "./cancel-credit-note-search-modal";
+import { SRICancellationProcessModal } from "./sri-cancellation-process-modal";
+import { useTheme } from "../contexts/theme-context";
 
 /* ══════════════════════════════════════════════════════════════════════
    TIPOS
@@ -387,7 +387,7 @@ const CREDIT_NOTES_INIT: CreditNote[] = [
   },
 ];
 
-/* ══════════════════════════════════════════════════════════════════════
+/* ═════════════════════════════════════════════════��════════════════════
    GENERADOR XML SRI
 ═════════════════════════════════════════════════════════════════════ */
 function generateCreditNoteXML(note: CreditNote): string {
@@ -470,9 +470,10 @@ function highlightXML(xml: string): string {
 /* ══════════════════════════════════════════════════════════════════════
    COMPONENTE VISOR DE NOTA DE CRÉDITO SRI (RIDE + XML)
 ══════════════════════════════════════════════════════════════════════ */
-function CreditNoteViewer({ note, onPrint, isLight }: {
+function CreditNoteViewer({ note, onPrint, onCancel, isLight }: {
   note: CreditNote;
   onPrint: () => void;
+  onCancel?: () => void;
   isLight: boolean;
 }) {
   const [zoom, setZoom] = useState(100);
@@ -558,6 +559,11 @@ function CreditNoteViewer({ note, onPrint, isLight }: {
             className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors">
             <Printer className="w-3.5 h-3.5" /> PDF
           </button>
+          
+          {/* Botón Anular - solo visible si está autorizada y no ha sido cancelada */}
+          {onCancel && note.sriStatus === "authorized" && note.status !== "cancelled" && (
+            null
+          )}
         </div>
       </div>
 
@@ -763,6 +769,11 @@ export function SalesCreditNotesContent() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showCancelSearchModal, setShowCancelSearchModal] = useState(false);
+  const [showSRICancellationProcessModal, setShowSRICancellationProcessModal] = useState(false);
+  const [pendingCancellationNote, setPendingCancellationNote] = useState<CreditNote | null>(null);
 
   // Variables de tema
   const txt = isLight ? "text-gray-900" : "text-white";
@@ -860,9 +871,16 @@ export function SalesCreditNotesContent() {
             
             <button 
               className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30"
+              onClick={() => setShowCreateModal(true)}
             >
               <Plus className="w-3.5 h-3.5" />
               Nueva NC
+            </button>
+            
+            <button 
+              onClick={() => setShowCancelSearchModal(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${isLight ? "border-red-300 text-red-700 hover:bg-red-50" : "border-red-500/30 text-red-400 hover:bg-red-500/10"}`}>
+              <XCircle className="w-3.5 h-3.5" /> Anular NC
             </button>
           </div>
 
@@ -932,6 +950,12 @@ export function SalesCreditNotesContent() {
                               Rechazada
                             </span>
                           )}
+                          {note.status === "cancelled" && (
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${isLight ? "bg-gray-100 text-gray-700" : "bg-gray-500/20 text-gray-400"}`}>
+                              <XCircle className="w-3 h-3" />
+                              Cancelada
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
@@ -954,7 +978,7 @@ export function SalesCreditNotesContent() {
         {/* ══ Panel derecho: VISOR 40% ══ */}
         <div className="flex-1 flex flex-col min-w-0 rounded-r-xl overflow-hidden">
           {selected ? (
-            <CreditNoteViewer note={selected} onPrint={handlePrint} isLight={isLight} />
+            <CreditNoteViewer note={selected} onPrint={handlePrint} onCancel={() => setShowCancelModal(true)} isLight={isLight} />
           ) : (
             <div className={`flex-1 flex items-center justify-center ${isLight ? "bg-gray-50" : "bg-[#0c1520]"}`}>
               <div className="text-center">
@@ -966,6 +990,70 @@ export function SalesCreditNotesContent() {
         </div>
 
       </div>
+      {showCreateModal && (
+        <CreateCreditNoteModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSave={(newNote) => {
+            const noteWithId = { ...newNote, id: Date.now().toString() };
+            // Guardar directamente sin modal adicional
+            setNotes([noteWithId, ...notes]);
+            setSelected(noteWithId);
+            toast.success("Nota de crédito creada y autorizada por el SRI");
+          }}
+          isLight={isLight}
+        />
+      )}
+      {showCancelModal && (
+        <CancelCreditNoteModal
+          isOpen={showCancelModal}
+          onClose={() => setShowCancelModal(false)}
+          noteData={selected!}
+          onConfirm={(reason) => {
+            setPendingCancellationNote({ ...selected!, cancellationReason: reason });
+            setShowCancelModal(false);
+            setShowSRICancellationProcessModal(true);
+          }}
+          isLight={isLight}
+        />
+      )}
+      {showSRICancellationProcessModal && pendingCancellationNote && (
+        <SRICancellationProcessModal
+          isOpen={showSRICancellationProcessModal}
+          onClose={() => setShowSRICancellationProcessModal(false)}
+          noteNumber={pendingCancellationNote.noteNumber}
+          reason={pendingCancellationNote.cancellationReason || "Sin motivo"}
+          onComplete={() => {
+            const updatedNotes = notes.map(n => 
+              n.id === pendingCancellationNote.id 
+                ? { ...n, status: "cancelled" as const }
+                : n
+            );
+            setNotes(updatedNotes);
+            setSelected({ ...pendingCancellationNote, status: "cancelled" as const });
+            setPendingCancellationNote(null);
+            toast.success("Nota de crédito anulada exitosamente");
+          }}
+          isLight={isLight}
+        />
+      )}
+      {showCancelSearchModal && (
+        <CancelCreditNoteSearchModal
+          isOpen={showCancelSearchModal}
+          onClose={() => setShowCancelSearchModal(false)}
+          onSave={(data) => {
+            // data contiene: { note, reason, cancelDate }
+            const updatedNotes = notes.map(n => 
+              n.noteNumber === data.note.number 
+                ? { ...n, status: "cancelled" as const }
+                : n
+            );
+            setNotes(updatedNotes);
+            toast.success(`Nota de crédito ${data.note.number} anulada exitosamente`);
+          }}
+          isLight={isLight}
+        />
+      )}
     </div>
   );
 }

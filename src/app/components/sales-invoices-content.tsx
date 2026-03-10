@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Search, FileText, Plus, Calendar, X, Printer, Send, Eye, Download, CheckCircle, Clock, AlertTriangle, Shield, ZoomOut, ZoomIn, RefreshCw, Code2 } from "lucide-react";
+import { Search, FileText, Plus, Calendar, X, Printer, Send, Eye, Download, CheckCircle, Clock, AlertTriangle, Shield, ZoomOut, ZoomIn, RefreshCw, Code2, XCircle } from "lucide-react";
 import { DatePicker } from "./date-picker-range";
-import { CreateInvoiceModal } from "./create-invoice-modal";
+import { CreateInvoiceModal } from "./create-invoice-modal-v2";
+import { CancelCreditNoteModal } from "./cancel-credit-note-modal";
+import { CancelInvoiceModal } from "./cancel-invoice-modal";
+import { SRICancellationProcessModal } from "./sri-cancellation-process-modal";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
 
@@ -774,6 +777,7 @@ export function SalesInvoicesContent() {
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   // Variables de tema
   const txt = isLight ? "text-gray-900" : "text-white";
@@ -806,6 +810,11 @@ export function SalesInvoicesContent() {
     setInvoices([newInvoice, ...invoices]);
     setSelected(newInvoice);
     toast.success(`Factura ${newInvoice.invoiceNumber} creada exitosamente`);
+  };
+
+  const handleCancelInvoice = (data: any) => {
+    toast.success(`Factura ${data.invoice.number} anulada exitosamente`);
+    // Aquí podrías actualizar el estado de la factura a 'cancelled'
   };
 
   /* ════════════════════════════════════════════════════════════════════
@@ -875,11 +884,18 @@ export function SalesInvoicesContent() {
             </button>
             
             <button 
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30"
               onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30"
             >
               <Plus className="w-3.5 h-3.5" />
               Nueva Factura
+            </button>
+            
+            <button 
+              onClick={() => setShowCancelModal(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${isLight ? "border-red-300 text-red-700 hover:bg-red-50" : "border-red-500/30 text-red-400 hover:bg-red-500/10"}`}
+            >
+              <XCircle className="w-3.5 h-3.5" /> Anular Factura
             </button>
           </div>
 
@@ -985,6 +1001,14 @@ export function SalesInvoicesContent() {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSave={handleSaveInvoice}
+        isLight={isLight}
+      />
+
+      {/* Modal de anulación */}
+      <CancelInvoiceModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onSave={handleCancelInvoice}
         isLight={isLight}
       />
     </div>

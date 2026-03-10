@@ -2,32 +2,26 @@ import { useState } from "react";
 import {
   Search, Plus, Download, Printer, CheckCircle, Clock,
   AlertTriangle, X, FileText, ZoomIn, ZoomOut,
-  Shield, Code2, RefreshCw, FileCode, TrendingUp,
+  Shield, Code2, RefreshCw, FileCode, TrendingUp, XCircle,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
 import { DatePicker } from "./date-picker-range";
+import { CreateDebitNoteModal } from "./create-debit-note-modal";
+import { CancelCreditNoteModal } from "./cancel-credit-note-modal";
+import { CancelDebitNoteSearchModal } from "./cancel-debit-note-search-modal";
+import { SRICancellationProcessModal } from "./sri-cancellation-process-modal";
 
 /* ══════════════════════════════════════════════════════════════════════
    TIPOS
 ══════════════════════════════════════════════════════════════════════ */
-interface DebitNoteItem {
-  code: string;
-  name: string;
-  quantity: number;
-  price: number;
-  discount: number;
-  tax: number;
-  total: number;
-}
-
 interface DebitNote {
   id: string;
   noteNumber: string;
   date: string;
   time: string;
-  invoiceRef: string; // Factura que modifica
-  reason: string; // Motivo
+  invoiceRef: string;
+  reason: string;
   customer: {
     name: string;
     ruc: string;
@@ -35,11 +29,8 @@ interface DebitNote {
     email?: string;
     phone?: string;
   };
-  items: DebitNoteItem[];
+  description: string;
   subtotal: number;
-  totalDiscount: number;
-  subtotal12: number;
-  subtotal0: number;
   tax: number;
   total: number;
   status: "completed" | "cancelled" | "pending";
@@ -54,6 +45,7 @@ interface DebitNote {
   emisor_telefono?: string;
   emisor_email?: string;
   ambiente?: string;
+  cancellationReason?: string;
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -73,9 +65,9 @@ const genClave = () =>
 const DEBIT_NOTES_INIT: DebitNote[] = [
   {
     id: "1",
-    noteNumber: "001-001-000012",
-    date: "2026-03-08",
-    time: "15:45",
+    noteNumber: "005-001-000001",
+    date: "2026-03-05",
+    time: "10:20",
     invoiceRef: "001-001-000123",
     reason: "Intereses por mora en el pago",
     customer: {
@@ -85,21 +77,16 @@ const DEBIT_NOTES_INIT: DebitNote[] = [
       email: "facturacion@favorita.com",
       phone: "02-3456789"
     },
-    items: [
-      { code: "INT001", name: "Interés por mora - 15 días", quantity: 1, price: 38.30, discount: 0, tax: 12, total: 38.30 },
-    ],
-    subtotal: 38.30,
-    totalDiscount: 0,
-    subtotal12: 38.30,
-    subtotal0: 0,
-    tax: 4.60,
-    total: 42.90,
+    description: "Intereses calculados al 15% anual por mora de 30 días",
+    subtotal: 125.00,
+    tax: 15.00,
+    total: 140.00,
     status: "completed",
     seller: "Juan Pérez",
     branch: "Sucursal Centro",
-    authorizationNumber: "0803202601179001234500120010010000001241234567893",
+    authorizationNumber: "0503202601179001234500120010050000000141234567890",
     sriStatus: "authorized",
-    sriAuthDate: "2026-03-08 15:50",
+    sriAuthDate: "2026-03-05 10:25",
     emisor_razon: EMPRESA.razon,
     emisor_dir: EMPRESA.dir,
     emisor_ruc: EMPRESA.ruc,
@@ -109,33 +96,28 @@ const DEBIT_NOTES_INIT: DebitNote[] = [
   },
   {
     id: "2",
-    noteNumber: "001-001-000013",
-    date: "2026-03-09",
-    time: "11:30",
-    invoiceRef: "001-001-000124",
-    reason: "Gastos de transporte adicionales no incluidos",
+    noteNumber: "005-001-000002",
+    date: "2026-03-07",
+    time: "14:15",
+    invoiceRef: "001-001-000125",
+    reason: "Gastos adicionales por transporte",
     customer: {
-      name: "Importadora del Pacífico Cía. Ltda.",
-      ruc: "1712345678001",
-      address: "Av. de las Américas y José Mascote, Guayaquil",
-      email: "info@importadorapacifico.com",
-      phone: "04-2567890"
+      name: "Distribuidora Andina S.A.",
+      ruc: "1791234567001",
+      address: "Calle Bolívar 234 y Rocafuerte, Cuenca",
+      email: "ventas@andina.com.ec",
+      phone: "07-2890123"
     },
-    items: [
-      { code: "TRANS001", name: "Flete terrestre Quito-Guayaquil", quantity: 1, price: 125.00, discount: 0, tax: 12, total: 125.00 },
-    ],
-    subtotal: 125.00,
-    totalDiscount: 0,
-    subtotal12: 125.00,
-    subtotal0: 0,
-    tax: 15.00,
-    total: 140.00,
+    description: "Flete adicional por cambio de ruta y entrega urgente",
+    subtotal: 85.00,
+    tax: 10.20,
+    total: 95.20,
     status: "completed",
     seller: "Ana Torres",
-    branch: "Sucursal Norte",
-    authorizationNumber: "0903202601179001234500120010010000001341234567894",
+    branch: "Sucursal Sur",
+    authorizationNumber: "0703202601179001234500120010050000000241234567891",
     sriStatus: "authorized",
-    sriAuthDate: "2026-03-09 11:35",
+    sriAuthDate: "2026-03-07 14:20",
     emisor_razon: EMPRESA.razon,
     emisor_dir: EMPRESA.dir,
     emisor_ruc: EMPRESA.ruc,
@@ -145,45 +127,11 @@ const DEBIT_NOTES_INIT: DebitNote[] = [
   },
   {
     id: "3",
-    noteNumber: "001-001-000014",
+    noteNumber: "005-001-000003",
     date: "2026-03-09",
-    time: "16:00",
-    invoiceRef: "001-001-000125",
-    reason: "Recargo por embalaje especial solicitado",
-    customer: {
-      name: "Distribuidora El Sol S.A.",
-      ruc: "1891234567001",
-      address: "Calle Bolívar 234 y Rocafuerte, Cuenca",
-      email: "ventas@elsol.com.ec",
-      phone: "07-2890123"
-    },
-    items: [
-      { code: "EMB001", name: "Embalaje reforzado para exportación", quantity: 1, price: 75.00, discount: 0, tax: 12, total: 75.00 },
-    ],
-    subtotal: 75.00,
-    totalDiscount: 0,
-    subtotal12: 75.00,
-    subtotal0: 0,
-    tax: 9.00,
-    total: 84.00,
-    status: "pending",
-    seller: "Carlos Mendoza",
-    branch: "Sucursal Sur",
-    sriStatus: "pending",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-  },
-  {
-    id: "4",
-    noteNumber: "001-001-000015",
-    date: "2026-03-09",
-    time: "10:20",
+    time: "09:30",
     invoiceRef: "001-001-000127",
-    reason: "Cobro de intereses por pago vencido",
+    reason: "Recargos por servicios adicionales",
     customer: {
       name: "Supermercados La Rebaja S.A.",
       ruc: "1790345678001",
@@ -191,193 +139,14 @@ const DEBIT_NOTES_INIT: DebitNote[] = [
       email: "facturacion@larebaja.com",
       phone: "02-2667788"
     },
-    items: [
-      { code: "INT002", name: "Intereses por mora - 10 días", quantity: 1, price: 22.50, discount: 0, tax: 12, total: 22.50 },
-    ],
-    subtotal: 22.50,
-    totalDiscount: 0,
-    subtotal12: 22.50,
-    subtotal0: 0,
-    tax: 2.70,
-    total: 25.20,
-    status: "completed",
-    seller: "Ana Torres",
-    branch: "Sucursal Norte",
-    authorizationNumber: "0903202601179001234500120010010000001541234567895",
-    sriStatus: "authorized",
-    sriAuthDate: "2026-03-09 10:25",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-  },
-  {
-    id: "5",
-    noteNumber: "001-001-000016",
-    date: "2026-03-09",
-    time: "12:45",
-    invoiceRef: "001-001-000128",
-    reason: "Cargo adicional por instalación urgente",
-    customer: {
-      name: "Ferretería Industrial S.A.",
-      ruc: "1791456789001",
-      address: "Av. Mariscal Sucre Km 7.5, Quito",
-      email: "ventas@ferreteriaind.com",
-      phone: "02-2334455"
-    },
-    items: [
-      { code: "SERV002", name: "Instalación de emergencia - fin de semana", quantity: 1, price: 150.00, discount: 0, tax: 12, total: 150.00 },
-    ],
+    description: "Instalación y configuración de equipos",
     subtotal: 150.00,
-    totalDiscount: 0,
-    subtotal12: 150.00,
-    subtotal0: 0,
     tax: 18.00,
     total: 168.00,
-    status: "completed",
-    seller: "Carlos Mendoza",
-    branch: "Sucursal Sur",
-    sriStatus: "rejected",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-  },
-  {
-    id: "6",
-    noteNumber: "001-001-000017",
-    date: "2026-03-09",
-    time: "14:30",
-    invoiceRef: "001-001-000129",
-    reason: "Gastos de almacenamiento adicional",
-    customer: {
-      name: "Tecnología Avanzada Cía. Ltda.",
-      ruc: "1792567890001",
-      address: "Av. González Suárez N27-142, Quito",
-      email: "compras@tecnoavanzada.ec",
-      phone: "02-2998877"
-    },
-    items: [
-      { code: "SERV003", name: "Almacenamiento por 30 días", quantity: 1, price: 45.00, discount: 0, tax: 12, total: 45.00 },
-    ],
-    subtotal: 45.00,
-    totalDiscount: 0,
-    subtotal12: 45.00,
-    subtotal0: 0,
-    tax: 5.40,
-    total: 50.40,
-    status: "completed",
-    seller: "Juan Pérez",
-    branch: "Sucursal Centro",
-    authorizationNumber: "0903202601179001234500120010010000001741234567896",
-    sriStatus: "authorized",
-    sriAuthDate: "2026-03-09 14:35",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-  },
-  {
-    id: "7",
-    noteNumber: "001-001-000018",
-    date: "2026-03-09",
-    time: "15:15",
-    invoiceRef: "001-001-000130",
-    reason: "Recargo por servicio técnico especializado",
-    customer: {
-      name: "Almacenes Japón S.A.",
-      ruc: "1790567890001",
-      address: "Av. Amazonas y Naciones Unidas, Quito",
-      email: "facturas@almjapon.com",
-      phone: "02-2556677"
-    },
-    items: [
-      { code: "TECH001", name: "Soporte técnico especializado", quantity: 2, price: 60.00, discount: 0, tax: 12, total: 120.00 },
-    ],
-    subtotal: 120.00,
-    totalDiscount: 0,
-    subtotal12: 120.00,
-    subtotal0: 0,
-    tax: 14.40,
-    total: 134.40,
     status: "pending",
-    seller: "María González",
+    seller: "Carlos Mendoza",
     branch: "Sucursal Norte",
     sriStatus: "pending",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-  },
-  {
-    id: "8",
-    noteNumber: "001-001-000019",
-    date: "2026-03-09",
-    time: "16:45",
-    invoiceRef: "001-001-000131",
-    reason: "Cargo por cambio de especificaciones",
-    customer: {
-      name: "Megamaxi S.A.",
-      ruc: "1790987654001",
-      address: "Av. 6 de Diciembre y Eloy Alfaro, Quito",
-      email: "proveedores@megamaxi.com",
-      phone: "02-2443322"
-    },
-    items: [
-      { code: "SERV004", name: "Modificación de orden de compra", quantity: 1, price: 95.00, discount: 0, tax: 12, total: 95.00 },
-    ],
-    subtotal: 95.00,
-    totalDiscount: 0,
-    subtotal12: 95.00,
-    subtotal0: 0,
-    tax: 11.40,
-    total: 106.40,
-    status: "completed",
-    seller: "Ana Torres",
-    branch: "Sucursal Centro",
-    sriStatus: "rejected",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-  },
-  {
-    id: "9",
-    noteNumber: "001-001-000020",
-    date: "2026-03-09",
-    time: "17:30",
-    invoiceRef: "001-001-000126",
-    reason: "Penalización por devolución fuera de plazo",
-    customer: {
-      name: "Comercial Andina Ltda.",
-      ruc: "0992345678001",
-      address: "Av. 6 de Diciembre N34-45, Quito",
-      email: "compras@andina.ec",
-      phone: "02-2445566"
-    },
-    items: [
-      { code: "PEN001", name: "Penalización administrativa", quantity: 1, price: 35.00, discount: 0, tax: 12, total: 35.00 },
-    ],
-    subtotal: 35.00,
-    totalDiscount: 0,
-    subtotal12: 35.00,
-    subtotal0: 0,
-    tax: 4.20,
-    total: 39.20,
-    status: "completed",
-    seller: "María González",
-    branch: "Sucursal Centro",
-    sriStatus: "rejected",
     emisor_razon: EMPRESA.razon,
     emisor_dir: EMPRESA.dir,
     emisor_ruc: EMPRESA.ruc,
@@ -391,25 +160,6 @@ const DEBIT_NOTES_INIT: DebitNote[] = [
    GENERADOR XML SRI
 ═════════════════════════════════════════════════════════════════════ */
 function generateDebitNoteXML(note: DebitNote): string {
-  const detallesXml = note.items.map(item => `
-    <detalle>
-      <codigoInterno>${item.code}</codigoInterno>
-      <descripcion>${item.name}</descripcion>
-      <cantidad>${item.quantity.toFixed(2)}</cantidad>
-      <precioUnitario>${item.price.toFixed(6)}</precioUnitario>
-      <descuento>${item.discount.toFixed(2)}</descuento>
-      <precioTotalSinImpuesto>${item.total.toFixed(2)}</precioTotalSinImpuesto>
-      <impuestos>
-        <impuesto>
-          <codigo>2</codigo>
-          <codigoPorcentaje>${item.tax === 12 ? '2' : '0'}</codigoPorcentaje>
-          <tarifa>${item.tax}</tarifa>
-          <baseImponible>${item.total.toFixed(2)}</baseImponible>
-          <valor>${(item.total * item.tax / 100).toFixed(2)}</valor>
-        </impuesto>
-      </impuestos>
-    </detalle>`).join("");
-    
   return `<?xml version="1.0" encoding="UTF-8"?>
 <notaDebito id="comprobante" version="1.0.0">
   <infoTributaria>
@@ -420,7 +170,7 @@ function generateDebitNoteXML(note: DebitNote): string {
     <ruc>${note.emisor_ruc}</ruc>
     <claveAcceso>${note.authorizationNumber || genClave()}</claveAcceso>
     <codDoc>05</codDoc>
-    <estab>001</estab>
+    <estab>005</estab>
     <ptoEmi>001</ptoEmi>
     <secuencial>${note.noteNumber.split('-')[2]}</secuencial>
     <dirMatriz>${note.emisor_dir}</dirMatriz>
@@ -437,22 +187,17 @@ function generateDebitNoteXML(note: DebitNote): string {
     <numDocModificado>${note.invoiceRef}</numDocModificado>
     <fechaEmisionDocSustento>${note.date.split('-').reverse().join('/')}</fechaEmisionDocSustento>
     <totalSinImpuestos>${note.subtotal.toFixed(2)}</totalSinImpuestos>
+    <moneda>DOLAR</moneda>
     <impuestos>
       <impuesto>
         <codigo>2</codigo>
         <codigoPorcentaje>2</codigoPorcentaje>
         <tarifa>12</tarifa>
-        <baseImponible>${note.subtotal12.toFixed(2)}</baseImponible>
+        <baseImponible>${note.subtotal.toFixed(2)}</baseImponible>
         <valor>${note.tax.toFixed(2)}</valor>
       </impuesto>
     </impuestos>
     <valorTotal>${note.total.toFixed(2)}</valorTotal>
-    <pagos>
-      <pago>
-        <formaPago>01</formaPago>
-        <total>${note.total.toFixed(2)}</total>
-      </pago>
-    </pagos>
   </infoNotaDebito>
   <motivos>
     <motivo>
@@ -464,6 +209,7 @@ function generateDebitNoteXML(note: DebitNote): string {
     <campoAdicional nombre="EMAIL">${note.customer.email || note.emisor_email}</campoAdicional>
     <campoAdicional nombre="TELEFONO">${note.customer.phone || note.emisor_telefono}</campoAdicional>
     <campoAdicional nombre="VENDEDOR">${note.seller}</campoAdicional>
+    <campoAdicional nombre="DESCRIPCION">${note.description}</campoAdicional>
   </infoAdicional>
 </notaDebito>`;
 }
@@ -479,9 +225,10 @@ function highlightXML(xml: string): string {
 /* ══════════════════════════════════════════════════════════════════════
    COMPONENTE VISOR DE NOTA DE DÉBITO SRI (RIDE + XML)
 ══════════════════════════════════════════════════════════════════════ */
-function DebitNoteViewer({ note, onPrint, isLight }: {
+function DebitNoteViewer({ note, onPrint, onCancel, isLight }: {
   note: DebitNote;
   onPrint: () => void;
+  onCancel?: () => void;
   isLight: boolean;
 }) {
   const [zoom, setZoom] = useState(100);
@@ -505,7 +252,7 @@ function DebitNoteViewer({ note, onPrint, isLight }: {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `ND-${note.noteNumber.replace(/\//g, "-")}.xml`;
+    a.download = `ND-${note.noteNumber.replace(/\\//g, "-")}.xml`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -567,6 +314,14 @@ function DebitNoteViewer({ note, onPrint, isLight }: {
             className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors">
             <Printer className="w-3.5 h-3.5" /> PDF
           </button>
+          
+          {/* Botón Anular - solo visible si está autorizada y no ha sido cancelada */}
+          {onCancel && note.sriStatus === "authorized" && note.status !== "cancelled" && (
+            <button onClick={onCancel}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${isLight ? "border-red-300 text-red-700 hover:bg-red-50" : "border-red-500/30 text-red-400 hover:bg-red-500/10"}`}>
+              <XCircle className="w-3.5 h-3.5" /> Anular
+            </button>
+          )}
         </div>
       </div>
 
@@ -603,7 +358,7 @@ function DebitNoteViewer({ note, onPrint, isLight }: {
                       <p style={{ fontWeight: 900, fontSize: 9.5, letterSpacing: 0.5, color: "#0D1B2A" }}>{note.emisor_ruc || EMPRESA.ruc}</p>
                     </div>
                     <div style={{ border: "1px solid #9ca3af", padding: "2px 4px", marginBottom: 3 }}>
-                      <p style={{ color: "#E8692E", fontSize: 8, fontWeight: 700, textTransform: "uppercase" }}>NOTA DE DÉBITO</p>
+                      <p style={{ color: "#9333ea", fontSize: 8, fontWeight: 700, textTransform: "uppercase" }}>NOTA DE DÉBITO</p>
                       <p style={{ fontWeight: 900, fontSize: 9.5, letterSpacing: 0.5, color: "#0D1B2A" }}>{note.noteNumber}</p>
                     </div>
                     <div style={{ border: `1px solid ${isAutorizada ? "#16a34a" : "#ca8a04"}`, background: isAutorizada ? "#f0fdf4" : "#fefce8", padding: "2px 4px" }}>
@@ -643,43 +398,25 @@ function DebitNoteViewer({ note, onPrint, isLight }: {
               </div>
 
               {/* Documento modificado */}
-              <div style={{ border: "1px solid #9ca3af", margin: "4px 7px 0", background: "#dbeafe" }}>
+              <div style={{ border: "1px solid #9ca3af", margin: "4px 7px 0", background: "#fef3e5" }}>
                 <div style={{ padding: "4px 7px", display: "flex", alignItems: "center", gap: 5 }}>
-                  <TrendingUp style={{ width: 14, height: 14, color: "#1e3a8a", flexShrink: 0 }} />
+                  <TrendingUp style={{ width: 14, height: 14, color: "#92400e", flexShrink: 0 }} />
                   <div>
-                    <p style={{ fontWeight: 700, fontSize: 8, color: "#1e3a8a" }}>Documento Modificado:</p>
-                    <p style={{ fontFamily: "monospace", fontSize: 8.5, color: "#1e40af", fontWeight: 700 }}>Factura {note.invoiceRef}</p>
-                    <p style={{ fontSize: 8, color: "#1e3a8a", marginTop: 1 }}><b>Motivo:</b> {note.reason}</p>
+                    <p style={{ fontWeight: 700, fontSize: 8, color: "#92400e" }}>Documento Modificado:</p>
+                    <p style={{ fontFamily: "monospace", fontSize: 8.5, color: "#78350f", fontWeight: 700 }}>Factura {note.invoiceRef}</p>
+                    <p style={{ fontSize: 8, color: "#92400e", marginTop: 1 }}><b>Motivo:</b> {note.reason}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Detalle */}
+              {/* Detalle del Cargo */}
               <div style={{ border: "1px solid #9ca3af", margin: "4px 7px 0" }}>
                 <div style={{ background: "#0D1B2A", color: "#fff", padding: "3px 7px", fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>
-                  Detalle de la Nota de Débito
+                  Detalle del Cargo Adicional
                 </div>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ background: "#f3f4f6", borderBottom: "1px solid #d1d5db" }}>
-                      {["Cód.", "Descripción", "Cant.", "P. Unit.", "Desc.", "Total"].map(h => (
-                        <th key={h} style={{ padding: "3px 5px", textAlign: ["Cant.", "P. Unit.", "Desc.", "Total"].includes(h) ? "right" : "left", fontSize: 8, fontWeight: 700, color: "#4b5563", whiteSpace: "nowrap" }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {note.items.map((item, i) => (
-                      <tr key={i} style={{ borderBottom: "1px solid #e5e7eb" }}>
-                        <td style={{ padding: "3px 5px", fontFamily: "monospace", fontWeight: 700, color: "#E8692E", fontSize: 8.5 }}>{item.code}</td>
-                        <td style={{ padding: "3px 5px", fontSize: 8.5, maxWidth: 200 }}>{item.name}</td>
-                        <td style={{ padding: "3px 5px", textAlign: "right", fontFamily: "monospace", fontSize: 8.5 }}>{item.quantity}</td>
-                        <td style={{ padding: "3px 5px", textAlign: "right", fontFamily: "monospace", fontSize: 8.5 }}>{fmt(item.price)}</td>
-                        <td style={{ padding: "3px 5px", textAlign: "right", fontFamily: "monospace", fontSize: 8.5 }}>{fmt(item.discount)}</td>
-                        <td style={{ padding: "3px 5px", textAlign: "right", fontFamily: "monospace", fontWeight: 700, fontSize: 8.5 }}>{fmt(item.total)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div style={{ padding: "6px 7px" }}>
+                  <p style={{ fontSize: 8.5, color: "#374151", lineHeight: 1.4 }}>{note.description}</p>
+                </div>
               </div>
 
               {/* Totales */}
@@ -689,16 +426,12 @@ function DebitNoteViewer({ note, onPrint, isLight }: {
                   <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 8.5 }}>{fmt(note.subtotal)}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 7px", borderBottom: "1px solid #e5e7eb" }}>
-                  <span style={{ color: "#4b5563", fontSize: 8.5 }}>Subtotal 12%:</span>
-                  <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 8.5 }}>{fmt(note.subtotal12)}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 7px", borderBottom: "1px solid #e5e7eb" }}>
                   <span style={{ color: "#4b5563", fontSize: 8.5 }}>IVA 12%:</span>
                   <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 8.5 }}>{fmt(note.tax)}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 7px", background: "#2563eb" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 7px", background: "#9333ea" }}>
                   <span style={{ color: "#fff", fontWeight: 900, fontSize: 10.5 }}>VALOR A DEBITAR:</span>
-                  <span style={{ color: "#fff", fontWeight: 900, fontFamily: "monospace", fontSize: 11 }}>+{fmt(note.total)}</span>
+                  <span style={{ color: "#fff", fontWeight: 900, fontFamily: "monospace", fontSize: 11 }}>{fmt(note.total)}</span>
                 </div>
               </div>
 
@@ -726,7 +459,7 @@ function DebitNoteViewer({ note, onPrint, isLight }: {
             style={{ background: "#1e293b", borderColor: "#334155", color: "#94a3b8" }}>
             <div className="flex items-center gap-1.5">
               <div className={`w-2 h-2 rounded-full ${isAutorizada ? "bg-green-500" : "bg-yellow-500"}`}></div>
-              <span className="font-mono" style={{ color: "#e2e8f0" }}>ND-{note.noteNumber.replace(/\//g, "-")}.xml</span>
+              <span className="font-mono" style={{ color: "#e2e8f0" }}>ND-{note.noteNumber.replace(/\\//g, "-")}.xml</span>
             </div>
             <span style={{ color: "#475569" }}>|</span>
             <span>SRI Ecuador · Nota de Débito v1.0.0</span>
@@ -742,7 +475,7 @@ function DebitNoteViewer({ note, onPrint, isLight }: {
             {/* Números de línea */}
             <div className="flex-shrink-0 px-3 py-4 text-right select-none"
               style={{ background: "#1e293b", borderRight: "1px solid #334155", color: "#475569", fontFamily: "monospace", fontSize: 11, lineHeight: "20px", minWidth: 44 }}>
-              {xmlContent.split('\n').map((_, i) => (
+              {xmlContent.split('\\n').map((_, i) => (
                 <div key={i}>{i + 1}</div>
               ))}
             </div>
@@ -772,6 +505,12 @@ export function SalesDebitNotesContent() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showCancelSearchModal, setShowCancelSearchModal] = useState(false);
+  const [showSRICancellationProcessModal, setShowSRICancellationProcessModal] = useState(false);
+  const [pendingCancellationNote, setPendingCancellationNote] = useState<DebitNote | null>(null);
+  const [pendingNote, setPendingNote] = useState<DebitNote | null>(null);
 
   // Variables de tema
   const txt = isLight ? "text-gray-900" : "text-white";
@@ -869,9 +608,16 @@ export function SalesDebitNotesContent() {
             
             <button 
               className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30"
+              onClick={() => setShowCreateModal(true)}
             >
               <Plus className="w-3.5 h-3.5" />
               Nueva ND
+            </button>
+            
+            <button 
+              onClick={() => setShowCancelSearchModal(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${isLight ? "border-red-300 text-red-700 hover:bg-red-50" : "border-red-500/30 text-red-400 hover:bg-red-500/10"}`}>
+              <XCircle className="w-3.5 h-3.5" /> Anular ND
             </button>
           </div>
 
@@ -911,7 +657,7 @@ export function SalesDebitNotesContent() {
                         </td>
                         <td className={`px-3 py-1.5 text-xs ${txt}`}>{note.date}</td>
                         <td className={`px-3 py-1.5 ${txt}`}>
-                          <div className="font-mono text-xs text-blue-600">{note.invoiceRef}</div>
+                          <div className="font-mono text-xs text-purple-600">{note.invoiceRef}</div>
                         </td>
                         <td className={`px-3 py-1.5 text-xs font-medium ${txt}`}>
                           {note.customer.name}
@@ -941,13 +687,19 @@ export function SalesDebitNotesContent() {
                               Rechazada
                             </span>
                           )}
+                          {note.status === "cancelled" && (
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${isLight ? "bg-gray-100 text-gray-700" : "bg-gray-500/20 text-gray-400"}`}>
+                              <XCircle className="w-3 h-3" />
+                              Cancelada
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
+                    <td colSpan={7} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center gap-2">
                         <FileText className={`w-12 h-12 ${sub}`} />
                         <p className={`text-sm ${sub}`}>No se encontraron notas de débito</p>
@@ -963,7 +715,7 @@ export function SalesDebitNotesContent() {
         {/* ══ Panel derecho: VISOR 40% ══ */}
         <div className="flex-1 flex flex-col min-w-0 rounded-r-xl overflow-hidden">
           {selected ? (
-            <DebitNoteViewer note={selected} onPrint={handlePrint} isLight={isLight} />
+            <DebitNoteViewer note={selected} onPrint={handlePrint} onCancel={() => setShowCancelModal(true)} isLight={isLight} />
           ) : (
             <div className={`flex-1 flex items-center justify-center ${isLight ? "bg-gray-50" : "bg-[#0c1520]"}`}>
               <div className="text-center">
@@ -975,6 +727,95 @@ export function SalesDebitNotesContent() {
         </div>
 
       </div>
+
+      {/* Modales */}
+      {showCreateModal && (
+        <CreateDebitNoteModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSave={(newNote) => {
+            // El proceso SRI ya está completo en el modal, solo agregar la nota
+            const noteWithId = {
+              ...newNote,
+              id: Date.now().toString(),
+              sriStatus: "authorized" as const,
+              status: "completed" as const,
+              authorizationNumber: newNote.noteNumber.replace(/-/g, "") + Array.from({ length: 39 }, () => Math.floor(Math.random() * 10)).join(""),
+              sriAuthDate: `${newNote.date} ${newNote.time}`
+            };
+            setNotes([noteWithId, ...notes]);
+            setSelected(noteWithId);
+            toast.success("Nota de débito autorizada por el SRI");
+          }}
+          isLight={isLight}
+        />
+      )}
+      {pendingNote && (
+        <SRICancellationProcessModal
+          isOpen={true}
+          onClose={() => setPendingNote(null)}
+          noteNumber={pendingNote.noteNumber}
+          reason={pendingNote.cancellationReason || "Sin motivo"}
+          onComplete={() => {
+            const finalNote = { ...pendingNote, status: "cancelled" as const };
+            setNotes([finalNote, ...notes]);
+            setSelected(finalNote);
+            setPendingNote(null);
+            toast.success("Nota de débito autorizada por el SRI");
+          }}
+          isLight={isLight}
+        />
+      )}
+      {showCancelModal && (
+        <CancelCreditNoteModal
+          isOpen={showCancelModal}
+          onClose={() => setShowCancelModal(false)}
+          noteData={selected!}
+          onConfirm={(reason) => {
+            setPendingCancellationNote({ ...selected!, cancellationReason: reason });
+            setShowCancelModal(false);
+            setShowSRICancellationProcessModal(true);
+          }}
+          isLight={isLight}
+        />
+      )}
+      {showSRICancellationProcessModal && pendingCancellationNote && (
+        <SRICancellationProcessModal
+          isOpen={showSRICancellationProcessModal}
+          onClose={() => setShowSRICancellationProcessModal(false)}
+          noteNumber={pendingCancellationNote.noteNumber}
+          reason={pendingCancellationNote.cancellationReason || "Sin motivo"}
+          onComplete={() => {
+            const updatedNotes = notes.map(n => 
+              n.id === pendingCancellationNote.id 
+                ? { ...n, status: "cancelled" as const }
+                : n
+            );
+            setNotes(updatedNotes);
+            setSelected({ ...pendingCancellationNote, status: "cancelled" as const });
+            setPendingCancellationNote(null);
+            toast.success("Nota de débito anulada exitosamente");
+          }}
+          isLight={isLight}
+        />
+      )}
+      {showCancelSearchModal && (
+        <CancelDebitNoteSearchModal
+          isOpen={showCancelSearchModal}
+          onClose={() => setShowCancelSearchModal(false)}
+          onSave={(data) => {
+            // data contiene: { note, reason, cancelDate }
+            const updatedNotes = notes.map(n => 
+              n.noteNumber === data.note.number 
+                ? { ...n, status: "cancelled" as const }
+                : n
+            );
+            setNotes(updatedNotes);
+            toast.success(`Nota de débito ${data.note.number} anulada exitosamente`);
+          }}
+          isLight={isLight}
+        />
+      )}
     </div>
   );
 }
