@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { Search, FileText, Plus, Calendar, X, Printer, Send, Eye, Download, CheckCircle, Clock, AlertTriangle, Shield, ZoomOut, ZoomIn, RefreshCw, Code2, XCircle } from "lucide-react";
-import { DatePicker } from "./date-picker-range";
-import { CreateInvoiceModal } from "./create-invoice-modal-v2";
-import { CancelCreditNoteModal } from "./cancel-credit-note-modal";
-import { CancelInvoiceModal } from "./cancel-invoice-modal";
-import { SRICancellationProcessModal } from "./sri-cancellation-process-modal";
+import { Search, FileText, Plus, X, Printer, Download, CheckCircle, Clock, AlertTriangle, Shield, ZoomOut, ZoomIn, RefreshCw, Code2, XCircle } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
+import { CancelPurchaseInvoiceModal } from "./cancel-purchase-invoice-modal";
+import { DatePicker } from "./date-picker-range";
+import { CreatePurchaseInvoiceModal } from "./create-purchase-invoice-modal";
 
-// FileCode icon replacement (not in lucide)
+// FileCode icon replacement
 const FileCode = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -18,7 +16,7 @@ const FileCode = ({ className }: { className?: string }) => (
 /* ══════════════════════════════════════════════════════════════════════
    TIPOS
 ══════════════════════════════════════════════════════════════════════ */
-interface InvoiceItem {
+interface PurchaseInvoiceItem {
   code: string;
   name: string;
   quantity: number;
@@ -28,32 +26,30 @@ interface InvoiceItem {
   total: number;
 }
 
-interface Invoice {
+interface PurchaseInvoice {
   id: string;
   invoiceNumber: string;
   date: string;
   time: string;
-  customer: {
+  supplier: {
     name: string;
     ruc: string;
     address?: string;
     email?: string;
     phone?: string;
   };
-  items: InvoiceItem[];
+  items: PurchaseInvoiceItem[];
   subtotal: number;
   totalDiscount: number;
   subtotal12: number;
   subtotal0: number;
   tax: number;
   total: number;
-  paymentMethod: "cash" | "card" | "transfer" | "mixed" | "credit";
   status: "completed" | "cancelled" | "pending";
-  seller: string;
-  branch: string;
   authorizationNumber?: string;
   sriStatus?: "authorized" | "pending" | "rejected" | "not_sent";
   sriAuthDate?: string;
+  // Datos del EMISOR (Proveedor)
   emisor_razon?: string;
   emisor_dir?: string;
   emisor_ruc?: string;
@@ -71,19 +67,19 @@ const EMPRESA = {
   ruc: "1790123456001",
   dir: "Av. Amazonas N35-17 y Japón, Quito - Ecuador",
   tel: "02-2345-678",
-  email: "facturacion@ticsoftec.com",
+  email: "compras@ticsoftec.com",
 };
 
 const genClave = () =>
   Array.from({ length: 49 }, () => Math.floor(Math.random() * 10)).join("");
 
-const INVOICES_INIT: Invoice[] = [
+const INVOICES_INIT: PurchaseInvoice[] = [
   {
     id: "1",
-    invoiceNumber: "001-001-000123",
+    invoiceNumber: "001-002-001234",
     date: "2026-03-05",
-    time: "14:32",
-    customer: {
+    time: "10:30",
+    supplier: {
       name: "Corporación Favorita C.A.",
       ruc: "1790016919001",
       address: "Av. General Enríquez km 4.5, Sangolquí",
@@ -101,300 +97,82 @@ const INVOICES_INIT: Invoice[] = [
     subtotal0: 0,
     tax: 136.80,
     total: 1276.80,
-    paymentMethod: "credit",
     status: "completed",
-    seller: "Juan Pérez",
-    branch: "Sucursal Centro",
-    authorizationNumber: "0503202601179001234500120010010000012341234567890",
+    authorizationNumber: "0803202601179001691900120010020012341234567891",
     sriStatus: "authorized",
-    sriAuthDate: "2026-03-05 14:35",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
+    sriAuthDate: "2026-03-05 10:35",
+    // EMISOR = Proveedor (quien emite la factura)
+    emisor_razon: "Corporación Favorita C.A.",
+    emisor_dir: "Av. General Enríquez km 4.5, Sangolquí",
+    emisor_ruc: "1790016919001",
+    emisor_telefono: "02-3456789",
+    emisor_email: "facturacion@favorita.com",
     ambiente: "Pruebas",
     periodo_fiscal: "03/2026",
   },
   {
     id: "2",
-    invoiceNumber: "001-001-000124",
+    invoiceNumber: "002-001-005678",
     date: "2026-03-06",
-    time: "09:15",
-    customer: {
+    time: "14:15",
+    supplier: {
       name: "Importadora del Pacífico Cía. Ltda.",
       ruc: "1712345678001",
-      address: "Av. de las Américas y José Mascote, Guayaquil",
-      email: "info@importadorapacifico.com",
-      phone: "04-2567890"
+      address: "Av. de la Prensa N47-148, Quito",
+      email: "ventas@importadorapac.com",
+      phone: "02-2876543"
     },
     items: [
-      { code: "PROD010", name: "Monitor Samsung 24\"", quantity: 3, price: 280.00, discount: 40, tax: 12, total: 800.00 },
+      { code: "MAT001", name: "Cable UTP Cat6 305m", quantity: 3, price: 120.00, discount: 20, tax: 12, total: 340.00 },
+      { code: "MAT002", name: "Conectores RJ45 x100", quantity: 5, price: 12.00, discount: 0, tax: 12, total: 60.00 },
     ],
-    subtotal: 840.00,
-    totalDiscount: 40.00,
-    subtotal12: 800.00,
+    subtotal: 420.00,
+    totalDiscount: 20.00,
+    subtotal12: 400.00,
     subtotal0: 0,
-    tax: 96.00,
-    total: 896.00,
-    paymentMethod: "transfer",
+    tax: 48.00,
+    total: 448.00,
     status: "completed",
-    seller: "Ana Torres",
-    branch: "Sucursal Norte",
-    authorizationNumber: "0603202601179001234500120010010000012441234567891",
-    sriStatus: "authorized",
-    sriAuthDate: "2026-03-06 09:20",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
+    sriStatus: "pending",
+    // EMISOR = Proveedor
+    emisor_razon: "Importadora del Pacífico Cía. Ltda.",
+    emisor_dir: "Av. de la Prensa N47-148, Quito",
+    emisor_ruc: "1712345678001",
+    emisor_telefono: "02-2876543",
+    emisor_email: "ventas@importadorapac.com",
     ambiente: "Pruebas",
     periodo_fiscal: "03/2026",
   },
   {
     id: "3",
-    invoiceNumber: "001-001-000125",
+    invoiceNumber: "003-001-000890",
     date: "2026-03-07",
-    time: "11:45",
-    customer: {
+    time: "09:45",
+    supplier: {
       name: "Distribuidora El Sol S.A.",
-      ruc: "1891234567001",
-      address: "Calle Bolívar 234 y Rocafuerte, Cuenca",
-      email: "ventas@elsol.com.ec",
-      phone: "07-2890123"
+      ruc: "1891123456001",
+      address: "Av. Maldonado S14-50, Quito",
+      email: "info@distrisol.com",
+      phone: "02-2789012"
     },
     items: [
-      { code: "PROD015", name: "Teclado Mecánico RGB", quantity: 5, price: 120.00, discount: 60, tax: 12, total: 540.00 },
-      { code: "PROD016", name: "Webcam Logitech C920", quantity: 2, price: 95.00, discount: 0, tax: 12, total: 190.00 },
+      { code: "OFI001", name: "Resma Papel A4", quantity: 10, price: 4.50, discount: 5, tax: 12, total: 40.00 },
+      { code: "OFI002", name: "Toner HP 85A", quantity: 3, price: 65.00, discount: 0, tax: 12, total: 195.00 },
     ],
-    subtotal: 790.00,
-    totalDiscount: 60.00,
-    subtotal12: 730.00,
+    subtotal: 240.00,
+    totalDiscount: 5.00,
+    subtotal12: 235.00,
     subtotal0: 0,
-    tax: 87.60,
-    total: 817.60,
-    paymentMethod: "card",
-    status: "pending",
-    seller: "Carlos Mendoza",
-    branch: "Sucursal Sur",
-    sriStatus: "pending",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-    periodo_fiscal: "03/2026",
-  },
-  {
-    id: "4",
-    invoiceNumber: "001-001-000126",
-    date: "2026-03-08",
-    time: "16:20",
-    customer: {
-      name: "Comercial Andina Ltda.",
-      ruc: "0992345678001",
-      address: "Av. 6 de Diciembre N34-45, Quito",
-      email: "compras@andina.ec",
-      phone: "02-2445566"
-    },
-    items: [
-      { code: "PROD020", name: "Impresora Epson L3210", quantity: 1, price: 285.00, discount: 0, tax: 12, total: 285.00 },
-    ],
-    subtotal: 285.00,
-    totalDiscount: 0,
-    subtotal12: 285.00,
-    subtotal0: 0,
-    tax: 34.20,
-    total: 319.20,
-    paymentMethod: "cash",
+    tax: 28.20,
+    total: 263.20,
     status: "cancelled",
-    seller: "María González",
-    branch: "Sucursal Centro",
     sriStatus: "not_sent",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-    periodo_fiscal: "03/2026",
-  },
-  {
-    id: "5",
-    invoiceNumber: "001-001-000127",
-    date: "2026-03-08",
-    time: "10:15",
-    customer: {
-      name: "Supermercados La Rebaja S.A.",
-      ruc: "1790345678001",
-      address: "Av. Maldonado S15-78, Quito",
-      email: "facturacion@larebaja.com",
-      phone: "02-2667788"
-    },
-    items: [
-      { code: "PROD025", name: "Router TP-Link AC1200", quantity: 4, price: 65.00, discount: 20, tax: 12, total: 240.00 },
-      { code: "PROD026", name: "Switch Gigabit 8 puertos", quantity: 2, price: 85.00, discount: 0, tax: 12, total: 170.00 },
-    ],
-    subtotal: 430.00,
-    totalDiscount: 20.00,
-    subtotal12: 410.00,
-    subtotal0: 0,
-    tax: 49.20,
-    total: 459.20,
-    paymentMethod: "transfer",
-    status: "completed",
-    seller: "Ana Torres",
-    branch: "Sucursal Norte",
-    authorizationNumber: "0803202601179001234500120010010000012741234567892",
-    sriStatus: "authorized",
-    sriAuthDate: "2026-03-08 10:20",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-    periodo_fiscal: "03/2026",
-  },
-  {
-    id: "6",
-    invoiceNumber: "001-001-000128",
-    date: "2026-03-08",
-    time: "14:50",
-    customer: {
-      name: "Ferretería Industrial S.A.",
-      ruc: "1791456789001",
-      address: "Av. Mariscal Sucre Km 7.5, Quito",
-      email: "ventas@ferreteriaind.com",
-      phone: "02-2334455"
-    },
-    items: [
-      { code: "PROD030", name: "UPS APC 1500VA", quantity: 3, price: 320.00, discount: 100, tax: 12, total: 860.00 },
-    ],
-    subtotal: 960.00,
-    totalDiscount: 100.00,
-    subtotal12: 860.00,
-    subtotal0: 0,
-    tax: 103.20,
-    total: 963.20,
-    paymentMethod: "credit",
-    status: "pending",
-    seller: "Carlos Mendoza",
-    branch: "Sucursal Sur",
-    sriStatus: "pending",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-    periodo_fiscal: "03/2026",
-  },
-  {
-    id: "7",
-    invoiceNumber: "001-001-000129",
-    date: "2026-03-09",
-    time: "09:30",
-    customer: {
-      name: "Tecnología Avanzada Cía. Ltda.",
-      ruc: "1792567890001",
-      address: "Av. González Suárez N27-142, Quito",
-      email: "compras@tecnoavanzada.ec",
-      phone: "02-2998877"
-    },
-    items: [
-      { code: "PROD035", name: "Proyector Epson EB-X06", quantity: 1, price: 485.00, discount: 0, tax: 12, total: 485.00 },
-      { code: "PROD036", name: "Pantalla de Proyección 100\\\"", quantity: 1, price: 125.00, discount: 0, tax: 12, total: 125.00 },
-    ],
-    subtotal: 610.00,
-    totalDiscount: 0,
-    subtotal12: 610.00,
-    subtotal0: 0,
-    tax: 73.20,
-    total: 683.20,
-    paymentMethod: "card",
-    status: "completed",
-    seller: "Juan Pérez",
-    branch: "Sucursal Centro",
-    authorizationNumber: "0903202601179001234500120010010000012941234567893",
-    sriStatus: "rejected",
-    sriAuthDate: "2026-03-09 09:35",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-    periodo_fiscal: "03/2026",
-  },
-  {
-    id: "8",
-    invoiceNumber: "001-001-000130",
-    date: "2026-03-09",
-    time: "11:00",
-    customer: {
-      name: "Almacenes Japón S.A.",
-      ruc: "1790567890001",
-      address: "Av. Amazonas y Naciones Unidas, Quito",
-      email: "facturas@almjapon.com",
-      phone: "02-2556677"
-    },
-    items: [
-      { code: "PROD040", name: "Disco Duro Externo 2TB", quantity: 10, price: 95.00, discount: 150, tax: 12, total: 800.00 },
-    ],
-    subtotal: 950.00,
-    totalDiscount: 150.00,
-    subtotal12: 800.00,
-    subtotal0: 0,
-    tax: 96.00,
-    total: 896.00,
-    paymentMethod: "transfer",
-    status: "completed",
-    seller: "María González",
-    branch: "Sucursal Norte",
-    sriStatus: "rejected",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
-    ambiente: "Pruebas",
-    periodo_fiscal: "03/2026",
-  },
-  {
-    id: "9",
-    invoiceNumber: "001-001-000131",
-    date: "2026-03-09",
-    time: "15:45",
-    customer: {
-      name: "Megamaxi S.A.",
-      ruc: "1790987654001",
-      address: "Av. 6 de Diciembre y Eloy Alfaro, Quito",
-      email: "proveedores@megamaxi.com",
-      phone: "02-2443322"
-    },
-    items: [
-      { code: "PROD045", name: "Memoria RAM DDR4 16GB", quantity: 8, price: 75.00, discount: 80, tax: 12, total: 520.00 },
-      { code: "PROD046", name: "SSD M.2 500GB", quantity: 6, price: 85.00, discount: 0, tax: 12, total: 510.00 },
-    ],
-    subtotal: 1110.00,
-    totalDiscount: 80.00,
-    subtotal12: 1030.00,
-    subtotal0: 0,
-    tax: 123.60,
-    total: 1153.60,
-    paymentMethod: "credit",
-    status: "completed",
-    seller: "Ana Torres",
-    branch: "Sucursal Centro",
-    sriStatus: "rejected",
-    emisor_razon: EMPRESA.razon,
-    emisor_dir: EMPRESA.dir,
-    emisor_ruc: EMPRESA.ruc,
-    emisor_telefono: EMPRESA.tel,
-    emisor_email: EMPRESA.email,
+    // EMISOR = Proveedor
+    emisor_razon: "Distribuidora El Sol S.A.",
+    emisor_dir: "Av. Maldonado S14-50, Quito",
+    emisor_ruc: "1891123456001",
+    emisor_telefono: "02-2789012",
+    emisor_email: "info@distrisol.com",
     ambiente: "Pruebas",
     periodo_fiscal: "03/2026",
   },
@@ -402,8 +180,8 @@ const INVOICES_INIT: Invoice[] = [
 
 /* ══════════════════════════════════════════════════════════════════════
    GENERADOR XML SRI
-═════════════════════════════════════════════════════════════════════ */
-function generateInvoiceXML(inv: Invoice): string {
+══════════════════════════════════════════════════════════════════════ */
+function generateInvoiceXML(inv: PurchaseInvoice): string {
   const detallesXml = inv.items.map(item => `
     <detalle>
       <codigoPrincipal>${item.code}</codigoPrincipal>
@@ -443,8 +221,8 @@ function generateInvoiceXML(inv: Invoice): string {
     <dirEstablecimiento>${inv.emisor_dir}</dirEstablecimiento>
     <obligadoContabilidad>SI</obligadoContabilidad>
     <tipoIdentificacionComprador>04</tipoIdentificacionComprador>
-    <razonSocialComprador>${inv.customer.name}</razonSocialComprador>
-    <identificacionComprador>${inv.customer.ruc}</identificacionComprador>
+    <razonSocialComprador>${inv.supplier.name}</razonSocialComprador>
+    <identificacionComprador>${inv.supplier.ruc}</identificacionComprador>
     <totalSinImpuestos>${inv.subtotal.toFixed(2)}</totalSinImpuestos>
     <totalDescuento>${inv.totalDiscount.toFixed(2)}</totalDescuento>
     <totalConImpuestos>
@@ -455,133 +233,145 @@ function generateInvoiceXML(inv: Invoice): string {
         <valor>${inv.tax.toFixed(2)}</valor>
       </totalImpuesto>
     </totalConImpuestos>
-    <propina>0.00</propina>
     <importeTotal>${inv.total.toFixed(2)}</importeTotal>
-    <moneda>DOLAR</moneda>
-    <pagos>
-      <pago>
-        <formaPago>${inv.paymentMethod === 'cash' ? '01' : inv.paymentMethod === 'card' ? '19' : inv.paymentMethod === 'transfer' ? '17' : '20'}</formaPago>
-        <total>${inv.total.toFixed(2)}</total>
-      </pago>
-    </pagos>
   </infoFactura>
   <detalles>${detallesXml}
   </detalles>
-  <infoAdicional>
-    <campoAdicional nombre="EMAIL">${inv.customer.email || inv.emisor_email}</campoAdicional>
-    <campoAdicional nombre="TELEFONO">${inv.customer.phone || inv.emisor_telefono}</campoAdicional>
-    <campoAdicional nombre="VENDEDOR">${inv.seller}</campoAdicional>
-  </infoAdicional>
 </factura>`;
 }
 
-function highlightXML(xml: string): string {
-  return xml
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/(&lt;\/?)(\w+)/g, '<span style="color:#fb923c">$1$2</span>')
-    .replace(/(\w+)(=)(&quot;[^&]*&quot;)/g, '<span style="color:#7dd3fc">$1</span><span style="color:#94a3b8">$2</span><span style="color:#86efac">$3</span>')
-    .replace(/(&lt;\?xml.*?&gt;)/g, '<span style="color:#94a3b8;font-style:italic">$1</span>');
+/* ══════════════════════════════════════════════════════════════════════
+   COMPONENTE VISOR RIDE
+══════════════════════════════════════════════════════════════════════ */
+interface InvoiceRIDEProps {
+  invoice: PurchaseInvoice;
+  zoom: number;
+  setZoom: (zoom: number) => void;
+  onPrint: () => void;
+  activeView: 'ride' | 'xml';
+  setActiveView: (view: 'ride' | 'xml') => void;
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   COMPONENTE VISOR DE FACTURA SRI (RIDE + XML)
-══════════════════════════════════════════════════════════════════════ */
-function InvoiceViewer({ invoice, onPrint, isLight }: {
-  invoice: Invoice;
-  onPrint: () => void;
-  isLight: boolean;
-}) {
-  const [zoom, setZoom] = useState(100);
-  const [activeView, setActiveView] = useState<"ride" | "xml">("ride");
-  const [xmlCopied, setXmlCopied] = useState(false);
-
+function InvoiceRIDE({ invoice, zoom, setZoom, onPrint, activeView, setActiveView }: InvoiceRIDEProps) {
   const isAutorizada = invoice.sriStatus === "authorized";
+  const fmt = (n: number) => `$${n.toFixed(2)}`;
+  
   const xmlContent = generateInvoiceXML(invoice);
-  const fmt = (v: number) => `$${v.toFixed(2)}`;
-
-  const handleCopyXML = () => {
-    navigator.clipboard.writeText(xmlContent).then(() => {
-      setXmlCopied(true);
-      toast.success("XML copiado al portapapeles");
-      setTimeout(() => setXmlCopied(false), 2000);
-    });
-  };
-
-  const handleDownloadXML = () => {
-    const blob = new Blob([xmlContent], { type: "application/xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${invoice.invoiceNumber.replace(/\//g, "-")}.xml`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success("XML descargado");
-  };
+  const xmlLines = xmlContent.split('\n');
+  const xmlSize = new Blob([xmlContent]).size;
 
   return (
     <div className="flex flex-col h-full">
       {/* ── Toolbar ── */}
-      <div className={`flex items-center justify-between px-3 py-2 border-b flex-shrink-0 ${isLight ? "bg-gray-50 border-gray-200" : "bg-[#1a2936] border-white/10"}`}>
+      <div className="flex items-center justify-between px-3 py-2 border-b flex-shrink-0" style={{ background: "#f9fafb", borderColor: "#e5e7eb" }}>
         {/* Tabs RIDE / XML */}
-        <div className={`flex gap-0.5 p-0.5 rounded-lg ${isLight ? "bg-gray-200" : "bg-white/10"}`}>
-          <button onClick={() => setActiveView("ride")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${activeView === "ride" ? "bg-primary text-white shadow" : isLight ? "text-gray-600 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
+        <div className="flex gap-0.5 p-0.5 rounded-lg" style={{ background: "#e5e7eb" }}>
+          <button 
+            onClick={() => setActiveView('ride')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+              activeView === 'ride' 
+                ? 'text-white shadow' 
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+            style={activeView === 'ride' ? { background: '#E8692E' } : {}}
+          >
             <FileText className="w-3.5 h-3.5" /> RIDE
           </button>
-          <button onClick={() => setActiveView("xml")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${activeView === "xml" ? "bg-primary text-white shadow" : isLight ? "text-gray-600 hover:bg-gray-100" : "text-gray-400 hover:bg-white/5"}`}>
-            <FileCode className="w-3.5 h-3.5" /> XML
+          <button 
+            onClick={() => setActiveView('xml')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+              activeView === 'xml' 
+                ? 'text-white shadow' 
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+            style={activeView === 'xml' ? { background: '#E8692E' } : {}}
+          >
+            <Code2 className="w-3.5 h-3.5" /> XML
           </button>
         </div>
 
         <div className="flex items-center gap-1.5">
           {/* Controles zoom (solo RIDE) */}
-          {activeView === "ride" && (
-            <div className={`flex items-center gap-0.5 border rounded-lg px-1 ${isLight ? "border-gray-300" : "border-white/10"}`}>
-              <button onClick={() => setZoom(z => Math.max(50, z - 10))}
-                className={`p-1 rounded transition-colors ${isLight ? "text-gray-600 hover:bg-gray-100" : "text-gray-400 hover:bg-white/10"}`}>
+          {activeView === 'ride' && (
+            <div className="flex items-center gap-0.5 border rounded-lg px-1 border-gray-300">
+              <button 
+                onClick={() => setZoom(Math.max(50, zoom - 10))}
+                className="p-1 rounded transition-colors text-gray-600 hover:bg-gray-100"
+              >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
-              <span className={`text-xs font-mono w-9 text-center ${isLight ? "text-gray-600" : "text-gray-400"}`}>{zoom}%</span>
-              <button onClick={() => setZoom(z => Math.min(130, z + 10))}
-                className={`p-1 rounded transition-colors ${isLight ? "text-gray-600 hover:bg-gray-100" : "text-gray-400 hover:bg-white/10"}`}>
+              <span className="text-xs font-mono w-9 text-center text-gray-600">{zoom}%</span>
+              <button 
+                onClick={() => setZoom(Math.min(150, zoom + 10))}
+                className="p-1 rounded transition-colors text-gray-600 hover:bg-gray-100"
+              >
                 <ZoomIn className="w-3.5 h-3.5" />
               </button>
-              <button onClick={() => setZoom(100)}
-                className={`p-1 rounded transition-colors ${isLight ? "text-gray-500 hover:bg-gray-100" : "text-gray-500 hover:bg-white/10"}`}>
+              <button 
+                onClick={() => setZoom(100)}
+                className="p-1 rounded transition-colors text-gray-500 hover:bg-gray-100"
+              >
                 <RefreshCw className="w-3 h-3" />
               </button>
             </div>
           )}
 
           {/* Controles XML */}
-          {activeView === "xml" && (
+          {activeView === 'xml' && (
             <>
-              <button onClick={handleCopyXML}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors border ${isLight ? "border-gray-300 text-gray-700 hover:bg-gray-100" : "border-white/10 text-gray-300 hover:bg-white/10"}`}>
-                <Code2 className="w-3.5 h-3.5" /> {xmlCopied ? "¡Copiado!" : "Copiar"}
+              <button 
+                onClick={() => {
+                  const textarea = document.createElement('textarea');
+                  textarea.value = xmlContent;
+                  textarea.style.position = 'fixed';
+                  textarea.style.opacity = '0';
+                  document.body.appendChild(textarea);
+                  textarea.select();
+                  try {
+                    document.execCommand('copy');
+                    toast.success('XML copiado al portapapeles');
+                  } catch (err) {
+                    toast.error('Error al copiar XML');
+                  }
+                  document.body.removeChild(textarea);
+                }}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors border border-gray-300 text-gray-700 hover:bg-gray-100"
+              >
+                <Code2 className="w-3.5 h-3.5" /> Copiar
               </button>
-              <button onClick={handleDownloadXML}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors border ${isLight ? "border-gray-300 text-gray-700 hover:bg-gray-100" : "border-white/10 text-gray-300 hover:bg-white/10"}`}>
+              
+              <button 
+                onClick={() => {
+                  const blob = new Blob([xmlContent], { type: 'application/xml' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `factura-${invoice.invoiceNumber}.xml`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success('XML descargado');
+                }}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors border border-gray-300 text-gray-700 hover:bg-gray-100"
+              >
                 <Download className="w-3.5 h-3.5" /> .xml
               </button>
             </>
           )}
 
-          <button onClick={onPrint}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors">
+          <button 
+            onClick={onPrint} 
+            className="flex items-center gap-1.5 px-3 py-1.5 text-white rounded-lg text-xs font-medium transition-colors"
+            style={{ background: '#E8692E' }}
+          >
             <Printer className="w-3.5 h-3.5" /> PDF
           </button>
         </div>
       </div>
 
-      {/* ── Contenido ── */}
-      <div className={`flex-1 min-h-0 ${activeView === "xml" ? "flex flex-col" : "overflow-auto"} ${activeView === "ride" ? (isLight ? "bg-gray-300" : "bg-[#0D1B2A]") : ""}`}>
-        {/* ── Vista RIDE ── */}
-        {activeView === "ride" && (
-          <div className={`flex-1 overflow-auto p-3 ${isLight ? "bg-gray-300" : "bg-[#0D1B2A]"}`}>
+      {/* Contenedor con zoom */}
+      <div className="flex-1 overflow-auto" style={{ background: activeView === 'xml' ? '#1e1e1e' : '#f9fafb' }}>
+        {activeView === 'ride' ? (
+          <div className="p-4">
             <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center", transition: "transform 0.15s" }}>
               <div className="bg-white mx-auto shadow-2xl text-gray-800"
                 style={{ width: 520, fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: 9.5 }}>
@@ -600,16 +390,16 @@ function InvoiceViewer({ invoice, onPrint, isLight }: {
                         <span style={{ color: "#fff", fontWeight: 900, fontSize: 7, lineHeight: 1.2, textAlign: "center" }}>TIC<br/>SOFT<br/>EC</span>
                       </div>
                       <div>
-                        <p style={{ fontWeight: 900, fontSize: 10.5, color: "#0D1B2A", marginBottom: 1 }}>{invoice.emisor_razon || EMPRESA.razon}</p>
-                        <p style={{ color: "#4b5563", fontSize: 8.5 }}>{invoice.emisor_dir || EMPRESA.dir}</p>
-                        <p style={{ color: "#4b5563", fontSize: 8.5 }}>Tel: {invoice.emisor_telefono || EMPRESA.tel} | {invoice.emisor_email || EMPRESA.email}</p>
+                        <p style={{ fontWeight: 900, fontSize: 10.5, color: "#0D1B2A", marginBottom: 1 }}>{invoice.emisor_razon || invoice.supplier.name}</p>
+                        <p style={{ color: "#4b5563", fontSize: 8.5 }}>{invoice.emisor_dir || invoice.supplier.address}</p>
+                        <p style={{ color: "#4b5563", fontSize: 8.5 }}>Tel: {invoice.emisor_telefono || invoice.supplier.phone} | {invoice.emisor_email || invoice.supplier.email}</p>
                         <p style={{ color: "#4b5563", fontSize: 8.5, marginTop: 1 }}>Ambiente: <b>{invoice.ambiente || "Pruebas"}</b> | Emisión: Normal</p>
                       </div>
                     </div>
                     <div style={{ padding: "7px 8px", textAlign: "center" }}>
                       <div style={{ border: "1px solid #9ca3af", padding: "2px 4px", marginBottom: 3 }}>
                         <p style={{ color: "#6b7280", fontSize: 7.5, fontWeight: 700, textTransform: "uppercase" }}>R.U.C.</p>
-                        <p style={{ fontWeight: 900, fontSize: 9.5, letterSpacing: 0.5, color: "#0D1B2A" }}>{invoice.emisor_ruc || EMPRESA.ruc}</p>
+                        <p style={{ fontWeight: 900, fontSize: 9.5, letterSpacing: 0.5, color: "#0D1B2A" }}>{invoice.emisor_ruc || invoice.supplier.ruc}</p>
                       </div>
                       <div style={{ border: "1px solid #9ca3af", padding: "2px 4px", marginBottom: 3 }}>
                         <p style={{ color: "#E8692E", fontSize: 8, fontWeight: 700, textTransform: "uppercase" }}>FACTURA</p>
@@ -639,15 +429,15 @@ function InvoiceViewer({ invoice, onPrint, isLight }: {
                   </div>
                 )}
 
-                {/* Datos del Cliente */}
+                {/* Datos del Proveedor */}
                 <div style={{ border: "1px solid #9ca3af", margin: "4px 7px 0" }}>
                   <div style={{ background: "#0D1B2A", color: "#fff", padding: "3px 7px", fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>
-                    Datos del Cliente
+                    Datos del Proveedor
                   </div>
                   <div style={{ padding: "5px 7px", display: "grid", gridTemplateColumns: "1fr auto", gap: "3px 10px" }}>
-                    <div><span style={{ color: "#6b7280", fontWeight: 700 }}>Razón Social: </span><span style={{ fontWeight: 600 }}>{invoice.customer.name}</span></div>
-                    <div><span style={{ color: "#6b7280", fontWeight: 700 }}>RUC/CI: </span><span style={{ fontFamily: "monospace", fontWeight: 600 }}>{invoice.customer.ruc}</span></div>
-                    <div style={{ gridColumn: "1/-1" }}><span style={{ color: "#6b7280", fontWeight: 700 }}>Dirección: </span>{invoice.customer.address || "Ecuador"}</div>
+                    <div><span style={{ color: "#6b7280", fontWeight: 700 }}>Razón Social: </span><span style={{ fontWeight: 600 }}>{invoice.supplier.name}</span></div>
+                    <div><span style={{ color: "#6b7280", fontWeight: 700 }}>RUC/CI: </span><span style={{ fontFamily: "monospace", fontWeight: 600 }}>{invoice.supplier.ruc}</span></div>
+                    <div style={{ gridColumn: "1/-1" }}><span style={{ color: "#6b7280", fontWeight: 700 }}>Dirección: </span>{invoice.supplier.address || "Ecuador"}</div>
                   </div>
                 </div>
 
@@ -719,40 +509,95 @@ function InvoiceViewer({ invoice, onPrint, isLight }: {
               </div>
             </div>
           </div>
-        )}
-
-        {/* ── Vista XML ── */}
-        {activeView === "xml" && (
-          <div className="flex-1 overflow-auto flex flex-col" style={{ background: "#0f172a" }}>
-            {/* Barra info del XML */}
-            <div className="flex items-center gap-3 px-4 py-2 border-b text-xs flex-shrink-0"
-              style={{ background: "#1e293b", borderColor: "#334155", color: "#94a3b8" }}>
-              <div className="flex items-center gap-1.5">
-                <div className={`w-2 h-2 rounded-full ${isAutorizada ? "bg-green-500" : "bg-yellow-500"}`}></div>
-                <span className="font-mono" style={{ color: "#e2e8f0" }}>{invoice.invoiceNumber.replace(/\//g, "-")}.xml</span>
+        ) : (
+          // Vista XML con syntax highlighting
+          <div className="h-full flex flex-col">
+            {/* Barra de información del archivo */}
+            <div className="flex items-center justify-between px-4 py-2 border-b" style={{ background: "#2d2d2d", borderColor: "#3e3e3e" }}>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span className="text-white text-xs font-mono font-semibold">{invoice.invoiceNumber}.xml</span>
+                </div>
+                <span className="text-gray-400 text-xs">|</span>
+                <span className="text-gray-400 text-xs">SRI Ecuador · Comprobante v1.0.0</span>
+                <span className="text-gray-400 text-xs">|</span>
+                <span className="text-green-400 text-xs flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  {isAutorizada ? 'Autorizado' : 'Pendiente'}
+                </span>
+                <span className="text-gray-500 text-xs">{xmlSize} bytes</span>
               </div>
-              <span style={{ color: "#475569" }}>|</span>
-              <span>SRI Ecuador · Comprobante v1.0.0</span>
-              <span style={{ color: "#475569" }}>|</span>
-              <span style={{ color: isAutorizada ? "#4ade80" : "#fbbf24" }}>
-                {isAutorizada ? "✓ Autorizado" : "⚠ Pendiente"}
-              </span>
-              <span className="ml-auto" style={{ color: "#475569" }}>{xmlContent.length} bytes</span>
             </div>
 
-            {/* Líneas numeradas + código */}
-            <div className="flex flex-1 overflow-auto">
-              {/* Números de línea */}
-              <div className="flex-shrink-0 px-3 py-4 text-right select-none"
-                style={{ background: "#1e293b", borderRight: "1px solid #334155", color: "#475569", fontFamily: "monospace", fontSize: 11, lineHeight: "20px", minWidth: 44 }}>
-                {xmlContent.split('\n').map((_, i) => (
-                  <div key={i}>{i + 1}</div>
-                ))}
-              </div>
-              {/* Código */}
-              <div className="flex-1 overflow-x-auto p-4">
-                <pre style={{ fontFamily: "monospace", fontSize: 11, lineHeight: "20px", color: "#e2e8f0", margin: 0 }}
-                  dangerouslySetInnerHTML={{ __html: highlightXML(xmlContent) }} />
+            {/* Código XML con numeración */}
+            <div className="flex-1 overflow-auto">
+              <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top left", transition: "transform 0.15s" }}>
+                <div className="flex" style={{ fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace", fontSize: '13px', lineHeight: '1.6' }}>
+                  {/* Números de línea */}
+                  <div className="select-none flex-shrink-0 text-right pr-4 pl-4 py-3" style={{ background: "#1e1e1e", color: "#858585", borderRight: "1px solid #3e3e3e" }}>
+                    {xmlLines.map((_, i) => (
+                      <div key={i}>{i + 1}</div>
+                    ))}
+                  </div>
+                  
+                  {/* Contenido XML con syntax highlighting */}
+                  <div className="flex-1 px-4 py-3" style={{ background: "#1e1e1e" }}>
+                    {xmlLines.map((line, i) => {
+                      if (!line.trim()) return <div key={i}><br/></div>;
+                      
+                      const parts: React.ReactNode[] = [];
+                      
+                      // Parseo más preciso del XML con colores correctos
+                      const processLine = (text: string) => {
+                        const result: React.ReactNode[] = [];
+                        let index = 0;
+                        
+                        // Regex mejorado para capturar todos los componentes XML
+                        const regex = /(<\/?)([\w]+)|(\s+[\w]+)=(")(.* ?)(")|([ <>])/g;
+                        let match;
+                        let lastIndex = 0;
+                        
+                        while ((match = regex.exec(text)) !== null) {
+                          // Añadir texto antes del match
+                          if (match.index > lastIndex) {
+                            const before = text.substring(lastIndex, match.index);
+                            if (before) result.push(<span key={`txt${lastIndex}`} style={{ color: '#ffffff' }}>{before}</span>);
+                          }
+                          
+                          if (match[1] && match[2]) {
+                            // Etiqueta: < o </ + nombre
+                            result.push(<span key={`open${match.index}`} style={{ color: '#808080' }}>{match[1]}</span>);
+                            result.push(<span key={`tag${match.index}`} style={{ color: '#e8692e' }}>{match[2]}</span>);
+                          } else if (match[3] && match[4] && match[5] && match[6]) {
+                            // Atributo="valor"
+                            result.push(<span key={`attr${match.index}`} style={{ color: '#9cdcfe' }}>{match[3]}</span>);
+                            result.push(<span key={`eq${match.index}`} style={{ color: '#ffffff' }}>=</span>);
+                            result.push(<span key={`q1${match.index}`} style={{ color: '#ce9178' }}>{match[4]}</span>);
+                            result.push(<span key={`val${match.index}`} style={{ color: '#ce9178' }}>{match[5]}</span>);
+                            result.push(<span key={`q2${match.index}`} style={{ color: '#ce9178' }}>{match[6]}</span>);
+                          } else if (match[7]) {
+                            // > o caracteres sueltos
+                            result.push(<span key={`char${match.index}`} style={{ color: '#808080' }}>{match[7]}</span>);
+                          }
+                          
+                          lastIndex = regex.lastIndex;
+                        }
+                        
+                        // Texto restante
+                        if (lastIndex < text.length) {
+                          const remaining = text.substring(lastIndex);
+                          result.push(<span key={`end${i}`} style={{ color: '#ffffff' }}>{remaining}</span>);
+                        }
+                        
+                        return result;
+                      };
+                      
+                      const highlighted = processLine(line);
+                      return <div key={i}>{highlighted.length > 0 ? highlighted : <span style={{ color: '#ffffff' }}>{line}</span>}</div>;
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -765,59 +610,66 @@ function InvoiceViewer({ invoice, onPrint, isLight }: {
 /* ══════════════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════════════════════════════════════════════ */
-export function SalesInvoicesContent() {
+export function PurchaseInvoicesContent() {
   const { theme } = useTheme();
   const isLight = theme === "light";
 
-  // Estados
-  const [invoices, setInvoices] = useState<Invoice[]>(INVOICES_INIT);
-  const [selected, setSelected] = useState<Invoice | null>(INVOICES_INIT[0]);
+  const [invoices, setInvoices] = useState<PurchaseInvoice[]>(INVOICES_INIT);
+  const [selected, setSelected] = useState<PurchaseInvoice | null>(INVOICES_INIT[0]);
   const [search, setSearch] = useState("");
+  const [filterTipo, setFilterTipo] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [zoom, setZoom] = useState(100);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [activeView, setActiveView] = useState<'ride' | 'xml'>('ride');
 
-  // Variables de tema
-  const txt = isLight ? "text-gray-900" : "text-white";
-  const sub = isLight ? "text-gray-600" : "text-gray-400";
-  const opt = isLight ? "text-gray-900" : "text-white";
-
-  // Filtrar facturas
   const filtered = invoices.filter((inv) => {
-    const matchesSearch =
-      inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
-      inv.customer.name.toLowerCase().includes(search.toLowerCase()) ||
-      inv.customer.ruc.includes(search);
-
-    const matchesStatus = filterStatus === "all" || inv.sriStatus === filterStatus;
+    const matchSearch = search
+      ? inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
+        inv.supplier.name.toLowerCase().includes(search.toLowerCase()) ||
+        inv.supplier.ruc.includes(search)
+      : true;
+    const matchStatus = filterStatus === "all" || inv.sriStatus === filterStatus;
     
-    let matchesFecha = true;
-    if (fechaDesde && inv.date < fechaDesde) matchesFecha = false;
-    if (fechaHasta && inv.date > fechaHasta) matchesFecha = false;
-
-    return matchesSearch && matchesStatus && matchesFecha;
+    // Filtro de fecha
+    let matchFecha = true;
+    if (fechaDesde || fechaHasta) {
+      const invFecha = new Date(inv.date);
+      if (fechaDesde) {
+        const desde = new Date(fechaDesde);
+        if (invFecha < desde) matchFecha = false;
+      }
+      if (fechaHasta) {
+        const hasta = new Date(fechaHasta);
+        if (invFecha > hasta) matchFecha = false;
+      }
+    }
+    
+    return matchSearch && matchStatus && matchFecha;
   });
 
+  const txt = isLight ? "text-gray-900" : "text-white";
+  const sub = isLight ? "text-gray-500" : "text-gray-400";
+  const opt = isLight ? "text-gray-900" : "text-white";
   const fmt = (num: number) => `$${num.toFixed(2)}`;
 
   const handlePrint = () => {
     toast.success("Imprimiendo factura...");
   };
 
-  const handleSaveInvoice = (newInvoice: Invoice) => {
-    setInvoices([newInvoice, ...invoices]);
-    setSelected(newInvoice);
-    toast.success(`Factura ${newInvoice.invoiceNumber} creada exitosamente`);
-  };
-
   const handleCancelInvoice = (data: any) => {
     toast.success(`Factura ${data.invoice.number} anulada exitosamente`);
-    // Aquí podrías actualizar el estado de la factura a 'cancelled'
   };
 
-  /* ════════════════════════════════════════════════════════════════════
+  const handleSaveInvoice = (newInvoice: PurchaseInvoice) => {
+    setInvoices([newInvoice, ...invoices]);
+    setSelected(newInvoice);
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
      RENDER
   ════════════════════════════════════════════════════════════════════ */
   return (
@@ -827,23 +679,34 @@ export function SalesInvoicesContent() {
       <div className={`flex gap-0 rounded-xl border flex-1 min-h-0 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-white/5"}`}>
 
         {/* ══ Panel izquierdo: TABLA 60% ══ */}
-        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#1a2936]"}`} style={{ width: "60%" }}>
+        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0c1520]"}`} style={{ width: "60%" }}>
 
-          {/* ── Barra de herramientas ── */}
-          <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0D1B2A]"}`}>
+          {/* ── ÚNICA FILA: FILTROS + ACCIONES ── */}
+          <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0d1724]"}`}>
             <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 flex-1 min-w-[160px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
               <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
               <input 
                 value={search} 
                 onChange={e => setSearch(e.target.value)} 
-                placeholder="Buscar número, cliente, RUC..." 
+                placeholder="Buscar número, contribuyente" 
                 className={`flex-1 bg-transparent text-xs focus:outline-none placeholder:text-gray-500 ${isLight ? "text-gray-900" : "text-white"}`} 
               />
             </div>
+            
+            <select 
+              value={filterTipo} 
+              onChange={e => setFilterTipo(e.target.value)}
+              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}
+            >
+              <option value="all" className={opt}>Tipo: Todos</option>
+              <option value="factura" className={opt}>Factura</option>
+              <option value="liquidacion" className={opt}>Liquidación Compra</option>
+            </select>
+            
             <select 
               value={filterStatus} 
               onChange={e => setFilterStatus(e.target.value)}
-              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#1a2936] border-white/10 text-gray-400"}`}
+              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}
             >
               <option value="all" className={opt}>Estado: Todos</option>
               <option value="authorized" className={opt}>Autorizada</option>
@@ -873,21 +736,22 @@ export function SalesInvoicesContent() {
                 </button>
               )}
             </div>
-            
+          </div>
+
+          {/* ── FILA 2: BOTONES DE ACCIÓN ── */}
+          <div className={`px-4 py-2.5 border-b flex-shrink-0 flex items-center gap-2 ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0d1724]/50"}`}>
             <button 
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-400 hover:bg-white/5"}`}>
               <Download className="w-3.5 h-3.5" /> CSV
             </button>
+            
             <button 
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-400 hover:bg-white/5"}`}>
               <Printer className="w-3.5 h-3.5" /> Imprimir
             </button>
             
             <button 
-              onClick={() => {
-                console.log("Botón Nueva Factura clickeado");
-                setShowCreateModal(true);
-              }}
+              onClick={() => setShowCreateModal(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -906,10 +770,10 @@ export function SalesInvoicesContent() {
           <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar">
             <table className="w-full min-w-[900px] border-collapse">
               <thead className="sticky top-0 z-10">
-                <tr className={isLight ? "bg-gray-200" : "bg-[#0D1B2A]"}>
+                <tr className={isLight ? "bg-gray-200" : "bg-[#0d1724]"}>
                   <th className={`px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>N° FACTURA</th>
                   <th className={`px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>FECHA</th>
-                  <th className={`px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>CLIENTE</th>
+                  <th className={`px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>PROVEEDOR</th>
                   <th className={`px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>RUC</th>
                   <th className={`px-3 py-2.5 text-right font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>TOTAL</th>
                   <th className={`px-3 py-2.5 text-center font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>ESTADO</th>
@@ -937,10 +801,10 @@ export function SalesInvoicesContent() {
                         </td>
                         <td className={`px-3 py-1.5 text-xs ${txt}`}>{inv.date}</td>
                         <td className={`px-3 py-1.5 text-xs font-medium ${txt}`}>
-                          {inv.customer.name}
+                          {inv.supplier.name}
                         </td>
                         <td className={`px-3 py-1.5 text-xs font-mono ${sub}`}>
-                          {inv.customer.ruc}
+                          {inv.supplier.ruc}
                         </td>
                         <td className={`px-3 py-1.5 text-right font-mono font-bold text-xs ${txt}`}>
                           {fmt(inv.total)}
@@ -983,35 +847,36 @@ export function SalesInvoicesContent() {
           </div>
         </div>
 
-        {/* ══ Panel derecho: VISOR 40% ══ */}
-        <div className="flex-1 flex flex-col min-w-0 rounded-r-xl overflow-hidden">
+        {/* ══ Panel derecho: VISOR RIDE 40% ══ */}
+        <div className={`flex flex-col flex-1 min-w-0 rounded-r-xl ${isLight ? "bg-white" : "bg-[#0d1724]"}`}>
           {selected ? (
-            <InvoiceViewer invoice={selected} onPrint={handlePrint} isLight={isLight} />
+            <InvoiceRIDE invoice={selected} zoom={zoom} setZoom={setZoom} onPrint={handlePrint} activeView={activeView} setActiveView={setActiveView} />
           ) : (
-            <div className={`flex-1 flex items-center justify-center ${isLight ? "bg-gray-50" : "bg-[#0D1B2A]"}`}>
+            <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <FileText className={`w-16 h-16 mx-auto mb-4 ${sub}`} />
-                <p className={`text-sm ${sub}`}>Seleccione una factura para ver el detalle</p>
+                <FileText className={`w-16 h-16 mx-auto mb-4 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                <p className={`text-sm font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Selecciona una factura para ver los detalles
+                </p>
               </div>
             </div>
           )}
         </div>
-
       </div>
 
-      {/* Modal de creación */}
-      <CreateInvoiceModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSave={handleSaveInvoice}
-        isLight={isLight}
-      />
-
-      {/* Modal de anulación */}
-      <CancelInvoiceModal
+      {/* Modal de Anulación */}
+      <CancelPurchaseInvoiceModal
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}
         onSave={handleCancelInvoice}
+        isLight={isLight}
+      />
+
+      {/* Modal de Creación */}
+      <CreatePurchaseInvoiceModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSave={handleSaveInvoice}
         isLight={isLight}
       />
     </div>

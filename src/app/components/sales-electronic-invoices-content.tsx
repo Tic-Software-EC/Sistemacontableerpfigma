@@ -192,7 +192,7 @@ export function SalesElectronicInvoicesContent() {
   const divB = isLight ? "border-gray-200" : "border-white/10";
   const card = `rounded-xl border ${isLight ? "bg-white border-gray-200 shadow-sm" : "bg-white/5 border-white/10"}`;
   const modal = `rounded-2xl border shadow-2xl ${isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10"}`;
-  const IN = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400" : "bg-[#0f1825] border-white/10 text-white placeholder-gray-500"}`;
+  const IN = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900 placeholder-gray-400" : "bg-[#1a2936] border-white/10 text-white placeholder-gray-500"}`;
   const thCls = `px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ${sub}`;
   const hoverRow = isLight ? "hover:bg-gray-50" : "hover:bg-white/[0.02]";
   const btnSec = isLight ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-white/5 hover:bg-white/10 text-white";
@@ -475,531 +475,535 @@ export function SalesElectronicInvoicesContent() {
   const totals = calculateInvoiceTotals();
 
   return (
-    <div className="space-y-4">
-      {/* ══ Botón Nuevo (alineado a la derecha) ═══════════════════════════════ */}
-      <div className="flex justify-end">
-        <button
-          onClick={openCreateModal}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Nueva Factura Electrónica
-        </button>
-      </div>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="space-y-4">
+          {/* ══ Botón Nuevo (alineado a la derecha) ═══════════════════════════════ */}
+          <div className="flex justify-end">
+            <button
+              onClick={openCreateModal}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Nueva Factura Electrónica
+            </button>
+          </div>
 
-      {/* ══ Fila de filtros ════════════════════════════════════════════════════ */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 relative">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${sub}`} />
-          <input
-            type="text"
-            placeholder="Buscar por número, cliente, identificación o clave de acceso..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className={`${IN} pl-10`}
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Filter className={`w-4 h-4 ${sub}`} />
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className={IN}
-            style={{ width: "180px" }}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="Borrador">Borrador</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="Autorizado">Autorizado</option>
-            <option value="Rechazado">Rechazado</option>
-          </select>
-        </div>
-        <button
-          onClick={() => toast.success("Exportando facturas...")}
-          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}
-        >
-          <Download className="w-4 h-4" /> Exportar
-        </button>
-      </div>
-
-      {/* ══ Tabla con encabezado oscuro ═══════════════════════════════════════ */}
-      <div className={card}>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className={`border-b ${isLight ? "bg-gray-900 border-gray-800" : "bg-black/40 border-white/10"}`}>
-                <th className={`${thCls} ${isLight ? "text-gray-300" : ""}`}>Número</th>
-                <th className={`${thCls} ${isLight ? "text-gray-300" : ""}`}>Fecha</th>
-                <th className={`${thCls} ${isLight ? "text-gray-300" : ""}`}>Cliente</th>
-                <th className={`${thCls} ${isLight ? "text-gray-300" : ""}`}>Identificación</th>
-                <th className={`${thCls} text-right ${isLight ? "text-gray-300" : ""}`}>Subtotal</th>
-                <th className={`${thCls} text-right ${isLight ? "text-gray-300" : ""}`}>IVA</th>
-                <th className={`${thCls} text-right ${isLight ? "text-gray-300" : ""}`}>Total</th>
-                <th className={`${thCls} text-center ${isLight ? "text-gray-300" : ""}`}>Estado</th>
-                <th className={`${thCls} text-center ${isLight ? "text-gray-300" : ""}`}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody className={`divide-y ${divB}`}>
-              {filtered.length > 0 ? filtered.map(invoice => (
-                <tr key={invoice.id} className={hoverRow}>
-                  <td className={`px-4 py-3 text-sm font-mono font-medium ${txt}`}>
-                    <div>{invoice.invoiceNumber}</div>
-                    <div className={`text-xs ${sub} truncate max-w-[200px]`} title={invoice.accessKey}>
-                      {invoice.accessKey}
-                    </div>
-                  </td>
-                  <td className={`px-4 py-3 text-sm ${txt}`}>{invoice.issueDate}</td>
-                  <td className={`px-4 py-3 text-sm ${txt}`}>
-                    <div className="font-medium">{invoice.customerName}</div>
-                    <div className={`text-xs ${sub}`}>{invoice.customerEmail || "Sin email"}</div>
-                  </td>
-                  <td className={`px-4 py-3 text-sm ${txt}`}>
-                    <div className="text-xs font-semibold text-primary">{invoice.customerIdType}</div>
-                    <div>{invoice.customerId}</div>
-                  </td>
-                  <td className={`px-4 py-3 text-sm font-semibold text-right ${txt}`}>
-                    ${invoice.subtotalBeforeTax.toLocaleString("es-EC", { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className={`px-4 py-3 text-sm font-semibold text-right ${txt}`}>
-                    ${(invoice.iva12 + invoice.iva15 + invoice.iva0).toLocaleString("es-EC", { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className={`px-4 py-3 text-sm font-bold text-right ${txt}`}>
-                    ${invoice.total.toLocaleString("es-EC", { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadge(invoice.status)}`}>
-                      {getStatusIcon(invoice.status)}
-                      {invoice.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => openViewModal(invoice)}
-                        className={`transition-colors ${isLight ? "text-gray-400 hover:text-blue-600" : "text-gray-500 hover:text-blue-400"}`}
-                        title="Ver"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      {(invoice.status === "Borrador" || invoice.status === "Pendiente") && (
-                        <button
-                          onClick={() => handleSendToSRI(invoice)}
-                          className={`transition-colors ${isLight ? "text-gray-400 hover:text-green-600" : "text-gray-500 hover:text-green-400"}`}
-                          title="Enviar al SRI"
-                        >
-                          <Send className="w-4 h-4" />
-                        </button>
-                      )}
-                      {invoice.status === "Autorizado" && (
-                        <>
-                          <button
-                            onClick={() => handleDownloadXML(invoice)}
-                            className={`transition-colors ${isLight ? "text-gray-400 hover:text-purple-600" : "text-gray-500 hover:text-purple-400"}`}
-                            title="Descargar XML"
-                          >
-                            <FileCheck className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleSendEmail(invoice)}
-                            className={`transition-colors ${isLight ? "text-gray-400 hover:text-blue-600" : "text-gray-500 hover:text-blue-400"}`}
-                            title="Enviar por email"
-                          >
-                            <Mail className="w-4 h-4" />
-                          </button>
-                        </>
-                      )}
-                      <button
-                        onClick={() => openDeleteModal(invoice)}
-                        className={`transition-colors ${isLight ? "text-gray-400 hover:text-red-500" : "text-gray-500 hover:text-red-400"}`}
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )) : (
-                <tr>
-                  <td colSpan={9} className="py-12 text-center">
-                    <Receipt className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
-                    <p className={`text-sm font-medium ${txt}`}>No se encontraron facturas</p>
-                    <p className={`text-xs mt-1 ${sub}`}>Intenta con otros términos de búsqueda</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ══ Modal Crear ════════════════════════════════════════════════════════ */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-5xl ${modal} max-h-[90vh] overflow-y-auto`}>
-            <div className={`sticky top-0 z-10 border-b ${divB} px-6 py-4 flex items-center justify-between ${isLight ? "bg-white" : "bg-[#0D1B2A]"}`}>
-              <div>
-                <h3 className={`font-bold text-lg ${txt}`}>Nueva Factura Electrónica</h3>
-                <p className={`text-xs ${sub} mt-0.5`}>Complete los datos para generar la factura</p>
-              </div>
-              <button onClick={() => setShowCreateModal(false)} className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"}`}>
-                <X className="w-4 h-4" />
-              </button>
+          {/* ══ Fila de filtros ════════════════════════════════════════════════════ */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 relative">
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${sub}`} />
+              <input
+                type="text"
+                placeholder="Buscar por número, cliente, identificación o clave de acceso..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className={`${IN} pl-10`}
+              />
             </div>
-            
-            <div className="p-6 space-y-6">
-              {/* Datos del Cliente */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <User className="w-4 h-4 text-primary" />
-                  <h4 className={`font-semibold text-sm ${txt}`}>Datos del Cliente</h4>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Tipo de ID <span className="text-red-500">*</span></label>
-                    <select value={formData.customerIdType} onChange={e => setFormData({...formData, customerIdType: e.target.value as any})} className={IN}>
-                      <option value="RUC">RUC</option>
-                      <option value="Cédula">Cédula</option>
-                      <option value="Pasaporte">Pasaporte</option>
-                    </select>
-                  </div>
-                  <div className="col-span-2">
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Número de Identificación <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.customerId} onChange={e => setFormData({...formData, customerId: e.target.value})} className={IN} placeholder="Ej: 1792345678001" />
-                  </div>
-                  <div className="col-span-3">
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Razón Social / Nombre <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.customerName} onChange={e => setFormData({...formData, customerName: e.target.value})} className={IN} placeholder="Ej: Corporación ABC S.A." />
-                  </div>
-                  <div className="col-span-2">
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Dirección</label>
-                    <input type="text" value={formData.customerAddress} onChange={e => setFormData({...formData, customerAddress: e.target.value})} className={IN} placeholder="Ej: Av. Principal 123" />
-                  </div>
-                  <div>
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Teléfono</label>
-                    <input type="tel" value={formData.customerPhone} onChange={e => setFormData({...formData, customerPhone: e.target.value})} className={IN} placeholder="Ej: +593 2 123 4567" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Email</label>
-                    <input type="email" value={formData.customerEmail} onChange={e => setFormData({...formData, customerEmail: e.target.value})} className={IN} placeholder="Ej: cliente@email.com" />
-                  </div>
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <Filter className={`w-4 h-4 ${sub}`} />
+              <select
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+                className={IN}
+                style={{ width: "180px" }}
+              >
+                <option value="all">Todos los estados</option>
+                <option value="Borrador">Borrador</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Autorizado">Autorizado</option>
+                <option value="Rechazado">Rechazado</option>
+              </select>
+            </div>
+            <button
+              onClick={() => toast.success("Exportando facturas...")}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}
+            >
+              <Download className="w-4 h-4" /> Exportar
+            </button>
+          </div>
 
-              {/* Agregar Productos */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Package className="w-4 h-4 text-primary" />
-                  <h4 className={`font-semibold text-sm ${txt}`}>Agregar Producto / Servicio</h4>
-                </div>
-                <div className="grid grid-cols-6 gap-3">
-                  <div>
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Código</label>
-                    <input type="text" value={currentItem.code} onChange={e => setCurrentItem({...currentItem, code: e.target.value})} className={IN} placeholder="PROD-001" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Descripción</label>
-                    <input type="text" value={currentItem.description} onChange={e => setCurrentItem({...currentItem, description: e.target.value})} className={IN} placeholder="Descripción del producto" />
-                  </div>
-                  <div>
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Cantidad</label>
-                    <input type="number" value={currentItem.quantity} onChange={e => setCurrentItem({...currentItem, quantity: parseFloat(e.target.value) || 0})} className={IN} min="1" />
-                  </div>
-                  <div>
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Precio Unit.</label>
-                    <input type="number" value={currentItem.unitPrice} onChange={e => setCurrentItem({...currentItem, unitPrice: parseFloat(e.target.value) || 0})} className={IN} step="0.01" />
-                  </div>
-                  <div>
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Descuento</label>
-                    <input type="number" value={currentItem.discount} onChange={e => setCurrentItem({...currentItem, discount: parseFloat(e.target.value) || 0})} className={IN} step="0.01" />
-                  </div>
-                  <div>
-                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>IVA %</label>
-                    <select value={currentItem.ivaRate} onChange={e => setCurrentItem({...currentItem, ivaRate: parseInt(e.target.value)})} className={IN}>
-                      <option value={0}>0%</option>
-                      <option value={12}>12%</option>
-                      <option value={15}>15%</option>
-                    </select>
-                  </div>
-                  <div className="col-span-6">
-                    <button onClick={addItem} className={`w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>
-                      <Plus className="w-4 h-4" /> Agregar Producto
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Lista de Productos */}
-              {items.length > 0 && (
-                <div>
-                  <h4 className={`font-semibold text-sm ${txt} mb-3`}>Productos Agregados ({items.length})</h4>
-                  <div className={`border rounded-lg overflow-hidden ${divB}`}>
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className={`border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
-                          <th className={`px-3 py-2 text-left text-xs font-semibold ${sub}`}>Código</th>
-                          <th className={`px-3 py-2 text-left text-xs font-semibold ${sub}`}>Descripción</th>
-                          <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Cant.</th>
-                          <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>P. Unit.</th>
-                          <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Desc.</th>
-                          <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>IVA</th>
-                          <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Total</th>
-                          <th className={`px-3 py-2 text-center text-xs font-semibold ${sub}`}>Acción</th>
-                        </tr>
-                      </thead>
-                      <tbody className={`divide-y ${divB}`}>
-                        {items.map(item => (
-                          <tr key={item.id}>
-                            <td className={`px-3 py-2 ${txt}`}>{item.code}</td>
-                            <td className={`px-3 py-2 ${txt}`}>{item.description}</td>
-                            <td className={`px-3 py-2 text-right ${txt}`}>{item.quantity}</td>
-                            <td className={`px-3 py-2 text-right ${txt}`}>${item.unitPrice.toFixed(2)}</td>
-                            <td className={`px-3 py-2 text-right ${txt}`}>${item.discount.toFixed(2)}</td>
-                            <td className={`px-3 py-2 text-right ${txt}`}>{item.ivaRate}%</td>
-                            <td className={`px-3 py-2 text-right font-semibold ${txt}`}>${item.total.toFixed(2)}</td>
-                            <td className="px-3 py-2 text-center">
-                              <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700">
-                                <Trash2 className="w-4 h-4" />
+          {/* ══ Tabla con encabezado oscuro ═══════════════════════════════════════ */}
+          <div className={card}>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className={`border-b ${isLight ? "bg-gray-900 border-gray-800" : "bg-black/40 border-white/10"}`}>
+                    <th className={`${thCls} ${isLight ? "text-gray-300" : ""}`}>Número</th>
+                    <th className={`${thCls} ${isLight ? "text-gray-300" : ""}`}>Fecha</th>
+                    <th className={`${thCls} ${isLight ? "text-gray-300" : ""}`}>Cliente</th>
+                    <th className={`${thCls} ${isLight ? "text-gray-300" : ""}`}>Identificación</th>
+                    <th className={`${thCls} text-right ${isLight ? "text-gray-300" : ""}`}>Subtotal</th>
+                    <th className={`${thCls} text-right ${isLight ? "text-gray-300" : ""}`}>IVA</th>
+                    <th className={`${thCls} text-right ${isLight ? "text-gray-300" : ""}`}>Total</th>
+                    <th className={`${thCls} text-center ${isLight ? "text-gray-300" : ""}`}>Estado</th>
+                    <th className={`${thCls} text-center ${isLight ? "text-gray-300" : ""}`}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${divB}`}>
+                  {filtered.length > 0 ? filtered.map(invoice => (
+                    <tr key={invoice.id} className={hoverRow}>
+                      <td className={`px-4 py-3 text-sm font-mono font-medium ${txt}`}>
+                        <div>{invoice.invoiceNumber}</div>
+                        <div className={`text-xs ${sub} truncate max-w-[200px]`} title={invoice.accessKey}>
+                          {invoice.accessKey}
+                        </div>
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${txt}`}>{invoice.issueDate}</td>
+                      <td className={`px-4 py-3 text-sm ${txt}`}>
+                        <div className="font-medium">{invoice.customerName}</div>
+                        <div className={`text-xs ${sub}`}>{invoice.customerEmail || "Sin email"}</div>
+                      </td>
+                      <td className={`px-4 py-3 text-sm ${txt}`}>
+                        <div className="text-xs font-semibold text-primary">{invoice.customerIdType}</div>
+                        <div>{invoice.customerId}</div>
+                      </td>
+                      <td className={`px-4 py-3 text-sm font-semibold text-right ${txt}`}>
+                        ${invoice.subtotalBeforeTax.toLocaleString("es-EC", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className={`px-4 py-3 text-sm font-semibold text-right ${txt}`}>
+                        ${(invoice.iva12 + invoice.iva15 + invoice.iva0).toLocaleString("es-EC", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className={`px-4 py-3 text-sm font-bold text-right ${txt}`}>
+                        ${invoice.total.toLocaleString("es-EC", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadge(invoice.status)}`}>
+                          {getStatusIcon(invoice.status)}
+                          {invoice.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => openViewModal(invoice)}
+                            className={`transition-colors ${isLight ? "text-gray-400 hover:text-blue-600" : "text-gray-500 hover:text-blue-400"}`}
+                            title="Ver"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          {(invoice.status === "Borrador" || invoice.status === "Pendiente") && (
+                            <button
+                              onClick={() => handleSendToSRI(invoice)}
+                              className={`transition-colors ${isLight ? "text-gray-400 hover:text-green-600" : "text-gray-500 hover:text-green-400"}`}
+                              title="Enviar al SRI"
+                            >
+                              <Send className="w-4 h-4" />
+                            </button>
+                          )}
+                          {invoice.status === "Autorizado" && (
+                            <>
+                              <button
+                                onClick={() => handleDownloadXML(invoice)}
+                                className={`transition-colors ${isLight ? "text-gray-400 hover:text-purple-600" : "text-gray-500 hover:text-purple-400"}`}
+                                title="Descargar XML"
+                              >
+                                <FileCheck className="w-4 h-4" />
                               </button>
-                            </td>
+                              <button
+                                onClick={() => handleSendEmail(invoice)}
+                                className={`transition-colors ${isLight ? "text-gray-400 hover:text-blue-600" : "text-gray-500 hover:text-blue-400"}`}
+                                title="Enviar por email"
+                              >
+                                <Mail className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => openDeleteModal(invoice)}
+                            className={`transition-colors ${isLight ? "text-gray-400 hover:text-red-500" : "text-gray-500 hover:text-red-400"}`}
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={9} className="py-12 text-center">
+                        <Receipt className={`w-10 h-10 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                        <p className={`text-sm font-medium ${txt}`}>No se encontraron facturas</p>
+                        <p className={`text-xs mt-1 ${sub}`}>Intenta con otros términos de búsqueda</p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ══ Modal Crear ════════════════════════════════════════════════════════ */}
+          {showCreateModal && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className={`w-full max-w-5xl ${modal} max-h-[90vh] overflow-y-auto`}>
+                <div className={`sticky top-0 z-10 border-b ${divB} px-6 py-4 flex items-center justify-between ${isLight ? "bg-white" : "bg-[#0D1B2A]"}`}>
+                  <div>
+                    <h3 className={`font-bold text-lg ${txt}`}>Nueva Factura Electrónica</h3>
+                    <p className={`text-xs ${sub} mt-0.5`}>Complete los datos para generar la factura</p>
+                  </div>
+                  <button onClick={() => setShowCreateModal(false)} className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"}`}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  {/* Datos del Cliente */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <User className="w-4 h-4 text-primary" />
+                      <h4 className={`font-semibold text-sm ${txt}`}>Datos del Cliente</h4>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Tipo de ID <span className="text-red-500">*</span></label>
+                        <select value={formData.customerIdType} onChange={e => setFormData({...formData, customerIdType: e.target.value as any})} className={IN}>
+                          <option value="RUC">RUC</option>
+                          <option value="Cédula">Cédula</option>
+                          <option value="Pasaporte">Pasaporte</option>
+                        </select>
+                      </div>
+                      <div className="col-span-2">
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Número de Identificación <span className="text-red-500">*</span></label>
+                        <input type="text" value={formData.customerId} onChange={e => setFormData({...formData, customerId: e.target.value})} className={IN} placeholder="Ej: 1792345678001" />
+                      </div>
+                      <div className="col-span-3">
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Razón Social / Nombre <span className="text-red-500">*</span></label>
+                        <input type="text" value={formData.customerName} onChange={e => setFormData({...formData, customerName: e.target.value})} className={IN} placeholder="Ej: Corporación ABC S.A." />
+                      </div>
+                      <div className="col-span-2">
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Dirección</label>
+                        <input type="text" value={formData.customerAddress} onChange={e => setFormData({...formData, customerAddress: e.target.value})} className={IN} placeholder="Ej: Av. Principal 123" />
+                      </div>
+                      <div>
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Teléfono</label>
+                        <input type="tel" value={formData.customerPhone} onChange={e => setFormData({...formData, customerPhone: e.target.value})} className={IN} placeholder="Ej: +593 2 123 4567" />
+                      </div>
+                      <div className="col-span-2">
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Email</label>
+                        <input type="email" value={formData.customerEmail} onChange={e => setFormData({...formData, customerEmail: e.target.value})} className={IN} placeholder="Ej: cliente@email.com" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Agregar Productos */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Package className="w-4 h-4 text-primary" />
+                      <h4 className={`font-semibold text-sm ${txt}`}>Agregar Producto / Servicio</h4>
+                    </div>
+                    <div className="grid grid-cols-6 gap-3">
+                      <div>
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Código</label>
+                        <input type="text" value={currentItem.code} onChange={e => setCurrentItem({...currentItem, code: e.target.value})} className={IN} placeholder="PROD-001" />
+                      </div>
+                      <div className="col-span-2">
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Descripción</label>
+                        <input type="text" value={currentItem.description} onChange={e => setCurrentItem({...currentItem, description: e.target.value})} className={IN} placeholder="Descripción del producto" />
+                      </div>
+                      <div>
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Cantidad</label>
+                        <input type="number" value={currentItem.quantity} onChange={e => setCurrentItem({...currentItem, quantity: parseFloat(e.target.value) || 0})} className={IN} min="1" />
+                      </div>
+                      <div>
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Precio Unit.</label>
+                        <input type="number" value={currentItem.unitPrice} onChange={e => setCurrentItem({...currentItem, unitPrice: parseFloat(e.target.value) || 0})} className={IN} step="0.01" />
+                      </div>
+                      <div>
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Descuento</label>
+                        <input type="number" value={currentItem.discount} onChange={e => setCurrentItem({...currentItem, discount: parseFloat(e.target.value) || 0})} className={IN} step="0.01" />
+                      </div>
+                      <div>
+                        <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>IVA %</label>
+                        <select value={currentItem.ivaRate} onChange={e => setCurrentItem({...currentItem, ivaRate: parseInt(e.target.value)})} className={IN}>
+                          <option value={0}>0%</option>
+                          <option value={12}>12%</option>
+                          <option value={15}>15%</option>
+                        </select>
+                      </div>
+                      <div className="col-span-6">
+                        <button onClick={addItem} className={`w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>
+                          <Plus className="w-4 h-4" /> Agregar Producto
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Lista de Productos */}
+                  {items.length > 0 && (
+                    <div>
+                      <h4 className={`font-semibold text-sm ${txt} mb-3`}>Productos Agregados ({items.length})</h4>
+                      <div className={`border rounded-lg overflow-hidden ${divB}`}>
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className={`border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                              <th className={`px-3 py-2 text-left text-xs font-semibold ${sub}`}>Código</th>
+                              <th className={`px-3 py-2 text-left text-xs font-semibold ${sub}`}>Descripción</th>
+                              <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Cant.</th>
+                              <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>P. Unit.</th>
+                              <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Desc.</th>
+                              <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>IVA</th>
+                              <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Total</th>
+                              <th className={`px-3 py-2 text-center text-xs font-semibold ${sub}`}>Acción</th>
+                            </tr>
+                          </thead>
+                          <tbody className={`divide-y ${divB}`}>
+                            {items.map(item => (
+                              <tr key={item.id}>
+                                <td className={`px-3 py-2 ${txt}`}>{item.code}</td>
+                                <td className={`px-3 py-2 ${txt}`}>{item.description}</td>
+                                <td className={`px-3 py-2 text-right ${txt}`}>{item.quantity}</td>
+                                <td className={`px-3 py-2 text-right ${txt}`}>${item.unitPrice.toFixed(2)}</td>
+                                <td className={`px-3 py-2 text-right ${txt}`}>${item.discount.toFixed(2)}</td>
+                                <td className={`px-3 py-2 text-right ${txt}`}>{item.ivaRate}%</td>
+                                <td className={`px-3 py-2 text-right font-semibold ${txt}`}>${item.total.toFixed(2)}</td>
+                                <td className="px-3 py-2 text-center">
+                                  <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700">
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Totales */}
+                      <div className={`mt-4 p-4 rounded-lg ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
+                        <div className="grid grid-cols-2 gap-3 max-w-md ml-auto">
+                          <div className="flex justify-between">
+                            <span className={`text-sm ${sub}`}>Subtotal:</span>
+                            <span className={`text-sm font-semibold ${txt}`}>${totals.subtotal.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className={`text-sm ${sub}`}>Descuento:</span>
+                            <span className={`text-sm font-semibold text-red-600`}>-${totals.totalDiscount.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className={`text-sm ${sub}`}>Subtotal antes IVA:</span>
+                            <span className={`text-sm font-semibold ${txt}`}>${totals.subtotalBeforeTax.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className={`text-sm ${sub}`}>IVA 15%:</span>
+                            <span className={`text-sm font-semibold ${txt}`}>${totals.iva15.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className={`text-sm ${sub}`}>IVA 12%:</span>
+                            <span className={`text-sm font-semibold ${txt}`}>${totals.iva12.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className={`text-sm ${sub}`}>IVA 0%:</span>
+                            <span className={`text-sm font-semibold ${txt}`}>${totals.iva0.toFixed(2)}</span>
+                          </div>
+                          <div className={`col-span-2 pt-3 border-t flex justify-between ${divB}`}>
+                            <span className={`text-base font-bold ${txt}`}>TOTAL:</span>
+                            <span className={`text-base font-bold text-primary`}>${totals.total.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Observaciones */}
+                  <div>
+                    <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Observaciones</label>
+                    <textarea value={formData.observations} onChange={e => setFormData({...formData, observations: e.target.value})} className={IN} rows={3} placeholder="Notas adicionales..."></textarea>
+                  </div>
+                </div>
+
+                <div className={`border-t ${divB} px-6 py-4 flex justify-end gap-3`}>
+                  <button onClick={() => setShowCreateModal(false)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>Cancelar</button>
+                  <button onClick={handleCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">
+                    <Save className="w-4 h-4" /> Crear Factura
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ══ Modal Ver ══════════════════════════════════════════════════════════ */}
+          {showViewModal && selectedInvoice && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className={`w-full max-w-4xl ${modal} max-h-[90vh] overflow-y-auto`}>
+                <div className={`border-b ${divB} px-6 py-4 flex items-center justify-between`}>
+                  <div>
+                    <h3 className={`font-bold text-lg ${txt}`}>Factura Electrónica</h3>
+                    <p className={`text-sm font-mono ${sub} mt-0.5`}>{selectedInvoice.invoiceNumber}</p>
+                  </div>
+                  <button onClick={() => { setShowViewModal(false); setSelectedInvoice(null); }} className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"}`}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="p-6 space-y-4">
+                  {/* Estado y Clave de Acceso */}
+                  <div className={`p-4 rounded-lg ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${getStatusBadge(selectedInvoice.status)}`}>
+                        {getStatusIcon(selectedInvoice.status)}
+                        {selectedInvoice.status}
+                      </span>
+                      {selectedInvoice.authorizationDate && (
+                        <span className={`text-xs ${sub}`}>Autorizado: {selectedInvoice.authorizationDate}</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className={`text-xs font-medium ${sub} mb-1`}>Clave de Acceso:</p>
+                      <p className={`text-sm font-mono ${txt} break-all`}>{selectedInvoice.accessKey}</p>
+                    </div>
+                  </div>
+
+                  {/* Emisor y Receptor */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className={`text-xs font-semibold ${sub} mb-2`}>EMISOR</p>
+                      <div className="space-y-1">
+                        <p className={`text-sm font-bold ${txt}`}>{selectedInvoice.issuerName}</p>
+                        <p className={`text-xs ${txt}`}>RUC: {selectedInvoice.issuerRuc}</p>
+                        <p className={`text-xs ${sub}`}>{selectedInvoice.issuerAddress}</p>
+                        <p className={`text-xs ${sub}`}>{selectedInvoice.issuerPhone}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className={`text-xs font-semibold ${sub} mb-2`}>RECEPTOR</p>
+                      <div className="space-y-1">
+                        <p className={`text-sm font-bold ${txt}`}>{selectedInvoice.customerName}</p>
+                        <p className={`text-xs ${txt}`}>{selectedInvoice.customerIdType}: {selectedInvoice.customerId}</p>
+                        <p className={`text-xs ${sub}`}>{selectedInvoice.customerAddress || "—"}</p>
+                        <p className={`text-xs ${sub}`}>{selectedInvoice.customerEmail || "—"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Detalle de Productos */}
+                  <div>
+                    <p className={`text-xs font-semibold ${sub} mb-2`}>DETALLE</p>
+                    <div className={`border rounded-lg overflow-hidden ${divB}`}>
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className={`border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                            <th className={`px-3 py-2 text-left text-xs font-semibold ${sub}`}>Descripción</th>
+                            <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Cant.</th>
+                            <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>P. Unit.</th>
+                            <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Desc.</th>
+                            <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>IVA</th>
+                            <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Total</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className={`divide-y ${divB}`}>
+                          {selectedInvoice.items.map(item => (
+                            <tr key={item.id}>
+                              <td className={`px-3 py-2 ${txt}`}>
+                                <div className="font-medium">{item.description}</div>
+                                <div className={`text-xs ${sub}`}>Código: {item.code}</div>
+                              </td>
+                              <td className={`px-3 py-2 text-right ${txt}`}>{item.quantity}</td>
+                              <td className={`px-3 py-2 text-right ${txt}`}>${item.unitPrice.toFixed(2)}</td>
+                              <td className={`px-3 py-2 text-right ${txt}`}>${item.discount.toFixed(2)}</td>
+                              <td className={`px-3 py-2 text-right ${txt}`}>{item.ivaRate}%</td>
+                              <td className={`px-3 py-2 text-right font-semibold ${txt}`}>${item.total.toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
 
                   {/* Totales */}
-                  <div className={`mt-4 p-4 rounded-lg ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
-                    <div className="grid grid-cols-2 gap-3 max-w-md ml-auto">
-                      <div className="flex justify-between">
-                        <span className={`text-sm ${sub}`}>Subtotal:</span>
-                        <span className={`text-sm font-semibold ${txt}`}>${totals.subtotal.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className={`text-sm ${sub}`}>Descuento:</span>
-                        <span className={`text-sm font-semibold text-red-600`}>-${totals.totalDiscount.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className={`text-sm ${sub}`}>Subtotal antes IVA:</span>
-                        <span className={`text-sm font-semibold ${txt}`}>${totals.subtotalBeforeTax.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className={`text-sm ${sub}`}>IVA 15%:</span>
-                        <span className={`text-sm font-semibold ${txt}`}>${totals.iva15.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className={`text-sm ${sub}`}>IVA 12%:</span>
-                        <span className={`text-sm font-semibold ${txt}`}>${totals.iva12.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className={`text-sm ${sub}`}>IVA 0%:</span>
-                        <span className={`text-sm font-semibold ${txt}`}>${totals.iva0.toFixed(2)}</span>
-                      </div>
-                      <div className={`col-span-2 pt-3 border-t flex justify-between ${divB}`}>
-                        <span className={`text-base font-bold ${txt}`}>TOTAL:</span>
-                        <span className={`text-base font-bold text-primary`}>${totals.total.toFixed(2)}</span>
+                  <div className={`p-4 rounded-lg ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
+                    <div className="grid grid-cols-2 gap-2 max-w-md ml-auto text-sm">
+                      <span className={sub}>Subtotal:</span>
+                      <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.subtotal.toFixed(2)}</span>
+                      
+                      <span className={sub}>Descuento:</span>
+                      <span className="text-right font-semibold text-red-600">-${selectedInvoice.totalDiscount.toFixed(2)}</span>
+                      
+                      <span className={sub}>Subtotal antes IVA:</span>
+                      <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.subtotalBeforeTax.toFixed(2)}</span>
+                      
+                      <span className={sub}>IVA 15%:</span>
+                      <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.iva15.toFixed(2)}</span>
+                      
+                      <span className={sub}>IVA 12%:</span>
+                      <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.iva12.toFixed(2)}</span>
+                      
+                      <span className={sub}>IVA 0%:</span>
+                      <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.iva0.toFixed(2)}</span>
+                      
+                      <div className={`col-span-2 pt-2 border-t flex justify-between ${divB}`}>
+                        <span className={`font-bold ${txt}`}>TOTAL:</span>
+                        <span className="font-bold text-primary text-lg">${selectedInvoice.total.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
 
-              {/* Observaciones */}
-              <div>
-                <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>Observaciones</label>
-                <textarea value={formData.observations} onChange={e => setFormData({...formData, observations: e.target.value})} className={IN} rows={3} placeholder="Notas adicionales..."></textarea>
-              </div>
-            </div>
-
-            <div className={`border-t ${divB} px-6 py-4 flex justify-end gap-3`}>
-              <button onClick={() => setShowCreateModal(false)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>Cancelar</button>
-              <button onClick={handleCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">
-                <Save className="w-4 h-4" /> Crear Factura
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══ Modal Ver ══════════════════════════════════════════════════════════ */}
-      {showViewModal && selectedInvoice && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-4xl ${modal} max-h-[90vh] overflow-y-auto`}>
-            <div className={`border-b ${divB} px-6 py-4 flex items-center justify-between`}>
-              <div>
-                <h3 className={`font-bold text-lg ${txt}`}>Factura Electrónica</h3>
-                <p className={`text-sm font-mono ${sub} mt-0.5`}>{selectedInvoice.invoiceNumber}</p>
-              </div>
-              <button onClick={() => { setShowViewModal(false); setSelectedInvoice(null); }} className={`p-2 rounded-lg transition-colors ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"}`}>
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              {/* Estado y Clave de Acceso */}
-              <div className={`p-4 rounded-lg ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${getStatusBadge(selectedInvoice.status)}`}>
-                    {getStatusIcon(selectedInvoice.status)}
-                    {selectedInvoice.status}
-                  </span>
-                  {selectedInvoice.authorizationDate && (
-                    <span className={`text-xs ${sub}`}>Autorizado: {selectedInvoice.authorizationDate}</span>
+                  {selectedInvoice.observations && (
+                    <div>
+                      <p className={`text-xs font-semibold ${sub} mb-1`}>OBSERVACIONES</p>
+                      <p className={`text-sm ${txt}`}>{selectedInvoice.observations}</p>
+                    </div>
                   )}
                 </div>
-                <div>
-                  <p className={`text-xs font-medium ${sub} mb-1`}>Clave de Acceso:</p>
-                  <p className={`text-sm font-mono ${txt} break-all`}>{selectedInvoice.accessKey}</p>
-                </div>
-              </div>
 
-              {/* Emisor y Receptor */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className={`text-xs font-semibold ${sub} mb-2`}>EMISOR</p>
-                  <div className="space-y-1">
-                    <p className={`text-sm font-bold ${txt}`}>{selectedInvoice.issuerName}</p>
-                    <p className={`text-xs ${txt}`}>RUC: {selectedInvoice.issuerRuc}</p>
-                    <p className={`text-xs ${sub}`}>{selectedInvoice.issuerAddress}</p>
-                    <p className={`text-xs ${sub}`}>{selectedInvoice.issuerPhone}</p>
+                <div className={`border-t ${divB} px-6 py-4 flex justify-between items-center`}>
+                  <div className="flex gap-2">
+                    {selectedInvoice.status === "Autorizado" && (
+                      <>
+                        <button onClick={() => handleDownloadXML(selectedInvoice)} className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>
+                          <FileCheck className="w-4 h-4" /> XML
+                        </button>
+                        <button onClick={() => handleDownloadPDF(selectedInvoice)} className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>
+                          <Download className="w-4 h-4" /> PDF
+                        </button>
+                        <button onClick={() => handleSendEmail(selectedInvoice)} className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>
+                          <Mail className="w-4 h-4" /> Email
+                        </button>
+                      </>
+                    )}
                   </div>
-                </div>
-                <div>
-                  <p className={`text-xs font-semibold ${sub} mb-2`}>RECEPTOR</p>
-                  <div className="space-y-1">
-                    <p className={`text-sm font-bold ${txt}`}>{selectedInvoice.customerName}</p>
-                    <p className={`text-xs ${txt}`}>{selectedInvoice.customerIdType}: {selectedInvoice.customerId}</p>
-                    <p className={`text-xs ${sub}`}>{selectedInvoice.customerAddress || "—"}</p>
-                    <p className={`text-xs ${sub}`}>{selectedInvoice.customerEmail || "—"}</p>
-                  </div>
+                  <button onClick={() => { setShowViewModal(false); setSelectedInvoice(null); }} className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">
+                    Cerrar
+                  </button>
                 </div>
               </div>
-
-              {/* Detalle de Productos */}
-              <div>
-                <p className={`text-xs font-semibold ${sub} mb-2`}>DETALLE</p>
-                <div className={`border rounded-lg overflow-hidden ${divB}`}>
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className={`border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${sub}`}>Descripción</th>
-                        <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Cant.</th>
-                        <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>P. Unit.</th>
-                        <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Desc.</th>
-                        <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>IVA</th>
-                        <th className={`px-3 py-2 text-right text-xs font-semibold ${sub}`}>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className={`divide-y ${divB}`}>
-                      {selectedInvoice.items.map(item => (
-                        <tr key={item.id}>
-                          <td className={`px-3 py-2 ${txt}`}>
-                            <div className="font-medium">{item.description}</div>
-                            <div className={`text-xs ${sub}`}>Código: {item.code}</div>
-                          </td>
-                          <td className={`px-3 py-2 text-right ${txt}`}>{item.quantity}</td>
-                          <td className={`px-3 py-2 text-right ${txt}`}>${item.unitPrice.toFixed(2)}</td>
-                          <td className={`px-3 py-2 text-right ${txt}`}>${item.discount.toFixed(2)}</td>
-                          <td className={`px-3 py-2 text-right ${txt}`}>{item.ivaRate}%</td>
-                          <td className={`px-3 py-2 text-right font-semibold ${txt}`}>${item.total.toFixed(2)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Totales */}
-              <div className={`p-4 rounded-lg ${isLight ? "bg-gray-50" : "bg-white/5"}`}>
-                <div className="grid grid-cols-2 gap-2 max-w-md ml-auto text-sm">
-                  <span className={sub}>Subtotal:</span>
-                  <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.subtotal.toFixed(2)}</span>
-                  
-                  <span className={sub}>Descuento:</span>
-                  <span className="text-right font-semibold text-red-600">-${selectedInvoice.totalDiscount.toFixed(2)}</span>
-                  
-                  <span className={sub}>Subtotal antes IVA:</span>
-                  <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.subtotalBeforeTax.toFixed(2)}</span>
-                  
-                  <span className={sub}>IVA 15%:</span>
-                  <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.iva15.toFixed(2)}</span>
-                  
-                  <span className={sub}>IVA 12%:</span>
-                  <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.iva12.toFixed(2)}</span>
-                  
-                  <span className={sub}>IVA 0%:</span>
-                  <span className={`text-right font-semibold ${txt}`}>${selectedInvoice.iva0.toFixed(2)}</span>
-                  
-                  <div className={`col-span-2 pt-2 border-t flex justify-between ${divB}`}>
-                    <span className={`font-bold ${txt}`}>TOTAL:</span>
-                    <span className="font-bold text-primary text-lg">${selectedInvoice.total.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {selectedInvoice.observations && (
-                <div>
-                  <p className={`text-xs font-semibold ${sub} mb-1`}>OBSERVACIONES</p>
-                  <p className={`text-sm ${txt}`}>{selectedInvoice.observations}</p>
-                </div>
-              )}
             </div>
+          )}
 
-            <div className={`border-t ${divB} px-6 py-4 flex justify-between items-center`}>
-              <div className="flex gap-2">
-                {selectedInvoice.status === "Autorizado" && (
-                  <>
-                    <button onClick={() => handleDownloadXML(selectedInvoice)} className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>
-                      <FileCheck className="w-4 h-4" /> XML
-                    </button>
-                    <button onClick={() => handleDownloadPDF(selectedInvoice)} className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>
-                      <Download className="w-4 h-4" /> PDF
-                    </button>
-                    <button onClick={() => handleSendEmail(selectedInvoice)} className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>
-                      <Mail className="w-4 h-4" /> Email
-                    </button>
-                  </>
-                )}
-              </div>
-              <button onClick={() => { setShowViewModal(false); setSelectedInvoice(null); }} className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors">
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══ Modal Eliminar ═════════════════════════════════════════════════════ */}
-      {showDeleteModal && selectedInvoice && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`w-full max-w-md ${modal}`}>
-            <div className={`border-b ${divB} px-6 py-4`}>
-              <h3 className={`font-bold text-lg ${txt}`}>Eliminar Factura</h3>
-            </div>
-            <div className="p-6">
-              <p className={`text-sm ${txt} mb-4`}>
-                ¿Estás seguro de que deseas eliminar la factura <strong>{selectedInvoice.invoiceNumber}</strong>?
-              </p>
-              {selectedInvoice.status === "Autorizado" && (
-                <div className={`p-3 rounded-lg mb-4 ${isLight ? "bg-red-50 border border-red-200" : "bg-red-500/10 border border-red-500/20"}`}>
-                  <p className="text-sm text-red-600 dark:text-red-400">
-                    ⚠️ Esta factura está autorizada por el SRI y no se puede eliminar. Debe anularse mediante nota de crédito.
+          {/* ══ Modal Eliminar ═════════════════════════════════════════════════════ */}
+          {showDeleteModal && selectedInvoice && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className={`w-full max-w-md ${modal}`}>
+                <div className={`border-b ${divB} px-6 py-4`}>
+                  <h3 className={`font-bold text-lg ${txt}`}>Eliminar Factura</h3>
+                </div>
+                <div className="p-6">
+                  <p className={`text-sm ${txt} mb-4`}>
+                    ¿Estás seguro de que deseas eliminar la factura <strong>{selectedInvoice.invoiceNumber}</strong>?
                   </p>
+                  {selectedInvoice.status === "Autorizado" && (
+                    <div className={`p-3 rounded-lg mb-4 ${isLight ? "bg-red-50 border border-red-200" : "bg-red-500/10 border border-red-500/20"}`}>
+                      <p className="text-sm text-red-600 dark:text-red-400">
+                        ⚠️ Esta factura está autorizada por el SRI y no se puede eliminar. Debe anularse mediante nota de crédito.
+                      </p>
+                    </div>
+                  )}
+                  <p className={`text-xs ${sub}`}>Esta acción no se puede deshacer.</p>
                 </div>
-              )}
-              <p className={`text-xs ${sub}`}>Esta acción no se puede deshacer.</p>
+                <div className={`border-t ${divB} px-6 py-4 flex justify-end gap-3`}>
+                  <button onClick={() => { setShowDeleteModal(false); setSelectedInvoice(null); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>Cancelar</button>
+                  <button 
+                    onClick={handleDelete} 
+                    disabled={selectedInvoice.status === "Autorizado"}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className={`border-t ${divB} px-6 py-4 flex justify-end gap-3`}>
-              <button onClick={() => { setShowDeleteModal(false); setSelectedInvoice(null); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${btnSec}`}>Cancelar</button>
-              <button 
-                onClick={handleDelete} 
-                disabled={selectedInvoice.status === "Autorizado"}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

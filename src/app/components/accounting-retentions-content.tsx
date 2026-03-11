@@ -6,17 +6,19 @@ import {
   Shield, Code2, FileCode, UserSearch, CheckCircle2,
   Send, Wifi, RotateCcw, ChevronRight, Loader2, CalendarDays,
   ChevronUp, ChevronDown, Calendar as CalendarIcon, Settings, Cloud,
-  BookCheck,
+  BookCheck, XCircle,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
 import { printRetencion, printAllRetentions, downloadRetentionsCSV } from "../utils/print-download";
 import { SUPPLIERS_DATA } from "../data/suppliers-data";
-import { PURCHASE_INVOICES_DATA, PurchaseInvoice } from "../data/purchase-invoices-data";
+import { PURCHASE_INVOICES_DATA, type PurchaseInvoice } from "../data/purchase-invoices-data";
 import { DatePicker } from "./date-picker-range";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ManualRetentionModal } from "./manual-retention-modal";
+import { CancelRetentionModal } from "./cancel-retention-modal";
+import { CreateRetentionModal } from "./create-retention-modal";
 
 /* ══════════════════════════════════════════════════════════════════════
    TIPOS
@@ -1722,7 +1724,7 @@ function RideViewer({ ret, onClose, onPrint, onAuthorize, onAnular, isLight }: {
     <div className="flex flex-col h-full">
 
       {/* ── Toolbar ── */}
-      <div className={`flex items-center justify-between px-3 py-2 border-b flex-shrink-0 ${isLight ? "bg-gray-50 border-gray-200" : "bg-[#0c1520] border-white/10"}`}>
+      <div className={`flex items-center justify-between px-3 py-2 border-b flex-shrink-0 ${isLight ? "bg-gray-50 border-gray-200" : "bg-[#1a2936] border-white/10"}`}>
         {/* Tabs RIDE / XML */}
         <div className={`flex gap-0.5 p-0.5 rounded-lg ${isLight ? "bg-gray-200" : "bg-white/10"}`}>
           <button onClick={() => setActiveView("ride")}
@@ -1776,98 +1778,7 @@ function RideViewer({ ret, onClose, onPrint, onAuthorize, onAnular, isLight }: {
         </div>
       </div>
 
-      {/* ══ Panel de Anulación SRI (solo autorizada/emitida y COMPRAS) ══ */}
-      {isAnulable && onAnular && (
-        <div className={`flex-shrink-0 border-b ${isLight ? "border-red-200 bg-red-50" : "border-red-500/20 bg-red-500/5"}`}>
 
-          {/* Stepper */}
-          <div className="flex items-center gap-0 px-4 pt-3 pb-2">
-            {[
-              { key: "idle",       label: "Solicitar",          icon: <Trash2 className="w-3.5 h-3.5" /> },
-              { key: "validando",  label: "Validando XML",      icon: <FileText className="w-3.5 h-3.5" /> },
-              { key: "firmando",   label: "Firma Electrónica",  icon: <Shield className="w-3.5 h-3.5" /> },
-              { key: "enviando",   label: "Enviando al SRI",    icon: <Wifi className="w-3.5 h-3.5" /> },
-              { key: "ok",         label: "Anulada",            icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-            ].map((step, i, arr) => {
-              const stepOrder = ["idle","validando","firmando","enviando","ok"];
-              const currentIdx = stepOrder.indexOf(anulStep);
-              const stepIdx = stepOrder.indexOf(step.key);
-              const isDone   = currentIdx > stepIdx;
-              const isActive = currentIdx === stepIdx;
-              return (
-                <div key={step.key} className="flex items-center flex-1 min-w-0">
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-500 ${
-                      isDone  ? "bg-green-500 text-white" :
-                      isActive && anulStep !== "idle" ? "bg-red-500 text-white animate-pulse" :
-                      step.key === "idle" ? "bg-red-400 text-white" :
-                      isLight ? "bg-gray-200 text-gray-400" : "bg-white/10 text-gray-500"
-                    }`}>
-                      {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> :
-                       isActive && anulStep !== "idle" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
-                       step.icon}
-                    </div>
-                    <span className={`text-[9px] mt-0.5 text-center leading-tight max-w-[52px] ${
-                      isDone ? (isLight ? "text-green-600" : "text-green-400") :
-                      isActive && anulStep !== "idle" ? "text-red-500 font-bold" :
-                      step.key === "idle" ? (isLight ? "text-red-600 font-bold" : "text-red-400 font-bold") :
-                      isLight ? "text-gray-400" : "text-gray-600"
-                    }`}>{step.label}</span>
-                  </div>
-                  {i < arr.length - 1 && (
-                    <div className={`flex-1 h-0.5 mx-1 transition-all duration-500 ${isDone ? "bg-green-500" : isLight ? "bg-gray-200" : "bg-white/10"}`} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Acción */}
-          <div className="px-4 pb-3 flex items-center gap-3">
-            {anulStep === "idle" && (
-              <>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-bold ${isLight ? "text-red-700" : "text-red-400"}`}>
-                    ⚠ Anular esta retención ante el SRI
-                  </p>
-                  <p className={`text-[10px] mt-0.5 ${isLight ? "text-red-500" : "text-red-500/80"}`}>
-                    Se enviará la solicitud de anulación al SRI. Esta acción no se puede deshacer.
-                  </p>
-                </div>
-                <button
-                  onClick={handleAnulFlow}
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors shadow-lg shadow-red-500/20"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Anular en SRI
-                </button>
-              </>
-            )}
-            {(anulStep === "validando" || anulStep === "firmando" || anulStep === "enviando") && (
-              <div className={`flex-1 flex items-center gap-3 py-1 px-3 rounded-lg ${isLight ? "bg-red-100" : "bg-red-500/10"}`}>
-                <Loader2 className="w-4 h-4 text-red-500 animate-spin flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-red-500">
-                    {anulStep === "validando" && "Validando estructura XML…"}
-                    {anulStep === "firmando"  && "Aplicando firma electrónica…"}
-                    {anulStep === "enviando"  && "Enviando anulación al SRI…"}
-                  </p>
-                  <p className={`text-[10px] ${isLight ? "text-gray-500" : "text-gray-400"}`}>Por favor espere, no cierre esta ventana.</p>
-                </div>
-              </div>
-            )}
-            {anulStep === "ok" && (
-              <div className={`flex-1 flex items-center gap-3 py-1 px-3 rounded-lg ${isLight ? "bg-green-50 border border-green-200" : "bg-green-500/10 border border-green-500/20"}`}>
-                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className={`text-xs font-bold ${isLight ? "text-green-700" : "text-green-400"}`}>¡Anulación aceptada por el SRI!</p>
-                  <p className={`text-[10px] ${isLight ? "text-green-600" : "text-green-500"}`}>La retención ha sido anulada correctamente.</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* ══ Panel de Autorización SRI (solo pendiente y COMPRAS) ══ */}
       {isPendiente && onAuthorize && (
@@ -1967,7 +1878,7 @@ function RideViewer({ ret, onClose, onPrint, onAuthorize, onAnular, isLight }: {
 
       {/* ── Vista RIDE (compacta) ── */}
       {activeView === "ride" && (
-        <div className={`flex-1 overflow-auto p-3 ${isLight ? "bg-gray-300" : "bg-[#06090f]"}`}>
+        <div className={`flex-1 overflow-auto p-3 ${isLight ? "bg-gray-300" : "bg-[#0D1B2A]"}`}>
           <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center", transition: "transform 0.15s" }}>
             {/* Documento — ancho 520px */}
             <div className="bg-white mx-auto shadow-2xl text-gray-800"
@@ -2204,6 +2115,8 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsRet, setDetailsRet] = useState<Retencion | null>(null);
   const [showManualModal, setShowManualModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Actualizar selección cuando cambie la categoría o el filtro
   useEffect(() => {
@@ -2319,10 +2232,13 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
     toast.success("✓ Retención autorizada por el SRI");
   };
 
-  const handleAnular = (id: string) => {
-    setRetenciones(prev => prev.map(r => r.id === id ? { ...r, estado: "anulada" } : r));
-    setSelected(prev => prev && prev.id === id ? { ...prev, estado: "anulada" } : prev);
-    toast.success("✓ Anulación aceptada por el SRI. Retención anulada.");
+  const handleAnular = (data: any) => {
+    const { retentionId, reason } = data;
+    setRetenciones(prev => prev.map(r => r.id === retentionId ? { ...r, estado: "anulada" } : r));
+    setSelected(prev => prev && prev.id === retentionId ? { ...prev, estado: "anulada" } : prev);
+    toast.success("✓ Anulación aceptada por el SRI. Retención anulada.", {
+      description: `Motivo: ${reason}`
+    });
   };
 
   // Función para sincronizar con SRI
@@ -2636,7 +2552,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
   };
 
   /* ── estilos ──────────────────────────────────────────────────────── */
-  const ic  = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`;
+  const ic  = `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2936] border-white/10 text-white"}`;
   const lbl = `block mb-1.5 text-sm font-medium ${isLight ? "text-gray-700" : "text-white"}`;
   const opt = "bg-[#0D1B2A]";
   const modalBg = `${isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10"}`;
@@ -2700,10 +2616,10 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
       <div className={`flex gap-0 rounded-xl border flex-1 min-h-0 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-white/5"}`}>
 
         {/* ══ Panel izquierdo: TABLA 60% ══ */}
-        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0c1520]"}`} style={{ width: "60%" }}>
+        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#1a2936]"}`} style={{ width: "60%" }}>
 
-          {/* ── Barra de herramientas ── */}
-          <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0d1724]"}`}>
+          {/* ── ÚNICA FILA: FILTROS + ACCIONES ── */}
+          <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0D1B2A]"}`}>
             {!filterByCategory && (
               <div className={`flex gap-1 p-0.5 rounded-lg ${isLight ? "bg-gray-100" : "bg-white/5"}`}>
                 {(["todas","compras","ventas"] as const).map(c => (
@@ -2716,11 +2632,11 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
             )}
             <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 flex-1 min-w-[160px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
               <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar número, contribuyente, comprobante..."
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar número, contribuyente, comprobante"
                 className={`flex-1 bg-transparent text-xs focus:outline-none placeholder:text-gray-500 ${isLight ? "text-gray-900" : "text-white"}`} />
             </div>
             <select value={filterTipo} onChange={e => setFilterTipo(e.target.value)}
-              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}>
+              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#1a2936] border-white/10 text-gray-400"}`}>
               <option value="all" className={opt}>Tipo: Todos</option>
               <option value="Fuente" className={opt}>Ret. Fuente</option>
               <option value="IVA" className={opt}>Ret. IVA</option>
@@ -2728,7 +2644,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
             {/* Solo mostrar filtro de Estado en COMPRAS */}
             {categoria === "compras" && (
               <select value={filterEstado} onChange={e => setFilterEstado(e.target.value)}
-                className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}>
+                className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#1a2936] border-white/10 text-gray-400"}`}>
                 <option value="all" className={opt}>Estado: Todos</option>
                 <option value="autorizada" className={opt}>Autorizada</option>
                 <option value="pendiente" className={opt}>Pendiente</option>
@@ -2776,7 +2692,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     isSyncing 
                       ? "bg-blue-400 cursor-not-allowed text-white" 
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-600/30"
                   }`}
                 >
                   {isSyncing ? (
@@ -2803,18 +2719,26 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
             
             {/* Botones de Nueva Retención */}
             {categoria === "compras" && (
-              <div className="flex items-center gap-2">
-                <button onClick={() => setShowModal(true)}
+              <>
+                <button onClick={() => setShowCreateModal(true)}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm shadow-primary/30">
                   <Plus className="w-3.5 h-3.5" /> Retención Asistida
                 </button>
                 <button onClick={() => setShowManualModal(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    isLight ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-white/5 hover:bg-white/10 text-white"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
+                    isLight ? "border-gray-300 text-gray-700 hover:bg-gray-50" : "border-white/10 text-gray-300 hover:bg-white/5"
                   }`}>
                   <Plus className="w-3.5 h-3.5" /> Ingreso Manual
                 </button>
-              </div>
+                <button 
+                  onClick={() => setShowCancelModal(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                    isLight ? "border-red-300 text-red-700 hover:bg-red-50" : "border-red-500/30 text-red-400 hover:bg-red-500/10"
+                  }`}
+                >
+                  <XCircle className="w-3.5 h-3.5" /> Anular Retención
+                </button>
+              </>
             )}
             
             {/* Botón de Ingreso Manual para VENTAS */}
@@ -2846,8 +2770,9 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           )}
 
           {/* ── TABLA ── */}
-          <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar">
-            <table className="w-full min-w-[1250px] border-collapse">
+          <div className="flex-1 min-h-0 max-h-[600px] overflow-hidden">
+            <div className="h-full overflow-x-auto overflow-y-auto custom-scrollbar">
+              <table className="w-full min-w-[1250px] border-collapse">
               <thead className="sticky top-0 z-10">
                 <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${isLight ? "bg-gray-100 border-gray-200 text-gray-500" : "bg-[#0D1B2A] border-white/10 text-gray-400"}`}>
                   {/* Col 1 - Estado (solo en COMPRAS) */}
@@ -2974,12 +2899,13 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
                   );
                 })}
               </tbody>
-            </table>
+              </table>
 
-            {/* Pie de tabla */}
-            {filtered.length > 0 && (
-              null
-            )}
+              {/* Pie de tabla */}
+              {filtered.length > 0 && (
+                null
+              )}
+            </div>
           </div>
         </div>
 
@@ -3549,6 +3475,51 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           setSelected(retention);
         }}
         categoria={categoria === "todas" ? "compras" : categoria}
+      />
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MODAL: ANULAR RETENCIÓN
+         ══════════════════════════════════════════════════════════════════════ */}
+      <CancelRetentionModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onSave={handleAnular}
+        isLight={isLight}
+        retentions={filtered.map(r => ({
+          id: r.id,
+          num: r.num,
+          fecha: r.fecha,
+          contribuyente: r.contribuyente,
+          ruc: r.ruc,
+          total_retenido: r.total_retenido,
+          estado: r.estado
+        }))}
+      />
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MODAL: CREAR RETENCIÓN ASISTIDA CON PROCESO SRI
+         ══════════════════════════════════════════════════════════════════════ */}
+      <CreateRetentionModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSave={(retention) => {
+          setRetenciones([retention, ...retenciones]);
+          setSelected(retention);
+        }}
+        isLight={isLight}
+        categoria={categoria === "todas" ? "compras" : categoria}
+        suppliers={SUPPLIERS_DATA}
+        invoices={PURCHASE_INVOICES_DATA.map(inv => {
+          const supplier = SUPPLIERS_DATA.find(s => s.id === inv.supplierId);
+          return {
+            id: inv.id,
+            number: inv.numero,
+            date: inv.fecha,
+            supplierName: supplier?.name || "",
+            supplierRuc: supplier?.ruc || "",
+            total: inv.total
+          };
+        })}
       />
     </div>
   );

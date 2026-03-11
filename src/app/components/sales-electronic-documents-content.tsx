@@ -1,20 +1,22 @@
 import { useState } from "react";
-import { FileText, RotateCcw, TrendingDown, FileCheck } from "lucide-react";
+import { FileText, RotateCcw, TrendingDown, FileCheck, Truck } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { SalesInvoicesContent } from "./sales-invoices-content";
 import { SalesCreditNotesContent } from "./sales-credit-notes-content";
 import { SalesDebitNotesContent } from "./sales-debit-notes-content";
 import { AccountingRetentionsContent } from "./accounting-retentions-content";
+import { SalesRemissionGuidesContent } from "./sales-remission-guides-content";
 
 export function SalesElectronicDocumentsContent() {
   const { theme } = useTheme();
   const isLight = theme === "light";
-  const [activeDocType, setActiveDocType] = useState<"invoices" | "credit-notes" | "debit-notes" | "retentions">("invoices");
+  const [activeDocType, setActiveDocType] = useState<"invoices" | "credit-notes" | "debit-notes" | "remission-guides" | "retentions">("invoices");
 
   const tabs = [
     { id: "invoices" as const, name: "Facturas", icon: FileText },
     { id: "credit-notes" as const, name: "Notas de Crédito", icon: RotateCcw },
     { id: "debit-notes" as const, name: "Notas de Débito", icon: TrendingDown },
+    { id: "remission-guides" as const, name: "Guías de Remisión", icon: Truck },
     { id: "retentions" as const, name: "Retenciones Recibidas", icon: FileCheck },
   ];
 
@@ -54,6 +56,7 @@ export function SalesElectronicDocumentsContent() {
         {activeDocType === "invoices" && <SalesInvoicesContent />}
         {activeDocType === "credit-notes" && <SalesCreditNotesContent />}
         {activeDocType === "debit-notes" && <SalesDebitNotesContent />}
+        {activeDocType === "remission-guides" && <SalesRemissionGuidesContent />}
         {activeDocType === "retentions" && <AccountingRetentionsContent filterByCategory="ventas" />}
       </div>
     </div>

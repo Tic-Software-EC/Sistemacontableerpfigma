@@ -13,17 +13,16 @@ import {
   DollarSign,
   Sun,
   Moon,
-  Users,
   TrendingUp,
   FileCheck,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
-import { SalesCustomersContent } from "../components/sales-customers-content";
 import { SalesQuotesContent } from "../components/sales-quotes-content";
 import { SalesElectronicDocumentsContent } from "../components/sales-electronic-documents-content";
 
+// TicSoftEc - Módulo de Ventas
 export default function ModuleVentasDetail() {
   const navigate = useNavigate();
   const params = useParams<{ tab?: string }>();
@@ -33,7 +32,7 @@ export default function ModuleVentasDetail() {
 
   // Module: Sales Management
 
-  const validTabs = ["quotes", "orders", "customers", "electronic-documents", "collections"];
+  const validTabs = ["quotes", "orders", "electronic-documents", "collections"];
   const activeTab = validTabs.includes(params.tab ?? "") ? params.tab! : "quotes";
   const setActiveTab = (tab: string) => {
     navigate(`/module-ventas-detail/${tab}`, { replace: true });
@@ -52,7 +51,6 @@ export default function ModuleVentasDetail() {
   const tabs = [
     { id: "quotes", name: "Cotizaciones", icon: FileText },
     { id: "orders", name: "Pedidos de Venta", icon: ShoppingCart },
-    { id: "customers", name: "Clientes", icon: Users },
     { id: "electronic-documents", name: "Documentos Electrónicos", icon: FileCheck },
     { id: "collections", name: "Cobros", icon: DollarSign },
   ];
@@ -91,7 +89,7 @@ export default function ModuleVentasDetail() {
   const statusInfo = getStatusInfo();
 
   return (
-    <div className={`min-h-screen ${isLight ? "bg-gray-50" : "bg-[#0A0F1A]"}`}>
+    <div className={`min-h-screen ${isLight ? "bg-gray-50" : "bg-[#0D1B2A]"}`}>
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <header className={`sticky top-0 z-50 border-b ${isLight ? "bg-white border-gray-200" : "bg-[#0D1B2A] border-white/10"}`}>
         {/* Fila principal del header */}
@@ -172,7 +170,7 @@ export default function ModuleVentasDetail() {
                           <select
                             value={userStatus}
                             onChange={(e) => setUserStatus(e.target.value as any)}
-                            className={`text-xs px-2 py-1 rounded border ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0A0F1A] border-white/10 text-white"}`}
+                            className={`text-xs px-2 py-1 rounded border ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#1a2936] border-white/10 text-white"}`}
                           >
                             <option value="online">En línea</option>
                             <option value="away">Ausente</option>
@@ -275,12 +273,6 @@ export default function ModuleVentasDetail() {
               <ShoppingCart className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
               <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulo de pedidos en desarrollo</p>
             </div>
-          </div>
-        )}
-
-        {activeTab === "customers" && (
-          <div className="space-y-6">
-            <SalesCustomersContent />
           </div>
         )}
 

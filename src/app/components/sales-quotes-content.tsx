@@ -245,7 +245,7 @@ function QuoteViewer({ quote, onClose, isLight }: {
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div className={`w-full max-w-4xl max-h-[90vh] overflow-auto rounded-xl shadow-2xl ${isLight ? "bg-white" : "bg-[#0D1B2A]"}`}>
         {/* Header */}
-        <div className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-[#0c1520] border-white/10"}`}>
+        <div className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${isLight ? "bg-gray-50 border-gray-200" : "bg-[#1a2936] border-white/10"}`}>
           <h2 className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
             Cotización {quote.quoteNumber}
           </h2>
@@ -488,7 +488,7 @@ function NewQuoteModal({ onClose, onSave, isLight }: {
                 value={customerName}
                 onChange={e => setCustomerName(e.target.value)}
                 placeholder="Nombre del cliente"
-                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0d1724] border-white/10 text-white"}`}
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2936] border-white/10 text-white"}`}
               />
             </div>
             <div>
@@ -500,7 +500,7 @@ function NewQuoteModal({ onClose, onSave, isLight }: {
                 value={customerRUC}
                 onChange={e => setCustomerRUC(e.target.value)}
                 placeholder="1234567890001"
-                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0d1724] border-white/10 text-white"}`}
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#1a2936] border-white/10 text-white"}`}
               />
             </div>
           </div>
@@ -800,434 +800,436 @@ export function SalesQuotesContent() {
      RENDER
   ════════════════════════════════════════════════════════════════════ */
   return (
-    <>
-      <div className="flex flex-col gap-4">
-        {/* ── TABS de Estados ── */}
-        <div className={`flex items-center gap-2 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
-          <button
-            onClick={() => {setActiveTab("pending"); setSelectedIds(new Set());}}
-            className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
-              activeTab === "pending"
-                ? isLight
-                  ? "text-yellow-700"
-                  : "text-yellow-400"
-                : isLight
-                ? "text-gray-500 hover:text-gray-700"
-                : "text-gray-400 hover:text-gray-300"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              Pendientes
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                activeTab === "pending"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : isLight
-                  ? "bg-gray-100 text-gray-600"
-                  : "bg-white/10 text-gray-400"
-              }`}>
-                {counts.pending}
-              </span>
-            </div>
-            {activeTab === "pending" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-500"></div>
-            )}
-          </button>
-
-          <button
-            onClick={() => {setActiveTab("sent"); setSelectedIds(new Set());}}
-            className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
-              activeTab === "sent"
-                ? isLight
-                  ? "text-blue-700"
-                  : "text-blue-400"
-                : isLight
-                ? "text-gray-500 hover:text-gray-700"
-                : "text-gray-400 hover:text-gray-300"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Send className="w-4 h-4" />
-              Enviadas
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                activeTab === "sent"
-                  ? "bg-blue-100 text-blue-700"
-                  : isLight
-                  ? "bg-gray-100 text-gray-600"
-                  : "bg-white/10 text-gray-400"
-              }`}>
-                {counts.sent}
-              </span>
-            </div>
-            {activeTab === "sent" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-            )}
-          </button>
-
-          <button
-            onClick={() => {setActiveTab("approved"); setSelectedIds(new Set());}}
-            className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
-              activeTab === "approved"
-                ? isLight
-                  ? "text-green-700"
-                  : "text-green-400"
-                : isLight
-                ? "text-gray-500 hover:text-gray-700"
-                : "text-gray-400 hover:text-gray-300"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Aprobadas
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                activeTab === "approved"
-                  ? "bg-green-100 text-green-700"
-                  : isLight
-                  ? "bg-gray-100 text-gray-600"
-                  : "bg-white/10 text-gray-400"
-              }`}>
-                {counts.approved}
-              </span>
-            </div>
-            {activeTab === "approved" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"></div>
-            )}
-          </button>
-
-          <button
-            onClick={() => {setActiveTab("rejected"); setSelectedIds(new Set());}}
-            className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
-              activeTab === "rejected"
-                ? isLight
-                  ? "text-red-700"
-                  : "text-red-400"
-                : isLight
-                ? "text-gray-500 hover:text-gray-700"
-                : "text-gray-400 hover:text-gray-300"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              Rechazadas
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                activeTab === "rejected"
-                  ? "bg-red-100 text-red-700"
-                  : isLight
-                  ? "bg-gray-100 text-gray-600"
-                  : "bg-white/10 text-gray-400"
-              }`}>
-                {counts.rejected}
-              </span>
-            </div>
-            {activeTab === "rejected" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-500"></div>
-            )}
-          </button>
-
-          <button
-            onClick={() => {setActiveTab("expired"); setSelectedIds(new Set());}}
-            className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
-              activeTab === "expired"
-                ? isLight
-                  ? "text-gray-700"
-                  : "text-gray-300"
-                : isLight
-                ? "text-gray-500 hover:text-gray-700"
-                : "text-gray-400 hover:text-gray-300"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Expiradas
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                activeTab === "expired"
-                  ? "bg-gray-200 text-gray-700"
-                  : isLight
-                  ? "bg-gray-100 text-gray-600"
-                  : "bg-white/10 text-gray-400"
-              }`}>
-                {counts.expired}
-              </span>
-            </div>
-            {activeTab === "expired" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-500"></div>
-            )}
-          </button>
-
-          <button
-            onClick={() => {setActiveTab("converted"); setSelectedIds(new Set());}}
-            className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
-              activeTab === "converted"
-                ? isLight
-                  ? "text-blue-700"
-                  : "text-blue-400"
-                : isLight
-                ? "text-gray-500 hover:text-gray-700"
-                : "text-gray-400 hover:text-gray-300"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Convertidas
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                activeTab === "converted"
-                  ? "bg-blue-100 text-blue-700"
-                  : isLight
-                  ? "bg-gray-100 text-gray-600"
-                  : "bg-white/10 text-gray-400"
-              }`}>
-                {counts.converted}
-              </span>
-            </div>
-            {activeTab === "converted" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-            )}
-          </button>
-        </div>
-
-        {/* ─ Barra de acciones específicas por tab ── */}
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          {/* Filtros de búsqueda y fechas */}
-          <div className="flex flex-wrap items-center gap-2 flex-1">
-            <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 min-w-[250px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
-              <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              <input 
-                value={search} 
-                onChange={e => setSearch(e.target.value)} 
-                placeholder="Buscar número, cliente, RUC..." 
-                className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400 ${isLight ? "text-gray-900" : "text-white"}`} 
-              />
-            </div>
-            
-            {/* Filtro fechas */}
-            <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/10"}`}>
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <input
-                type="date"
-                value={fechaDesde}
-                onChange={e => setFechaDesde(e.target.value)}
-                className={`bg-transparent text-sm focus:outline-none ${isLight ? "text-gray-700" : "text-gray-300"}`}
-              />
-            </div>
-            <span className="text-gray-400">—</span>
-            <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/10"}`}>
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <input
-                type="date"
-                value={fechaHasta}
-                onChange={e => setFechaHasta(e.target.value)}
-                className={`bg-transparent text-sm focus:outline-none ${isLight ? "text-gray-700" : "text-gray-300"}`}
-              />
-            </div>
-          </div>
-
-          {/* Botones de acción específicos según el tab activo */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* BOTONES PARA TAB PENDIENTE */}
-            {activeTab === "pending" && (
-              <button
-                onClick={handleSendSelected}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                <Send className="w-4 h-4" /> Enviar
-              </button>
-            )}
-
-            {/* BOTONES PARA TAB ENVIADA */}
-            {activeTab === "sent" && (
-              <>
-                <button
-                  onClick={handleApproveSelected}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
-                >
-                  <CheckCircle className="w-4 h-4" /> Aprobar
-                </button>
-                <button
-                  onClick={handleRejectSelected}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-                >
-                  <AlertCircle className="w-4 h-4" /> Rechazar
-                </button>
-              </>
-            )}
-
-            {/* BOTONES PARA TAB APROBADA */}
-            {activeTab === "approved" && (
-              <button
-                onClick={handleConvertToInvoice}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                <FileText className="w-4 h-4" /> Convertir a Factura
-              </button>
-            )}
-
-            {/* BOTONES PARA TAB EXPIRADA */}
-            {activeTab === "expired" && (
-              <button
-                onClick={handleRenewSelected}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                <Clock className="w-4 h-4" /> Renovar
-              </button>
-            )}
-
-            {/* Botón Nueva Cotización - SIEMPRE VISIBLE */}
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex flex-col gap-4">
+          {/* ── TABS de Estados ── */}
+          <div className={`flex items-center gap-2 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
             <button
-              onClick={() => setShowNewQuoteModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors"
+              onClick={() => {setActiveTab("pending"); setSelectedIds(new Set());}}
+              className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
+                activeTab === "pending"
+                  ? isLight
+                    ? "text-yellow-700"
+                    : "text-yellow-400"
+                  : isLight
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-400 hover:text-gray-300"
+              }`}
             >
-              <Plus className="w-4 h-4" /> Nueva Cotización
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Pendientes
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  activeTab === "pending"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : isLight
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-white/10 text-gray-400"
+                }`}>
+                  {counts.pending}
+                </span>
+              </div>
+              {activeTab === "pending" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-500"></div>
+              )}
             </button>
 
-            {/* Botones comunes */}
-            <button 
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-400 hover:bg-white/5"}`}>
-              <Download className="w-4 h-4" /> CSV
+            <button
+              onClick={() => {setActiveTab("sent"); setSelectedIds(new Set());}}
+              className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
+                activeTab === "sent"
+                  ? isLight
+                    ? "text-blue-700"
+                    : "text-blue-400"
+                  : isLight
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Send className="w-4 h-4" />
+                Enviadas
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  activeTab === "sent"
+                    ? "bg-blue-100 text-blue-700"
+                    : isLight
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-white/10 text-gray-400"
+                }`}>
+                  {counts.sent}
+                </span>
+              </div>
+              {activeTab === "sent" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+              )}
             </button>
-            <button 
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-400 hover:bg-white/5"}`}>
-              <Printer className="w-4 h-4" /> Imprimir
+
+            <button
+              onClick={() => {setActiveTab("approved"); setSelectedIds(new Set());}}
+              className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
+                activeTab === "approved"
+                  ? isLight
+                    ? "text-green-700"
+                    : "text-green-400"
+                  : isLight
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                Aprobadas
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  activeTab === "approved"
+                    ? "bg-green-100 text-green-700"
+                    : isLight
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-white/10 text-gray-400"
+                }`}>
+                  {counts.approved}
+                </span>
+              </div>
+              {activeTab === "approved" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => {setActiveTab("rejected"); setSelectedIds(new Set());}}
+              className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
+                activeTab === "rejected"
+                  ? isLight
+                    ? "text-red-700"
+                    : "text-red-400"
+                  : isLight
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                Rechazadas
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  activeTab === "rejected"
+                    ? "bg-red-100 text-red-700"
+                    : isLight
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-white/10 text-gray-400"
+                }`}>
+                  {counts.rejected}
+                </span>
+              </div>
+              {activeTab === "rejected" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-500"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => {setActiveTab("expired"); setSelectedIds(new Set());}}
+              className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
+                activeTab === "expired"
+                  ? isLight
+                    ? "text-gray-700"
+                    : "text-gray-300"
+                  : isLight
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Expiradas
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  activeTab === "expired"
+                    ? "bg-gray-200 text-gray-700"
+                    : isLight
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-white/10 text-gray-400"
+                }`}>
+                  {counts.expired}
+                </span>
+              </div>
+              {activeTab === "expired" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-500"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => {setActiveTab("converted"); setSelectedIds(new Set());}}
+              className={`px-4 py-2.5 text-sm font-semibold transition-all relative ${
+                activeTab === "converted"
+                  ? isLight
+                    ? "text-blue-700"
+                    : "text-blue-400"
+                  : isLight
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Convertidas
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  activeTab === "converted"
+                    ? "bg-blue-100 text-blue-700"
+                    : isLight
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-white/10 text-gray-400"
+                }`}>
+                  {counts.converted}
+                </span>
+              </div>
+              {activeTab === "converted" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+              )}
             </button>
           </div>
-        </div>
 
-        {/* ── Banner informativo ── */}
-        <div className={`flex items-start gap-2 p-2.5 rounded-lg ${isLight ? "bg-blue-50 border border-blue-200" : "bg-blue-500/10 border border-blue-500/20"}`}>
-          <FileText className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isLight ? "text-blue-600" : "text-blue-400"}`} />
-          <div>
-            <p className={`text-sm font-semibold ${isLight ? "text-blue-900" : "text-blue-300"}`}>
-              {activeTab === "pending" && "Cotizaciones Pendientes"}
-              {activeTab === "sent" && "Cotizaciones Enviadas"}
-              {activeTab === "approved" && "Cotizaciones Aprobadas"}
-              {activeTab === "rejected" && "Cotizaciones Rechazadas"}
-              {activeTab === "expired" && "Cotizaciones Expiradas"}
-              {activeTab === "converted" && "Cotizaciones Convertidas"}
-            </p>
-            <p className={`text-xs mt-0.5 ${isLight ? "text-blue-700" : "text-blue-400"}`}>
-              {activeTab === "pending" && "Estas cotizaciones están creadas pero aún no han sido enviadas al cliente. Usa el botón 'Enviar' para enviarlas por email."}
-              {activeTab === "sent" && "Estas cotizaciones ya fueron enviadas al cliente y están esperando respuesta. Puedes aprobarlas o rechazarlas manualmente según la respuesta del cliente."}
-              {activeTab === "approved" && "Estas cotizaciones han sido aprobadas por el cliente. Están listas para convertirse en facturas."}
-              {activeTab === "rejected" && "Estas cotizaciones fueron rechazadas por el cliente."}
-              {activeTab === "expired" && "Estas cotizaciones expiraron sin respuesta del cliente. Puedes renovarlas para extender su validez."}
-              {activeTab === "converted" && "Estas cotizaciones ya fueron convertidas a facturas de venta."}
-            </p>
+          {/* ─ Barra de acciones específicas por tab ── */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            {/* Filtros de búsqueda y fechas */}
+            <div className="flex flex-wrap items-center gap-2 flex-1">
+              <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 min-w-[250px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
+                <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <input 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                  placeholder="Buscar número, cliente, RUC..." 
+                  className={`flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400 ${isLight ? "text-gray-900" : "text-white"}`} 
+                />
+              </div>
+              
+              {/* Filtro fechas */}
+              <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/10"}`}>
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <input
+                  type="date"
+                  value={fechaDesde}
+                  onChange={e => setFechaDesde(e.target.value)}
+                  className={`bg-transparent text-sm focus:outline-none ${isLight ? "text-gray-700" : "text-gray-300"}`}
+                />
+              </div>
+              <span className="text-gray-400">—</span>
+              <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/10"}`}>
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <input
+                  type="date"
+                  value={fechaHasta}
+                  onChange={e => setFechaHasta(e.target.value)}
+                  className={`bg-transparent text-sm focus:outline-none ${isLight ? "text-gray-700" : "text-gray-300"}`}
+                />
+              </div>
+            </div>
+
+            {/* Botones de acción específicos según el tab activo */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* BOTONES PARA TAB PENDIENTE */}
+              {activeTab === "pending" && (
+                <button
+                  onClick={handleSendSelected}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Send className="w-4 h-4" /> Enviar
+                </button>
+              )}
+
+              {/* BOTONES PARA TAB ENVIADA */}
+              {activeTab === "sent" && (
+                <>
+                  <button
+                    onClick={handleApproveSelected}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <CheckCircle className="w-4 h-4" /> Aprobar
+                  </button>
+                  <button
+                    onClick={handleRejectSelected}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <AlertCircle className="w-4 h-4" /> Rechazar
+                  </button>
+                </>
+              )}
+
+              {/* BOTONES PARA TAB APROBADA */}
+              {activeTab === "approved" && (
+                <button
+                  onClick={handleConvertToInvoice}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  <FileText className="w-4 h-4" /> Convertir a Factura
+                </button>
+              )}
+
+              {/* BOTONES PARA TAB EXPIRADA */}
+              {activeTab === "expired" && (
+                <button
+                  onClick={handleRenewSelected}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Clock className="w-4 h-4" /> Renovar
+                </button>
+              )}
+
+              {/* Botón Nueva Cotización - SIEMPRE VISIBLE */}
+              <button
+                onClick={() => setShowNewQuoteModal(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                <Plus className="w-4 h-4" /> Nueva Cotización
+              </button>
+
+              {/* Botones comunes */}
+              <button 
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-400 hover:bg-white/5"}`}>
+                <Download className="w-4 h-4" /> CSV
+              </button>
+              <button 
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${isLight ? "border-gray-300 text-gray-600 hover:bg-gray-50" : "border-white/10 text-gray-400 hover:bg-white/5"}`}>
+                <Printer className="w-4 h-4" /> Imprimir
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* ── Tabla ── */}
-        <div className={`rounded-lg border overflow-hidden ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1250px] border-collapse">
-              <thead className="sticky top-0 z-10">
-                <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${isLight ? "bg-gray-100 border-gray-200 text-gray-500" : "bg-[#0D1B2A] border-white/10 text-gray-400"}`}>
-                  {/* Checkbox - Solo en tabs con acciones masivas */}
-                  {(activeTab === "pending" || activeTab === "sent" || activeTab === "approved" || activeTab === "expired") && (
-                    <th className="px-3 py-2 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.size === filtered.length && filtered.length > 0}
-                        onChange={toggleSelectAll}
-                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                      />
-                    </th>
-                  )}
-                  <th className="px-3 py-2 text-left whitespace-nowrap">N° Cotización</th>
-                  <th className="px-3 py-2 text-left">Fecha</th>
-                  <th className="px-3 py-2 text-left">Válida Hasta</th>
-                  <th className="px-3 py-2 text-left">Cliente</th>
-                  <th className="px-3 py-2 text-left">RUC</th>
-                  <th className="px-3 py-2 text-right whitespace-nowrap">Total</th>
-                  <th className="px-3 py-2 text-center">Estado</th>
-                  <th className="px-3 py-2 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.length > 0 ? (
-                  filtered.map((quote, index) => (
-                    <tr
-                      key={quote.id}
-                      className={`border-t transition-colors relative ${
-                        isLight ? "border-gray-100 hover:bg-gray-50" : "border-white/5 hover:bg-white/5"
-                      }`}
-                    >
-                      {/* Checkbox - Solo en tabs con acciones masivas */}
-                      {(activeTab === "pending" || activeTab === "sent" || activeTab === "approved" || activeTab === "expired") && (
-                        <td className="px-3 py-1.5 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.has(quote.id)}
-                            onChange={() => toggleSelect(quote.id)}
-                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                          />
+          {/* ── Banner informativo ── */}
+          <div className={`flex items-start gap-2 p-2.5 rounded-lg ${isLight ? "bg-blue-50 border border-blue-200" : "bg-blue-500/10 border border-blue-500/20"}`}>
+            <FileText className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isLight ? "text-blue-600" : "text-blue-400"}`} />
+            <div>
+              <p className={`text-sm font-semibold ${isLight ? "text-blue-900" : "text-blue-300"}`}>
+                {activeTab === "pending" && "Cotizaciones Pendientes"}
+                {activeTab === "sent" && "Cotizaciones Enviadas"}
+                {activeTab === "approved" && "Cotizaciones Aprobadas"}
+                {activeTab === "rejected" && "Cotizaciones Rechazadas"}
+                {activeTab === "expired" && "Cotizaciones Expiradas"}
+                {activeTab === "converted" && "Cotizaciones Convertidas"}
+              </p>
+              <p className={`text-xs mt-0.5 ${isLight ? "text-blue-700" : "text-blue-400"}`}>
+                {activeTab === "pending" && "Estas cotizaciones están creadas pero aún no han sido enviadas al cliente. Usa el botón 'Enviar' para enviarlas por email."}
+                {activeTab === "sent" && "Estas cotizaciones ya fueron enviadas al cliente y están esperando respuesta. Puedes aprobarlas o rechazarlas manualmente según la respuesta del cliente."}
+                {activeTab === "approved" && "Estas cotizaciones han sido aprobadas por el cliente. Están listas para convertirse en facturas."}
+                {activeTab === "rejected" && "Estas cotizaciones fueron rechazadas por el cliente."}
+                {activeTab === "expired" && "Estas cotizaciones expiraron sin respuesta del cliente. Puedes renovarlas para extender su validez."}
+                {activeTab === "converted" && "Estas cotizaciones ya fueron convertidas a facturas de venta."}
+              </p>
+            </div>
+          </div>
+
+          {/* ── Tabla ── */}
+          <div className={`rounded-lg border overflow-hidden ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1250px] border-collapse">
+                <thead className="sticky top-0 z-10">
+                  <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${isLight ? "bg-gray-100 border-gray-200 text-gray-500" : "bg-[#0D1B2A] border-white/10 text-gray-400"}`}>
+                    {/* Checkbox - Solo en tabs con acciones masivas */}
+                    {(activeTab === "pending" || activeTab === "sent" || activeTab === "approved" || activeTab === "expired") && (
+                      <th className="px-3 py-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.size === filtered.length && filtered.length > 0}
+                          onChange={toggleSelectAll}
+                          className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                        />
+                      </th>
+                    )}
+                    <th className="px-3 py-2 text-left whitespace-nowrap">N° Cotización</th>
+                    <th className="px-3 py-2 text-left">Fecha</th>
+                    <th className="px-3 py-2 text-left">Válida Hasta</th>
+                    <th className="px-3 py-2 text-left">Cliente</th>
+                    <th className="px-3 py-2 text-left">RUC</th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">Total</th>
+                    <th className="px-3 py-2 text-center">Estado</th>
+                    <th className="px-3 py-2 text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length > 0 ? (
+                    filtered.map((quote, index) => (
+                      <tr
+                        key={quote.id}
+                        className={`border-t transition-colors relative ${
+                          isLight ? "border-gray-100 hover:bg-gray-50" : "border-white/5 hover:bg-white/5"
+                        }`}
+                      >
+                        {/* Checkbox - Solo en tabs con acciones masivas */}
+                        {(activeTab === "pending" || activeTab === "sent" || activeTab === "approved" || activeTab === "expired") && (
+                          <td className="px-3 py-1.5 text-center">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(quote.id)}
+                              onChange={() => toggleSelect(quote.id)}
+                              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                            />
+                          </td>
+                        )}
+                        
+                        {/* N° Cotización con barra naranja */}
+                        <td className="px-3 py-1.5 relative">
+                          {index === 0 && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                          )}
+                          <div className={`font-mono font-semibold text-xs ${txt}`}>{quote.quoteNumber}</div>
                         </td>
-                      )}
-                      
-                      {/* N° Cotización con barra naranja */}
-                      <td className="px-3 py-1.5 relative">
-                        {index === 0 && (
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
-                        )}
-                        <div className={`font-mono font-semibold text-xs ${txt}`}>{quote.quoteNumber}</div>
-                      </td>
-                      
-                      <td className={`px-3 py-1.5 text-xs ${isLight ? "text-gray-700" : "text-gray-300"}`}>{quote.date}</td>
-                      <td className={`px-3 py-1.5 text-xs ${isLight ? "text-gray-700" : "text-gray-300"}`}>{quote.validUntil}</td>
-                      
-                      {/* Cliente */}
-                      <td className="px-3 py-1.5">
-                        <div className={`font-medium text-xs ${txt}`}>{quote.customer.name}</div>
-                        {quote.customer.email && (
-                          <div className={`text-[10px] ${isLight ? "text-gray-500" : "text-gray-500"}`}>{quote.customer.email}</div>
-                        )}
-                      </td>
-                      
-                      <td className={`px-3 py-1.5 text-xs font-mono ${isLight ? "text-gray-700" : "text-gray-300"}`}>{quote.customer.ruc}</td>
-                      
-                      <td className={`px-3 py-1.5 text-right font-mono font-semibold text-xs ${txt}`}>
-                        {fmt(quote.total)}
-                      </td>
-                      
-                      <td className="px-3 py-1.5 text-center">
-                        {getStatusBadge(quote.status)}
-                      </td>
-                      
-                      <td className="px-3 py-1.5">
-                        <div className="flex items-center justify-center gap-1">
-                          <button
-                            onClick={() => setSelectedQuote(quote)}
-                            className={`p-1 rounded transition-colors ${isLight ? "hover:bg-gray-200 text-gray-600" : "hover:bg-white/10 text-gray-400"}`}
-                            title="Ver detalle"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            className={`p-1 rounded transition-colors ${isLight ? "hover:bg-gray-200 text-gray-600" : "hover:bg-white/10 text-gray-400"}`}
-                            title="Editar"
-                          >
-                            <Edit className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            className={`p-1 rounded transition-colors ${isLight ? "hover:bg-gray-200 text-gray-600" : "hover:bg-white/10 text-gray-400"}`}
-                            title="Duplicar"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
+                        
+                        <td className={`px-3 py-1.5 text-xs ${isLight ? "text-gray-700" : "text-gray-300"}`}>{quote.date}</td>
+                        <td className={`px-3 py-1.5 text-xs ${isLight ? "text-gray-700" : "text-gray-300"}`}>{quote.validUntil}</td>
+                        
+                        {/* Cliente */}
+                        <td className="px-3 py-1.5">
+                          <div className={`font-medium text-xs ${txt}`}>{quote.customer.name}</div>
+                          {quote.customer.email && (
+                            <div className={`text-[10px] ${isLight ? "text-gray-500" : "text-gray-500"}`}>{quote.customer.email}</div>
+                          )}
+                        </td>
+                        
+                        <td className={`px-3 py-1.5 text-xs font-mono ${isLight ? "text-gray-700" : "text-gray-300"}`}>{quote.customer.ruc}</td>
+                        
+                        <td className={`px-3 py-1.5 text-right font-mono font-semibold text-xs ${txt}`}>
+                          {fmt(quote.total)}
+                        </td>
+                        
+                        <td className="px-3 py-1.5 text-center">
+                          {getStatusBadge(quote.status)}
+                        </td>
+                        
+                        <td className="px-3 py-1.5">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => setSelectedQuote(quote)}
+                              className={`p-1 rounded transition-colors ${isLight ? "hover:bg-gray-200 text-gray-600" : "hover:bg-white/10 text-gray-400"}`}
+                              title="Ver detalle"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              className={`p-1 rounded transition-colors ${isLight ? "hover:bg-gray-200 text-gray-600" : "hover:bg-white/10 text-gray-400"}`}
+                              title="Editar"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              className={`p-1 rounded transition-colors ${isLight ? "hover:bg-gray-200 text-gray-600" : "hover:bg-white/10 text-gray-400"}`}
+                              title="Duplicar"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={(activeTab === "pending" || activeTab === "sent" || activeTab === "approved" || activeTab === "expired") ? 9 : 8} className="px-6 py-12 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                          <FileText className={`w-12 h-12 ${sub}`} />
+                          <p className={`text-sm ${sub}`}>No se encontraron cotizaciones</p>
                         </div>
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={(activeTab === "pending" || activeTab === "sent" || activeTab === "approved" || activeTab === "expired") ? 9 : 8} className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <FileText className={`w-12 h-12 ${sub}`} />
-                        <p className={`text-sm ${sub}`}>No se encontraron cotizaciones</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -1249,6 +1251,6 @@ export function SalesQuotesContent() {
           isLight={isLight}
         />
       )}
-    </>
+    </div>
   );
 }

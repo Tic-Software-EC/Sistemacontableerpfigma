@@ -36,7 +36,7 @@ import { PreferencesModal } from "../components/preferences-modal";
 import { PurchaseOrdersContent } from "../components/purchase-orders-content";
 import { SuppliersContent } from "../components/suppliers-content";
 import { MerchandiseReceptionContent } from "../components/merchandise-reception-content";
-import { SupplierInvoicesContent } from "../components/supplier-invoices-content";
+import { PurchaseElectronicDocumentsContent } from "../components/purchase-electronic-documents-content";
 import { AccountingRetentionsContent } from "../components/accounting-retentions-content";
 
 // Mock data para las órdenes de compra con productos detallados
@@ -232,7 +232,7 @@ export default function ModuleComprasDetail() {
   const params = useParams<{ tab?: string }>();
   const { logoUrl } = useBrand();
 
-  const validTabs = ["orders", "reception", "suppliers", "invoices", "retentions", "payments"];
+  const validTabs = ["orders", "reception", "suppliers", "received", "retentions", "payments"];
   type TabType = typeof validTabs[number];
   const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : null;
   const setActiveTab = (tab: TabType) => {
@@ -264,7 +264,7 @@ export default function ModuleComprasDetail() {
     { id: "orders", name: "Órdenes de Compra", icon: ShoppingCart },
     { id: "reception", name: "Recepción de Mercadería", icon: Package },
     { id: "suppliers", name: "Proveedores", icon: User },
-    { id: "invoices", name: "Facturas a Proveedores", icon: FileText },
+    { id: "received", name: "Documentos Recibidos", icon: FileText },
     { id: "retentions", name: "Retenciones a Proveedores", icon: Receipt },
     { id: "payments", name: "Pagos a Proveedores", icon: DollarSign },
   ];
@@ -663,9 +663,9 @@ export default function ModuleComprasDetail() {
                 </div>
               </button>
 
-              {/* Facturas a Proveedores */}
+              {/* Documentos Recibidos */}
               <button
-                onClick={() => setActiveTab("invoices")}
+                onClick={() => setActiveTab("received")}
                 className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
@@ -679,35 +679,35 @@ export default function ModuleComprasDetail() {
                   <div className="flex-1">
                     <h3 className={`font-bold text-lg mb-2 ${
                       isLight ? "text-gray-900" : "text-white"
-                    }`}>Facturas a Proveedores</h3>
+                    }`}>Documentos Recibidos</h3>
                     <p className={`text-sm mb-4 ${
                       isLight ? "text-gray-600" : "text-gray-400"
-                    }`}>Control de facturas recibidas y cuentas por pagar</p>
+                    }`}>Registro de documentos electrónicos emitidos por proveedores</p>
                     <ul className="space-y-2">
                       <li className={`text-xs flex items-start gap-2 ${
                         isLight ? "text-gray-600" : "text-gray-400"
                       }`}>
                         <span className="text-orange-500 mt-0.5">✓</span>
-                        <span>Registro de facturas de compra recibidas</span>
+                        <span>Facturas de compra recibidas de proveedores</span>
                       </li>
                       <li className={`text-xs flex items-start gap-2 ${
                         isLight ? "text-gray-600" : "text-gray-400"
                       }`}>
                         <span className="text-orange-500 mt-0.5">✓</span>
-                        <span>Control de fechas de pago y vencimientos</span>
+                        <span>Notas de crédito y débito de proveedores</span>
                       </li>
                       <li className={`text-xs flex items-start gap-2 ${
                         isLight ? "text-gray-600" : "text-gray-400"
                       }`}>
                         <span className="text-orange-500 mt-0.5">✓</span>
-                        <span>Integración con contabilidad y retenciones</span>
+                        <span>Visualización RIDE y XML de documentos SRI</span>
                       </li>
                     </ul>
                   </div>
                 </div>
               </button>
 
-              {/* Retenciones */}
+              {/* Retenciones a Proveedores */}
               <button
                 onClick={() => setActiveTab("retentions")}
                 className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
@@ -726,7 +726,7 @@ export default function ModuleComprasDetail() {
                     }`}>Retenciones a Proveedores</h3>
                     <p className={`text-sm mb-4 ${
                       isLight ? "text-gray-600" : "text-gray-400"
-                    }`}>Gestión de retenciones fiscales en la fuente</p>
+                    }`}>Emisión de comprobantes de retención en la fuente</p>
                     <ul className="space-y-2">
                       <li className={`text-xs flex items-start gap-2 ${
                         isLight ? "text-gray-600" : "text-gray-400"
@@ -744,7 +744,7 @@ export default function ModuleComprasDetail() {
                         isLight ? "text-gray-600" : "text-gray-400"
                       }`}>
                         <span className="text-red-500 mt-0.5">✓</span>
-                        <span>Reporte para declaraciones mensuales</span>
+                        <span>Reportes para declaraciones mensuales</span>
                       </li>
                     </ul>
                   </div>
@@ -810,8 +810,8 @@ export default function ModuleComprasDetail() {
           <SuppliersContent />
         )}
 
-        {activeTab === "invoices" && (
-          <SupplierInvoicesContent />
+        {activeTab === "received" && (
+          <PurchaseElectronicDocumentsContent />
         )}
 
         {activeTab === "retentions" && (

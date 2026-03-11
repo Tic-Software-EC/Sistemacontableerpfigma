@@ -387,7 +387,7 @@ const CREDIT_NOTES_INIT: CreditNote[] = [
   },
 ];
 
-/* ═════════════════════════════════════════════════��════════════════════
+/* ═════════════════════════════════════════════════════════════════════
    GENERADOR XML SRI
 ═════════════════════════════════════════════════════════════════════ */
 function generateCreditNoteXML(note: CreditNote): string {
@@ -508,7 +508,7 @@ function CreditNoteViewer({ note, onPrint, onCancel, isLight }: {
   return (
     <div className="flex flex-col h-full">
       {/* ── Toolbar ── */}
-      <div className={`flex items-center justify-between px-3 py-2 border-b flex-shrink-0 ${isLight ? "bg-gray-50 border-gray-200" : "bg-[#0c1520] border-white/10"}`}>
+      <div className={`flex items-center justify-between px-3 py-2 border-b flex-shrink-0 ${isLight ? "bg-gray-50 border-gray-200" : "bg-[#1a2936] border-white/10"}`}>
         {/* Tabs RIDE / XML */}
         <div className={`flex gap-0.5 p-0.5 rounded-lg ${isLight ? "bg-gray-200" : "bg-white/10"}`}>
           <button onClick={() => setActiveView("ride")}
@@ -569,7 +569,7 @@ function CreditNoteViewer({ note, onPrint, onCancel, isLight }: {
 
       {/* ── Vista RIDE ── */}
       {activeView === "ride" && (
-        <div className={`flex-1 overflow-auto p-3 ${isLight ? "bg-gray-300" : "bg-[#06090f]"}`}>
+        <div className={`flex-1 overflow-auto p-3 ${isLight ? "bg-gray-300" : "bg-[#0D1B2A]"}`}>
           <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center", transition: "transform 0.15s" }}>
             <div className="bg-white mx-auto shadow-2xl text-gray-800"
               style={{ width: 520, fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: 9.5 }}>
@@ -813,10 +813,10 @@ export function SalesCreditNotesContent() {
       <div className={`flex gap-0 rounded-xl border flex-1 min-h-0 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-white/5"}`}>
 
         {/* ══ Panel izquierdo: TABLA 60% ══ */}
-        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0c1520]"}`} style={{ width: "60%" }}>
+        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#1a2936]"}`} style={{ width: "60%" }}>
 
           {/* ── Barra de herramientas ── */}
-          <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0d1724]"}`}>
+          <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0D1B2A]"}`}>
             <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 flex-1 min-w-[160px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
               <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
               <input 
@@ -829,7 +829,7 @@ export function SalesCreditNotesContent() {
             <select 
               value={filterStatus} 
               onChange={e => setFilterStatus(e.target.value)}
-              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}
+              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#1a2936] border-white/10 text-gray-400"}`}
             >
               <option value="all" className={opt}>Estado: Todos</option>
               <option value="authorized" className={opt}>Autorizada</option>
@@ -888,7 +888,7 @@ export function SalesCreditNotesContent() {
           <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar">
             <table className="w-full min-w-[900px] border-collapse">
               <thead className="sticky top-0 z-10">
-                <tr className={isLight ? "bg-gray-200" : "bg-[#0d1724]"}>
+                <tr className={isLight ? "bg-gray-200" : "bg-[#0D1B2A]"}>
                   <th className={`px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>N° NOTA</th>
                   <th className={`px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>FECHA</th>
                   <th className={`px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wider ${isLight ? "text-gray-600" : "text-gray-400"}`}>FACTURA REF.</th>
@@ -980,7 +980,7 @@ export function SalesCreditNotesContent() {
           {selected ? (
             <CreditNoteViewer note={selected} onPrint={handlePrint} onCancel={() => setShowCancelModal(true)} isLight={isLight} />
           ) : (
-            <div className={`flex-1 flex items-center justify-center ${isLight ? "bg-gray-50" : "bg-[#0c1520]"}`}>
+            <div className={`flex-1 flex items-center justify-center ${isLight ? "bg-gray-50" : "bg-[#0D1B2A]"}`}>
               <div className="text-center">
                 <FileText className={`w-16 h-16 mx-auto mb-4 ${sub}`} />
                 <p className={`text-sm ${sub}`}>Seleccione una nota de crédito para ver el detalle</p>
