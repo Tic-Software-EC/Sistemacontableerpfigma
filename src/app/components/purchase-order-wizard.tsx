@@ -243,19 +243,19 @@ export function PurchaseOrderWizard({ onClose, onCreate }: PurchaseOrderWizardPr
      RENDER
   ════════════════════════════════════════════════════════════════════ */
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className={`w-full max-w-5xl max-h-[60vh] flex flex-col rounded-xl shadow-2xl ${isLight ? "bg-white" : "bg-[#0D1B2A] border border-white/20"}`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0D1B2A]/70 backdrop-blur-sm p-4">
+      <div className={`w-full max-w-5xl max-h-[95vh] flex flex-col rounded-xl shadow-2xl ${isLight ? "bg-white" : "bg-[#0D1B2A] border border-white/20"}`}>
         {/* Header */}
-        <div className={`flex items-center justify-between px-6 py-2.5 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+        <div className={`flex items-center justify-between px-6 py-4 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
               <ShoppingCart className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h3 className={`text-base font-bold ${isLight ? "text-darkBg" : "text-white"}`}>
+              <h3 className={`text-lg font-bold ${isLight ? "text-darkBg" : "text-white"}`}>
                 Nueva Orden de Compra
               </h3>
-              <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+              <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>
                 Completa los datos para crear una nueva orden
               </p>
             </div>
@@ -271,7 +271,7 @@ export function PurchaseOrderWizard({ onClose, onCreate }: PurchaseOrderWizardPr
         </div>
 
         {/* Steps Indicator */}
-        <div className={`px-6 py-2.5 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+        <div className={`px-6 py-4 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
           <div className="flex items-center justify-between max-w-2xl mx-auto">
             {/* Paso 1 */}
             <div className="flex items-center gap-2.5 flex-1">

@@ -379,9 +379,9 @@ export default function ModuleComprasDetail() {
   const isLight = theme === "light";
 
   return (
-    <div className={`min-h-screen ${isLight ? "bg-gray-50" : "bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]"}`}>
+    <div className={`min-h-screen ${isLight ? "bg-gray-50" : "bg-[#0D1B2A]"}`}>
       {/* Header */}
-      <header className={`border-b sticky top-0 z-40 backdrop-blur-sm ${isLight ? "border-gray-200 bg-white/90" : "border-white/10 bg-secondary/50"}`}>
+      <header className={`border-b sticky top-0 z-40 backdrop-blur-sm ${isLight ? "border-gray-200 bg-white/90" : "border-white/10 bg-[#0D1B2A]/90"}`}>
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             {/* Botón volver */}
@@ -918,8 +918,8 @@ export default function ModuleComprasDetail() {
 
       {/* Modal de nueva orden */}
       {showNewOrderModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl p-6 my-8">
+        <div className="fixed inset-0 bg-[#0D1B2A]/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl bg-[#0D1B2A] border border-white/10 rounded-2xl p-6 my-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-white font-bold text-xl flex items-center gap-2">
                 <Plus className="w-6 h-6 text-primary" />
@@ -999,8 +999,8 @@ export default function ModuleComprasDetail() {
 
       {/* Modal de detalle de orden MEJORADO */}
       {showOrderDetailModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="w-full max-w-2xl bg-secondary border border-white/10 rounded-2xl p-6 my-8 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-[#0D1B2A]/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl bg-[#0D1B2A] border border-white/10 rounded-2xl p-6 my-8 max-h-[90vh] overflow-y-auto">
             {/* Header del modal */}
             <div className="flex items-center justify-between mb-6 sticky top-0 bg-secondary pb-4 border-b border-white/10">
               <div>

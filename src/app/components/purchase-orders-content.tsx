@@ -814,7 +814,7 @@ export function PurchaseOrdersContent() {
           MODAL: Ver Detalles
       ══════════════════════════════════════════════════════════════ */}
       {showViewModal && viewingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0D1B2A]/70 backdrop-blur-sm p-4">
           <div className={`w-full max-w-4xl rounded-xl shadow-2xl ${isLight ? "bg-white" : "bg-[#0D1B2A] border border-white/20"}`}>
             {/* Header */}
             <div className={`flex items-center justify-between px-6 py-4 border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>

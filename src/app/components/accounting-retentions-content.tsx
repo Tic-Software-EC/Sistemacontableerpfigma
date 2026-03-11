@@ -2933,7 +2933,7 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
 
       {/* ══ Modal Nueva Retención ══════════════════════════════════════ */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-[#0D1B2A]/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className={`w-full max-w-2xl rounded-2xl shadow-2xl border max-h-[92vh] flex flex-col ${modalBg}`}>
             <div className={`flex items-center justify-between px-5 py-4 border-b flex-shrink-0 ${isLight ? "border-gray-200" : "border-white/10"}`}>
               <div className="flex items-center gap-3">
@@ -3422,8 +3422,8 @@ export function AccountingRetentionsContent({ filterByCategory }: AccountingRete
           MODAL: SINCRONIZACIÓN CON SRI
          ══════════════════════════════════════════════════════════════════════ */}
       {showSyncModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
-          <div className={`rounded-2xl p-8 max-w-md w-full shadow-2xl ${isLight ? "bg-white border border-gray-200" : "bg-gradient-to-br from-[#1a1f2e] to-[#0D1B2A] border border-white/10"}`}>
+        <div className="fixed inset-0 bg-[#0D1B2A]/70 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className={`rounded-2xl p-8 max-w-md w-full shadow-2xl ${isLight ? "bg-white border border-gray-200" : "bg-[#0D1B2A] border border-white/10"}`}>
             <div className="text-center space-y-6">
               {/* Icono animado */}
               <div className="flex justify-center">

@@ -293,7 +293,7 @@ export function ManualRetentionModal({ isOpen, onClose, onSave, categoria }: Man
   const labelClass = `block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-[#0D1B2A]/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className={`w-full max-w-4xl rounded-2xl shadow-2xl ${
         isLight ? "bg-white" : "bg-[#0D1B2A]"
       }`}>
@@ -349,7 +349,7 @@ export function ManualRetentionModal({ isOpen, onClose, onSave, categoria }: Man
                   type="text"
                   value={formData.establecimiento}
                   readOnly
-                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-gray-900 cursor-not-allowed`}
+                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-[#1a2936] cursor-not-allowed`}
                 />
               </div>
             </div>
@@ -361,7 +361,7 @@ export function ManualRetentionModal({ isOpen, onClose, onSave, categoria }: Man
                   type="text"
                   value={formData.puntoEmision}
                   readOnly
-                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-gray-900 cursor-not-allowed`}
+                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-[#1a2936] cursor-not-allowed`}
                 />
               </div>
             </div>
@@ -459,7 +459,7 @@ export function ManualRetentionModal({ isOpen, onClose, onSave, categoria }: Man
                 type="text"
                 value={formData.tipoIdentificacion}
                 readOnly
-                className={`${inputClass} bg-gray-50 dark:bg-gray-900 cursor-not-allowed`}
+                className={`${inputClass} bg-gray-50 dark:bg-[#1a2936] cursor-not-allowed`}
               />
             </div>
 
@@ -473,7 +473,7 @@ export function ManualRetentionModal({ isOpen, onClose, onSave, categoria }: Man
                   type="text"
                   value={formData.identificacion}
                   readOnly
-                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-gray-900 cursor-not-allowed`}
+                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-[#1a2936] cursor-not-allowed`}
                 />
               </div>
             </div>
@@ -486,7 +486,7 @@ export function ManualRetentionModal({ isOpen, onClose, onSave, categoria }: Man
                   type="text"
                   value={formData.direccion}
                   readOnly
-                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-gray-900 cursor-not-allowed`}
+                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-[#1a2936] cursor-not-allowed`}
                 />
               </div>
             </div>
@@ -499,7 +499,7 @@ export function ManualRetentionModal({ isOpen, onClose, onSave, categoria }: Man
                   type="text"
                   value={formData.telefono}
                   readOnly
-                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-gray-900 cursor-not-allowed`}
+                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-[#1a2936] cursor-not-allowed`}
                 />
               </div>
             </div>
@@ -512,7 +512,7 @@ export function ManualRetentionModal({ isOpen, onClose, onSave, categoria }: Man
                   type="email"
                   value={formData.email}
                   readOnly
-                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-gray-900 cursor-not-allowed`}
+                  className={`${inputClass} pl-9 bg-gray-50 dark:bg-[#1a2936] cursor-not-allowed`}
                 />
               </div>
             </div>

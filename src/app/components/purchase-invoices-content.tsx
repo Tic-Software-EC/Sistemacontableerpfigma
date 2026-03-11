@@ -679,10 +679,10 @@ export function PurchaseInvoicesContent() {
       <div className={`flex gap-0 rounded-xl border flex-1 min-h-0 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-white/5"}`}>
 
         {/* ══ Panel izquierdo: TABLA 60% ══ */}
-        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0c1520]"}`} style={{ width: "60%" }}>
+        <div className={`flex flex-col border-r flex-shrink-0 min-w-0 rounded-l-xl ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#1a2936]"}`} style={{ width: "60%" }}>
 
           {/* ── ÚNICA FILA: FILTROS + ACCIONES ── */}
-          <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0d1724]"}`}>
+          <div className={`px-4 py-3 border-b flex-shrink-0 flex flex-wrap items-center gap-2 ${isLight ? "border-gray-200 bg-white" : "border-white/10 bg-[#0D1B2A]"}`}>
             <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 flex-1 min-w-[160px] ${isLight ? "bg-white border-gray-300" : "bg-transparent border-white/15"}`}>
               <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
               <input 
@@ -696,7 +696,7 @@ export function PurchaseInvoicesContent() {
             <select 
               value={filterTipo} 
               onChange={e => setFilterTipo(e.target.value)}
-              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}
+              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#1a2936] border-white/10 text-gray-400"}`}
             >
               <option value="all" className={opt}>Tipo: Todos</option>
               <option value="factura" className={opt}>Factura</option>
@@ -706,7 +706,7 @@ export function PurchaseInvoicesContent() {
             <select 
               value={filterStatus} 
               onChange={e => setFilterStatus(e.target.value)}
-              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#0d1724] border-white/10 text-gray-400"}`}
+              className={`text-xs px-2 py-1.5 border rounded-lg focus:outline-none ${isLight ? "bg-white border-gray-300 text-gray-700" : "bg-[#1a2936] border-white/10 text-gray-400"}`}
             >
               <option value="all" className={opt}>Estado: Todos</option>
               <option value="authorized" className={opt}>Autorizada</option>
