@@ -253,10 +253,10 @@ export function PurchaseOrderWizard({ onClose, onCreate }: PurchaseOrderWizardPr
             </div>
             <div>
               <h3 className={`text-lg font-bold ${isLight ? "text-darkBg" : "text-white"}`}>
-                Nueva Orden de Compra
+                Registrar Orden de Compra
               </h3>
-              <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>
-                Completa los datos para crear una nueva orden
+              <p className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                Paso {currentStep} de 3
               </p>
             </div>
           </div>
@@ -289,7 +289,7 @@ export function PurchaseOrderWizard({ onClose, onCreate }: PurchaseOrderWizardPr
                   ? isLight ? "text-darkBg" : "text-white"
                   : isLight ? "text-gray-500" : "text-gray-400"
               }`}>
-                Proveedor
+                Proveedor y Datos
               </span>
             </div>
 
@@ -311,7 +311,7 @@ export function PurchaseOrderWizard({ onClose, onCreate }: PurchaseOrderWizardPr
                   ? isLight ? "text-darkBg" : "text-white"
                   : isLight ? "text-gray-500" : "text-gray-400"
               }`}>
-                Productos
+                Items
               </span>
             </div>
 
@@ -333,7 +333,7 @@ export function PurchaseOrderWizard({ onClose, onCreate }: PurchaseOrderWizardPr
                   ? isLight ? "text-darkBg" : "text-white"
                   : isLight ? "text-gray-500" : "text-gray-400"
               }`}>
-                Confirmación
+                Resumen
               </span>
             </div>
           </div>
@@ -344,43 +344,51 @@ export function PurchaseOrderWizard({ onClose, onCreate }: PurchaseOrderWizardPr
           {/* ═══ PASO 1: Selección de Proveedor ═══ */}
           {currentStep === 1 && (
             <div className="space-y-4">
-              <div className={`rounded-lg border p-4 ${
-                isLight ? "bg-blue-50 border-blue-200" : "bg-blue-900/20 border-blue-500/30"
-              }`}>
-                <p className={`text-sm font-medium ${isLight ? "text-blue-900" : "text-blue-200"}`}>
-                  Selecciona el proveedor para esta orden de compra
-                </p>
-              </div>
+              <h4 className={`text-base font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                Seleccionar Proveedor Emisor
+              </h4>
 
               {/* Buscador de proveedor */}
               <div className="relative">
-                <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                  Buscar Proveedor <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className={`flex items-center gap-2 border rounded-lg px-3 py-1.5 ${
-                    isLight ? "bg-white border-gray-300" : "bg-white/5 border-white/15"
-                  }`}>
-                    <Search className="w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={supplierSearch}
-                      onChange={(e) => {
-                        setSupplierSearch(e.target.value);
-                        setShowSupplierDropdown(true);
-                      }}
-                      onFocus={() => setShowSupplierDropdown(true)}
-                      placeholder="Buscar por nombre o RUC..."
-                      className={`flex-1 bg-transparent text-sm focus:outline-none ${
-                        isLight ? "text-gray-900" : "text-white"
-                      }`}
-                    />
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                  </div>
+                <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 ${
+                  isLight ? "bg-white border-gray-300" : "bg-white/5 border-white/15"
+                }`}>
+                  <Search className="w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={supplierSearch}
+                    onChange={(e) => {
+                      setSupplierSearch(e.target.value);
+                      setShowSupplierDropdown(true);
+                    }}
+                    onFocus={() => setShowSupplierDropdown(true)}
+                    placeholder="Buscar proveedor por nombre o RUC..."
+                    className={`flex-1 bg-transparent text-sm focus:outline-none ${
+                      isLight ? "text-gray-900 placeholder:text-gray-400" : "text-white placeholder:text-gray-500"
+                    }`}
+                  />
+                </div>
 
-                  {/* Dropdown de Proveedores - Altura aumentada a 96 (384px) */}
-                  {showSupplierDropdown && filteredSuppliers.length > 0 && (
-                    <div className={`absolute top-full left-0 right-0 mt-1 border rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto ${
+                {/* Área de contenido con altura fija para evitar saltos */}
+                <div className="mt-4" style={{ minHeight: '250px' }}>
+                  {/* Estado vacío */}
+                  {!selectedSupplier && supplierSearch === "" && (
+                    <div className={`flex flex-col items-center justify-center py-16 rounded-lg ${
+                      isLight ? "bg-gray-50" : "bg-white/5"
+                    }`}>
+                      <Search className={`w-12 h-12 mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                      <p className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                        Busca un proveedor
+                      </p>
+                      <p className={`text-xs mt-1 ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                        Escribe el nombre o RUC del proveedor emisor
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Dropdown de Proveedores - Ahora DENTRO del contenedor */}
+                  {showSupplierDropdown && supplierSearch !== "" && filteredSuppliers.length > 0 && (
+                    <div className={`border rounded-lg shadow-lg max-h-96 overflow-y-auto ${
                       isLight ? "bg-white border-gray-300" : "bg-[#1a2332] border-white/15"
                     }`}>
                       {filteredSuppliers.map((supplier) => (
@@ -405,35 +413,62 @@ export function PurchaseOrderWizard({ onClose, onCreate }: PurchaseOrderWizardPr
                       ))}
                     </div>
                   )}
+
+                  {/* Sin resultados */}
+                  {showSupplierDropdown && supplierSearch !== "" && filteredSuppliers.length === 0 && (
+                    <div className={`flex flex-col items-center justify-center py-16 rounded-lg ${
+                      isLight ? "bg-gray-50" : "bg-white/5"
+                    }`}>
+                      <Search className={`w-12 h-12 mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
+                      <p className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                        No se encontraron proveedores
+                      </p>
+                      <p className={`text-xs mt-1 ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                        Intenta con otro término de búsqueda
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Proveedor seleccionado */}
+                  {selectedSupplier && (
+                    <div className={`rounded-lg border p-4 ${
+                      isLight ? "bg-green-50 border-green-200" : "bg-green-900/20 border-green-500/30"
+                    }`}>
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                          <Check className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className={`font-semibold text-sm ${isLight ? "text-green-900" : "text-green-200"}`}>
+                            {selectedSupplier.name}
+                          </p>
+                          <p className={`text-xs mt-0.5 ${isLight ? "text-green-700" : "text-green-300"}`}>
+                            RUC: {selectedSupplier.ruc}
+                          </p>
+                          <p className={`text-xs mt-0.5 ${isLight ? "text-green-700" : "text-green-300"}`}>
+                            {selectedSupplier.address}
+                          </p>
+                          <p className={`text-xs mt-0.5 ${isLight ? "text-green-700" : "text-green-300"}`}>
+                            Contacto: {selectedSupplier.contact} • {selectedSupplier.phone}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedSupplier(null);
+                            setSupplierSearch("");
+                          }}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            isLight ? "hover:bg-red-100 text-red-600" : "hover:bg-red-500/20 text-red-400"
+                          }`}
+                          title="Cambiar proveedor"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Proveedor seleccionado */}
-              {selectedSupplier && (
-                <div className={`rounded-lg border p-4 ${
-                  isLight ? "bg-green-50 border-green-200" : "bg-green-900/20 border-green-500/30"
-                }`}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className={`font-semibold text-sm ${isLight ? "text-green-900" : "text-green-200"}`}>
-                        {selectedSupplier.name}
-                      </p>
-                      <p className={`text-xs mt-0.5 ${isLight ? "text-green-700" : "text-green-300"}`}>
-                        RUC: {selectedSupplier.ruc}
-                      </p>
-                      <p className={`text-xs mt-0.5 ${isLight ? "text-green-700" : "text-green-300"}`}>
-                        {selectedSupplier.address}
-                      </p>
-                      <p className={`text-xs mt-0.5 ${isLight ? "text-green-700" : "text-green-300"}`}>
-                        Contacto: {selectedSupplier.contact} • {selectedSupplier.phone}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
