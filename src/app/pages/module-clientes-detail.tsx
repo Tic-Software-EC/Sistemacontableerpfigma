@@ -223,7 +223,7 @@ export function ModuleClientesDetail() {
             }`}
           >
             <UserCheck className="w-4 h-4" />
-            Cliente Detallado
+            Ficha del Cliente
           </button>
           <button
             onClick={() => setActiveTab("crear-cliente")}
@@ -307,7 +307,7 @@ export function ModuleClientesDetail() {
                 </div>
               </div>
 
-              {/* Card 2: Cliente Detallado */}
+              {/* Card 2: Ficha del Cliente */}
               <div
                 onClick={() => setActiveTab("cliente-detallado")}
                 className={`rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg ${
@@ -322,7 +322,7 @@ export function ModuleClientesDetail() {
                   </div>
                   <div className="flex-1">
                     <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
-                      Cliente Detallado
+                      Ficha del Cliente
                     </h3>
                     <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
                       Búsqueda y consulta completa de información del cliente

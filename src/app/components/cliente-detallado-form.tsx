@@ -151,6 +151,14 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
       fechaSubida: "2024-03-10",
       tamano: "1.5 MB",
     },
+    {
+      id: "4",
+      tipo: "foto-cliente",
+      nombre: "Foto del Cliente",
+      archivo: "foto_cliente.jpg",
+      fechaSubida: "2024-03-10",
+      tamano: "1.8 MB",
+    },
   ];
 
   const garantes = [
@@ -412,7 +420,7 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
             }`}
           >
             <User className="w-4 h-4" />
-            Datos del Cliente
+            Datos Generales
           </button>
           <button
             onClick={() => setActiveSubTab("documentos-cliente")}
@@ -468,8 +476,77 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
         {activeSubTab === "datos-cliente" && (
             <div className="space-y-6">
               <h3 className={`font-bold text-lg mb-4 ${isLight ? "text-gray-900" : "text-white"}`}>
-                Información Completa del Cliente
+                Datos Generales
               </h3>
+
+              {/* Sección de Foto del Cliente */}
+              <div className={`p-6 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                  {/* Foto del Cliente */}
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="relative group">
+                      <div className="w-32 h-32 rounded-lg overflow-hidden border-4 border-primary/20">
+                        <img
+                          src="https://images.unsplash.com/photo-1689600944138-da3b150d9cb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMHByb2Zlc3Npb25hbCUyMGhlYWRzaG90JTIwcG9ydHJhaXR8ZW58MXx8fHwxNzczNDA0MjEzfDA&ixlib=rb-4.1.0&q=80&w=1080"
+                          alt="Foto del cliente"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center cursor-pointer">
+                        <Camera className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                    <button className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-medium transition-colors flex items-center gap-2">
+                      <Upload className="w-3 h-3" />
+                      Cambiar Foto
+                    </button>
+                  </div>
+
+                  {/* Datos Rápidos del Cliente */}
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <h4 className={`text-2xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                        {clienteData.nombre && clienteData.apellido 
+                          ? `${clienteData.nombre} ${clienteData.apellido}`
+                          : "Sin nombre"}
+                      </h4>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Cédula: {clienteData.cedula || "Sin cédula"} • Cliente {clienteData.tipo.toUpperCase()}
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium ${getEstadoBadge(clienteData.estado).style}`}>
+                        {getEstadoBadge(clienteData.estado).name}
+                      </span>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium ${
+                        clienteData.tipo === "vip" 
+                          ? "bg-purple-500/10 text-purple-400 border border-purple-500/40" 
+                          : clienteData.tipo === "mayorista"
+                          ? "bg-blue-500/10 text-blue-400 border border-blue-500/40"
+                          : "bg-gray-500/10 text-gray-400 border border-gray-500/40"
+                      }`}>
+                        {clienteData.tipo.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-3">
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Límite de Crédito</p>
+                        <p className={`text-lg font-bold font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
+                          ${clienteData.limiteCredito.toFixed(2)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Saldo Pendiente</p>
+                        <p className={`text-lg font-bold font-mono ${clienteData.saldoPendiente > 0 ? "text-red-500" : "text-green-500"}`}>
+                          ${clienteData.saldoPendiente.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* Información Personal */}
               <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
