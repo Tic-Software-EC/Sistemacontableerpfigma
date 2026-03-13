@@ -1,3 +1,8 @@
+import { SalesQuotesContent } from "../components/sales-quotes-content";
+import { SalesOrdersContent } from "../components/sales-orders-content";
+import { SalesElectronicDocumentsContent } from "../components/sales-electronic-documents-content";
+import { CollectionsContent } from "../components/collections-content";
+
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useBrand } from "../contexts/brand-context";
@@ -15,12 +20,11 @@ import {
   Moon,
   TrendingUp,
   FileCheck,
+  Home,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
 import { PreferencesModal } from "../components/preferences-modal";
-import { SalesQuotesContent } from "../components/sales-quotes-content";
-import { SalesElectronicDocumentsContent } from "../components/sales-electronic-documents-content";
 
 // TicSoftEc - Módulo de Ventas
 export default function ModuleVentasDetail() {
@@ -32,9 +36,10 @@ export default function ModuleVentasDetail() {
 
   // Module: Sales Management
 
-  const validTabs = ["quotes", "orders", "electronic-documents", "collections"];
-  const activeTab = validTabs.includes(params.tab ?? "") ? params.tab! : "quotes";
-  const setActiveTab = (tab: string) => {
+  const validTabs = ["inicio", "quotes", "orders", "electronic-documents", "collections"];
+  type TabType = typeof validTabs[number];
+  const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : "inicio";
+  const setActiveTab = (tab: TabType) => {
     navigate(`/module-ventas-detail/${tab}`, { replace: true });
   };
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -49,6 +54,7 @@ export default function ModuleVentasDetail() {
   const userBranch = "Sucursal Matriz - Quito"; // Sucursal a la que pertenece el usuario
 
   const tabs = [
+    { id: "inicio", name: "Inicio", icon: Home },
     { id: "quotes", name: "Cotizaciones", icon: FileText },
     { id: "orders", name: "Pedidos de Venta", icon: ShoppingCart },
     { id: "electronic-documents", name: "Documentos Electrónicos", icon: FileCheck },
@@ -261,6 +267,210 @@ export default function ModuleVentasDetail() {
 
       {/* ── Contenido principal ────────────────────────────────────────────── */}
       <main className="p-6">
+        {/* Vista general cuando no hay pestaña seleccionada o está en inicio */}
+        {(activeTab === null || activeTab === "inicio") && (
+          <div>
+            {/* Bienvenida al módulo */}
+            <div className={`mb-8 border rounded-xl p-8 text-center ${
+              isLight 
+                ? "bg-gradient-to-br from-blue-50 to-white border-blue-200" 
+                : "bg-gradient-to-br from-blue-500/10 to-[#0D1B2A] border-blue-500/20"
+            }`}>
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-9 h-9 text-white" />
+              </div>
+              <h2 className={`text-2xl font-bold mb-2 ${
+                isLight ? "text-gray-900" : "text-white"
+              }`}>Módulo de Ventas</h2>
+              <p className={`text-sm max-w-2xl mx-auto ${
+                isLight ? "text-gray-600" : "text-gray-400"
+              }`}>
+                Sistema completo para la gestión de ventas, desde cotizaciones hasta cobros,
+                con documentos electrónicos integrados al SRI
+              </p>
+            </div>
+
+            {/* Grid de submódulos */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Cotizaciones */}
+              <button
+                onClick={() => setActiveTab("quotes")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-[#0D1B2A] border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Cotizaciones</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Genera propuestas comerciales profesionales</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Crea cotizaciones con productos y servicios</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Conversión directa a pedidos de venta</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Seguimiento de estados y vigencia</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Pedidos de Venta */}
+              <button
+                onClick={() => setActiveTab("orders")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-[#0D1B2A] border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <ShoppingCart className="w-6 h-6 text-green-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Pedidos de Venta</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Gestiona órdenes de venta confirmadas</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Administra pedidos pendientes y procesados</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Control de inventario y disponibilidad</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Generación de documentos electrónicos</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Documentos Electrónicos */}
+              <button
+                onClick={() => setActiveTab("electronic-documents")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-[#0D1B2A] border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <FileCheck className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Documentos Electrónicos</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Facturación electrónica certificada por el SRI</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Facturas, notas de crédito y débito</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Guías de remisión electrónicas</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Autorización automática con el SRI</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Cobros */}
+              <button
+                onClick={() => setActiveTab("collections")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-[#0D1B2A] border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <DollarSign className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Cobros</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Administración de cuentas por cobrar</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-orange-500 mt-0.5">✓</span>
+                        <span>Gestión de cuotas y tabla de amortización</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-orange-500 mt-0.5">✓</span>
+                        <span>Registro de pagos parciales y totales</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-orange-500 mt-0.5">✓</span>
+                        <span>Alertas de vencimiento y mora</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+        
         {activeTab === "quotes" && (
           <div className="space-y-6">
             <SalesQuotesContent />
@@ -269,10 +479,7 @@ export default function ModuleVentasDetail() {
 
         {activeTab === "orders" && (
           <div className="space-y-6">
-            <div className={`p-8 rounded-xl border text-center ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
-              <ShoppingCart className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
-              <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulo de pedidos en desarrollo</p>
-            </div>
+            <SalesOrdersContent />
           </div>
         )}
 
@@ -284,10 +491,7 @@ export default function ModuleVentasDetail() {
 
         {activeTab === "collections" && (
           <div className="space-y-6">
-            <div className={`p-8 rounded-xl border text-center ${isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"}`}>
-              <DollarSign className={`w-12 h-12 mx-auto mb-3 ${isLight ? "text-gray-300" : "text-gray-600"}`} />
-              <p className={`text-sm ${isLight ? "text-gray-500" : "text-gray-400"}`}>Módulo de cobros en desarrollo</p>
-            </div>
+            <CollectionsContent />
           </div>
         )}
       </main>

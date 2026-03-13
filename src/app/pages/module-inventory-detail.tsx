@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Package, TrendingUp, ArrowLeftRight, Plus, Bell, FileText, Sun, Moon, Info } from "lucide-react";
+import { ArrowLeft, Package, TrendingUp, ArrowLeftRight, Plus, Bell, FileText, Sun, Moon, Info, Home } from "lucide-react";
 import { InventoryStockList } from "../components/inventory-stock-list";
 import { InventoryMovementsList } from "../components/inventory-movements-list";
 import { InventoryTransfersList } from "../components/inventory-transfers-list";
@@ -15,9 +15,9 @@ export default function ModuleInventoryDetail() {
   const { theme, toggleTheme } = useTheme();
   const isLight = theme === "light";
 
-  const validTabs = ["stock", "movements", "transfers", "kardex"] as const;
+  const validTabs = ["inicio", "stock", "movements", "transfers", "kardex"] as const;
   type TabType = typeof validTabs[number];
-  const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : null;
+  const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : "inicio";
   const setActiveTab = (tab: TabType) => {
     navigate(`/module-inventory-detail/${tab}`, { replace: true });
   };
@@ -35,6 +35,7 @@ export default function ModuleInventoryDetail() {
   const userBranch = "Sucursal Matriz - Quito";
 
   const tabs = [
+    { id: "inicio", name: "Inicio", icon: Home },
     { id: "stock", name: "Stock Actual", icon: Package },
     { id: "movements", name: "Movimientos de Inventario", icon: TrendingUp },
     { id: "transfers", name: "Transferencias", icon: ArrowLeftRight },
@@ -98,8 +99,8 @@ export default function ModuleInventoryDetail() {
   };
 
   const renderContent = () => {
-    // Vista general cuando no hay pestaña seleccionada
-    if (activeTab === null) {
+    // Vista general cuando no hay pestaña seleccionada o está en inicio
+    if (activeTab === null || activeTab === "inicio") {
       return (
         <div>
           {/* Bienvenida al módulo */}

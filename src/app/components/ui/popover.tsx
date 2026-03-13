@@ -23,9 +23,20 @@ function Popover({
 }
 
 function PopoverTrigger({
+  asChild,
+  children,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...filterFigmaProps(props)} />;
+  const filteredProps = filterFigmaProps(props);
+  
+  // Si asChild es true y children es un elemento React, filtra también sus props
+  if (asChild && React.isValidElement(children)) {
+    const childProps = filterFigmaProps(children.props || {});
+    const clonedChild = React.cloneElement(children as React.ReactElement, childProps);
+    return <PopoverPrimitive.Trigger data-slot="popover-trigger" asChild {...filteredProps}>{clonedChild}</PopoverPrimitive.Trigger>;
+  }
+  
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" asChild={asChild} {...filteredProps}>{children}</PopoverPrimitive.Trigger>;
 }
 
 function PopoverContent({

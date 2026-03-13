@@ -13,6 +13,7 @@ import ModuleVentasDetail from "./pages/module-ventas-detail";
 import ModulePosDetail from "./pages/module-pos-detail";
 import ModuleInventoryDetail from "./pages/module-inventory-detail";
 import ModuleAccountingDetail from "./pages/module-accounting-detail";
+import { ModuleClientesDetail } from "./pages/module-clientes-detail";
 import AdminLayout from "./components/admin-layout";
 import AdminWelcomePage from "./pages/admin-welcome";
 import { RouteError } from "./components/route-error";
@@ -63,20 +64,25 @@ export const router = createBrowserRouter([
 
       // ── Compras ────────────────────────────────────────────────────────────
       { path: "/module-compras-detail/:tab", element: <ModuleComprasDetail /> },
-      { path: "/module-compras-detail", element: <ModuleComprasDetail /> },
+      { path: "/module-compras-detail", element: <Navigate to="/module-compras-detail/inicio" replace /> },
 
       // ── Ventas ─────────────────────────────────────────────────────────────
       { path: "/module-ventas-detail/:tab", element: <ModuleVentasDetail /> },
+      { path: "/module-ventas-detail", element: <Navigate to="/module-ventas-detail/inicio" replace /> },
 
       // ── Punto de Venta ─────────────────────────────────────────────────────
       { path: "/module-pos-detail/:tab", element: <ModulePosDetail /> },
 
       // ── Inventario ─────────────────────────────────────────────────────────
       { path: "/module-inventory-detail/:tab", element: <ModuleInventoryDetail /> },
-      { path: "/module-inventory-detail", element: <ModuleInventoryDetail /> },
+      { path: "/module-inventory-detail", element: <Navigate to="/module-inventory-detail/inicio" replace /> },
 
       // ── Contabilidad ───────────────────────────────────────────────────────
       { path: "/module-accounting-detail/:tab", element: <ModuleAccountingDetail /> },
+      { path: "/module-accounting-detail", element: <Navigate to="/module-accounting-detail/inicio" replace /> },
+
+      // ── Clientes ───────────────────────────────────────────────────────────
+      { path: "/module-clientes-detail", element: <ModuleClientesDetail /> },
 
       // ── Redirects para URLs base sin parámetros obligatorios ───────────────
       {
@@ -84,16 +90,8 @@ export const router = createBrowserRouter([
         element: <Navigate to="/module-config-detail/general-settings" replace />,
       },
       {
-        path: "/module-ventas-detail",
-        element: <Navigate to="/module-ventas-detail/quotes" replace />,
-      },
-      {
         path: "/module-pos-detail",
         element: <Navigate to="/module-pos-detail/pos" replace />,
-      },
-      {
-        path: "/module-accounting-detail",
-        element: <Navigate to="/module-accounting-detail/journal" replace />,
       },
 
       // ── Catch-all: cualquier ruta desconocida → login ──────────────────────

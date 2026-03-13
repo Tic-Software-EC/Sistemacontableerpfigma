@@ -29,6 +29,7 @@ import {
   Sun,
   Moon,
   Info,
+  Home,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
@@ -232,9 +233,9 @@ export default function ModuleComprasDetail() {
   const params = useParams<{ tab?: string }>();
   const { logoUrl } = useBrand();
 
-  const validTabs = ["orders", "reception", "suppliers", "received", "retentions", "payments"];
+  const validTabs = ["inicio", "orders", "reception", "suppliers", "received", "retentions", "payments"];
   type TabType = typeof validTabs[number];
-  const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : null;
+  const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : "inicio";
   const setActiveTab = (tab: TabType) => {
     navigate(`/module-compras-detail/${tab}`, { replace: true });
   };
@@ -261,6 +262,7 @@ export default function ModuleComprasDetail() {
   const userBranch = "Sucursal Matriz - Quito"; // Sucursal a la que pertenece el usuario
 
   const tabs = [
+    { id: "inicio", name: "Inicio", icon: Home },
     { id: "orders", name: "Órdenes de Compra", icon: ShoppingCart },
     { id: "reception", name: "Recepción de Mercadería", icon: Package },
     { id: "suppliers", name: "Proveedores", icon: User },
@@ -506,8 +508,8 @@ export default function ModuleComprasDetail() {
       <main className={activeTab === "retentions" ? "p-6 flex flex-col" : "p-6"}
             style={activeTab === "retentions" ? { height: "calc(100vh - 165px)" } : undefined}>
         
-        {/* Vista general cuando no hay pestaña seleccionada */}
-        {activeTab === null && (
+        {/* Vista general cuando no hay pestaña seleccionada o está en inicio */}
+        {(activeTab === null || activeTab === "inicio") && (
           <div>
             {/* Bienvenida al módulo */}
             <div className={`mb-8 border rounded-xl p-8 text-center ${

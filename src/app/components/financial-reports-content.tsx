@@ -161,7 +161,7 @@ export function FinancialReportsContent() {
                   nameKey="name"
                 >
                   {GASTOS_PIE.map((entry, index) => (
-                    <Cell key={`cell-gastos-${index}-${entry.name}`} fill={entry.color} />
+                    <Cell key={`pie-cell-${entry.name}-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip

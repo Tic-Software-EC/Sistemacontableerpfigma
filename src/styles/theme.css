@@ -50,7 +50,7 @@
   --popover-foreground: #ffffff;
   --primary: #E8692E;
   --primary-foreground: #ffffff;
-  --secondary: #2d3f52;
+  --secondary: #0D1B2A;
   --secondary-foreground: #ffffff;
   --muted: #1e2d3d;
   --muted-foreground: #a0aec0;
@@ -220,5 +220,51 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.05em;
     font-size: 0.95em;
+  }
+
+  /* Estilos para impresión */
+  @media print {
+    /* Ocultar elementos de navegación y controles */
+    nav, 
+    button:not(.print-visible),
+    .no-print,
+    input[type="checkbox"],
+    .hover\:bg-primary\/5,
+    .hover\:bg-\[#1a2936\] {
+      display: none !important;
+    }
+
+    /* Forzar fondo blanco y texto negro para impresión */
+    body {
+      background: white !important;
+      color: black !important;
+    }
+
+    /* Mejorar legibilidad de tablas */
+    table {
+      border-collapse: collapse !important;
+      width: 100% !important;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd !important;
+      background: white !important;
+      color: black !important;
+    }
+
+    th {
+      background: #f5f5f5 !important;
+      font-weight: bold !important;
+    }
+
+    /* Asegurar que los modales se impriman correctamente */
+    .fixed {
+      position: relative !important;
+    }
+
+    /* Evitar saltos de página dentro de filas */
+    tr {
+      page-break-inside: avoid !important;
+    }
   }
 }

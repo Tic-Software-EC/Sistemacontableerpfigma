@@ -14,7 +14,6 @@ import {
   UserCheck,
   Settings,
   FileBarChart,
-  Calendar,
   CreditCard,
   Truck,
   Receipt,
@@ -42,6 +41,7 @@ import {
   Sun,
   Moon,
   Lock,
+  Smartphone,
 } from "lucide-react";
 import { ProfileModal } from "../components/profile-modal";
 import { useTheme } from "../contexts/theme-context";
@@ -53,6 +53,7 @@ interface Module {
   color: string;
   route: string;
   description: string;
+  disabled?: boolean;
 }
 
 export default function ModulesPage() {
@@ -90,40 +91,28 @@ export default function ModulesPage() {
   });
 
   const modules: Module[] = [
-    { id: "facturas", name: "Facturas", icon: FileText, color: "from-blue-500 to-blue-600", route: "/module-config-detail", description: "Gestión de facturas" },
-    { id: "clientes", name: "Clientes", icon: Users, color: "from-green-500 to-green-600", route: "/module-config-detail", description: "Administración de clientes" },
+    { id: "clientes", name: "Clientes", icon: Users, color: "from-green-500 to-green-600", route: "/module-clientes-detail", description: "Administración de clientes" },
     { id: "reportes", name: "Reportes", icon: BarChart3, color: "from-purple-500 to-purple-600", route: "/module-config-detail", description: "Reportes y análisis" },
     { id: "inventario", name: "Inventario", icon: Package, color: "from-orange-500 to-orange-600", route: "/module-inventory-detail", description: "Control de inventario" },
     { id: "contabilidad", name: "Contabilidad", icon: Calculator, color: "from-pink-500 to-pink-600", route: "/module-config-detail", description: "Gestión contable" },
     { id: "ventas", name: "Ventas", icon: ShoppingCart, color: "from-cyan-500 to-cyan-600", route: "/module-ventas-detail", description: "Módulo de ventas" },
     { id: "pos", name: "Punto de Venta", icon: Receipt, color: "from-primary to-primary/80", route: "/module-pos-detail", description: "Sistema POS" },
     { id: "compras", name: "Compras", icon: ShoppingBag, color: "from-indigo-500 to-indigo-600", route: "/module-compras-detail", description: "Gestión de compras" },
-    { id: "gastos", name: "Gastos", icon: Wallet, color: "from-red-500 to-red-600", route: "/module-config-detail", description: "Control de gastos" },
     { id: "empleados", name: "Empleados", icon: UserCheck, color: "from-teal-500 to-teal-600", route: "/module-config-detail", description: "Gestión de personal" },
     { id: "configuracion", name: "Configuración", icon: Settings, color: "from-gray-500 to-gray-600", route: "/module-config-detail", description: "Ajustes del sistema" },
     { id: "estados-financieros", name: "Estados Financieros", icon: FileBarChart, color: "from-emerald-500 to-emerald-600", route: "/module-config-detail", description: "Reportes financieros" },
-    { id: "calendario", name: "Calendario", icon: Calendar, color: "from-amber-500 to-amber-600", route: "/module-config-detail", description: "Calendario fiscal" },
-    { id: "pagos", name: "Pagos", icon: CreditCard, color: "from-violet-500 to-violet-600", route: "/module-config-detail", description: "Gestión de pagos" },
-    { id: "proveedores", name: "Proveedores", icon: Truck, color: "from-lime-500 to-lime-600", route: "/module-config-detail", description: "Administración de proveedores" },
-    { id: "cotizaciones", name: "Cotizaciones", icon: Receipt, color: "from-sky-500 to-sky-600", route: "/module-config-detail", description: "Gestión de cotizaciones" },
-    { id: "activos", name: "Activos", icon: Building2, color: "from-rose-500 to-rose-600", route: "/module-config-detail", description: "Control de activos fijos" },
-    { id: "proyectos", name: "Proyectos", icon: ClipboardList, color: "from-fuchsia-500 to-fuchsia-600", route: "/module-config-detail", description: "Gestión de proyectos" },
-    { id: "indicadores", name: "Indicadores", icon: TrendingUp, color: "from-yellow-500 to-yellow-600", route: "/module-config-detail", description: "KPIs y métricas" },
     { id: "caja-bancos", name: "Caja y Bancos", icon: DollarSign, color: "from-green-600 to-green-700", route: "/module-config-detail", description: "Gestión de tesorería" },
-    { id: "productos", name: "Productos", icon: Boxes, color: "from-orange-600 to-orange-700", route: "/module-config-detail", description: "Catálogo de productos" },
-    { id: "libro-diario", name: "Libro Diario", icon: BookOpen, color: "from-blue-600 to-blue-700", route: "/module-config-detail", description: "Asientos contables" },
-    { id: "auditoria", name: "Auditoría", icon: FileCheck, color: "from-purple-600 to-purple-700", route: "/module-config-detail", description: "Trazabilidad y auditoría" },
-    { id: "presupuestos", name: "Presupuestos", icon: PieChart, color: "from-cyan-600 to-cyan-700", route: "/module-config-detail", description: "Control presupuestario" },
-    { id: "almacenes", name: "Almacenes", icon: Layers, color: "from-indigo-600 to-indigo-700", route: "/module-config-detail", description: "Gestión de almacenes" },
+    { id: "movil", name: "Móvil", icon: Smartphone, color: "from-blue-500 to-blue-600", route: "/module-config-detail", description: "Aplicación móvil", disabled: true },
   ];
 
   const handleModuleClick = (module: Module) => {
     // Módulos con vista propia
-    if (module.name === "Compras")        { navigate("/module-compras-detail"); return; }
-    if (module.name === "Ventas")         { navigate("/module-ventas-detail/invoices"); return; }
+    if (module.name === "Clientes")       { navigate("/module-clientes-detail"); return; }
+    if (module.name === "Compras")        { navigate("/module-compras-detail/inicio"); return; }
+    if (module.name === "Ventas")         { navigate("/module-ventas-detail/inicio"); return; }
     if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }
-    if (module.name === "Inventario")     { navigate("/module-inventory-detail"); return; }
-    if (module.name === "Contabilidad")   { navigate("/module-accounting-detail/journal"); return; }
+    if (module.name === "Inventario")     { navigate("/module-inventory-detail/inicio"); return; }
+    if (module.name === "Contabilidad")   { navigate("/module-accounting-detail/inicio"); return; }
 
     // Primer menuId de cada módulo — define el grupo que se abre por defecto
     // URL resultante: /module-config-detail/{menuId}
@@ -137,8 +126,6 @@ export default function ModulesPage() {
       "Gastos":               "sales-config",
       "Empleados":            "users",
       "Estados Financieros":  "accounting-dashboard",
-      "Calendario":           "calendar",
-      "Pagos":                "payment-methods",
       "Proveedores":          "suppliers",
       "Cotizaciones":         "quotes",
       "Activos":              "general-settings",
@@ -182,7 +169,7 @@ export default function ModulesPage() {
   };
 
   return (
-    <div className={`min-h-screen ${theme === "light" ? "bg-gray-50" : "bg-secondary"}`}>
+    <div className={`min-h-screen flex flex-col ${theme === "light" ? "bg-gray-50" : "bg-secondary"}`}>
       {/* Header */}
       <header className={`${theme === "light" ? "bg-white border-gray-200" : "bg-secondary border-white/10"} border-b`}>
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -464,7 +451,7 @@ export default function ModulesPage() {
 
 
       {/* Contenido principal */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="flex-1 max-w-7xl mx-auto px-6 py-12 w-full">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Layers className="w-8 h-8 text-primary" />
@@ -476,36 +463,52 @@ export default function ModulesPage() {
         </div>
 
         {/* Grid de módulos */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {modules.map((module) => {
             const Icon = module.icon;
+            const isDisabled = module.disabled === true;
+            
             return (
               <button
                 key={module.id}
-                onClick={() => handleModuleClick(module)}
-                className={`group relative backdrop-blur-sm border p-3 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/20 rounded-[10px] ${
-                  theme === "light"
-                    ? "bg-white hover:bg-gray-50 border-gray-200 hover:border-primary/50"
-                    : "bg-white/5 hover:bg-white/10 border-white/10 hover:border-primary/50"
+                onClick={() => !isDisabled && handleModuleClick(module)}
+                disabled={isDisabled}
+                className={`group relative backdrop-blur-sm border p-6 rounded-xl transition-all duration-300 ${
+                  isDisabled
+                    ? `opacity-50 cursor-not-allowed ${
+                        theme === "light"
+                          ? "bg-gray-100 border-gray-300"
+                          : "bg-white/5 border-white/10"
+                      }`
+                    : `hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/20 ${
+                        theme === "light"
+                          ? "bg-white hover:bg-gray-50 border-gray-200 hover:border-primary/50"
+                          : "bg-white/5 hover:bg-white/10 border-white/10 hover:border-primary/50"
+                      }`
                 }`}
               >
-                <div className="flex flex-col items-center gap-2">
-                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${module.color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}>
-                    <Icon className="w-5 h-5 text-white" />
+                {/* Badge "Próximamente" para módulos deshabilitados */}
+                {isDisabled && (
+                  <div className="absolute top-3 right-3 bg-yellow-500 text-white text-[10px] font-semibold px-2 py-1 rounded-md">
+                    No habilitado
+                  </div>
+                )}
+                
+                <div className="flex flex-col items-center gap-3">
+                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${module.color} flex items-center justify-center shadow-lg ${!isDisabled && 'group-hover:shadow-xl'} transition-all duration-300`}>
+                    <Icon className="w-8 h-8 text-white" />
                   </div>
                   <div className="text-center">
-                    <h3 className={`text-xs font-medium group-hover:text-primary transition-colors leading-tight ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                    <h3 className={`text-sm font-semibold leading-tight transition-colors ${
+                      isDisabled
+                        ? theme === "light" ? "text-gray-500" : "text-gray-400"
+                        : `${theme === "light" ? "text-gray-900" : "text-white"} group-hover:text-primary`
+                    }`}>
                       {module.name}
                     </h3>
-                  </div>
-                </div>
-                {/* Tooltip en hover */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                  <div className="text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl bg-gray-900 text-white">
-                    {module.description}
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1">
-                      <div className="w-2 h-2 bg-gray-900 rotate-45"></div>
-                    </div>
+                    <p className={`text-xs mt-1 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                      {module.description}
+                    </p>
                   </div>
                 </div>
               </button>

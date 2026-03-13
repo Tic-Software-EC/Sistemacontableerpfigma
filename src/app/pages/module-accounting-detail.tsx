@@ -5,6 +5,7 @@ import {
   BookOpen, ChevronLeft, Bell, Settings, LogOut,
   Sun, Moon, X,
   BarChart2, PieChart, TrendingUp, FileText, Receipt, List, FileDown, GitBranch,
+  Wallet, Home,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "../components/profile-modal";
@@ -20,6 +21,7 @@ import { AccountingSettingsContent } from "../components/accounting-settings-con
 import { ManualEntryContent } from "../components/manual-entry-content";
 
 const TABS = [
+  { id: "inicio",     name: "Inicio",                 icon: Home        },
   { id: "journal",    name: "Libro Diario",          icon: BookOpen    },
   { id: "ledger",     name: "Libro Mayor",           icon: Receipt     },
   { id: "balance",    name: "Balance General",        icon: BarChart2   },
@@ -37,8 +39,9 @@ export default function ModuleAccountingDetail() {
   const isLight    = theme === "light";
 
   const validTabs  = TABS.map(t => t.id);
-  const activeTab  = validTabs.includes(params.tab ?? "") ? params.tab! : "journal";
-  const setActiveTab = (tab: string) => navigate(`/module-accounting-detail/${tab}`, { replace: true });
+  type TabType = typeof validTabs[number];
+  const activeTab: TabType | null = validTabs.includes(params.tab as TabType) ? (params.tab as TabType) : "inicio";
+  const setActiveTab = (tab: TabType) => navigate(`/module-accounting-detail/${tab}`, { replace: true });
 
   const [showUserMenu,         setShowUserMenu]         = useState(false);
   const [showProfileModal,     setShowProfileModal]     = useState(false);
@@ -205,6 +208,300 @@ export default function ModuleAccountingDetail() {
 
       {/* ── Contenido principal ──────────────────────────────────────────────── */}
       <main className="p-6">
+        {/* Vista general cuando no hay pestaña seleccionada o está en inicio */}
+        {(activeTab === null || activeTab === "inicio") && (
+          <div>
+            {/* Bienvenida al módulo */}
+            <div className={`mb-8 border rounded-xl p-8 text-center ${
+              isLight 
+                ? "bg-gradient-to-br from-blue-50 to-white border-blue-200" 
+                : "bg-gradient-to-br from-blue-500/10 to-secondary border-blue-500/20"
+            }`}>
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Wallet className="w-9 h-9 text-white" />
+              </div>
+              <h2 className={`text-2xl font-bold mb-2 ${
+                isLight ? "text-gray-900" : "text-white"
+              }`}>Módulo de Contabilidad</h2>
+              <p className={`text-sm max-w-2xl mx-auto ${
+                isLight ? "text-gray-600" : "text-gray-400"
+              }`}>
+                Sistema integral de gestión contable con libros diario y mayor, estados financieros,
+                reportes tributarios y configuración del plan de cuentas
+              </p>
+            </div>
+
+            {/* Grid de submódulos */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Libro Diario */}
+              <button
+                onClick={() => setActiveTab("journal")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Libro Diario</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Registro cronológico de operaciones contables</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Asientos contables por fecha</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Debe, Haber y Balance</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Libro Mayor */}
+              <button
+                onClick={() => setActiveTab("ledger")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Receipt className="w-6 h-6 text-green-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Libro Mayor</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Movimientos agrupados por cuenta contable</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Saldos por cuenta</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Auxiliares contables</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Balance General */}
+              <button
+                onClick={() => setActiveTab("balance")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <BarChart2 className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Balance General</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Estado de situación financiera</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Activos, Pasivos y Patrimonio</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Comparativos por período</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Estado de Resultados */}
+              <button
+                onClick={() => setActiveTab("income")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Estado de Resultados</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Análisis de ingresos, costos y utilidades</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-orange-500 mt-0.5">✓</span>
+                        <span>Ingresos y Gastos</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-orange-500 mt-0.5">✓</span>
+                        <span>Utilidad neta del ejercicio</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Reportes Financieros */}
+              <button
+                onClick={() => setActiveTab("reports")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <PieChart className="w-6 h-6 text-pink-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Reportes Financieros</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Análisis y reportes personalizados</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-pink-500 mt-0.5">✓</span>
+                        <span>Flujo de efectivo</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-pink-500 mt-0.5">✓</span>
+                        <span>Ratios financieros</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* ATS */}
+              <button
+                onClick={() => setActiveTab("ats")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <FileDown className="w-6 h-6 text-red-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>ATS</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Anexo Transaccional Simplificado</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-red-500 mt-0.5">✓</span>
+                        <span>Generación XML para SRI</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-red-500 mt-0.5">✓</span>
+                        <span>Declaración mensual</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+
+              {/* Configuración */}
+              <button
+                onClick={() => setActiveTab("config")}
+                className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gray-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Settings className="w-6 h-6 text-gray-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg mb-2 ${
+                      isLight ? "text-gray-900" : "text-white"
+                    }`}>Configuración</h3>
+                    <p className={`text-sm mb-4 ${
+                      isLight ? "text-gray-600" : "text-gray-400"
+                    }`}>Plan de cuentas y parámetros contables</p>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-gray-500 mt-0.5">✓</span>
+                        <span>Catálogo de cuentas</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${
+                        isLight ? "text-gray-600" : "text-gray-400"
+                      }`}>
+                        <span className="text-gray-500 mt-0.5">✓</span>
+                        <span>Centros de costo</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+        
         {/* Libro Diario */}
         {activeTab === "journal" && <JournalContent />}
 
