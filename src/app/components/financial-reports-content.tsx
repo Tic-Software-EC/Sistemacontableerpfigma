@@ -134,8 +134,8 @@ export function FinancialReportsContent() {
                   labelStyle={{ color: isLight ? "#111827" : "#f9fafb" }}
                   itemStyle={{ color: isLight ? "#6b7280" : "#d1d5db" }}
                 />
-                <Bar dataKey="ingresos" fill="#22c55e" radius={[4, 4, 0, 0]} name="Ingresos" />
-                <Bar dataKey="gastos" fill="#ef4444" radius={[4, 4, 0, 0]} name="Gastos" />
+                <Bar key="bar-ingresos" dataKey="ingresos" fill="#22c55e" radius={[4, 4, 0, 0]} name="Ingresos" />
+                <Bar key="bar-gastos" dataKey="gastos" fill="#ef4444" radius={[4, 4, 0, 0]} name="Gastos" />
               </BarChart>
             </ResponsiveContainer>
           </div>

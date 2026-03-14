@@ -101,32 +101,35 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
         <div className="flex gap-1">
           <button
             onClick={() => setActiveTab("datos-cliente")}
-            className={`px-4 py-3 text-sm font-medium transition-colors ${
+            className={`px-4 py-3 text-sm font-medium transition-colors flex items-center gap-2 ${
               activeTab === "datos-cliente"
                 ? `border-b-2 border-primary ${isLight ? "text-primary" : "text-primary"}`
                 : `${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`
             }`}
           >
+            <User className="w-4 h-4" />
             Datos del Cliente
           </button>
           <button
             onClick={() => setActiveTab("documentos")}
-            className={`px-4 py-3 text-sm font-medium transition-colors ${
+            className={`px-4 py-3 text-sm font-medium transition-colors flex items-center gap-2 ${
               activeTab === "documentos"
                 ? `border-b-2 border-primary ${isLight ? "text-primary" : "text-primary"}`
                 : `${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`
             }`}
           >
+            <FileText className="w-4 h-4" />
             Documentos
           </button>
           <button
             onClick={() => setActiveTab("garantes-credito")}
-            className={`px-4 py-3 text-sm font-medium transition-colors ${
+            className={`px-4 py-3 text-sm font-medium transition-colors flex items-center gap-2 ${
               activeTab === "garantes-credito"
                 ? `border-b-2 border-primary ${isLight ? "text-primary" : "text-primary"}`
                 : `${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`
             }`}
           >
+            <CreditCard className="w-4 h-4" />
             Garantes y Crédito
           </button>
         </div>

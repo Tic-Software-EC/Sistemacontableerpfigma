@@ -98,7 +98,7 @@ export default function ModulesPage() {
     { id: "ventas", name: "Ventas", icon: ShoppingCart, color: "from-cyan-500 to-cyan-600", route: "/module-ventas-detail", description: "Módulo de ventas" },
     { id: "pos", name: "Punto de Venta", icon: Receipt, color: "from-primary to-primary/80", route: "/module-pos-detail", description: "Sistema POS" },
     { id: "compras", name: "Compras", icon: ShoppingBag, color: "from-indigo-500 to-indigo-600", route: "/module-compras-detail", description: "Gestión de compras" },
-    { id: "empleados", name: "Empleados", icon: UserCheck, color: "from-teal-500 to-teal-600", route: "/module-config-detail", description: "Gestión de personal" },
+    { id: "empleados", name: "Empleados", icon: UserCheck, color: "from-teal-500 to-teal-600", route: "/module-empleados-detail", description: "Gestión de personal" },
     { id: "configuracion", name: "Configuración", icon: Settings, color: "from-gray-500 to-gray-600", route: "/module-config-detail", description: "Ajustes del sistema" },
     { id: "estados-financieros", name: "Estados Financieros", icon: FileBarChart, color: "from-emerald-500 to-emerald-600", route: "/module-config-detail", description: "Reportes financieros" },
     { id: "caja-bancos", name: "Caja y Bancos", icon: DollarSign, color: "from-green-600 to-green-700", route: "/module-config-detail", description: "Gestión de tesorería" },
@@ -107,7 +107,8 @@ export default function ModulesPage() {
 
   const handleModuleClick = (module: Module) => {
     // Módulos con vista propia
-    if (module.name === "Clientes")       { navigate("/module-clientes-detail"); return; }
+    if (module.name === "Clientes")       { navigate("/module-clientes-detail/inicio"); return; }
+    if (module.name === "Empleados")      { navigate("/module-empleados-detail/inicio"); return; }
     if (module.name === "Compras")        { navigate("/module-compras-detail/inicio"); return; }
     if (module.name === "Ventas")         { navigate("/module-ventas-detail/inicio"); return; }
     if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }

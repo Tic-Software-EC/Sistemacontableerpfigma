@@ -14,6 +14,7 @@ import ModulePosDetail from "./pages/module-pos-detail";
 import ModuleInventoryDetail from "./pages/module-inventory-detail";
 import ModuleAccountingDetail from "./pages/module-accounting-detail";
 import { ModuleClientesDetail } from "./pages/module-clientes-detail";
+import { ModuleEmpleadosDetail } from "./pages/module-empleados-detail";
 import AdminLayout from "./components/admin-layout";
 import AdminWelcomePage from "./pages/admin-welcome";
 import { RouteError } from "./components/route-error";
@@ -82,7 +83,12 @@ export const router = createBrowserRouter([
       { path: "/module-accounting-detail", element: <Navigate to="/module-accounting-detail/inicio" replace /> },
 
       // ── Clientes ───────────────────────────────────────────────────────────
-      { path: "/module-clientes-detail", element: <ModuleClientesDetail /> },
+      { path: "/module-clientes-detail/:tab", element: <ModuleClientesDetail /> },
+      { path: "/module-clientes-detail", element: <Navigate to="/module-clientes-detail/inicio" replace /> },
+
+      // ── Empleados ──────────────────────────────────────────────────────────
+      { path: "/module-empleados-detail/:tab", element: <ModuleEmpleadosDetail /> },
+      { path: "/module-empleados-detail", element: <Navigate to="/module-empleados-detail/inicio" replace /> },
 
       // ── Redirects para URLs base sin parámetros obligatorios ───────────────
       {
