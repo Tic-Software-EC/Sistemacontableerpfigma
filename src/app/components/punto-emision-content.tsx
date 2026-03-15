@@ -145,47 +145,14 @@ export function PuntoEmisionContent() {
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div>
-      <label className={`block mb-1.5 text-xs font-medium ${lbl}`}>{label}</label>
+      
       {children}
     </div>
   );
 
   return (
-    <div className="space-y-6 w-full">
-
-      {/* Header */}
-      <div>
-        
-      </div>
-
-      <div className={`border-t ${divB}`} />
-
-      {/* Métricas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total puntos",    val: stats.total,          icon: <LayoutGrid   className="w-5 h-5 text-primary" />,      bg: "bg-primary/20"    },
-          { label: "Activos",         val: stats.activos,        icon: <CheckCircle2 className="w-5 h-5 text-green-400" />,    bg: "bg-green-500/20"  },
-          { label: "Sucursales c/PT", val: stats.sucursalesUsed, icon: <Star         className="w-5 h-5 text-yellow-400" />,   bg: "bg-yellow-500/20" },
-          { label: "En Producción",   val: stats.produccion,     icon: <Monitor      className="w-5 h-5 text-blue-400" />,     bg: "bg-blue-500/20"   },
-        ].map(m => (
-          <div key={m.label} className={`${card} p-4`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-xs mb-1">{m.label}</p>
-                <p className={`font-bold text-2xl ${isLight ? "text-gray-900" : "text-white"}`}>{m.val}</p>
-              </div>
-              <div className={`w-10 h-10 ${m.bg} rounded-lg flex items-center justify-center`}>{m.icon}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className={`border-t ${divB}`} />
-
-      {/* Aviso si hay sucursales sin puntos */}
-      {activeSucursales.some(s => !data.find(d => d.sucursalId === s.id)) && (
-        null
-      )}
+    <>
+      
 
       {/* Acción */}
       <div className="flex justify-end">
@@ -509,10 +476,7 @@ export function PuntoEmisionContent() {
                 </div>
                 <div className="mt-3">
                   <Field label="Ambiente">
-                    <select value={form.ambiente} onChange={e => setForm({ ...form, ambiente: e.target.value as "1" | "2" })} className={IN}>
-                      <option value="2" className={OB}>🟢 Producción</option>
-                      <option value="1" className={OB}>🟡 Pruebas</option>
-                    </select>
+                    
                   </Field>
                 </div>
               </div>
@@ -615,6 +579,6 @@ export function PuntoEmisionContent() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

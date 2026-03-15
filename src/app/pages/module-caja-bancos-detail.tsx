@@ -12,6 +12,13 @@ import {
   Bell,
   Home,
   Wallet,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  DollarSign,
+  Shield,
+  Clock,
+  CheckCircle2,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { PagoNominaTab } from "../components/caja-bancos/pago-nomina-tab";
@@ -19,8 +26,9 @@ import { PagoProveedoresTab } from "../components/caja-bancos/pago-proveedores-t
 import { ConciliacionBancariaTab } from "../components/caja-bancos/conciliacion-bancaria-tab";
 import { ImpresionChequesTab } from "../components/caja-bancos/impresion-cheques-tab";
 import { CuentasBancariasTab } from "../components/caja-bancos/cuentas-bancarias-tab";
+import { IngresosEgresosTab } from "../components/caja-bancos/ingresos-egresos-tab";
 
-type CajaBancosTab = "inicio" | "cuentas" | "nomina" | "proveedores" | "conciliacion" | "cheques";
+type CajaBancosTab = "inicio" | "cuentas" | "ingresos-egresos" | "nomina" | "proveedores" | "conciliacion" | "cheques";
 
 export function ModuleCajaBancosDetail() {
   const navigate = useNavigate();
@@ -124,6 +132,17 @@ export function ModuleCajaBancosDetail() {
               Cuentas Bancarias
             </button>
             <button
+              onClick={() => setActiveTab("ingresos-egresos")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${
+                activeTab === "ingresos-egresos"
+                  ? `border-primary ${isLight ? "text-primary bg-primary/5" : "text-primary"}`
+                  : `border-transparent ${isLight ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-500 hover:text-gray-300"}`
+              }`}
+            >
+              <TrendingUp className={`w-4 h-4 ${activeTab === "ingresos-egresos" ? "text-primary" : ""}`} />
+              Ingresos y Egresos
+            </button>
+            <button
               onClick={() => setActiveTab("nomina")}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${
                 activeTab === "nomina"
@@ -189,12 +208,12 @@ export function ModuleCajaBancosDetail() {
               <p className={`text-sm max-w-2xl mx-auto ${
                 isLight ? "text-gray-600" : "text-gray-400"
               }`}>
-                Sistema completo para la gestión de tesorería, pagos a nómina y proveedores, 
-                conciliación bancaria automatizada e impresión de cheques con control total
+                Sistema completo para la gestión de tesorería, control de cuentas bancarias, pagos a nómina y proveedores, 
+                conciliación bancaria automatizada e impresión de cheques con trazabilidad total
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div
                 onClick={() => setActiveTab("cuentas")}
                 className={`rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg ${
@@ -207,13 +226,76 @@ export function ModuleCajaBancosDetail() {
                   <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
                     <Wallet className="w-6 h-6 text-indigo-500" />
                   </div>
-                  <div>
-                    <h3 className={`font-semibold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                       Cuentas Bancarias
                     </h3>
-                    <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Gestionar cuentas y saldos bancarios
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Gestión completa de cuentas bancarias y saldos
                     </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Registro de cuentas bancarias
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Control de saldos en tiempo real
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Gestión de múltiples bancos
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab("ingresos-egresos")}
+                className={`rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg ${
+                  isLight 
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-primary/10" 
+                    : "bg-card border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-6 h-6 text-green-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                      Ingresos y Egresos
+                    </h3>
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Registro y categorización de movimientos financieros
+                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Registro de ingresos y gastos
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Categorización por tipo
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Reportes de flujo de efectivo
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -227,16 +309,36 @@ export function ModuleCajaBancosDetail() {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                    <Users className="w-6 h-6 text-green-500" />
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <Users className="w-6 h-6 text-blue-500" />
                   </div>
-                  <div>
-                    <h3 className={`font-semibold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>
-                      Pago a Nómina
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                      Pago de Nómina
                     </h3>
-                    <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Procesar pagos de salarios a empleados
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Procesamiento automático de pagos de salarios
                     </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Gestión de empleados y salarios
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Transferencias bancarias automáticas
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Comprobantes de pago
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -250,16 +352,36 @@ export function ModuleCajaBancosDetail() {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                    <Building2 className="w-6 h-6 text-blue-500" />
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                    <Building2 className="w-6 h-6 text-purple-500" />
                   </div>
-                  <div>
-                    <h3 className={`font-semibold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                       Pago a Proveedores
                     </h3>
-                    <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Gestionar facturas y pagos pendientes
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Administración de pagos y facturas pendientes
                     </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Control de facturas pendientes
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Múltiples métodos de pago
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Alertas de vencimiento
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -273,16 +395,36 @@ export function ModuleCajaBancosDetail() {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                    <GitCompare className="w-6 h-6 text-purple-500" />
+                  <div className="w-12 h-12 rounded-xl bg-teal-500/10 flex items-center justify-center flex-shrink-0">
+                    <GitCompare className="w-6 h-6 text-teal-500" />
                   </div>
-                  <div>
-                    <h3 className={`font-semibold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                       Conciliación Bancaria
                     </h3>
-                    <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Comparar extractos con contabilidad
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Comparación automática de extractos bancarios
                     </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Carga de extractos bancarios
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Comparación automática
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Identificación de diferencias
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -296,16 +438,36 @@ export function ModuleCajaBancosDetail() {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                    <FileCheck className="w-6 h-6 text-orange-500" />
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <FileCheck className="w-6 h-6 text-primary" />
                   </div>
-                  <div>
-                    <h3 className={`font-semibold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                       Impresión de Cheques
                     </h3>
-                    <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Emitir e imprimir cheques corporativos
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Emisión e impresión de cheques corporativos
                     </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Emisión de cheques digitales
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Control de estados y trazabilidad
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isLight ? "text-green-600" : "text-green-500"}`} />
+                        <span className={isLight ? "text-gray-700" : "text-gray-300"}>
+                          Registro de beneficiarios
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -314,6 +476,7 @@ export function ModuleCajaBancosDetail() {
         )}
         
         {activeTab === "cuentas" && <CuentasBancariasTab theme={theme} isLight={isLight} />}
+        {activeTab === "ingresos-egresos" && <IngresosEgresosTab theme={theme} isLight={isLight} />}
         {activeTab === "nomina" && <PagoNominaTab theme={theme} isLight={isLight} />}
         {activeTab === "proveedores" && <PagoProveedoresTab theme={theme} isLight={isLight} />}
         {activeTab === "conciliacion" && <ConciliacionBancariaTab theme={theme} isLight={isLight} />}

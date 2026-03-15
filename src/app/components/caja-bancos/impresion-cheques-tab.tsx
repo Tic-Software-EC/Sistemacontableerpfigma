@@ -13,8 +13,10 @@ import {
   AlertCircle,
   X,
   ChevronDown,
+  Filter,
 } from "lucide-react";
 import { toast } from "sonner";
+import { DatePicker } from "../ui/date-picker";
 
 interface ImpresionChequesTabProps {
   theme: string;
@@ -40,6 +42,8 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBanco, setSelectedBanco] = useState("todos");
   const [selectedEstado, setSelectedEstado] = useState("todos");
+  const [fechaDesde, setFechaDesde] = useState<Date | undefined>(undefined);
+  const [fechaHasta, setFechaHasta] = useState<Date | undefined>(undefined);
   const [showNuevoCheque, setShowNuevoCheque] = useState(false);
   const [showVistaPrevia, setShowVistaPrevia] = useState(false);
   const [chequeSeleccionado, setChequeSeleccionado] = useState<Cheque | null>(null);
@@ -147,39 +151,60 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
   const handleImprimirCheque = (cheque: Cheque) => {
     if (cheque.estado === "anulado") {
       toast.error("Cheque anulado", {
-        description: "No se pueden imprimir cheques anulados"
+        description: "No se puede imprimir un cheque anulado"
       });
       return;
     }
 
-    toast.success("Cheque enviado a impresión", {
-      description: `Cheque #${cheque.numero} - ${cheque.beneficiario}`
+    if (cheque.estado === "cobrado") {
+      toast.error("Cheque ya cobrado", {
+        description: "Este cheque ya fue cobrado y no se puede reimprimir"
+      });
+      return;
+    }
+
+    // Simular impresión
+    toast.success("Imprimiendo cheque", {
+      description: `Cheque #${cheque.numero} enviado a impresora`
     });
+
+    // En producción, aquí se enviaría a la impresora física
+    setTimeout(() => {
+      toast.success("Cheque impreso exitosamente", {
+        description: `Cheque #${cheque.numero} listo para entrega`
+      });
+    }, 2000);
   };
 
-  const handleVisualizarCheque = (cheque: Cheque) => {
-    setChequeSeleccionado(cheque);
-    setShowVistaPrevia(true);
+  const handleEntregarCheque = (cheque: Cheque) => {
+    if (cheque.estado !== "impreso") {
+      toast.error("Cheque no disponible", {
+        description: "Solo se pueden entregar cheques en estado 'Impreso'"
+      });
+      return;
+    }
+
+    toast.success("Cheque entregado", {
+      description: `Cheque #${cheque.numero} marcado como entregado a ${cheque.beneficiario}`
+    });
   };
 
   const handleAnularCheque = (cheque: Cheque) => {
     if (cheque.estado === "cobrado") {
       toast.error("No se puede anular", {
-        description: "El cheque ya ha sido cobrado"
-      });
-      return;
-    }
-
-    if (cheque.estado === "anulado") {
-      toast.error("Ya anulado", {
-        description: "Este cheque ya fue anulado previamente"
+        description: "Este cheque ya fue cobrado"
       });
       return;
     }
 
     toast.success("Cheque anulado", {
-      description: `Cheque #${cheque.numero} anulado correctamente`
+      description: `Cheque #${cheque.numero} ha sido anulado exitosamente`
     });
+  };
+
+  const handleVerVistaPrevia = (cheque: Cheque) => {
+    setChequeSeleccionado(cheque);
+    setShowVistaPrevia(true);
   };
 
   const chequesFiltrados = cheques.filter(cheque => {
@@ -191,7 +216,10 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
     const matchesBanco = selectedBanco === "todos" || cheque.banco === selectedBanco;
     const matchesEstado = selectedEstado === "todos" || cheque.estado === selectedEstado;
 
-    return matchesSearch && matchesBanco && matchesEstado;
+    const matchesFechaDesde = !fechaDesde || new Date(cheque.fecha) >= fechaDesde;
+    const matchesFechaHasta = !fechaHasta || new Date(cheque.fecha) <= fechaHasta;
+
+    return matchesSearch && matchesBanco && matchesEstado && matchesFechaDesde && matchesFechaHasta;
   });
 
   const getEstadoBadge = (estado: string) => {
@@ -248,7 +276,7 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
       </div>
 
       {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -294,6 +322,31 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
           <option value="cobrado">Cobrado</option>
           <option value="anulado">Anulado</option>
         </select>
+
+        <DatePicker
+          value={fechaDesde}
+          onChange={setFechaDesde}
+          placeholder="Desde..."
+          isLight={isLight}
+        />
+
+        <DatePicker
+          value={fechaHasta}
+          onChange={setFechaHasta}
+          placeholder="Hasta..."
+          isLight={isLight}
+        />
+
+        <button
+          className={`px-4 py-1.5 border rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+            isLight
+              ? "border-gray-200 hover:bg-gray-50 text-gray-700"
+              : "border-white/10 hover:bg-white/5 text-white"
+          }`}
+        >
+          <Filter className="w-4 h-4" />
+          Filtrar
+        </button>
       </div>
 
       {/* Tabla */}
@@ -367,7 +420,7 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
                       <button
-                        onClick={() => handleVisualizarCheque(cheque)}
+                        onClick={() => handleVerVistaPrevia(cheque)}
                         className={`p-1.5 rounded-lg transition-colors ${
                           isLight
                             ? "hover:bg-blue-50 text-blue-600"
@@ -379,9 +432,9 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
                       </button>
                       <button
                         onClick={() => handleImprimirCheque(cheque)}
-                        disabled={cheque.estado === "anulado"}
+                        disabled={cheque.estado === "anulado" || cheque.estado === "cobrado"}
                         className={`p-1.5 rounded-lg transition-colors ${
-                          cheque.estado === "anulado"
+                          cheque.estado === "anulado" || cheque.estado === "cobrado"
                             ? "opacity-50 cursor-not-allowed text-gray-500"
                             : isLight
                             ? "hover:bg-green-50 text-green-600"
@@ -404,6 +457,20 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
                         title="Anular"
                       >
                         <XCircle className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleEntregarCheque(cheque)}
+                        disabled={cheque.estado !== "impreso"}
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          cheque.estado !== "impreso"
+                            ? "opacity-50 cursor-not-allowed text-gray-500"
+                            : isLight
+                            ? "hover:bg-green-50 text-green-600"
+                            : "hover:bg-green-500/10 text-green-400"
+                        }`}
+                        title="Marcar como Entregado"
+                      >
+                        <CheckSquare className="w-4 h-4" />
                       </button>
                     </div>
                   </td>

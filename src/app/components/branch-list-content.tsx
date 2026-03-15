@@ -2,17 +2,21 @@ import { useState } from "react";
 import {
   Building2, Search, Plus, Edit, Trash2, X,
   MapPin, Phone, Mail, User, Calendar,
-  CheckCircle2, Clock, Building, Star, Filter, Eye, Hash,
+  CheckCircle2, Clock, Building, Star, Filter, Eye, Hash, Printer,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { useSucursales, Sucursal } from "../contexts/sucursal-context";
 import { usePuntosEmision } from "../contexts/punto-emision-context";
 import { toast } from "sonner";
+import { PuntoEmisionContent } from "./punto-emision-content";
 
 export function BranchListContent() {
   const { theme } = useTheme();
   const { sucursales: branches, setSucursales: setBranches } = useSucursales();
   const { puntos } = usePuntosEmision();
+
+  // Tab activo: "sucursales" o "puntos"
+  const [activeTab, setActiveTab] = useState<"sucursales" | "puntos">("sucursales");
 
   const [searchTerm, setSearchTerm]       = useState("");
   const [filterType, setFilterType]       = useState("all");
@@ -87,8 +91,39 @@ export function BranchListContent() {
 
       <div className={divider} />
 
-      {/* Métricas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Tabs de navegación */}
+      <div className={`flex items-center gap-2 border-b ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
+        <button
+          onClick={() => setActiveTab("sucursales")}
+          className={`flex items-center gap-2 px-5 py-3 font-medium text-sm border-b-2 transition-all ${
+            activeTab === "sucursales"
+              ? `border-primary ${theme === "light" ? "text-primary bg-primary/5" : "text-white bg-primary/5"}`
+              : `border-transparent ${theme === "light" ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-500 hover:text-white hover:bg-white/5"}`
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          Sucursales / Establecimientos
+        </button>
+        <button
+          onClick={() => setActiveTab("puntos")}
+          className={`flex items-center gap-2 px-5 py-3 font-medium text-sm border-b-2 transition-all ${
+            activeTab === "puntos"
+              ? `border-primary ${theme === "light" ? "text-primary bg-primary/5" : "text-white bg-primary/5"}`
+              : `border-transparent ${theme === "light" ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100" : "text-gray-500 hover:text-white hover:bg-white/5"}`
+          }`}
+        >
+          <Printer className="w-4 h-4" />
+          Puntos de Emisión
+        </button>
+      </div>
+
+      {/* Contenido condicional según tab activo */}
+      {activeTab === "puntos" ? (
+        <PuntoEmisionContent />
+      ) : (
+        <>
+          {/* Métricas */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Total",       value: branches.length,                                     icon: <Building2    className="w-5 h-5 text-primary" />,     bg: "bg-primary/20"    },
           { label: "Activas",     value: branches.filter(b => b.status === "active").length,  icon: <CheckCircle2 className="w-5 h-5 text-green-400" />,   bg: "bg-green-500/20"  },
@@ -445,6 +480,8 @@ export function BranchListContent() {
             </form>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

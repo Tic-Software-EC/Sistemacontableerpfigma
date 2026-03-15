@@ -692,6 +692,212 @@ export function CuentasBancariasTab({ theme, isLight }: CuentasBancariasTabProps
           </div>
         </div>
       )}
+
+      {/* Modal Editar Cuenta */}
+      {showEditarCuenta && cuentaSeleccionada && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto ${
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Editar Cuenta Bancaria
+              </h3>
+              <button
+                onClick={() => {
+                  setShowEditarCuenta(false);
+                  setCuentaSeleccionada(null);
+                }}
+                className="p-1 hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Banco *
+                  </label>
+                  <select
+                    value={cuentaSeleccionada.banco}
+                    onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, banco: e.target.value})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  >
+                    <option value="">Seleccionar banco</option>
+                    <option value="Banco Pichincha">Banco Pichincha</option>
+                    <option value="Banco Guayaquil">Banco Guayaquil</option>
+                    <option value="Banco del Pacífico">Banco del Pacífico</option>
+                    <option value="Banco Internacional">Banco Internacional</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Tipo de Cuenta *
+                  </label>
+                  <select
+                    value={cuentaSeleccionada.tipoCuenta}
+                    onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, tipoCuenta: e.target.value as "corriente" | "ahorros"})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  >
+                    <option value="corriente">Cuenta Corriente</option>
+                    <option value="ahorros">Cuenta de Ahorros</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Número de Cuenta *
+                  </label>
+                  <input
+                    type="text"
+                    value={cuentaSeleccionada.numeroCuenta}
+                    onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, numeroCuenta: e.target.value})}
+                    placeholder="0000000000"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Moneda *
+                  </label>
+                  <select
+                    value={cuentaSeleccionada.moneda}
+                    onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, moneda: e.target.value as "USD" | "EUR"})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  >
+                    <option value="USD">USD - Dólares</option>
+                    <option value="EUR">EUR - Euros</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Titular *
+                </label>
+                <input
+                  type="text"
+                  value={cuentaSeleccionada.titular}
+                  onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, titular: e.target.value})}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Sucursal *
+                </label>
+                <input
+                  type="text"
+                  value={cuentaSeleccionada.sucursal}
+                  onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, sucursal: e.target.value})}
+                  placeholder="Ej: Matriz Guayaquil"
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Contacto del Banco
+                  </label>
+                  <input
+                    type="text"
+                    value={cuentaSeleccionada.contactoBanco}
+                    onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, contactoBanco: e.target.value})}
+                    placeholder="Ej: Ing. Carlos Mendoza"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Teléfono del Banco
+                  </label>
+                  <input
+                    type="text"
+                    value={cuentaSeleccionada.telefonoBanco}
+                    onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, telefonoBanco: e.target.value})}
+                    placeholder="04-0000000"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Saldo Actual
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={cuentaSeleccionada.saldoActual}
+                    onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, saldoActual: parseFloat(e.target.value) || 0})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Estado *
+                  </label>
+                  <select
+                    value={cuentaSeleccionada.estado}
+                    onChange={(e) => setCuentaSeleccionada({...cuentaSeleccionada, estado: e.target.value as "activa" | "inactiva"})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  >
+                    <option value="activa">Activa</option>
+                    <option value="inactiva">Inactiva</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setShowEditarCuenta(false);
+                    setCuentaSeleccionada(null);
+                  }}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                    isLight ? "border-gray-200 hover:bg-gray-50 text-gray-700" : "border-white/10 hover:bg-white/5 text-white"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleEditarCuenta}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

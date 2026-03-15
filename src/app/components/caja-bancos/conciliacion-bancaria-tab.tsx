@@ -11,6 +11,7 @@ import {
   Calendar,
   DollarSign,
   ChevronDown,
+  Filter,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,6 +37,8 @@ export function ConciliacionBancariaTab({ theme, isLight }: ConciliacionBancaria
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTipo, setSelectedTipo] = useState("todos");
   const [selectedEstado, setSelectedEstado] = useState("todos");
+  const [fechaDesde, setFechaDesde] = useState("");
+  const [fechaHasta, setFechaHasta] = useState("");
   const [movimientosSeleccionados, setMovimientosSeleccionados] = useState<string[]>([]);
 
   const movimientosBancarios: MovimientoBancario[] = [
@@ -165,7 +168,13 @@ export function ConciliacionBancariaTab({ theme, isLight }: ConciliacionBancaria
       (selectedEstado === "conciliado" && movimiento.conciliado) ||
       (selectedEstado === "pendiente" && !movimiento.conciliado);
 
-    return matchesSearch && matchesTipo && matchesEstado;
+    const matchesFecha =
+      (fechaDesde === "" && fechaHasta === "") ||
+      (fechaDesde !== "" && fechaHasta !== "" && new Date(movimiento.fecha) >= new Date(fechaDesde) && new Date(movimiento.fecha) <= new Date(fechaHasta)) ||
+      (fechaDesde !== "" && fechaHasta === "" && new Date(movimiento.fecha) >= new Date(fechaDesde)) ||
+      (fechaDesde === "" && fechaHasta !== "" && new Date(movimiento.fecha) <= new Date(fechaHasta));
+
+    return matchesSearch && matchesTipo && matchesEstado && matchesFecha;
   });
 
   const totalDepositos = movimientosFiltrados
@@ -325,6 +334,36 @@ export function ConciliacionBancariaTab({ theme, isLight }: ConciliacionBancaria
           <option value="conciliado">Conciliado</option>
           <option value="pendiente">Pendiente</option>
         </select>
+
+        <div className="relative">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="date"
+            placeholder="Desde..."
+            value={fechaDesde}
+            onChange={(e) => setFechaDesde(e.target.value)}
+            className={`w-full pl-10 pr-3 py-1.5 border rounded-lg text-sm ${
+              isLight
+                ? "bg-white border-gray-200 text-gray-900"
+                : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+            }`}
+          />
+        </div>
+
+        <div className="relative">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="date"
+            placeholder="Hasta..."
+            value={fechaHasta}
+            onChange={(e) => setFechaHasta(e.target.value)}
+            className={`w-full pl-10 pr-3 py-1.5 border rounded-lg text-sm ${
+              isLight
+                ? "bg-white border-gray-200 text-gray-900"
+                : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+            }`}
+          />
+        </div>
       </div>
 
       {/* Resumen */}

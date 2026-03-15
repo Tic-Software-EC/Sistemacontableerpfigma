@@ -47,7 +47,7 @@ import { SysTabBar, SysTab } from "../components/ui/sys-tab-bar";
 interface SectionMeta { title: string; description: string; icon: LucideIcon }
 const SECTION_META: Record<string, SectionMeta> = {
   "company-info":      { title: "Información de Empresa",      description: "Configura los datos generales de tu empresa",                        icon: Building2    },
-  "branches":          { title: "Sucursales",                   description: "Administra las sucursales y puntos de venta de tu empresa",           icon: Building2    },
+  "branches":          { title: "Sucursales", description: "Administra las sucursales, establecimientos y puntos de emisión de documentos electrónicos", icon: Building2    },
   "punto-emision":     { title: "Puntos de Emisión",            description: "Gestiona los puntos de emisión de documentos electrónicos",           icon: Printer      },
   "pos-config":        { title: "Cajas POS",                    description: "Gestiona las cajas registradoras",                                    icon: ShoppingCart },
   "regional-config":   { title: "Configuración Regional",       description: "Zona horaria, idioma, moneda y formato de fechas",                    icon: Globe        },
@@ -423,8 +423,7 @@ const moduleMenus: Record<string, any> = {
       icon: Settings,
       submenus: [
         { id: "company-info",  name: "Empresa",          icon: Building2     },
-        { id: "branches",      name: "Sucursales",        icon: Building2     },
-        { id: "punto-emision", name: "Puntos de Emisión", icon: Printer       },
+        { id: "branches",      name: "Sucursales", icon: Building2     },
         { id: "pos-config",    name: "Configurar POS",    icon: ShoppingCart  },
         { id: "regional-config", name: "Config. Regional", icon: Globe },
         { id: "security", name: "Seguridad", icon: Shield },
@@ -1111,8 +1110,6 @@ export default function ModuleConfigDetailPage() {
                 <HolidaysContent />
               ) : selectedMenu === "sales-config" ? (
                 <SalesConfigContent />
-              ) : selectedMenu === "punto-emision" ? (
-                <PuntoEmisionContent />
               ) : selectedMenu === "payment-methods" ? (
                 <PaymentMethodsContent />
               ) : selectedMenu === "taxes" ? (
