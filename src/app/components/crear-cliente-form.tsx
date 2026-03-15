@@ -7,25 +7,46 @@ import {
   CreditCard,
   Save,
   Upload,
-  IdCard,
-  Vote,
-  Home as HomeIcon,
-  Camera,
   UserCheck,
   Plus,
   Trash2,
+  X,
   Eye,
   Download,
-  Edit,
-  Calendar,
-  X,
+  Search,
+  Check,
+  UserPlus,
 } from "lucide-react";
+import { toast } from "sonner";
+import { ModalGarante } from "./modal-garante";
 
 interface CrearClienteFormProps {
   theme: string;
 }
 
 type CreacionTab = "datos-cliente" | "documentos" | "garantes-credito";
+
+interface Garante {
+  id: string;
+  cedula: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  direccion: string;
+  relacion: string;
+  ingresos: number;
+}
+
+interface DocumentoSubido {
+  id: string;
+  tipo: string;
+  nombre: string;
+  archivo: File;
+  url: string;
+  fechaSubida: string;
+  tamano: string;
+}
 
 export function CrearClienteForm({ theme }: CrearClienteFormProps) {
   const isLight = theme === "light";
@@ -51,12 +72,289 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
     limiteCredito: 0,
   });
 
-  const [garantes, setGarantes] = useState<any[]>([]);
-  const [documentos, setDocumentos] = useState<any[]>([]);
+  const [garantes, setGarantes] = useState<Garante[]>([]);
+  const [documentos, setDocumentos] = useState<DocumentoSubido[]>([]);
+  const [showGaranteModal, setShowGaranteModal] = useState(false);
+  const [showDocumentoModal, setShowDocumentoModal] = useState(false);
+  const [searchGaranteTerm, setSearchGaranteTerm] = useState("");
+  const [mostrarResultadosBusqueda, setMostrarResultadosBusqueda] = useState(false);
+  
+  // Variables temporales para compatibilidad con el modal viejo (serán eliminadas cuando se reemplace el modal)
+  const [tipoGarante, setTipoGarante] = useState<"cliente" | "nuevo">("cliente");
+  const [busquedaCliente, setBusquedaCliente] = useState("");
+  const [mostrarResultados, setMostrarResultados] = useState(false);
+  const [clienteSeleccionado, setClienteSeleccionado] = useState<any>(null);
+  
+  const [nuevoGarante, setNuevoGarante] = useState({
+    cedula: "",
+    nombre: "",
+    apellido: "",
+    email: "",
+    telefono: "",
+    direccion: "",
+    relacion: "",
+    ingresos: 0,
+  });
+  const [nuevoDocumento, setNuevoDocumento] = useState({
+    tipo: "",
+    nombre: "",
+    archivo: null as File | null,
+  });
+
+  // Clientes disponibles para seleccionar como garantes (simulado)
+  const clientesDisponibles = [
+    {
+      id: "1",
+      cedula: "0912345678",
+      nombre: "María",
+      apellido: "González",
+      email: "maria.gonzalez@email.com",
+      telefono: "0987654321",
+      direccion: "Av. 9 de Octubre 456",
+      ingresosMensuales: 1200,
+    },
+    {
+      id: "2",
+      cedula: "0923456789",
+      nombre: "Carlos",
+      apellido: "Ramírez",
+      email: "carlos.ramirez@email.com",
+      telefono: "0987654322",
+      direccion: "Calle Las Monjas 789",
+      ingresosMensuales: 1500,
+    },
+    {
+      id: "3",
+      cedula: "0934567890",
+      nombre: "Ana",
+      apellido: "Torres",
+      email: "ana.torres@email.com",
+      telefono: "0987654323",
+      direccion: "Av. Francisco de Orellana 321",
+      ingresosMensuales: 1100,
+    },
+    {
+      id: "4",
+      cedula: "0945678901",
+      nombre: "Luis",
+      apellido: "Méndez",
+      email: "luis.mendez@email.com",
+      telefono: "0987654324",
+      direccion: "Calle Principal 654",
+      ingresosMensuales: 1800,
+    },
+    {
+      id: "5",
+      cedula: "0956789012",
+      nombre: "Patricia",
+      apellido: "Vera",
+      email: "patricia.vera@email.com",
+      telefono: "0987654325",
+      direccion: "Av. Kennedy 987",
+      ingresosMensuales: 1350,
+    },
+  ];
+
+  const handleAbregarGarante = () => {
+    setShowGaranteModal(true);
+    setSearchGaranteTerm("");
+    setMostrarResultadosBusqueda(false);
+    setNuevoGarante({
+      cedula: "",
+      nombre: "",
+      apellido: "",
+      email: "",
+      telefono: "",
+      direccion: "",
+      relacion: "",
+      ingresos: 0,
+    });
+  };
+
+  const limpiarFormularioGarante = () => {
+    setSearchGaranteTerm("");
+    setMostrarResultadosBusqueda(false);
+    setNuevoGarante({
+      cedula: "",
+      nombre: "",
+      apellido: "",
+      email: "",
+      telefono: "",
+      direccion: "",
+      relacion: "",
+      ingresos: 0,
+    });
+  };
+
+  const seleccionarClienteComoGarante = (cliente: any) => {
+    setNuevoGarante({
+      cedula: cliente.cedula,
+      nombre: cliente.nombre,
+      apellido: cliente.apellido,
+      email: cliente.email,
+      telefono: cliente.telefono,
+      direccion: cliente.direccion,
+      relacion: "",
+      ingresos: cliente.ingresosMensuales || 0,
+    });
+    setSearchGaranteTerm("");
+    setMostrarResultadosBusqueda(false);
+    toast.success("Datos autocompletados", {
+      description: `Información de ${cliente.nombre} ${cliente.apellido} cargada`
+    });
+  };
+
+  const agregarGarante = () => {
+    // Validaciones
+    if (!nuevoGarante.cedula || !nuevoGarante.nombre || !nuevoGarante.apellido) {
+      toast.error("Campos obligatorios incompletos", {
+        description: "Cédula, nombre y apellido son requeridos"
+      });
+      return;
+    }
+
+    if (nuevoGarante.cedula.length !== 10) {
+      toast.error("Cédula inválida", {
+        description: "La cédula debe tener 10 dígitos"
+      });
+      return;
+    }
+
+    if (!nuevoGarante.relacion) {
+      toast.error("Relación requerida", {
+        description: "Por favor especifica la relación con el cliente"
+      });
+      return;
+    }
+
+    // Verificar si la cédula ya existe
+    const cedulaExiste = garantes.some(g => g.cedula === nuevoGarante.cedula);
+    if (cedulaExiste) {
+      toast.error("Garante duplicado", {
+        description: "Ya existe un garante con esta cédula"
+      });
+      return;
+    }
+
+    const nuevoGaranteId = `${Date.now()}-${Math.random()}`;
+    const garante: Garante = {
+      id: nuevoGaranteId,
+      cedula: nuevoGarante.cedula,
+      nombre: nuevoGarante.nombre,
+      apellido: nuevoGarante.apellido,
+      email: nuevoGarante.email || "N/A",
+      telefono: nuevoGarante.telefono || "N/A",
+      direccion: nuevoGarante.direccion || "N/A",
+      relacion: nuevoGarante.relacion,
+      ingresos: nuevoGarante.ingresos || 0,
+    };
+
+    setGarantes([...garantes, garante]);
+    toast.success("Garante agregado exitosamente", {
+      description: `${nuevoGarante.nombre} ${nuevoGarante.apellido}`
+    });
+
+    setShowGaranteModal(false);
+    limpiarFormularioGarante();
+  };
+
+  const eliminarGarante = (id: string) => {
+    const garante = garantes.find(g => g.id === id);
+    if (garante) {
+      setGarantes(garantes.filter(g => g.id !== id));
+      toast.success("Garante eliminado");
+    }
+  };
+
+  // Filtrar clientes disponibles para garantes (excluir ya agregados)
+  const clientesDisponiblesGarantes = clientesDisponibles.filter(cliente => {
+    const yaEsGarante = garantes.some(g => g.cedula === cliente.cedula);
+    const coincideBusqueda = searchGaranteTerm.length > 0 && (
+      cliente.cedula.includes(searchGaranteTerm) ||
+      cliente.nombre.toLowerCase().includes(searchGaranteTerm.toLowerCase()) ||
+      cliente.apellido.toLowerCase().includes(searchGaranteTerm.toLowerCase())
+    );
+    return !yaEsGarante && coincideBusqueda;
+  });
+
+  const handleSubirDocumento = () => {
+    setShowDocumentoModal(true);
+  };
+
+  const agregarDocumento = () => {
+    if (!nuevoDocumento.nombre || !nuevoDocumento.tipo || !nuevoDocumento.archivo) {
+      toast.error("Campos incompletos", {
+        description: "Por favor completa todos los campos requeridos"
+      });
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "application/pdf"];
+    if (!allowedTypes.includes(nuevoDocumento.archivo.type)) {
+      toast.error("Tipo de archivo no permitido", {
+        description: "Solo se permiten imágenes (JPEG, PNG, WEBP) y archivos PDF."
+      });
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (nuevoDocumento.archivo.size > maxSize) {
+      toast.error("Archivo muy grande", {
+        description: "El archivo no debe superar los 5MB."
+      });
+      return;
+    }
+
+    const url = URL.createObjectURL(nuevoDocumento.archivo);
+    const tamanoKB = (nuevoDocumento.archivo.size / 1024).toFixed(2);
+    const tamano = tamanoKB + " KB";
+    const fecha = new Date().toLocaleDateString('es-EC', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+
+    const documento: DocumentoSubido = {
+      id: `${Date.now()}-${Math.random()}`,
+      tipo: nuevoDocumento.tipo,
+      nombre: nuevoDocumento.nombre,
+      archivo: nuevoDocumento.archivo,
+      url,
+      fechaSubida: fecha,
+      tamano,
+    };
+
+    setDocumentos([...documentos, documento]);
+    toast.success("Documento agregado exitosamente", {
+      description: nuevoDocumento.nombre
+    });
+
+    setNuevoDocumento({ tipo: "", nombre: "", archivo: null });
+    setShowDocumentoModal(false);
+  };
+
+  const eliminarDocumento = (id: string) => {
+    const documento = documentos.find(d => d.id === id);
+    if (documento) {
+      URL.revokeObjectURL(documento.url);
+      setDocumentos(documentos.filter(d => d.id !== id));
+      toast.success("Documento eliminado");
+    }
+  };
+
+  const visualizarDocumento = (doc: DocumentoSubido) => {
+    window.open(doc.url, "_blank");
+  };
+
+  const descargarDocumento = (doc: DocumentoSubido) => {
+    const link = document.createElement("a");
+    link.href = doc.url;
+    link.download = doc.archivo.name;
+    link.click();
+  };
 
   return (
     <div className="space-y-4">
-      {/* Botones de Acción Superiores */}
       <div className="flex justify-end gap-3">
         <button 
           onClick={() => {
@@ -80,7 +378,6 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
               limiteCredito: 0,
             });
             setGarantes([]);
-            setDocumentos([]);
           }}
           className={`px-6 py-2 border rounded-lg text-sm font-medium transition-colors ${
             isLight 
@@ -96,7 +393,6 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
         </button>
       </div>
 
-      {/* Tabs de Creación con nuevo estilo */}
       <div className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
         <div className="flex gap-1">
           <button
@@ -135,7 +431,6 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
         </div>
       </div>
 
-      {/* Tab Content Container */}
       <div className={`border rounded-lg p-6 ${
         isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
       }`}>
@@ -145,7 +440,6 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
                 Crear Nuevo Cliente
               </h3>
 
-              {/* Información Personal */}
               <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
                 <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                   <User className="w-4 h-4 text-primary" />
@@ -230,7 +524,6 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
                 </div>
               </div>
 
-              {/* Información de Contacto */}
               <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
                 <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                   <Phone className="w-4 h-4 text-primary" />
@@ -312,7 +605,6 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
                 </div>
               </div>
 
-              {/* Información Laboral y Comercial */}
               <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
                 <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                   <Building className="w-4 h-4 text-primary" />
@@ -390,147 +682,101 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
 
           {activeTab === "documentos" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
-                  Subir Documentos del Cliente
+                  Documentos del Cliente
                 </h3>
-                <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+                <button
+                  onClick={handleSubirDocumento}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                >
                   <Upload className="w-4 h-4" />
                   Subir Documento
                 </button>
               </div>
-
-              <p className="text-sm text-gray-400">
-                Sube los documentos requeridos: cédula (frontal y posterior), papeleta de votación, comprobante de domicilio, etc.
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Card para Cédula Frontal */}
-                <div
-                  className={`rounded-lg p-6 border-2 border-dashed cursor-pointer transition-all hover:border-primary ${
-                    isLight ? "border-gray-300 bg-gray-50 hover:bg-white" : "border-white/20 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <IdCard className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        Cédula Frontal
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Click para subir
-                      </p>
-                    </div>
+              {documentos.length > 0 ? (
+                <div className={`border rounded-lg overflow-hidden ${
+                  isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+                }`}>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha Subida</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tamaño</th>
+                          <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
+                        {documentos.map((doc, index) => (
+                          <tr 
+                            key={index}
+                            className={`transition-colors ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"}`}
+                          >
+                            <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                              {doc.nombre}
+                            </td>
+                            <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                              {doc.tipo}
+                            </td>
+                            <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                              {doc.fechaSubida}
+                            </td>
+                            <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                              {doc.tamano}
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <div className="flex items-center justify-center gap-2">
+                                <button
+                                  onClick={() => visualizarDocumento(doc)}
+                                  className={`p-1.5 rounded-lg transition-colors ${
+                                    isLight 
+                                      ? "hover:bg-blue-50 text-blue-600" 
+                                      : "hover:bg-blue-500/10 text-blue-400"
+                                  }`}
+                                  title="Visualizar"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => descargarDocumento(doc)}
+                                  className={`p-1.5 rounded-lg transition-colors ${
+                                    isLight 
+                                      ? "hover:bg-green-50 text-green-600" 
+                                      : "hover:bg-green-500/10 text-green-400"
+                                  }`}
+                                  title="Descargar"
+                                >
+                                  <Download className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => eliminarDocumento(doc.id)}
+                                  className={`p-1.5 rounded-lg transition-colors ${
+                                    isLight 
+                                      ? "hover:bg-red-50 text-red-600" 
+                                      : "hover:bg-red-500/10 text-red-400"
+                                  }`}
+                                  title="Eliminar"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-
-                {/* Card para Cédula Posterior */}
-                <div
-                  className={`rounded-lg p-6 border-2 border-dashed cursor-pointer transition-all hover:border-primary ${
-                    isLight ? "border-gray-300 bg-gray-50 hover:bg-white" : "border-white/20 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <IdCard className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        Cédula Posterior
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Click para subir
-                      </p>
-                    </div>
-                  </div>
+              ) : (
+                <div className={`text-center py-12 ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                  <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">No hay documentos cargados</p>
+                  <p className="text-xs mt-2">Los documentos requeridos son: Cédula (frontal y posterior), Papeleta de Votación, Comprobante de Domicilio</p>
                 </div>
-
-                {/* Card para Papeleta de Votación */}
-                <div
-                  className={`rounded-lg p-6 border-2 border-dashed cursor-pointer transition-all hover:border-primary ${
-                    isLight ? "border-gray-300 bg-gray-50 hover:bg-white" : "border-white/20 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Vote className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        Papeleta de Votación
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Click para subir
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card para Comprobante de Domicilio */}
-                <div
-                  className={`rounded-lg p-6 border-2 border-dashed cursor-pointer transition-all hover:border-primary ${
-                    isLight ? "border-gray-300 bg-gray-50 hover:bg-white" : "border-white/20 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <HomeIcon className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        Comprobante Domicilio
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Click para subir
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card para Foto del Cliente */}
-                <div
-                  className={`rounded-lg p-6 border-2 border-dashed cursor-pointer transition-all hover:border-primary ${
-                    isLight ? "border-gray-300 bg-gray-50 hover:bg-white" : "border-white/20 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Camera className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        Foto del Cliente
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Click para subir
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card para Otros Documentos */}
-                <div
-                  className={`rounded-lg p-6 border-2 border-dashed cursor-pointer transition-all hover:border-primary ${
-                    isLight ? "border-gray-300 bg-gray-50 hover:bg-white" : "border-white/20 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Upload className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        Otros Documentos
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Click para subir
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -540,13 +786,15 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
                 <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
                   Garantes y Límite de Crédito
                 </h3>
-                <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+                <button 
+                  onClick={handleAbregarGarante}
+                  className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                >
                   <Plus className="w-4 h-4" />
                   Agregar Garante
                 </button>
               </div>
 
-              {/* Configuración de Crédito */}
               <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
                 <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                   <CreditCard className="w-4 h-4 text-primary" />
@@ -578,7 +826,6 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
                 </div>
               </div>
 
-              {/* Lista de Garantes */}
               {garantes.length > 0 ? (
                 <div className={`border rounded-lg overflow-hidden ${
                   isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
@@ -601,7 +848,7 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
                             className={`transition-colors ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"}`}
                           >
                             <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
-                              {garante.nombre}
+                              {garante.nombre} {garante.apellido}
                             </td>
                             <td className={`px-4 py-3 text-sm font-mono ${isLight ? "text-gray-700" : "text-gray-300"}`}>
                               {garante.cedula}
@@ -615,6 +862,7 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
                             <td className="px-4 py-3 text-sm">
                               <div className="flex items-center justify-center gap-2">
                                 <button
+                                  onClick={() => eliminarGarante(garante.id)}
                                   className={`p-1.5 rounded-lg transition-colors ${
                                     isLight 
                                       ? "hover:bg-red-50 text-red-600" 
@@ -648,6 +896,112 @@ export function CrearClienteForm({ theme }: CrearClienteFormProps) {
             </div>
           )}
       </div>
+
+      <ModalGarante
+        isLight={isLight}
+        showGaranteModal={showGaranteModal}
+        setShowGaranteModal={setShowGaranteModal}
+        searchGaranteTerm={searchGaranteTerm}
+        setSearchGaranteTerm={setSearchGaranteTerm}
+        mostrarResultadosBusqueda={mostrarResultadosBusqueda}
+        setMostrarResultadosBusqueda={setMostrarResultadosBusqueda}
+        clientesDisponiblesGarantes={clientesDisponiblesGarantes}
+        seleccionarClienteComoGarante={seleccionarClienteComoGarante}
+        nuevoGarante={nuevoGarante}
+        setNuevoGarante={setNuevoGarante}
+        limpiarFormularioGarante={limpiarFormularioGarante}
+        agregarGarante={agregarGarante}
+      />
+
+      {showDocumentoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-md w-full ${
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Subir Documento
+              </h3>
+              <button
+                onClick={() => setShowDocumentoModal(false)}
+                className="p-1 hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Tipo de Documento
+                </label>
+                <select
+                  value={nuevoDocumento.tipo}
+                  onChange={(e) => setNuevoDocumento({...nuevoDocumento, tipo: e.target.value})}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                >
+                  <option value="cedula">Cédula</option>
+                  <option value="papeleta">Papeleta de Votación</option>
+                  <option value="comprobante">Comprobante de Domicilio</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Nombre del Documento
+                </label>
+                <input
+                  type="text"
+                  value={nuevoDocumento.nombre}
+                  onChange={(e) => setNuevoDocumento({...nuevoDocumento, nombre: e.target.value})}
+                  placeholder="Ej: Cédula frontal"
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Archivo
+                </label>
+                <input
+                  type="file"
+                  accept="image/jpeg, image/jpg, image/png, image/webp, application/pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setNuevoDocumento({...nuevoDocumento, archivo: file});
+                    }
+                  }}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowDocumentoModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={agregarDocumento}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium"
+                >
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

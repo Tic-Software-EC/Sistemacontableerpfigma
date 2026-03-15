@@ -1,0 +1,265 @@
+      {showGaranteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto ${
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`font-bold text-xl flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                <UserPlus className="w-6 h-6 text-primary" />
+                Agregar Nuevo Garante
+              </h3>
+              <button
+                onClick={() => setShowGaranteModal(false)}
+                className="p-1 hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Buscador de Cliente Existente */}
+              <div className={`p-4 rounded-lg border ${isLight ? "bg-blue-50 border-blue-200" : "bg-blue-500/10 border-blue-500/20"}`}>
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Search className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`text-sm font-semibold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>
+                      ¿El garante ya es cliente?
+                    </h4>
+                    <p className="text-xs text-gray-400">
+                      Busca y selecciona un cliente existente para autocompletar sus datos
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchGaranteTerm}
+                    onChange={(e) => {
+                      setSearchGaranteTerm(e.target.value);
+                      setMostrarResultadosBusqueda(e.target.value.length > 0);
+                    }}
+                    onFocus={() => searchGaranteTerm.length > 0 && setMostrarResultadosBusqueda(true)}
+                    placeholder="Buscar por nombre, apellido o cédula..."
+                    className={`w-full pl-9 pr-3 py-2 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+
+                {/* Resultados de búsqueda */}
+                {mostrarResultadosBusqueda && searchGaranteTerm && (
+                  <div className={`mt-2 border rounded-lg max-h-48 overflow-y-auto ${
+                    isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+                  }`}>
+                    {clientesDisponiblesGarantes.length > 0 ? (
+                      clientesDisponiblesGarantes.map((cliente) => (
+                        <button
+                          key={cliente.id}
+                          onClick={() => seleccionarClienteComoGarante(cliente)}
+                          className={`w-full text-left px-3 py-2.5 hover:bg-primary/10 transition-colors border-b last:border-b-0 ${
+                            isLight ? "border-gray-200" : "border-white/10"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                                {cliente.nombre} {cliente.apellido}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                CI: {cliente.cedula} • Tel: {cliente.telefono}
+                              </p>
+                            </div>
+                            <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-400 p-4 text-center">
+                        No se encontraron clientes disponibles
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Sección de Datos Personales */}
+              <div>
+                <h4 className={`text-sm font-semibold mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  <User className="w-4 h-4 text-primary" />
+                  Datos Personales
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Cédula <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={10}
+                      value={nuevoGarante.cedula}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, cedula: e.target.value.replace(/\D/g, '')})}
+                      placeholder="0912345678"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Nombres <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={nuevoGarante.nombre}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, nombre: e.target.value})}
+                      placeholder="Juan Carlos"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Apellidos <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={nuevoGarante.apellido}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, apellido: e.target.value})}
+                      placeholder="Pérez Morales"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      value={nuevoGarante.telefono}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, telefono: e.target.value})}
+                      placeholder="0987654321"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={nuevoGarante.email}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, email: e.target.value})}
+                      placeholder="ejemplo@email.com"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Dirección
+                    </label>
+                    <input
+                      type="text"
+                      value={nuevoGarante.direccion}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, direccion: e.target.value})}
+                      placeholder="Av. Principal 123 y Calle Secundaria"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección de Información del Garante */}
+              <div className={`pt-6 border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                <h4 className={`text-sm font-semibold mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  <UserCheck className="w-4 h-4 text-primary" />
+                  Información del Garante
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Relación con el Cliente <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={nuevoGarante.relacion}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, relacion: e.target.value})}
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    >
+                      <option value="">Seleccionar relación</option>
+                      <option value="Cónyuge">Cónyuge</option>
+                      <option value="Padre/Madre">Padre/Madre</option>
+                      <option value="Hijo/Hija">Hijo/Hija</option>
+                      <option value="Hermano/Hermana">Hermano/Hermana</option>
+                      <option value="Amigo">Amigo</option>
+                      <option value="Conocido">Conocido</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Ingresos Mensuales
+                    </label>
+                    <input
+                      type="number"
+                      value={nuevoGarante.ingresos || ""}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, ingresos: parseFloat(e.target.value) || 0})}
+                      placeholder="0.00"
+                      step="0.01"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div className={`flex gap-3 pt-6 border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                <button
+                  onClick={limpiarFormularioGarante}
+                  className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                    isLight ? "border-gray-200 hover:bg-gray-50 text-gray-700" : "border-white/10 hover:bg-white/5 text-white"
+                  }`}
+                >
+                  Limpiar
+                </button>
+                <button
+                  onClick={() => setShowGaranteModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={agregarGarante}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Agregar Garante
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}

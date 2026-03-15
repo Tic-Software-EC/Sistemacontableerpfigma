@@ -31,6 +31,7 @@ import {
   History,
   Receipt,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ClienteDetalladoFormProps {
   theme: string;
@@ -38,11 +39,74 @@ interface ClienteDetalladoFormProps {
 
 type ClienteDetalladoTab = "datos-cliente" | "documentos-cliente" | "garantes-credito" | "historial-cliente" | "deudas-cliente";
 
+interface DocumentoSubido {
+  id: string;
+  tipo: string;
+  nombre: string;
+  archivo: File;
+  url: string;
+  fechaSubida: string;
+  tamano: string;
+}
+
 export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
   const isLight = theme === "light";
   const [activeSubTab, setActiveSubTab] = useState<ClienteDetalladoTab>("datos-cliente");
   const [searchTerm, setSearchTerm] = useState("");
   const [clienteSeleccionado, setClienteSeleccionado] = useState<any>(null);
+  
+  // Estados para documentos - con ejemplos iniciales
+  const [documentos, setDocumentos] = useState<DocumentoSubido[]>([
+    {
+      id: "doc-1",
+      tipo: "cedula",
+      nombre: "Cédula de Identidad - Frontal",
+      archivo: new File([], "cedula_frontal.jpg", { type: "image/jpeg" }),
+      url: "https://images.unsplash.com/photo-1633613286991-611fe299c4be?w=800&h=500&fit=crop",
+      fechaSubida: "10/03/2024",
+      tamano: "245.67 KB",
+    },
+    {
+      id: "doc-2",
+      tipo: "cedula",
+      nombre: "Cédula de Identidad - Posterior",
+      archivo: new File([], "cedula_posterior.jpg", { type: "image/jpeg" }),
+      url: "https://images.unsplash.com/photo-1554224311-beee4ece8db7?w=800&h=500&fit=crop",
+      fechaSubida: "10/03/2024",
+      tamano: "238.45 KB",
+    },
+    {
+      id: "doc-3",
+      tipo: "papeleta",
+      nombre: "Papeleta de Votación",
+      archivo: new File([], "papeleta_votacion.jpg", { type: "image/jpeg" }),
+      url: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&h=500&fit=crop",
+      fechaSubida: "10/03/2024",
+      tamano: "189.23 KB",
+    },
+  ]);
+  const [showDocumentoModal, setShowDocumentoModal] = useState(false);
+  const [nuevoDocumento, setNuevoDocumento] = useState({
+    tipo: "",
+    nombre: "",
+    archivo: null as File | null,
+  });
+
+  // Estados para garantes
+  const [garantes, setGarantes] = useState<any[]>([]);
+  const [showGaranteModal, setShowGaranteModal] = useState(false);
+  const [nuevoGarante, setNuevoGarante] = useState({
+    cedula: "",
+    nombre: "",
+    apellido: "",
+    email: "",
+    telefono: "",
+    direccion: "",
+    relacion: "",
+    ingresosMensuales: 0,
+  });
+  const [searchGaranteTerm, setSearchGaranteTerm] = useState("");
+  const [mostrarResultadosBusqueda, setMostrarResultadosBusqueda] = useState(false);
   
   // Clientes disponibles para búsqueda
   const clientesDisponibles = [
@@ -96,6 +160,18 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
     cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cliente.apellido.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Filtrar clientes disponibles para garantes (excluir ya agregados y el cliente actual)
+  const clientesDisponiblesGarantes = clientesDisponibles.filter(cliente => {
+    const yaEsGarante = garantes.some(g => g.cedula === cliente.cedula);
+    const esClienteActual = clienteSeleccionado && cliente.cedula === clienteSeleccionado.cedula;
+    const coincideBusqueda = searchGaranteTerm.length > 0 && (
+      cliente.cedula.includes(searchGaranteTerm) ||
+      cliente.nombre.toLowerCase().includes(searchGaranteTerm.toLowerCase()) ||
+      cliente.apellido.toLowerCase().includes(searchGaranteTerm.toLowerCase())
+    );
+    return !yaEsGarante && !esClienteActual && coincideBusqueda;
+  });
   
   // Datos de ejemplo para el cliente
   const [clienteData, setClienteData] = useState({
@@ -126,59 +202,189 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
     setSearchTerm("");
   };
 
-  const documentos = [
-    {
-      id: "1",
-      tipo: "cedula-frontal",
-      nombre: "Cédula Frontal",
-      archivo: "cedula_frontal.jpg",
-      fechaSubida: "2024-03-10",
-      tamano: "2.3 MB",
-    },
-    {
-      id: "2",
-      tipo: "cedula-posterior",
-      nombre: "Cédula Posterior",
-      archivo: "cedula_posterior.jpg",
-      fechaSubida: "2024-03-10",
-      tamano: "2.1 MB",
-    },
-    {
-      id: "3",
-      tipo: "papeleta-votacion",
-      nombre: "Papeleta de Votación",
-      archivo: "papeleta.pdf",
-      fechaSubida: "2024-03-10",
-      tamano: "1.5 MB",
-    },
-    {
-      id: "4",
-      tipo: "foto-cliente",
-      nombre: "Foto del Cliente",
-      archivo: "foto_cliente.jpg",
-      fechaSubida: "2024-03-10",
-      tamano: "1.8 MB",
-    },
-  ];
+  // Funciones para documentos
+  const handleSubirDocumento = () => {
+    setShowDocumentoModal(true);
+  };
 
-  const garantes = [
-    {
-      id: "1",
-      nombre: "María Elena Torres",
-      cedula: "0923456789",
-      telefono: "0987654321",
-      relacion: "Cónyuge",
-      ingresosMensuales: 1800,
-    },
-    {
-      id: "2",
-      nombre: "Roberto Mendoza",
-      cedula: "0934567890",
-      telefono: "0976543210",
-      relacion: "Amigo",
-      ingresosMensuales: 2200,
-    },
-  ];
+  const agregarDocumento = () => {
+    if (!nuevoDocumento.nombre || !nuevoDocumento.tipo || !nuevoDocumento.archivo) {
+      toast.error("Campos incompletos", {
+        description: "Por favor completa todos los campos requeridos"
+      });
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "application/pdf"];
+    if (!allowedTypes.includes(nuevoDocumento.archivo.type)) {
+      toast.error("Tipo de archivo no permitido", {
+        description: "Solo se permiten imágenes (JPEG, PNG, WEBP) y archivos PDF."
+      });
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (nuevoDocumento.archivo.size > maxSize) {
+      toast.error("Archivo muy grande", {
+        description: "El archivo no debe superar los 5MB."
+      });
+      return;
+    }
+
+    const url = URL.createObjectURL(nuevoDocumento.archivo);
+    const tamanoKB = (nuevoDocumento.archivo.size / 1024).toFixed(2);
+    const tamano = tamanoKB + " KB";
+    const fecha = new Date().toLocaleDateString('es-EC', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+
+    const documento: DocumentoSubido = {
+      id: `${Date.now()}-${Math.random()}`,
+      tipo: nuevoDocumento.tipo,
+      nombre: nuevoDocumento.nombre,
+      archivo: nuevoDocumento.archivo,
+      url,
+      fechaSubida: fecha,
+      tamano,
+    };
+
+    setDocumentos([...documentos, documento]);
+    toast.success("Documento agregado exitosamente", {
+      description: nuevoDocumento.nombre
+    });
+
+    setNuevoDocumento({ tipo: "", nombre: "", archivo: null });
+    setShowDocumentoModal(false);
+  };
+
+  const visualizarDocumento = (doc: DocumentoSubido) => {
+    window.open(doc.url, "_blank");
+  };
+
+  const descargarDocumento = (doc: DocumentoSubido) => {
+    const link = document.createElement("a");
+    link.href = doc.url;
+    link.download = doc.archivo.name;
+    link.click();
+  };
+
+  const eliminarDocumento = (id: string) => {
+    const documento = documentos.find(d => d.id === id);
+    if (documento) {
+      URL.revokeObjectURL(documento.url);
+      setDocumentos(documentos.filter(d => d.id !== id));
+      toast.success("Documento eliminado");
+    }
+  };
+
+  // Funciones para garantes
+  const handleAgregarGarante = () => {
+    setShowGaranteModal(true);
+    setSearchGaranteTerm("");
+    setMostrarResultadosBusqueda(false);
+    setNuevoGarante({
+      cedula: "",
+      nombre: "",
+      apellido: "",
+      email: "",
+      telefono: "",
+      direccion: "",
+      relacion: "",
+      ingresosMensuales: 0,
+    });
+  };
+
+  const limpiarFormularioGarante = () => {
+    setSearchGaranteTerm("");
+    setMostrarResultadosBusqueda(false);
+    setNuevoGarante({
+      cedula: "",
+      nombre: "",
+      apellido: "",
+      email: "",
+      telefono: "",
+      direccion: "",
+      relacion: "",
+      ingresosMensuales: 0,
+    });
+  };
+
+  const seleccionarClienteComoGarante = (cliente: any) => {
+    setNuevoGarante({
+      cedula: cliente.cedula,
+      nombre: cliente.nombre,
+      apellido: cliente.apellido,
+      email: cliente.email,
+      telefono: cliente.telefono,
+      direccion: cliente.direccion,
+      relacion: "",
+      ingresosMensuales: cliente.ingresosMensuales || 0,
+    });
+    setSearchGaranteTerm("");
+    setMostrarResultadosBusqueda(false);
+    toast.success("Datos autocompletados", {
+      description: `Información de ${cliente.nombre} ${cliente.apellido} cargada`
+    });
+  };
+
+  const agregarGarante = () => {
+    // Validaciones
+    if (!nuevoGarante.cedula || !nuevoGarante.nombre || !nuevoGarante.apellido) {
+      toast.error("Campos obligatorios incompletos", {
+        description: "Cédula, nombre y apellido son requeridos"
+      });
+      return;
+    }
+
+    if (nuevoGarante.cedula.length !== 10) {
+      toast.error("Cédula inválida", {
+        description: "La cédula debe tener 10 dígitos"
+      });
+      return;
+    }
+
+    if (!nuevoGarante.relacion) {
+      toast.error("Relación requerida", {
+        description: "Por favor especifica la relación con el cliente"
+      });
+      return;
+    }
+
+    // Verificar si la cédula ya existe
+    const cedulaExiste = garantes.some(g => g.cedula === nuevoGarante.cedula);
+    if (cedulaExiste) {
+      toast.error("Garante duplicado", {
+        description: "Ya existe un garante con esta cédula"
+      });
+      return;
+    }
+
+    const garante = {
+      id: `${Date.now()}-${Math.random()}`,
+      nombre: `${nuevoGarante.nombre} ${nuevoGarante.apellido}`,
+      cedula: nuevoGarante.cedula,
+      telefono: nuevoGarante.telefono || "N/A",
+      email: nuevoGarante.email || "N/A",
+      direccion: nuevoGarante.direccion || "N/A",
+      relacion: nuevoGarante.relacion,
+      ingresosMensuales: nuevoGarante.ingresosMensuales || 0,
+    };
+
+    setGarantes([...garantes, garante]);
+    toast.success("Garante agregado exitosamente", {
+      description: `${nuevoGarante.nombre} ${nuevoGarante.apellido}`
+    });
+    
+    setShowGaranteModal(false);
+    limpiarFormularioGarante();
+  };
+
+  const eliminarGarante = (id: string) => {
+    setGarantes(garantes.filter(g => g.id !== id));
+    toast.success("Garante eliminado");
+  };
 
   const compras = [
     {
@@ -798,98 +1004,78 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
 
           {activeSubTab === "documentos-cliente" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-4">
                 <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
-                  Documentos del Cliente
+                  Documentos
                 </h3>
-                <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
-                  <Upload className="w-4 h-4" />
+                <button 
+                  onClick={handleSubirDocumento}
+                  className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
                   Subir Documento
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {documentos.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className={`rounded-lg p-4 border ${
-                      isLight ? "bg-white border-gray-200" : "bg-white/5 border-white/10"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        {doc.tipo.includes('cedula') && <IdCard className="w-6 h-6 text-primary" />}
-                        {doc.tipo === 'papeleta-votacion' && <Vote className="w-6 h-6 text-primary" />}
-                        {doc.tipo === 'domicilio' && <HomeIcon className="w-6 h-6 text-primary" />}
-                        {doc.tipo === 'foto-cliente' && <Camera className="w-6 h-6 text-primary" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className={`font-medium text-sm mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>
-                          {doc.nombre}
-                        </h4>
-                        <p className="text-xs text-gray-400 mb-2">{doc.archivo}</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <Calendar className="w-3 h-3" />
-                          {new Date(doc.fechaSubida).toLocaleDateString('es-EC')}
-                          <span>•</span>
-                          <span>{doc.tamano}</span>
+              <div className="space-y-3">
+                {clienteSeleccionado ? (
+                  documentos.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className={`p-4 rounded-lg border ${
+                        isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <FileText className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                              {doc.nombre}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {doc.tamano} • Subido el {doc.fechaSubida}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => visualizarDocumento(doc)}
+                            className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+                            title="Visualizar"
+                          >
+                            <Eye className="w-4 h-4 text-gray-400" />
+                          </button>
+                          <button 
+                            onClick={() => descargarDocumento(doc)}
+                            className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+                            title="Descargar"
+                          >
+                            <Download className="w-4 h-4 text-gray-400" />
+                          </button>
+                          <button 
+                            onClick={() => eliminarDocumento(doc.id)}
+                            className="p-2 rounded-lg hover:bg-red-500/10 transition-colors"
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-400" />
+                          </button>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-white/10">
-                      <button
-                        className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          isLight 
-                            ? "bg-gray-100 hover:bg-gray-200 text-gray-700" 
-                            : "bg-white/5 hover:bg-white/10 text-white"
-                        }`}
-                      >
-                        <Eye className="w-3 h-3 inline mr-1" />
-                        Ver
-                      </button>
-                      <button
-                        className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          isLight 
-                            ? "bg-gray-100 hover:bg-gray-200 text-gray-700" 
-                            : "bg-white/5 hover:bg-white/10 text-white"
-                        }`}
-                      >
-                        <Download className="w-3 h-3 inline mr-1" />
-                        Descargar
-                      </button>
-                      <button
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          isLight 
-                            ? "hover:bg-red-50 text-red-600" 
-                            : "hover:bg-red-500/10 text-red-400"
-                        }`}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
+                  ))
+                ) : (
+                  <div className={`p-8 rounded-lg border text-center ${
+                    isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                  }`}>
+                    <FileText className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                    <p className="text-sm text-gray-400">
+                      Selecciona un cliente para ver sus documentos
+                    </p>
                   </div>
-                ))}
-
-                {/* Card para agregar nuevo documento */}
-                <div
-                  className={`rounded-lg p-4 border-2 border-dashed cursor-pointer transition-all hover:border-primary ${
-                    isLight ? "border-gray-300 bg-gray-50 hover:bg-white" : "border-white/20 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="h-full flex flex-col items-center justify-center gap-3 min-h-[160px]">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Upload className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        Subir nuevo documento
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Click para seleccionar archivo
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -900,7 +1086,10 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
                 <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
                   Garantes y Límite de Crédito
                 </h3>
-                <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+                <button 
+                  onClick={handleAgregarGarante}
+                  className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                >
                   <Plus className="w-4 h-4" />
                   Agregar Garante
                 </button>
@@ -914,22 +1103,33 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-2">Límite de Crédito</label>
-                    <div className={`text-2xl font-bold font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
-                      ${clienteData.limiteCredito.toFixed(2)}
-                    </div>
+                    <label className={`block text-xs font-medium mb-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Límite de Crédito
+                    </label>
+                    <input
+                      type="number"
+                      value={clienteData.limiteCredito || ""}
+                      onChange={(e) => setClienteData({...clienteData, limiteCredito: parseFloat(e.target.value) || 0})}
+                      placeholder="0.00"
+                      step="0.01"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm font-mono font-bold ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-2">Saldo Pendiente</label>
-                    <div className={`text-2xl font-bold font-mono ${clienteData.saldoPendiente > 0 ? "text-red-500" : "text-green-500"}`}>
+                    <div className={`px-3 py-2 text-sm font-bold font-mono ${clienteData.saldoPendiente > 0 ? "text-red-500" : "text-green-500"}`}>
                       ${clienteData.saldoPendiente.toFixed(2)}
                     </div>
+                    <p className="text-xs text-gray-400 mt-1">(Solo lectura)</p>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-2">Crédito Disponible</label>
-                    <div className={`text-2xl font-bold font-mono text-green-500`}>
+                    <div className="px-3 py-2 text-sm font-bold font-mono text-green-500">
                       ${(clienteData.limiteCredito - clienteData.saldoPendiente).toFixed(2)}
                     </div>
+                    <p className="text-xs text-gray-400 mt-1">(Calculado automáticamente)</p>
                   </div>
                 </div>
               </div>
@@ -984,6 +1184,7 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
                                 <Edit className="w-4 h-4" />
                               </button>
                               <button
+                                onClick={() => eliminarGarante(garante.id)}
                                 className={`p-1.5 rounded-lg transition-colors ${
                                   isLight 
                                     ? "hover:bg-red-50 text-red-600" 
@@ -1189,6 +1390,369 @@ export function ClienteDetalladoForm({ theme }: ClienteDetalladoFormProps) {
             </div>
           )}
       </div>
+
+      {/* Modal de Subir Documento */}
+      {showDocumentoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-md w-full ${
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Subir Documento
+              </h3>
+              <button
+                onClick={() => setShowDocumentoModal(false)}
+                className="p-1 hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Tipo de Documento
+                </label>
+                <select
+                  value={nuevoDocumento.tipo}
+                  onChange={(e) => setNuevoDocumento({...nuevoDocumento, tipo: e.target.value})}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                >
+                  <option value="">Seleccionar tipo</option>
+                  <option value="cedula">Cédula</option>
+                  <option value="papeleta">Papeleta de Votación</option>
+                  <option value="comprobante">Comprobante de Domicilio</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Nombre del Documento
+                </label>
+                <input
+                  type="text"
+                  value={nuevoDocumento.nombre}
+                  onChange={(e) => setNuevoDocumento({...nuevoDocumento, nombre: e.target.value})}
+                  placeholder="Ej: Cédula frontal"
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Archivo
+                </label>
+                <input
+                  type="file"
+                  accept="image/jpeg, image/jpg, image/png, image/webp, application/pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setNuevoDocumento({...nuevoDocumento, archivo: file});
+                    }
+                  }}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Formatos permitidos: JPEG, PNG, WEBP, PDF (Máx. 5MB)
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowDocumentoModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={agregarDocumento}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium"
+                >
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Agregar Garante */}
+      {showGaranteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto ${
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`font-bold text-xl flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                <UserPlus className="w-6 h-6 text-primary" />
+                Agregar Nuevo Garante
+              </h3>
+              <button
+                onClick={() => setShowGaranteModal(false)}
+                className="p-1 hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Buscador de Cliente Existente */}
+              <div className={`p-4 rounded-lg border ${isLight ? "bg-blue-50 border-blue-200" : "bg-blue-500/10 border-blue-500/20"}`}>
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Search className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`text-sm font-semibold mb-1 ${isLight ? "text-gray-900" : "text-white"}`}>
+                      ¿El garante ya es cliente?
+                    </h4>
+                    <p className="text-xs text-gray-400">
+                      Busca y selecciona un cliente existente para autocompletar sus datos
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchGaranteTerm}
+                    onChange={(e) => {
+                      setSearchGaranteTerm(e.target.value);
+                      setMostrarResultadosBusqueda(e.target.value.length > 0);
+                    }}
+                    onFocus={() => searchGaranteTerm.length > 0 && setMostrarResultadosBusqueda(true)}
+                    placeholder="Buscar por nombre, apellido o cédula..."
+                    className={`w-full pl-9 pr-3 py-2 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+
+                {/* Resultados de búsqueda */}
+                {mostrarResultadosBusqueda && searchGaranteTerm && (
+                  <div className={`mt-2 border rounded-lg max-h-48 overflow-y-auto ${
+                    isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+                  }`}>
+                    {clientesDisponiblesGarantes.length > 0 ? (
+                      clientesDisponiblesGarantes.map((cliente) => (
+                        <button
+                          key={cliente.id}
+                          onClick={() => seleccionarClienteComoGarante(cliente)}
+                          className={`w-full text-left px-3 py-2.5 hover:bg-primary/10 transition-colors border-b last:border-b-0 ${
+                            isLight ? "border-gray-200" : "border-white/10"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                                {cliente.nombre} {cliente.apellido}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                CI: {cliente.cedula} • Tel: {cliente.telefono}
+                              </p>
+                            </div>
+                            <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-400 p-4 text-center">
+                        No se encontraron clientes disponibles
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Sección de Datos Personales */}
+              <div>
+                <h4 className={`text-sm font-semibold mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  <User className="w-4 h-4 text-primary" />
+                  Datos Personales
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Cédula <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={10}
+                      value={nuevoGarante.cedula}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, cedula: e.target.value.replace(/\D/g, '')})}
+                      placeholder="0912345678"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Nombres <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={nuevoGarante.nombre}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, nombre: e.target.value})}
+                      placeholder="Juan Carlos"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Apellidos <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={nuevoGarante.apellido}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, apellido: e.target.value})}
+                      placeholder="Pérez Morales"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      value={nuevoGarante.telefono}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, telefono: e.target.value})}
+                      placeholder="0987654321"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={nuevoGarante.email}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, email: e.target.value})}
+                      placeholder="ejemplo@email.com"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Dirección
+                    </label>
+                    <input
+                      type="text"
+                      value={nuevoGarante.direccion}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, direccion: e.target.value})}
+                      placeholder="Av. Principal 123 y Calle Secundaria"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección de Información del Garante */}
+              <div className={`pt-6 border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                <h4 className={`text-sm font-semibold mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  <UserCheck className="w-4 h-4 text-primary" />
+                  Información del Garante
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Relación con el Cliente <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={nuevoGarante.relacion}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, relacion: e.target.value})}
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    >
+                      <option value="">Seleccionar relación</option>
+                      <option value="Cónyuge">Cónyuge</option>
+                      <option value="Padre/Madre">Padre/Madre</option>
+                      <option value="Hijo/Hija">Hijo/Hija</option>
+                      <option value="Hermano/Hermana">Hermano/Hermana</option>
+                      <option value="Amigo">Amigo</option>
+                      <option value="Conocido">Conocido</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Ingresos Mensuales
+                    </label>
+                    <input
+                      type="number"
+                      value={nuevoGarante.ingresosMensuales || ""}
+                      onChange={(e) => setNuevoGarante({...nuevoGarante, ingresosMensuales: parseFloat(e.target.value) || 0})}
+                      placeholder="0.00"
+                      step="0.01"
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div className={`flex gap-3 pt-6 border-t ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                <button
+                  onClick={limpiarFormularioGarante}
+                  className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                    isLight ? "border-gray-200 hover:bg-gray-50 text-gray-700" : "border-white/10 hover:bg-white/5 text-white"
+                  }`}
+                >
+                  Limpiar
+                </button>
+                <button
+                  onClick={() => setShowGaranteModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={agregarGarante}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Agregar Garante
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

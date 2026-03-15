@@ -20,13 +20,15 @@ import {
   X,
   Briefcase,
   DollarSign,
+  Users,
+  ClipboardList,
 } from "lucide-react";
 
 interface CrearEmpleadoFormProps {
   theme: string;
 }
 
-type CreacionTab = "datos-empleado" | "documentos" | "informacion-laboral";
+type CreacionTab = "datos-empleado" | "documentos" | "informacion-laboral" | "historial-laboral" | "cargas-familiares";
 
 export function CrearEmpleadoForm({ theme }: CrearEmpleadoFormProps) {
   const isLight = theme === "light";
@@ -54,6 +56,8 @@ export function CrearEmpleadoForm({ theme }: CrearEmpleadoFormProps) {
 
   const [documentos, setDocumentos] = useState<any[]>([]);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [cargasFamiliares, setCargasFamiliares] = useState<any[]>([]);
+  const [historialLaboral, setHistorialLaboral] = useState<any[]>([]);
 
   const handleFotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -64,6 +68,44 @@ export function CrearEmpleadoForm({ theme }: CrearEmpleadoFormProps) {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleAgregarCarga = () => {
+    setCargasFamiliares([
+      ...cargasFamiliares,
+      {
+        id: Date.now().toString(),
+        nombre: "",
+        apellido: "",
+        parentesco: "",
+        cedula: "",
+        fechaNacimiento: "",
+        discapacidad: "No",
+      },
+    ]);
+  };
+
+  const handleEliminarCarga = (id: string) => {
+    setCargasFamiliares(cargasFamiliares.filter((c) => c.id !== id));
+  };
+
+  const handleAgregarHistorial = () => {
+    setHistorialLaboral([
+      ...historialLaboral,
+      {
+        id: Date.now().toString(),
+        empresa: "",
+        cargo: "",
+        fechaInicio: "",
+        fechaFin: "",
+        motivoSalida: "",
+        referencia: "",
+      },
+    ]);
+  };
+
+  const handleEliminarHistorial = (id: string) => {
+    setHistorialLaboral(historialLaboral.filter((h) => h.id !== id));
   };
 
   return (
@@ -93,6 +135,8 @@ export function CrearEmpleadoForm({ theme }: CrearEmpleadoFormProps) {
             });
             setDocumentos([]);
             setFotoPreview(null);
+            setCargasFamiliares([]);
+            setHistorialLaboral([]);
           }}
           className={`px-6 py-2 border rounded-lg text-sm font-medium transition-colors ${
             isLight 
@@ -143,6 +187,28 @@ export function CrearEmpleadoForm({ theme }: CrearEmpleadoFormProps) {
           >
             <Briefcase className="w-4 h-4" />
             Información Laboral
+          </button>
+          <button
+            onClick={() => setActiveTab("historial-laboral")}
+            className={`px-4 py-3 text-sm font-medium transition-colors flex items-center gap-2 ${
+              activeTab === "historial-laboral"
+                ? `border-b-2 border-primary ${isLight ? "text-primary" : "text-primary"}`
+                : `${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`
+            }`}
+          >
+            <ClipboardList className="w-4 h-4" />
+            Historial Laboral
+          </button>
+          <button
+            onClick={() => setActiveTab("cargas-familiares")}
+            className={`px-4 py-3 text-sm font-medium transition-colors flex items-center gap-2 ${
+              activeTab === "cargas-familiares"
+                ? `border-b-2 border-primary ${isLight ? "text-primary" : "text-primary"}`
+                : `${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            Cargas Familiares
           </button>
         </div>
       </div>
@@ -561,6 +627,342 @@ export function CrearEmpleadoForm({ theme }: CrearEmpleadoFormProps) {
                     <option value="inactivo">Inactivo</option>
                     <option value="vacaciones">Vacaciones</option>
                   </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "historial-laboral" && (
+          <div className="space-y-6">
+            <h3 className={`font-bold text-lg mb-4 ${isLight ? "text-gray-900" : "text-white"}`}>
+              Historial Laboral
+            </h3>
+
+            <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+              <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                <ClipboardList className="w-4 h-4" />
+                Empresas Anteriores
+              </h4>
+              <div className="space-y-4">
+                {historialLaboral.map((historial) => (
+                  <div key={historial.id} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Empresa *
+                      </label>
+                      <input
+                        type="text"
+                        value={historial.empresa}
+                        onChange={(e) => {
+                          const updatedHistorial = historialLaboral.map((h) =>
+                            h.id === historial.id ? { ...h, empresa: e.target.value } : h
+                          );
+                          setHistorialLaboral(updatedHistorial);
+                        }}
+                        placeholder="Nombre de la Empresa"
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Cargo *
+                      </label>
+                      <input
+                        type="text"
+                        value={historial.cargo}
+                        onChange={(e) => {
+                          const updatedHistorial = historialLaboral.map((h) =>
+                            h.id === historial.id ? { ...h, cargo: e.target.value } : h
+                          );
+                          setHistorialLaboral(updatedHistorial);
+                        }}
+                        placeholder="Cargo en la Empresa"
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Fecha de Inicio *
+                      </label>
+                      <input
+                        type="date"
+                        value={historial.fechaInicio}
+                        onChange={(e) => {
+                          const updatedHistorial = historialLaboral.map((h) =>
+                            h.id === historial.id ? { ...h, fechaInicio: e.target.value } : h
+                          );
+                          setHistorialLaboral(updatedHistorial);
+                        }}
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900"
+                            : "bg-white/5 border-white/10 text-white"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Fecha de Fin *
+                      </label>
+                      <input
+                        type="date"
+                        value={historial.fechaFin}
+                        onChange={(e) => {
+                          const updatedHistorial = historialLaboral.map((h) =>
+                            h.id === historial.id ? { ...h, fechaFin: e.target.value } : h
+                          );
+                          setHistorialLaboral(updatedHistorial);
+                        }}
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900"
+                            : "bg-white/5 border-white/10 text-white"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Motivo de Salida *
+                      </label>
+                      <input
+                        type="text"
+                        value={historial.motivoSalida}
+                        onChange={(e) => {
+                          const updatedHistorial = historialLaboral.map((h) =>
+                            h.id === historial.id ? { ...h, motivoSalida: e.target.value } : h
+                          );
+                          setHistorialLaboral(updatedHistorial);
+                        }}
+                        placeholder="Motivo de Salida"
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Referencia *
+                      </label>
+                      <input
+                        type="text"
+                        value={historial.referencia}
+                        onChange={(e) => {
+                          const updatedHistorial = historialLaboral.map((h) =>
+                            h.id === historial.id ? { ...h, referencia: e.target.value } : h
+                          );
+                          setHistorialLaboral(updatedHistorial);
+                        }}
+                        placeholder="Referencia de la Empresa"
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex justify-end">
+                      <button
+                        onClick={() => handleEliminarHistorial(historial.id)}
+                        className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                          isLight
+                            ? "border-gray-200 hover:bg-gray-50 text-gray-700"
+                            : "border-white/10 hover:bg-white/5 text-white"
+                        }`}
+                      >
+                        <Trash2 className="w-4 h-4 inline mr-2" />
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleAgregarHistorial}
+                    className={`px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Agregar Empresa
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "cargas-familiares" && (
+          <div className="space-y-6">
+            <h3 className={`font-bold text-lg mb-4 ${isLight ? "text-gray-900" : "text-white"}`}>
+              Cargas Familiares
+            </h3>
+
+            <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+              <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                <Users className="w-4 h-4" />
+                Miembros de la Familia
+              </h4>
+              <div className="space-y-4">
+                {cargasFamiliares.map((carga) => (
+                  <div key={carga.id} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Nombre *
+                      </label>
+                      <input
+                        type="text"
+                        value={carga.nombre}
+                        onChange={(e) => {
+                          const updatedCargas = cargasFamiliares.map((c) =>
+                            c.id === carga.id ? { ...c, nombre: e.target.value } : c
+                          );
+                          setCargasFamiliares(updatedCargas);
+                        }}
+                        placeholder="Nombre del Miembro"
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Apellido *
+                      </label>
+                      <input
+                        type="text"
+                        value={carga.apellido}
+                        onChange={(e) => {
+                          const updatedCargas = cargasFamiliares.map((c) =>
+                            c.id === carga.id ? { ...c, apellido: e.target.value } : c
+                          );
+                          setCargasFamiliares(updatedCargas);
+                        }}
+                        placeholder="Apellido del Miembro"
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Parentesco *
+                      </label>
+                      <input
+                        type="text"
+                        value={carga.parentesco}
+                        onChange={(e) => {
+                          const updatedCargas = cargasFamiliares.map((c) =>
+                            c.id === carga.id ? { ...c, parentesco: e.target.value } : c
+                          );
+                          setCargasFamiliares(updatedCargas);
+                        }}
+                        placeholder="Parentesco con el Empleado"
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Cédula *
+                      </label>
+                      <input
+                        type="text"
+                        value={carga.cedula}
+                        onChange={(e) => {
+                          const updatedCargas = cargasFamiliares.map((c) =>
+                            c.id === carga.id ? { ...c, cedula: e.target.value } : c
+                          );
+                          setCargasFamiliares(updatedCargas);
+                        }}
+                        placeholder="Cédula del Miembro"
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            : "bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Fecha de Nacimiento *
+                      </label>
+                      <input
+                        type="date"
+                        value={carga.fechaNacimiento}
+                        onChange={(e) => {
+                          const updatedCargas = cargasFamiliares.map((c) =>
+                            c.id === carga.id ? { ...c, fechaNacimiento: e.target.value } : c
+                          );
+                          setCargasFamiliares(updatedCargas);
+                        }}
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900"
+                            : "bg-white/5 border-white/10 text-white"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                        Discapacidad
+                      </label>
+                      <select
+                        value={carga.discapacidad}
+                        onChange={(e) => {
+                          const updatedCargas = cargasFamiliares.map((c) =>
+                            c.id === carga.id ? { ...c, discapacidad: e.target.value } : c
+                          );
+                          setCargasFamiliares(updatedCargas);
+                        }}
+                        className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
+                          isLight
+                            ? "bg-white border-gray-300 text-gray-900"
+                            : "bg-white/5 border-white/10 text-white"
+                        } focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      >
+                        <option value="No">No</option>
+                        <option value="Sí">Sí</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2 flex justify-end">
+                      <button
+                        onClick={() => handleEliminarCarga(carga.id)}
+                        className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                          isLight
+                            ? "border-gray-200 hover:bg-gray-50 text-gray-700"
+                            : "border-white/10 hover:bg-white/5 text-white"
+                        }`}
+                      >
+                        <Trash2 className="w-4 h-4 inline mr-2" />
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleAgregarCarga}
+                    className={`px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Agregar Carga Familiar
+                  </button>
                 </div>
               </div>
             </div>

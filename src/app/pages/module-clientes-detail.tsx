@@ -665,16 +665,39 @@ export function ModuleClientesDetail() {
 
         {activeTab === "datos-generales" && (
           <div className="space-y-4">
-            <div className="flex items-center justify-end gap-3">
-              {selectedClientes.length > 0 && (
+            {/* Botón Enviar Promoción - Siempre visible */}
+            <div className={`p-4 rounded-lg border ${isLight ? "bg-purple-50 border-purple-200" : "bg-purple-500/10 border-purple-500/20"}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Send className="w-5 h-5 text-primary" />
+                  <div>
+                    <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                      {selectedClientes.length > 0 
+                        ? `${selectedClientes.length} cliente(s) seleccionado(s)` 
+                        : "Ningún cliente seleccionado"}
+                    </p>
+                    <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      {selectedClientes.length > 0 
+                        ? "Envía promociones por Email, SMS o WhatsApp" 
+                        : "Selecciona clientes para enviar promociones"}
+                    </p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowPromoModal(true)}
-                  className="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                  disabled={selectedClientes.length === 0}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    selectedClientes.length > 0
+                      ? "bg-primary text-white hover:bg-primary/90"
+                      : isLight
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-white/10 text-gray-500 cursor-not-allowed"
+                  }`}
                 >
                   <Send className="w-4 h-4" />
-                  Enviar Promoción ({selectedClientes.length})
+                  Enviar Promoción
                 </button>
-              )}
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-3">

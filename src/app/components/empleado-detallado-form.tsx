@@ -7,7 +7,6 @@ import {
   Calendar,
   Building,
   FileText,
-  CreditCard,
   DollarSign,
   Save,
   Upload,
@@ -15,33 +14,159 @@ import {
   Eye,
   Trash2,
   Plus,
-  IdCard,
   Camera,
-  UserCheck,
   X,
-  Edit,
-  AlertCircle,
   Check,
   Search,
-  Users,
-  History,
   Briefcase,
   Award,
-  Clock,
-  GraduationCap,
+  Heart,
+  Baby,
 } from "lucide-react";
 
 interface EmpleadoDetalladoFormProps {
+  empleado?: any;
+  onClose?: () => void;
   theme: string;
 }
 
-type EmpleadoDetalladoTab = "datos-empleado" | "documentos-empleado" | "historial-laboral" | "permisos-vacaciones" | "evaluaciones";
+type EmpleadoDetalladoTab = 
+  | "datos-empleado" 
+  | "documentos-empleado" 
+  | "historial-laboral" 
+  | "permisos-vacaciones" 
+  | "evaluaciones" 
+  | "cargas-familiares";
 
 export function EmpleadoDetalladoForm({ theme }: EmpleadoDetalladoFormProps) {
   const isLight = theme === "light";
   const [activeSubTab, setActiveSubTab] = useState<EmpleadoDetalladoTab>("datos-empleado");
   const [searchTerm, setSearchTerm] = useState("");
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState<any>(null);
+  
+  // Estados para modales
+  const [showDocumentoModal, setShowDocumentoModal] = useState(false);
+  const [showHistorialModal, setShowHistorialModal] = useState(false);
+  const [showPermisoModal, setShowPermisoModal] = useState(false);
+  const [showEvaluacionModal, setShowEvaluacionModal] = useState(false);
+  const [showFamiliarModal, setShowFamiliarModal] = useState(false);
+  
+  // Estados para las listas editables
+  const [documentos, setDocumentos] = useState([
+    {
+      id: "1",
+      tipo: "cedula-frontal",
+      nombre: "Cédula Frontal",
+      archivo: "cedula_frontal.jpg",
+      fechaSubida: "2024-03-10",
+      tamano: "2.3 MB",
+    },
+    {
+      id: "2",
+      tipo: "cedula-posterior",
+      nombre: "Cédula Posterior",
+      archivo: "cedula_posterior.jpg",
+      fechaSubida: "2024-03-10",
+      tamano: "2.1 MB",
+    },
+    {
+      id: "3",
+      tipo: "contrato",
+      nombre: "Contrato Laboral",
+      archivo: "contrato.pdf",
+      fechaSubida: "2024-03-10",
+      tamano: "1.8 MB",
+    },
+  ]);
+
+  const [historialLaboral, setHistorialLaboral] = useState([
+    {
+      id: "1",
+      empresa: "Comercial del Pacífico S.A.",
+      cargo: "Gerente de Ventas",
+      fechaInicio: "2020-01-10",
+      fechaFin: "Actualidad",
+      departamento: "Ventas",
+      motivo: "-",
+    },
+    {
+      id: "2",
+      empresa: "Innovate Corp",
+      cargo: "Supervisor de Ventas",
+      fechaInicio: "2017-06-15",
+      fechaFin: "2019-12-31",
+      departamento: "Ventas",
+      motivo: "Mejor oferta laboral",
+    },
+  ]);
+
+  const [permisos, setPermisos] = useState([
+    {
+      id: "1",
+      tipo: "Vacaciones",
+      fechaSolicitud: "2024-02-20",
+      fechaInicio: "2024-03-01",
+      fechaFin: "2024-03-15",
+      dias: 14,
+      estado: "aprobado",
+      motivo: "Vacaciones anuales",
+    },
+    {
+      id: "2",
+      tipo: "Permiso Médico",
+      fechaSolicitud: "2024-01-10",
+      fechaInicio: "2024-01-11",
+      fechaFin: "2024-01-12",
+      dias: 2,
+      estado: "aprobado",
+      motivo: "Consulta médica",
+    },
+  ]);
+
+  const [evaluaciones, setEvaluaciones] = useState([
+    {
+      id: "1",
+      periodo: "2024 - Q1",
+      fecha: "2024-03-31",
+      calificacion: 9.2,
+      evaluador: "María Torres - Directora RH",
+      aspectos: {
+        desempeno: 9.5,
+        puntualidad: 9.0,
+        trabajo_equipo: 9.3,
+        iniciativa: 9.0,
+      },
+      comentarios: "Excelente desempeño en el primer trimestre. Superó las metas establecidas.",
+    },
+  ]);
+
+  const [cargasFamiliares, setCargasFamiliares] = useState([
+    {
+      id: "1",
+      nombre: "Ana Pérez López",
+      parentesco: "Cónyuge",
+      cedula: "0923456789",
+      fechaNacimiento: "1987-05-20",
+      edad: 37,
+      discapacidad: false,
+    },
+    {
+      id: "2",
+      nombre: "Carlos Pérez López",
+      parentesco: "Hijo",
+      cedula: "0934567890",
+      fechaNacimiento: "2015-08-12",
+      edad: 9,
+      discapacidad: false,
+    },
+  ]);
+
+  // Estados para formularios de modales
+  const [nuevoDocumento, setNuevoDocumento] = useState({ tipo: "", nombre: "", archivo: null });
+  const [nuevaExperiencia, setNuevaExperiencia] = useState({ empresa: "", cargo: "", fechaInicio: "", fechaFin: "", departamento: "", motivo: "" });
+  const [nuevoPermiso, setNuevoPermiso] = useState({ tipo: "Vacaciones", fechaInicio: "", fechaFin: "", dias: 0, motivo: "" });
+  const [nuevaEvaluacion, setNuevaEvaluacion] = useState({ periodo: "", evaluador: "", calificacion: 0, desempeno: 0, puntualidad: 0, trabajo_equipo: 0, iniciativa: 0, comentarios: "" });
+  const [nuevoFamiliar, setNuevoFamiliar] = useState({ nombre: "", parentesco: "Cónyuge", cedula: "", fechaNacimiento: "", edad: 0, discapacidad: false });
   
   // Empleados disponibles para búsqueda
   const empleadosDisponibles = [
@@ -50,7 +175,7 @@ export function EmpleadoDetalladoForm({ theme }: EmpleadoDetalladoFormProps) {
       cedula: "0912345678",
       nombre: "Juan Carlos",
       apellido: "Pérez Morales",
-      email: "juan.perez@ticsoftec.com",
+      email: "juan.perez@comercialdelpacificosa.com",
       telefono: "0987654321",
       telefonoAdicional: "042345678",
       direccion: "Av. Principal 123 y Calle Secundaria",
@@ -72,7 +197,7 @@ export function EmpleadoDetalladoForm({ theme }: EmpleadoDetalladoFormProps) {
       cedula: "0923456789",
       nombre: "María Fernanda",
       apellido: "González Castro",
-      email: "maria.gonzalez@ticsoftec.com",
+      email: "maria.gonzalez@comercialdelpacificosa.com",
       telefono: "0998765432",
       telefonoAdicional: "042876543",
       direccion: "Calle Las Flores 456",
@@ -128,115 +253,203 @@ export function EmpleadoDetalladoForm({ theme }: EmpleadoDetalladoFormProps) {
     setSearchTerm("");
   };
 
-  const documentos = [
-    {
-      id: "1",
-      tipo: "cedula-frontal",
-      nombre: "Cédula Frontal",
-      archivo: "cedula_frontal.jpg",
-      fechaSubida: "2024-03-10",
-      tamano: "2.3 MB",
-    },
-    {
-      id: "2",
-      tipo: "cedula-posterior",
-      nombre: "Cédula Posterior",
-      archivo: "cedula_posterior.jpg",
-      fechaSubida: "2024-03-10",
-      tamano: "2.1 MB",
-    },
-    {
-      id: "3",
-      tipo: "contrato",
-      nombre: "Contrato Laboral",
-      archivo: "contrato.pdf",
-      fechaSubida: "2024-03-10",
-      tamano: "1.8 MB",
-    },
-    {
-      id: "4",
-      tipo: "foto-empleado",
-      nombre: "Foto del Empleado",
-      archivo: "foto_empleado.jpg",
-      fechaSubida: "2024-03-10",
+  // Función para limpiar selección
+  const limpiarSeleccion = () => {
+    setEmpleadoSeleccionado(null);
+    setEmpleadoData({
+      cedula: "",
+      nombre: "",
+      apellido: "",
+      email: "",
+      telefono: "",
+      telefonoAdicional: "",
+      direccion: "",
+      ciudad: "",
+      provincia: "",
+      fechaNacimiento: "",
+      estadoCivil: "Soltero",
+      fechaIngreso: "",
+      estado: "activo",
+      cargo: "",
+      departamento: "",
+      salario: 0,
+      tipoContrato: "indefinido",
+      nivelEducacion: "",
+      profesion: "",
+    });
+  };
+
+  // Función para manejar cambios en los inputs
+  const handleInputChange = (field: string, value: any) => {
+    setEmpleadoData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Función para guardar cambios
+  const guardarCambios = () => {
+    console.log("Guardando cambios del empleado:", empleadoData);
+    alert(`Cambios guardados exitosamente para ${empleadoData.nombre} ${empleadoData.apellido}`);
+  };
+
+  // ============ FUNCIONES PARA DOCUMENTOS ============
+  const handleSubirDocumento = () => {
+    setShowDocumentoModal(true);
+  };
+
+  const agregarDocumento = () => {
+    if (!nuevoDocumento.nombre || !nuevoDocumento.tipo) {
+      alert("Por favor complete todos los campos");
+      return;
+    }
+    
+    const documento = {
+      id: String(documentos.length + 1),
+      tipo: nuevoDocumento.tipo,
+      nombre: nuevoDocumento.nombre,
+      archivo: nuevoDocumento.archivo || "archivo.pdf",
+      fechaSubida: new Date().toISOString().split('T')[0],
       tamano: "1.5 MB",
-    },
-  ];
+    };
+    
+    setDocumentos([...documentos, documento]);
+    setNuevoDocumento({ tipo: "", nombre: "", archivo: null });
+    setShowDocumentoModal(false);
+    alert("Documento subido exitosamente");
+  };
 
-  const historialLaboral = [
-    {
-      id: "1",
-      empresa: "Tech Solutions S.A.",
-      cargo: "Gerente de Ventas",
-      fechaInicio: "2020-01-10",
-      fechaFin: "Actualidad",
-      departamento: "Ventas",
-      motivo: "-",
-    },
-    {
-      id: "2",
-      empresa: "Innovate Corp",
-      cargo: "Supervisor de Ventas",
-      fechaInicio: "2017-06-15",
-      fechaFin: "2019-12-31",
-      departamento: "Ventas",
-      motivo: "Mejor oferta laboral",
-    },
-  ];
+  const visualizarDocumento = (doc: any) => {
+    alert(`Visualizando documento: ${doc.nombre}\nArchivo: ${doc.archivo}`);
+  };
 
-  const permisos = [
-    {
-      id: "1",
-      tipo: "Vacaciones",
-      fechaSolicitud: "2024-02-20",
-      fechaInicio: "2024-03-01",
-      fechaFin: "2024-03-15",
-      dias: 14,
-      estado: "aprobado",
-      motivo: "Vacaciones anuales",
-    },
-    {
-      id: "2",
-      tipo: "Permiso Médico",
-      fechaSolicitud: "2024-01-10",
-      fechaInicio: "2024-01-11",
-      fechaFin: "2024-01-12",
-      dias: 2,
-      estado: "aprobado",
-      motivo: "Consulta médica",
-    },
-  ];
+  const descargarDocumento = (doc: any) => {
+    alert(`Descargando documento: ${doc.nombre}`);
+    console.log("Descargando:", doc);
+  };
 
-  const evaluaciones = [
-    {
-      id: "1",
-      periodo: "2024 - Q1",
-      fecha: "2024-03-31",
-      calificacion: 9.2,
-      evaluador: "María Torres - Directora RH",
+  const eliminarDocumento = (id: string) => {
+    if (confirm("¿Está seguro de eliminar este documento?")) {
+      setDocumentos(documentos.filter(doc => doc.id !== id));
+      alert("Documento eliminado exitosamente");
+    }
+  };
+
+  // ============ FUNCIONES PARA HISTORIAL LABORAL ============
+  const handleAgregarExperiencia = () => {
+    setShowHistorialModal(true);
+  };
+
+  const agregarExperiencia = () => {
+    if (!nuevaExperiencia.empresa || !nuevaExperiencia.cargo || !nuevaExperiencia.fechaInicio) {
+      alert("Por favor complete los campos obligatorios");
+      return;
+    }
+    
+    const experiencia = {
+      id: String(historialLaboral.length + 1),
+      ...nuevaExperiencia,
+    };
+    
+    setHistorialLaboral([...historialLaboral, experiencia]);
+    setNuevaExperiencia({ empresa: "", cargo: "", fechaInicio: "", fechaFin: "", departamento: "", motivo: "" });
+    setShowHistorialModal(false);
+    alert("Experiencia laboral agregada exitosamente");
+  };
+
+  // ============ FUNCIONES PARA PERMISOS ============
+  const handleSolicitarPermiso = () => {
+    setShowPermisoModal(true);
+  };
+
+  const solicitarPermiso = () => {
+    if (!nuevoPermiso.tipo || !nuevoPermiso.fechaInicio || !nuevoPermiso.fechaFin) {
+      alert("Por favor complete todos los campos");
+      return;
+    }
+    
+    const permiso = {
+      id: String(permisos.length + 1),
+      tipo: nuevoPermiso.tipo,
+      fechaSolicitud: new Date().toISOString().split('T')[0],
+      fechaInicio: nuevoPermiso.fechaInicio,
+      fechaFin: nuevoPermiso.fechaFin,
+      dias: nuevoPermiso.dias,
+      estado: "pendiente",
+      motivo: nuevoPermiso.motivo,
+    };
+    
+    setPermisos([...permisos, permiso]);
+    setNuevoPermiso({ tipo: "Vacaciones", fechaInicio: "", fechaFin: "", dias: 0, motivo: "" });
+    setShowPermisoModal(false);
+    alert("Permiso solicitado exitosamente");
+  };
+
+  // ============ FUNCIONES PARA EVALUACIONES ============
+  const handleNuevaEvaluacion = () => {
+    setShowEvaluacionModal(true);
+  };
+
+  const agregarEvaluacion = () => {
+    if (!nuevaEvaluacion.periodo || !nuevaEvaluacion.evaluador) {
+      alert("Por favor complete todos los campos");
+      return;
+    }
+    
+    const promedio = (
+      Number(nuevaEvaluacion.desempeno) +
+      Number(nuevaEvaluacion.puntualidad) +
+      Number(nuevaEvaluacion.trabajo_equipo) +
+      Number(nuevaEvaluacion.iniciativa)
+    ) / 4;
+    
+    const evaluacion = {
+      id: String(evaluaciones.length + 1),
+      periodo: nuevaEvaluacion.periodo,
+      fecha: new Date().toISOString().split('T')[0],
+      calificacion: Number(promedio.toFixed(1)),
+      evaluador: nuevaEvaluacion.evaluador,
       aspectos: {
-        desempeno: 9.5,
-        puntualidad: 9.0,
-        trabajo_equipo: 9.3,
-        iniciativa: 9.0,
+        desempeno: Number(nuevaEvaluacion.desempeno),
+        puntualidad: Number(nuevaEvaluacion.puntualidad),
+        trabajo_equipo: Number(nuevaEvaluacion.trabajo_equipo),
+        iniciativa: Number(nuevaEvaluacion.iniciativa),
       },
-      comentarios: "Excelente desempeño en el primer trimestre. Superó las metas establecidas.",
-    },
-    {
-      id: "2",
-      periodo: "2023 - Q4",
-      fecha: "2023-12-31",
-      calificacion: 8.8,
-      evaluador: "María Torres - Directora RH",
-      aspectos: {
-        desempeno: 9.0,
-        puntualidad: 8.5,
-        trabajo_equipo: 9.0,
-        iniciativa: 8.8,
-      },
-      comentarios: "Buen desempeño general. Se recomienda mejorar puntualidad.",
-    },
-  ];
+      comentarios: nuevaEvaluacion.comentarios,
+    };
+    
+    setEvaluaciones([...evaluaciones, evaluacion]);
+    setNuevaEvaluacion({ periodo: "", evaluador: "", calificacion: 0, desempeno: 0, puntualidad: 0, trabajo_equipo: 0, iniciativa: 0, comentarios: "" });
+    setShowEvaluacionModal(false);
+    alert("Evaluación agregada exitosamente");
+  };
+
+  // ============ FUNCIONES PARA CARGAS FAMILIARES ============
+  const handleAgregarFamiliar = () => {
+    setShowFamiliarModal(true);
+  };
+
+  const agregarFamiliar = () => {
+    if (!nuevoFamiliar.nombre || !nuevoFamiliar.cedula || !nuevoFamiliar.fechaNacimiento) {
+      alert("Por favor complete todos los campos obligatorios");
+      return;
+    }
+    
+    const familiar = {
+      id: String(cargasFamiliares.length + 1),
+      nombre: nuevoFamiliar.nombre,
+      parentesco: nuevoFamiliar.parentesco,
+      cedula: nuevoFamiliar.cedula,
+      fechaNacimiento: nuevoFamiliar.fechaNacimiento,
+      edad: nuevoFamiliar.edad,
+      discapacidad: nuevoFamiliar.discapacidad,
+    };
+    
+    setCargasFamiliares([...cargasFamiliares, familiar]);
+    setNuevoFamiliar({ nombre: "", parentesco: "Cónyuge", cedula: "", fechaNacimiento: "", edad: 0, discapacidad: false });
+    setShowFamiliarModal(false);
+    alert("Familiar agregado exitosamente");
+  };
 
   const getDepartamentoBadge = (departamento: string) => {
     const styles: Record<string, string> = {
@@ -349,30 +562,7 @@ export function EmpleadoDetalladoForm({ theme }: EmpleadoDetalladoFormProps) {
                 </p>
               </div>
               <button
-                onClick={() => {
-                  setEmpleadoSeleccionado(null);
-                  setEmpleadoData({
-                    cedula: "",
-                    nombre: "",
-                    apellido: "",
-                    email: "",
-                    telefono: "",
-                    telefonoAdicional: "",
-                    direccion: "",
-                    ciudad: "",
-                    provincia: "",
-                    fechaNacimiento: "",
-                    estadoCivil: "Soltero",
-                    fechaIngreso: "",
-                    estado: "activo",
-                    cargo: "",
-                    departamento: "",
-                    salario: 0,
-                    tipoContrato: "indefinido",
-                    nivelEducacion: "",
-                    profesion: "",
-                  });
-                }}
+                onClick={limpiarSeleccion}
                 className={`p-1 rounded-lg transition-colors ${
                   isLight ? "hover:bg-green-100" : "hover:bg-green-500/20"
                 }`}
@@ -384,48 +574,36 @@ export function EmpleadoDetalladoForm({ theme }: EmpleadoDetalladoFormProps) {
         )}
       </div>
 
-      {/* Botones de Acción Superiores - SIEMPRE VISIBLE */}
-      <div className="flex justify-end gap-3 bg-red-500/20 p-4 rounded-lg">
+      {/* Botones de Acción Superiores - SIEMPRE VISIBLES */}
+      <div className="flex justify-end gap-3">
         <button 
-          onClick={() => {
-            setEmpleadoSeleccionado(null);
-            setEmpleadoData({
-              cedula: "",
-              nombre: "",
-              apellido: "",
-              email: "",
-              telefono: "",
-              telefonoAdicional: "",
-              direccion: "",
-              ciudad: "",
-              provincia: "",
-              fechaNacimiento: "",
-              estadoCivil: "Soltero",
-              fechaIngreso: "",
-              estado: "activo",
-              cargo: "",
-              departamento: "",
-              salario: 0,
-              tipoContrato: "indefinido",
-              nivelEducacion: "",
-              profesion: "",
-            });
-          }}
+          onClick={limpiarSeleccion}
+          disabled={!empleadoSeleccionado}
           className={`px-6 py-2 border rounded-lg text-sm font-medium transition-colors ${
-            isLight 
-              ? "border-gray-200 hover:bg-gray-50 text-gray-700"
-              : "border-white/10 hover:bg-white/5 text-white"
+            empleadoSeleccionado
+              ? isLight 
+                ? "border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer"
+                : "border-white/10 hover:bg-white/5 text-white cursor-pointer"
+              : "border-gray-600 bg-gray-800 text-gray-500 cursor-not-allowed opacity-50"
           }`}
         >
           Limpiar
         </button>
-        <button className="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+        <button 
+          disabled={!empleadoSeleccionado}
+          className={`px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
+            empleadoSeleccionado
+              ? "bg-primary hover:bg-primary/90 text-white cursor-pointer"
+              : "bg-gray-700 text-gray-500 cursor-not-allowed opacity-50"
+          }`}
+          onClick={guardarCambios}
+        >
           <Save className="w-4 h-4" />
           Guardar Cambios
         </button>
       </div>
 
-      {/* Sub-Tabs con nuevo estilo */}
+      {/* Sub-Tabs - SIEMPRE VISIBLES */}
       <div className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
         <div className="flex gap-1">
           <button
@@ -483,591 +661,1368 @@ export function EmpleadoDetalladoForm({ theme }: EmpleadoDetalladoFormProps) {
             <Award className="w-4 h-4" />
             Evaluaciones
           </button>
+          <button
+            onClick={() => setActiveSubTab("cargas-familiares")}
+            className={`px-4 py-3 text-sm font-medium transition-colors flex items-center gap-2 ${
+              activeSubTab === "cargas-familiares"
+                ? `border-b-2 border-primary ${isLight ? "text-primary" : "text-primary"}`
+                : `${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`
+            }`}
+          >
+            <Heart className="w-4 h-4" />
+            Cargas Familiares
+          </button>
         </div>
       </div>
 
-      {/* Tab Content Container */}
+      {/* Tab Content Container - SIEMPRE VISIBLE */}
       <div className={`border rounded-lg p-6 ${
         isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
       }`}>
+        {/* Tab: Datos Generales */}
         {activeSubTab === "datos-empleado" && (
-            <div className="space-y-6">
-              <h3 className={`font-bold text-lg mb-4 ${isLight ? "text-gray-900" : "text-white"}`}>
-                Datos Generales
-              </h3>
+          <div className="space-y-6">
+            <h3 className={`font-bold text-lg mb-4 ${isLight ? "text-gray-900" : "text-white"}`}>
+              Datos Generales
+            </h3>
 
-              {/* Sección de Foto del Empleado */}
-              <div className={`p-6 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
-                <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                  {/* Foto del Empleado */}
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="relative group">
-                      <div className="w-32 h-32 rounded-lg overflow-hidden border-4 border-primary/20">
-                        <img
-                          src="https://images.unsplash.com/photo-1689600944138-da3b150d9cb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMHByb2Zlc3Npb25hbCUyMGhlYWRzaG90JTIwcG9ydHJhaXR8ZW58MXx8fHwxNzczNDA0MjEzfDA&ixlib=rb-4.1.0&q=80&w=1080"
-                          alt="Foto del empleado"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center cursor-pointer">
-                        <Camera className="w-8 h-8 text-white" />
-                      </div>
-                    </div>
-                    <button className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-medium transition-colors flex items-center gap-2">
-                      <Upload className="w-3 h-3" />
-                      Cargar Foto
-                    </button>
+            {/* Tarjeta de Perfil del Empleado */}
+            <div className={`p-6 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+              <div className="flex items-start gap-6 mb-6">
+                {/* Foto del empleado */}
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-24 h-24 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                    {empleadoSeleccionado ? (
+                      <User className="w-12 h-12 text-gray-500" />
+                    ) : (
+                      <User className="w-12 h-12 text-gray-500" />
+                    )}
                   </div>
+                  <button className="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors">
+                    <Camera className="w-3 h-3" />
+                    Cambiar Foto
+                  </button>
+                </div>
 
-                  {/* Información Básica del Empleado */}
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className={`text-xs font-medium mb-1 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                        Nombre Completo
-                      </label>
-                      <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {empleadoData.nombre} {empleadoData.apellido}
-                      </p>
-                    </div>
-                    <div>
-                      <label className={`text-xs font-medium mb-1 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                        Cédula
-                      </label>
-                      <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {empleadoData.cedula || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <label className={`text-xs font-medium mb-1 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                        Cargo
-                      </label>
-                      <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {empleadoData.cargo || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <label className={`text-xs font-medium mb-1 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                        Departamento
-                      </label>
-                      <span className={`text-xs px-2 py-1 rounded inline-block ${getDepartamentoBadge(empleadoData.departamento)}`}>
-                        {empleadoData.departamento || "-"}
+                {/* Información Principal */}
+                <div className="flex-1">
+                  <h4 className={`text-xl font-bold mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                    {empleadoSeleccionado ? `${empleadoData.nombre} ${empleadoData.apellido}` : "Sin nombre"}
+                  </h4>
+                  <p className="text-sm text-gray-400 mb-3">
+                    Cédula: {empleadoSeleccionado ? empleadoData.cedula : "Sin cédula"} • {empleadoSeleccionado && empleadoData.cargo ? empleadoData.cargo : "Sin cargo"}
+                  </p>
+                  <div className="flex gap-2 mb-4">
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      empleadoSeleccionado && empleadoData.estado 
+                        ? getEstadoBadge(empleadoData.estado).style 
+                        : "bg-green-500/10 text-green-400 border border-green-500/40"
+                    }`}>
+                      {empleadoSeleccionado && empleadoData.estado ? getEstadoBadge(empleadoData.estado).name : "Activo"}
+                    </span>
+                    {empleadoSeleccionado && empleadoData.departamento && (
+                      <span className={`text-xs px-2 py-1 rounded ${getDepartamentoBadge(empleadoData.departamento)}`}>
+                        {empleadoData.departamento}
                       </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-gray-400">Salario Mensual</p>
+                      <p className="text-lg font-bold text-primary">
+                        ${empleadoSeleccionado && empleadoData.salario > 0 ? empleadoData.salario.toFixed(2) : "0.00"}
+                      </p>
                     </div>
                     <div>
-                      <label className={`text-xs font-medium mb-1 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                        Estado
-                      </label>
-                      <span className={`text-xs px-2 py-1 rounded inline-block ${getEstadoBadge(empleadoData.estado).style}`}>
-                        {getEstadoBadge(empleadoData.estado).name}
-                      </span>
-                    </div>
-                    <div>
-                      <label className={`text-xs font-medium mb-1 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                        Salario Mensual
-                      </label>
-                      <p className={`text-sm font-bold text-primary`}>
-                        ${empleadoData.salario.toFixed(2)}
+                      <p className="text-xs text-gray-400">Fecha de Ingreso</p>
+                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                        {empleadoSeleccionado && empleadoData.fechaIngreso ? empleadoData.fechaIngreso : "-"}
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Información Personal */}
-              <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
-                <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
-                  <User className="w-4 h-4" />
+            {/* Información Personal */}
+            <div className={`p-6 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+              <div className="flex items-center gap-2 mb-4">
+                <User className="w-4 h-4 text-primary" />
+                <h4 className={`font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
                   Información Personal
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={empleadoData.email}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, email: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Teléfono Principal
-                    </label>
-                    <input
-                      type="text"
-                      value={empleadoData.telefono}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, telefono: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Teléfono Adicional
-                    </label>
-                    <input
-                      type="text"
-                      value={empleadoData.telefonoAdicional}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, telefonoAdicional: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Fecha de Nacimiento
-                    </label>
-                    <input
-                      type="date"
-                      value={empleadoData.fechaNacimiento}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, fechaNacimiento: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Estado Civil
-                    </label>
-                    <select
-                      value={empleadoData.estadoCivil}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, estadoCivil: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    >
-                      <option value="Soltero">Soltero/a</option>
-                      <option value="Casado">Casado/a</option>
-                      <option value="Divorciado">Divorciado/a</option>
-                      <option value="Viudo">Viudo/a</option>
-                      <option value="Union Libre">Unión Libre</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Profesión
-                    </label>
-                    <input
-                      type="text"
-                      value={empleadoData.profesion}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, profesion: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Cédula
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.cedula : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Nombre
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.nombre : ""}
+                    onChange={(e) => handleInputChange("nombre", e.target.value)}
+                    disabled={!empleadoSeleccionado}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder="Ingrese el nombre"
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Apellido
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.apellido : ""}
+                    onChange={(e) => handleInputChange("apellido", e.target.value)}
+                    disabled={!empleadoSeleccionado}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder="Ingrese el apellido"
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Fecha de Nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    value={empleadoSeleccionado ? empleadoData.fechaNacimiento : ""}
+                    onChange={(e) => handleInputChange("fechaNacimiento", e.target.value)}
+                    disabled={!empleadoSeleccionado}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Estado Civil
+                  </label>
+                  <select
+                    value={empleadoSeleccionado ? empleadoData.estadoCivil : ""}
+                    onChange={(e) => handleInputChange("estadoCivil", e.target.value)}
+                    disabled={!empleadoSeleccionado}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  >
+                    <option value="Soltero">Soltero</option>
+                    <option value="Casado">Casado</option>
+                    <option value="Divorciado">Divorciado</option>
+                    <option value="Viudo">Viudo</option>
+                    <option value="Unión Libre">Unión Libre</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Profesión
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.profesion : ""}
+                    onChange={(e) => handleInputChange("profesion", e.target.value)}
+                    disabled={!empleadoSeleccionado}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder="Ingrese la profesión"
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* Información de Domicilio */}
-              <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
-                <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
-                  <MapPin className="w-4 h-4" />
-                  Información de Domicilio
+            {/* Información de Contacto */}
+            <div className={`p-6 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+              <div className="flex items-center gap-2 mb-4">
+                <Phone className="w-4 h-4 text-primary" />
+                <h4 className={`font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                  Información de Contacto
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Dirección Completa
-                    </label>
-                    <input
-                      type="text"
-                      value={empleadoData.direccion}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, direccion: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Ciudad
-                    </label>
-                    <input
-                      type="text"
-                      value={empleadoData.ciudad}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, ciudad: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Provincia
-                    </label>
-                    <select
-                      value={empleadoData.provincia}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, provincia: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    >
-                      <option value="">Seleccione...</option>
-                      <option value="Guayas">Guayas</option>
-                      <option value="Pichincha">Pichincha</option>
-                      <option value="Azuay">Azuay</option>
-                      <option value="Manabí">Manabí</option>
-                      <option value="Los Ríos">Los Ríos</option>
-                      <option value="El Oro">El Oro</option>
-                    </select>
-                  </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={empleadoSeleccionado ? empleadoData.email : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Teléfono
+                  </label>
+                  <input
+                    type="tel"
+                    value={empleadoSeleccionado ? empleadoData.telefono : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Dirección
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.direccion : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Ciudad
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.ciudad : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Provincia
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.provincia : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* Información Laboral */}
-              <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
-                <h4 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${isLight ? "text-gray-900" : "text-white"}`}>
-                  <Briefcase className="w-4 h-4" />
+            {/* Información Laboral */}
+            <div className={`p-6 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+              <div className="flex items-center gap-2 mb-4">
+                <Briefcase className="w-4 h-4 text-primary" />
+                <h4 className={`font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
                   Información Laboral
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Fecha de Ingreso
-                    </label>
-                    <input
-                      type="date"
-                      value={empleadoData.fechaIngreso}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, fechaIngreso: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Tipo de Contrato
-                    </label>
-                    <select
-                      value={empleadoData.tipoContrato}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, tipoContrato: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    >
-                      <option value="indefinido">Indefinido</option>
-                      <option value="temporal">Temporal</option>
-                      <option value="por-horas">Por Horas</option>
-                      <option value="practicante">Practicante</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Salario Mensual
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={empleadoData.salario}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, salario: parseFloat(e.target.value) })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`block text-xs font-medium mb-1 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                      Nivel de Educación
-                    </label>
-                    <select
-                      value={empleadoData.nivelEducacion}
-                      onChange={(e) => setEmpleadoData({ ...empleadoData, nivelEducacion: e.target.value })}
-                      className={`w-full px-3 py-1.5 rounded-lg text-sm border ${
-                        isLight
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-white/5 border-white/10 text-white"
-                      } focus:outline-none focus:border-primary/50`}
-                    >
-                      <option value="">Seleccione...</option>
-                      <option value="Primaria">Primaria</option>
-                      <option value="Secundaria">Secundaria</option>
-                      <option value="Técnico">Técnico</option>
-                      <option value="Universitario">Universitario</option>
-                      <option value="Postgrado">Postgrado</option>
-                    </select>
-                  </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Cargo
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.cargo : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Departamento
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.departamento : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Fecha de Ingreso
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.fechaIngreso : "dd/mm/aaaa"}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Tipo de Contrato
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.tipoContrato : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Salario Mensual
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado && empleadoData.salario > 0 ? `$${empleadoData.salario.toFixed(2)}` : "$0.00"}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm font-bold text-primary ${
+                      isLight
+                        ? "bg-white border-gray-200"
+                        : "bg-white/5 border-white/10"
+                    }`}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Nivel de Educación
+                  </label>
+                  <input
+                    type="text"
+                    value={empleadoSeleccionado ? empleadoData.nivelEducacion : ""}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight
+                        ? "bg-white border-gray-200 text-gray-900"
+                        : "bg-white/5 border-white/10 text-white"
+                    }`}
+                    placeholder=""
+                    readOnly
+                  />
                 </div>
               </div>
-            </div>
-        )}
-
-        {activeSubTab === "documentos-empleado" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
-                Documentos del Empleado
-              </h3>
-              <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
-                <Plus className="w-4 h-4" />
-                Agregar Documento
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {documentos.map((doc) => (
-                <div
-                  key={doc.id}
-                  className={`p-4 rounded-lg border ${
-                    isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h4 className={`font-medium text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
-                          {doc.nombre}
-                        </h4>
-                        <p className="text-xs text-gray-400">{doc.archivo}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-gray-400">
-                    <span>{doc.fechaSubida}</span>
-                    <span>{doc.tamano}</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-3">
-                    <button className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isLight ? "bg-white hover:bg-gray-100 text-gray-700 border border-gray-200" : "bg-white/5 hover:bg-white/10 text-white border border-white/10"
-                    }`}>
-                      <Eye className="w-3 h-3 inline mr-1" />
-                      Ver
-                    </button>
-                    <button className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isLight ? "bg-white hover:bg-gray-100 text-gray-700 border border-gray-200" : "bg-white/5 hover:bg-white/10 text-white border border-white/10"
-                    }`}>
-                      <Download className="w-3 h-3 inline mr-1" />
-                      Descargar
-                    </button>
-                    <button className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         )}
 
+        {/* Tab: Documentos */}
+        {activeSubTab === "documentos-empleado" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Documentos
+              </h3>
+              <button 
+                onClick={handleSubirDocumento}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Subir Documento
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {empleadoSeleccionado ? (
+                documentos.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className={`p-4 rounded-lg border ${
+                      isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                            {doc.nombre}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {doc.tamano} • Subido el {doc.fechaSubida}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => visualizarDocumento(doc)}
+                          className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+                          title="Visualizar"
+                        >
+                          <Eye className="w-4 h-4 text-gray-400" />
+                        </button>
+                        <button 
+                          onClick={() => descargarDocumento(doc)}
+                          className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+                          title="Descargar"
+                        >
+                          <Download className="w-4 h-4 text-gray-400" />
+                        </button>
+                        <button 
+                          onClick={() => eliminarDocumento(doc.id)}
+                          className="p-2 rounded-lg hover:bg-red-500/10 transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-400" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className={`p-8 rounded-lg border text-center ${
+                  isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                }`}>
+                  <FileText className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-sm text-gray-400">
+                    Selecciona un empleado para ver sus documentos
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Historial Laboral */}
         {activeSubTab === "historial-laboral" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
                 Historial Laboral
               </h3>
-              <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+              <button 
+                onClick={handleAgregarExperiencia}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
                 <Plus className="w-4 h-4" />
                 Agregar Experiencia
               </button>
             </div>
 
-            <div className="space-y-4">
-              {historialLaboral.map((exp) => (
-                <div
-                  key={exp.id}
-                  className={`p-4 rounded-lg border ${
-                    isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className={`font-semibold text-base ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {exp.cargo}
-                      </h4>
-                      <p className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-                        {exp.empresa} • {exp.departamento}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mt-3">
-                    <div>
-                      <label className="text-xs text-gray-400">Fecha Inicio</label>
-                      <p className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{exp.fechaInicio}</p>
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-400">Fecha Fin</label>
-                      <p className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{exp.fechaFin}</p>
-                    </div>
-                    {exp.motivo !== "-" && (
-                      <div className="col-span-2">
-                        <label className="text-xs text-gray-400">Motivo de Salida</label>
-                        <p className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>{exp.motivo}</p>
+            <div className="space-y-3">
+              {empleadoSeleccionado ? (
+                historialLaboral.map((exp) => (
+                  <div
+                    key={exp.id}
+                    className={`p-4 rounded-lg border ${
+                      isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Building className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                            {exp.cargo}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {exp.empresa}
+                          </p>
+                        </div>
                       </div>
-                    )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <span className="text-gray-400">Período:</span>
+                        <p className={`font-medium mt-1 ${isLight ? "text-gray-900" : "text-white"}`}>
+                          {exp.fechaInicio} - {exp.fechaFin}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Motivo de salida:</span>
+                        <p className={`font-medium mt-1 ${isLight ? "text-gray-900" : "text-white"}`}>
+                          {exp.motivo}
+                        </p>
+                      </div>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className={`p-8 rounded-lg border text-center ${
+                  isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                }`}>
+                  <Briefcase className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-sm text-gray-400">
+                    Selecciona un empleado para ver su historial laboral
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
 
+        {/* Tab: Permisos y Vacaciones */}
         {activeSubTab === "permisos-vacaciones" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
                 Permisos y Vacaciones
               </h3>
-              <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+              <button 
+                onClick={handleSolicitarPermiso}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
                 <Plus className="w-4 h-4" />
                 Solicitar Permiso
               </button>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className={`text-xs font-medium ${isLight ? "text-gray-500 bg-gray-50" : "text-gray-400 bg-white/5"}`}>
-                    <th className="text-left px-4 py-3 rounded-tl-lg">Tipo</th>
-                    <th className="text-left px-4 py-3">Fecha Solicitud</th>
-                    <th className="text-left px-4 py-3">Inicio</th>
-                    <th className="text-left px-4 py-3">Fin</th>
-                    <th className="text-center px-4 py-3">Días</th>
-                    <th className="text-left px-4 py-3">Estado</th>
-                    <th className="text-left px-4 py-3 rounded-tr-lg">Motivo</th>
-                  </tr>
-                </thead>
-                <tbody className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
-                  {permisos.map((permiso) => (
-                    <tr
-                      key={permiso.id}
-                      className={`border-t ${
-                        isLight ? "border-gray-200" : "border-white/5"
-                      }`}
-                    >
-                      <td className="px-4 py-3 font-medium">{permiso.tipo}</td>
-                      <td className="px-4 py-3 text-gray-400">{permiso.fechaSolicitud}</td>
-                      <td className="px-4 py-3">{permiso.fechaInicio}</td>
-                      <td className="px-4 py-3">{permiso.fechaFin}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
-                          {permiso.dias}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${getEstadoBadge(permiso.estado).style}`}>
-                          {getEstadoBadge(permiso.estado).name}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">{permiso.motivo}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-3">
+              {empleadoSeleccionado ? (
+                permisos.map((permiso) => (
+                  <div
+                    key={permiso.id}
+                    className={`p-4 rounded-lg border ${
+                      isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                            {permiso.tipo}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {permiso.dias} días • {permiso.fechaInicio} a {permiso.fechaFin}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded ${getEstadoBadge(permiso.estado).style}`}>
+                        {getEstadoBadge(permiso.estado).name}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      Motivo: {permiso.motivo}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className={`p-8 rounded-lg border text-center ${
+                  isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                }`}>
+                  <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-sm text-gray-400">
+                    Selecciona un empleado para ver sus permisos y vacaciones
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
 
+        {/* Tab: Evaluaciones */}
         {activeSubTab === "evaluaciones" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
                 Evaluaciones de Desempeño
               </h3>
-              <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+              <button 
+                onClick={handleNuevaEvaluacion}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
                 <Plus className="w-4 h-4" />
                 Nueva Evaluación
               </button>
             </div>
 
-            <div className="space-y-4">
-              {evaluaciones.map((evaluacion) => (
-                <div
-                  key={evaluacion.id}
-                  className={`p-4 rounded-lg border ${
-                    isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h4 className={`font-semibold text-base ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {evaluacion.periodo}
-                      </h4>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Evaluado por: {evaluacion.evaluador}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Fecha: {evaluacion.fecha}
-                      </p>
+            <div className="space-y-3">
+              {empleadoSeleccionado ? (
+                evaluaciones.map((evaluacion) => (
+                  <div
+                    key={evaluacion.id}
+                    className={`p-4 rounded-lg border ${
+                      isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Award className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                            Evaluación {evaluacion.periodo}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Evaluado por: {evaluacion.evaluador}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-primary">{evaluacion.calificacion}</p>
+                        <p className="text-xs text-gray-400">/ 10</p>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-primary">{evaluacion.calificacion}</div>
-                      <p className="text-xs text-gray-400">Calificación</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                      <div>
+                        <p className="text-xs text-gray-400">Desempeño</p>
+                        <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                          {evaluacion.aspectos.desempeno}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Puntualidad</p>
+                        <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                          {evaluacion.aspectos.puntualidad}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Trabajo en Equipo</p>
+                        <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                          {evaluacion.aspectos.trabajo_equipo}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Iniciativa</p>
+                        <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                          {evaluacion.aspectos.iniciativa}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <div className={`p-3 rounded-lg ${isLight ? "bg-white" : "bg-white/5"}`}>
-                      <p className="text-xs text-gray-400 mb-1">Desempeño</p>
-                      <p className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {evaluacion.aspectos.desempeno}
-                      </p>
-                    </div>
-                    <div className={`p-3 rounded-lg ${isLight ? "bg-white" : "bg-white/5"}`}>
-                      <p className="text-xs text-gray-400 mb-1">Puntualidad</p>
-                      <p className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {evaluacion.aspectos.puntualidad}
-                      </p>
-                    </div>
-                    <div className={`p-3 rounded-lg ${isLight ? "bg-white" : "bg-white/5"}`}>
-                      <p className="text-xs text-gray-400 mb-1">Trabajo en Equipo</p>
-                      <p className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {evaluacion.aspectos.trabajo_equipo}
-                      </p>
-                    </div>
-                    <div className={`p-3 rounded-lg ${isLight ? "bg-white" : "bg-white/5"}`}>
-                      <p className="text-xs text-gray-400 mb-1">Iniciativa</p>
-                      <p className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {evaluacion.aspectos.iniciativa}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className={`p-3 rounded-lg ${isLight ? "bg-white border border-gray-200" : "bg-white/5 border border-white/10"}`}>
-                    <p className="text-xs text-gray-400 mb-2">Comentarios</p>
-                    <p className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                      {evaluacion.comentarios}
+                    <p className="text-xs text-gray-400 italic">
+                      "{evaluacion.comentarios}"
                     </p>
                   </div>
+                ))
+              ) : (
+                <div className={`p-8 rounded-lg border text-center ${
+                  isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                }`}>
+                  <Award className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-sm text-gray-400">
+                    Selecciona un empleado para ver sus evaluaciones
+                  </p>
                 </div>
-              ))}
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Cargas Familiares */}
+        {activeSubTab === "cargas-familiares" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Cargas Familiares
+              </h3>
+              <button 
+                onClick={handleAgregarFamiliar}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Agregar Familiar
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {empleadoSeleccionado ? (
+                cargasFamiliares.map((familiar) => (
+                  <div
+                    key={familiar.id}
+                    className={`p-4 rounded-lg border ${
+                      isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          {familiar.parentesco === "Hijo" ? (
+                            <Baby className="w-5 h-5 text-primary" />
+                          ) : (
+                            <Heart className="w-5 h-5 text-primary" />
+                          )}
+                        </div>
+                        <div>
+                          <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                            {familiar.nombre}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {familiar.parentesco} • {familiar.edad} años
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right text-xs">
+                        <p className="text-gray-400">Cédula</p>
+                        <p className={`font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                          {familiar.cedula}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className={`p-8 rounded-lg border text-center ${
+                  isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
+                }`}>
+                  <Heart className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-sm text-gray-400">
+                    Selecciona un empleado para ver sus cargas familiares
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* ============ MODALES ============ */}
+      
+      {/* Modal: Subir Documento */}
+      {showDocumentoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-md w-full ${ 
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Subir Documento
+              </h3>
+              <button onClick={() => setShowDocumentoModal(false)} className="p-1 hover:bg-white/5 rounded-lg">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Tipo de Documento *
+                </label>
+                <select
+                  value={nuevoDocumento.tipo}
+                  onChange={(e) => setNuevoDocumento({...nuevoDocumento, tipo: e.target.value})}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                >
+                  <option value="">Seleccione...</option>
+                  <option value="cedula">Cédula</option>
+                  <option value="contrato">Contrato</option>
+                  <option value="titulo">Título Profesional</option>
+                  <option value="certificado">Certificado</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Nombre del Documento *
+                </label>
+                <input
+                  type="text"
+                  value={nuevoDocumento.nombre}
+                  onChange={(e) => setNuevoDocumento({...nuevoDocumento, nombre: e.target.value})}
+                  placeholder="Ej: Cédula de Identidad"
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Archivo
+                </label>
+                <input
+                  type="file"
+                  onChange={(e) => setNuevoDocumento({...nuevoDocumento, archivo: e.target.files?.[0] || null})}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowDocumentoModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={agregarDocumento}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium"
+                >
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Agregar Experiencia Laboral */}
+      {showHistorialModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-lg w-full ${ 
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Agregar Experiencia Laboral
+              </h3>
+              <button onClick={() => setShowHistorialModal(false)} className="p-1 hover:bg-white/5 rounded-lg">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Empresa *
+                </label>
+                <input
+                  type="text"
+                  value={nuevaExperiencia.empresa}
+                  onChange={(e) => setNuevaExperiencia({...nuevaExperiencia, empresa: e.target.value})}
+                  placeholder="Nombre de la empresa"
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Cargo *
+                  </label>
+                  <input
+                    type="text"
+                    value={nuevaExperiencia.cargo}
+                    onChange={(e) => setNuevaExperiencia({...nuevaExperiencia, cargo: e.target.value})}
+                    placeholder="Cargo desempeñado"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Departamento
+                  </label>
+                  <input
+                    type="text"
+                    value={nuevaExperiencia.departamento}
+                    onChange={(e) => setNuevaExperiencia({...nuevaExperiencia, departamento: e.target.value})}
+                    placeholder="Departamento"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Fecha Inicio *
+                  </label>
+                  <input
+                    type="date"
+                    value={nuevaExperiencia.fechaInicio}
+                    onChange={(e) => setNuevaExperiencia({...nuevaExperiencia, fechaInicio: e.target.value})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Fecha Fin
+                  </label>
+                  <input
+                    type="date"
+                    value={nuevaExperiencia.fechaFin}
+                    onChange={(e) => setNuevaExperiencia({...nuevaExperiencia, fechaFin: e.target.value})}
+                    placeholder="Actualidad"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Motivo de Salida
+                </label>
+                <textarea
+                  value={nuevaExperiencia.motivo}
+                  onChange={(e) => setNuevaExperiencia({...nuevaExperiencia, motivo: e.target.value})}
+                  placeholder="Motivo de salida (opcional)"
+                  rows={2}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowHistorialModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={agregarExperiencia}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Solicitar Permiso */}
+      {showPermisoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-md w-full ${ 
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Solicitar Permiso
+              </h3>
+              <button onClick={() => setShowPermisoModal(false)} className="p-1 hover:bg-white/5 rounded-lg">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Tipo de Permiso *
+                </label>
+                <select
+                  value={nuevoPermiso.tipo}
+                  onChange={(e) => setNuevoPermiso({...nuevoPermiso, tipo: e.target.value})}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                >
+                  <option value="Vacaciones">Vacaciones</option>
+                  <option value="Permiso Médico">Permiso Médico</option>
+                  <option value="Permiso Personal">Permiso Personal</option>
+                  <option value="Permiso Familiar">Permiso Familiar</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Fecha Inicio *
+                  </label>
+                  <input
+                    type="date"
+                    value={nuevoPermiso.fechaInicio}
+                    onChange={(e) => setNuevoPermiso({...nuevoPermiso, fechaInicio: e.target.value})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Fecha Fin *
+                  </label>
+                  <input
+                    type="date"
+                    value={nuevoPermiso.fechaFin}
+                    onChange={(e) => setNuevoPermiso({...nuevoPermiso, fechaFin: e.target.value})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Número de Días
+                </label>
+                <input
+                  type="number"
+                  value={nuevoPermiso.dias}
+                  onChange={(e) => setNuevoPermiso({...nuevoPermiso, dias: Number(e.target.value)})}
+                  placeholder="Días solicitados"
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Motivo *
+                </label>
+                <textarea
+                  value={nuevoPermiso.motivo}
+                  onChange={(e) => setNuevoPermiso({...nuevoPermiso, motivo: e.target.value})}
+                  placeholder="Describa el motivo del permiso"
+                  rows={3}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowPermisoModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={solicitarPermiso}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium"
+                >
+                  Solicitar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Nueva Evaluación */}
+      {showEvaluacionModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto ${ 
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Nueva Evaluación de Desempeño
+              </h3>
+              <button onClick={() => setShowEvaluacionModal(false)} className="p-1 hover:bg-white/5 rounded-lg">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Período *
+                  </label>
+                  <input
+                    type="text"
+                    value={nuevaEvaluacion.periodo}
+                    onChange={(e) => setNuevaEvaluacion({...nuevaEvaluacion, periodo: e.target.value})}
+                    placeholder="Ej: 2024 - Q1"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Evaluador *
+                  </label>
+                  <input
+                    type="text"
+                    value={nuevaEvaluacion.evaluador}
+                    onChange={(e) => setNuevaEvaluacion({...nuevaEvaluacion, evaluador: e.target.value})}
+                    placeholder="Nombre del evaluador"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+              </div>
+              
+              <div className={`p-4 rounded-lg border ${isLight ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"}`}>
+                <p className={`text-sm font-semibold mb-3 ${isLight ? "text-gray-900" : "text-white"}`}>
+                  Calificaciones (0-10)
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Desempeño
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={nuevaEvaluacion.desempeno}
+                      onChange={(e) => setNuevaEvaluacion({...nuevaEvaluacion, desempeno: Number(e.target.value)})}
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Puntualidad
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={nuevaEvaluacion.puntualidad}
+                      onChange={(e) => setNuevaEvaluacion({...nuevaEvaluacion, puntualidad: Number(e.target.value)})}
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Trabajo en Equipo
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={nuevaEvaluacion.trabajo_equipo}
+                      onChange={(e) => setNuevaEvaluacion({...nuevaEvaluacion, trabajo_equipo: Number(e.target.value)})}
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                      Iniciativa
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={nuevaEvaluacion.iniciativa}
+                      onChange={(e) => setNuevaEvaluacion({...nuevaEvaluacion, iniciativa: Number(e.target.value)})}
+                      className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                        isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Comentarios
+                </label>
+                <textarea
+                  value={nuevaEvaluacion.comentarios}
+                  onChange={(e) => setNuevaEvaluacion({...nuevaEvaluacion, comentarios: e.target.value})}
+                  placeholder="Comentarios sobre el desempeño"
+                  rows={3}
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowEvaluacionModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={agregarEvaluacion}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium"
+                >
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Agregar Familiar */}
+      {showFamiliarModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-lg p-6 max-w-md w-full ${ 
+            isLight ? "bg-white" : "bg-card"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${isLight ? "text-gray-900" : "text-white"}`}>
+                Agregar Carga Familiar
+              </h3>
+              <button onClick={() => setShowFamiliarModal(false)} className="p-1 hover:bg-white/5 rounded-lg">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                  Nombre Completo *
+                </label>
+                <input
+                  type="text"
+                  value={nuevoFamiliar.nombre}
+                  onChange={(e) => setNuevoFamiliar({...nuevoFamiliar, nombre: e.target.value})}
+                  placeholder="Nombre completo del familiar"
+                  className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                    isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                  }`}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Parentesco *
+                  </label>
+                  <select
+                    value={nuevoFamiliar.parentesco}
+                    onChange={(e) => setNuevoFamiliar({...nuevoFamiliar, parentesco: e.target.value})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  >
+                    <option value="Cónyuge">Cónyuge</option>
+                    <option value="Hijo">Hijo</option>
+                    <option value="Padre">Padre</option>
+                    <option value="Madre">Madre</option>
+                    <option value="Hermano">Hermano</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Cédula *
+                  </label>
+                  <input
+                    type="text"
+                    value={nuevoFamiliar.cedula}
+                    onChange={(e) => setNuevoFamiliar({...nuevoFamiliar, cedula: e.target.value})}
+                    placeholder="Número de cédula"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Fecha Nacimiento *
+                  </label>
+                  <input
+                    type="date"
+                    value={nuevoFamiliar.fechaNacimiento}
+                    onChange={(e) => setNuevoFamiliar({...nuevoFamiliar, fechaNacimiento: e.target.value})}
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-medium mb-1.5 block ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    Edad
+                  </label>
+                  <input
+                    type="number"
+                    value={nuevoFamiliar.edad}
+                    onChange={(e) => setNuevoFamiliar({...nuevoFamiliar, edad: Number(e.target.value)})}
+                    placeholder="Edad"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-sm ${
+                      isLight ? "bg-white border-gray-200 text-gray-900" : "bg-white/5 border-white/10 text-white"
+                    }`}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={nuevoFamiliar.discapacidad}
+                    onChange={(e) => setNuevoFamiliar({...nuevoFamiliar, discapacidad: e.target.checked})}
+                    className="rounded"
+                  />
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    ¿Tiene discapacidad?
+                  </span>
+                </label>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowFamiliarModal(false)}
+                  className={`flex-1 px-4 py-2 border rounded-lg text-sm font-medium ${
+                    isLight ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={agregarFamiliar}
+                  className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
