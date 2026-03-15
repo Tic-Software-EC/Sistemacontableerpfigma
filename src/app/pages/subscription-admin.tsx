@@ -2,24 +2,22 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Building2,
+  Edit,
+  Eye,
+  Trash2,
   Plus,
   Search,
   Filter,
-  Eye,
-  Edit,
-  Trash2,
+  ChevronDown,
   Mail,
-  CheckCircle2,
   CreditCard,
+  CheckCircle2,
   AlertCircle,
-  Users,
-  X,
   Copy,
   Key,
-  Package,
-  ChevronDown,
+  Users,
+  X,
 } from "lucide-react";
-import { PLAN_CONFIGS } from "../config/plans";
 import { AdminHeader } from "../components/admin-header";
 import { CompanyModal } from "../components/company-modal";
 import { CompanyViewModal } from "../components/company-view-modal";
@@ -28,6 +26,7 @@ import { PlansManagerModal } from "../components/plans-manager-modal";
 import { Pagination } from "../components/pagination";
 import { useTheme } from "../contexts/theme-context";
 import { toast } from "sonner";
+import { PLAN_CONFIGS } from "../config/plans";
 
 interface Company {
   id: string;
@@ -63,6 +62,7 @@ interface CredentialsData {
 export default function SubscriptionAdminPage() {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const isLight = theme === "light";
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPlan, setFilterPlan] = useState<"all" | "free" | "standard" | "custom">("all");
   const [selectedStatus, setSelectedStatus] = useState<"all" | "active" | "trial" | "suspended" | "expired">("all");
@@ -515,7 +515,7 @@ export default function SubscriptionAdminPage() {
         </div>
 
         {/* Línea separadora */}
-        <div className={`border-t mb-4 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
+        <div className={`border-t mb-6 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
 
         {/* Botón Nueva Empresa */}
         <div className="flex justify-end mb-4">

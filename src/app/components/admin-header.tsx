@@ -10,6 +10,8 @@ import {
   Menu as MenuIcon,
   Sun,
   Moon,
+  Home,
+  FolderTree,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ProfileModal } from "./profile-modal";
@@ -33,17 +35,23 @@ export function AdminHeader({ userProfile, onProfileUpdate }: AdminHeaderProps) 
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const tabs = [
+    { path: "/admin", icon: Home, label: "Inicio" },
     { path: "/admin/companies", icon: Building2, label: "Gestión de Empresas" },
     { path: "/admin/plan-configuration", icon: SettingsIcon, label: "Configuración de Planes" },
-    { path: "/admin/module-configuration", icon: Package, label: "Configuración de Módulos" },
+    { path: "/admin/catalogs-admin", icon: FolderTree, label: "Gestión de Catálogos" },
     { path: "/admin/menu-management", icon: MenuIcon, label: "Gestión de Menús" },
   ];
 
   const isActiveTab = (path: string) => {
+    // Para el tab de inicio, debe estar activo solo cuando la ruta es exactamente /admin
+    if (path === "/admin") {
+      return location.pathname === "/admin" || location.pathname === "/admin/";
+    }
     return location.pathname === path;
   };
 
-  const currentTab = tabs.find((tab) => tab.path === location.pathname);
+  const currentTab = tabs.find((tab) => tab.path === location.pathname || 
+    (tab.path === "/admin" && (location.pathname === "/admin" || location.pathname === "/admin/")));
   const pageTitle = currentTab?.label ?? "Panel de Administración";
 
   return (

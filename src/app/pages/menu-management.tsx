@@ -1,13 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import {
-  CreditCard,
-  Settings as SettingsIcon,
-  LogOut,
-  Bell,
-  Building2,
-  Package,
-  Menu as MenuIcon,
   Plus,
   Edit,
   Trash2,
@@ -19,8 +12,6 @@ import {
   BarChart3,
   ShoppingCart,
   ArrowRight,
-  Sun,
-  Moon,
   Layers,
   ChevronRight,
   Search,
@@ -54,9 +45,15 @@ import {
   Briefcase,
   Calendar,
   Globe,
+  Package,
+  Settings as SettingsIcon,
+  Building2,
+  Menu as MenuIcon,
+  Bell,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { IconSelector } from "../components/icon-selector";
+import { AdminHeader } from "../components/admin-header";
 import { ProfileModal } from "../components/profile-modal";
 import { toast } from "sonner";
 import { useBrand } from "../contexts/brand-context";
@@ -443,183 +440,7 @@ export default function MenuManagementPage() {
       }`}
     >
       {/* Header */}
-      <header
-        className={`border-b sticky top-0 z-40 ${
-          theme === "light"
-            ? "border-gray-200 bg-white/90 backdrop-blur-sm"
-            : "border-white/10 bg-secondary/50 backdrop-blur-sm"
-        }`}
-      >
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/admin")}
-              className="flex items-center gap-3 group"
-              title="Ir al Panel de Administración"
-            >
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-primary/90 transition-colors">
-                <CreditCard className="w-6 h-6 text-white" />
-              </div>
-            </button>
-            <div>
-              <h1 className={`font-bold text-xl ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                TicSoftEc
-              </h1>
-              <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                Administrador de Suscripciones
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              className={`p-2 rounded-lg transition-colors relative ${
-                theme === "light"
-                  ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-            </button>
-
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-lg transition-colors ${
-                theme === "light"
-                  ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
-              }`}
-              title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-            >
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  theme === "light" ? "hover:bg-gray-100" : "hover:bg-white/5"
-                }`}
-              >
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">SA</span>
-                  </div>
-                  <div
-                    className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 rounded-full ${
-                      theme === "light" ? "border-white" : "border-secondary"
-                    }`}
-                  ></div>
-                </div>
-                <div className="hidden md:block text-left">
-                  <p className={`text-sm font-medium ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                    {userProfile.name}
-                  </p>
-                  <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                    {userProfile.role}
-                  </p>
-                </div>
-              </button>
-
-              {showUserMenu && (
-                <div
-                  className={`absolute right-0 mt-2 w-64 border rounded-xl shadow-2xl overflow-hidden z-50 ${
-                    theme === "light" ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"
-                  }`}
-                >
-                  <div
-                    className={`px-4 py-3 border-b ${
-                      theme === "light" ? "border-gray-200" : "border-white/10"
-                    }`}
-                  >
-                    <p className={`font-medium text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                      {userProfile.name}
-                    </p>
-                    <p className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                      {userProfile.email}
-                    </p>
-                  </div>
-                  <div className="py-2">
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        setShowProfileModal(true);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                        theme === "light"
-                          ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                          : "text-gray-300 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      <SettingsIcon className="w-4 h-4" />
-                      <span className="text-sm">Mi Perfil</span>
-                    </button>
-                    <div className={`border-t my-2 ${theme === "light" ? "border-gray-200" : "border-white/10"}`}></div>
-                    <button
-                      onClick={() => navigate("/")}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-red-400 transition-colors text-left ${
-                        theme === "light" ? "hover:bg-gray-100" : "hover:bg-white/5"
-                      } hover:text-red-300`}
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span className="text-sm">Cerrar sesión</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs de navegación */}
-        <div className={`px-6 border-t ${theme === "light" ? "border-gray-200" : "border-white/10"}`}>
-          <div className="flex items-center gap-1 overflow-x-auto">
-            <button
-              onClick={() => navigate("/admin/companies")}
-              className={`flex items-center gap-2 px-5 py-3 font-medium text-sm whitespace-nowrap border-b-2 border-transparent transition-all ${
-                theme === "light"
-                  ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
-                  : "text-gray-500 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Building2 className="w-4 h-4" />
-              Gestión de Empresas
-            </button>
-            <button
-              onClick={() => navigate("/admin/plan-configuration")}
-              className={`flex items-center gap-2 px-5 py-3 font-medium text-sm whitespace-nowrap border-b-2 border-transparent transition-all ${
-                theme === "light"
-                  ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
-                  : "text-gray-500 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <SettingsIcon className="w-4 h-4" />
-              Configuración de Planes
-            </button>
-            <button
-              onClick={() => navigate("/admin/module-configuration")}
-              className={`flex items-center gap-2 px-5 py-3 font-medium text-sm whitespace-nowrap border-b-2 border-transparent transition-all ${
-                theme === "light"
-                  ? "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
-                  : "text-gray-500 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Package className="w-4 h-4" />
-              Configuración de Módulos
-            </button>
-            <button
-              onClick={() => navigate("/admin/menu-management")}
-              className={`flex items-center gap-2 px-5 py-3 font-medium text-sm whitespace-nowrap border-b-2 border-primary transition-all ${
-                theme === "light" ? "text-primary bg-primary/5" : "text-white bg-primary/5"
-              }`}
-            >
-              <MenuIcon className={`w-4 h-4 ${theme === "light" ? "text-primary" : ""}`} />
-              Gestión de Menús
-            </button>
-          </div>
-        </div>
-      </header>
+      <AdminHeader userProfile={userProfile} onProfileUpdate={setUserProfile} />
 
       {/* Main Content */}
       <div className="p-6">

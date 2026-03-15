@@ -15,6 +15,7 @@ import {
   BarChart3,
   CheckCircle2,
   ArrowRight,
+  FolderTree,
 } from "lucide-react";
 import { AdminHeader } from "../components/admin-header";
 import { useTheme } from "../contexts/theme-context";
@@ -29,7 +30,6 @@ const modules = [
     color: "text-blue-400",
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
-    stats: "Empresas activas",
   },
   {
     icon: Settings,
@@ -40,18 +40,16 @@ const modules = [
     color: "text-orange-400",
     bg: "bg-orange-500/10",
     border: "border-orange-500/20",
-    stats: "Planes configurados",
   },
   {
-    icon: Package,
-    title: "Configuración de Módulos",
+    icon: FolderTree,
+    title: "Gestión de Catálogos",
     description:
-      "Gestiona los módulos del ERP disponibles en la plataforma. Activa, desactiva y ordena los módulos que estarán disponibles para las empresas según su plan.",
-    path: "/admin/module-configuration",
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
-    stats: "Módulos del sistema",
+      "Administra los catálogos contables del sistema en estructura jerárquica. Define cuentas padres e hijos para Activos, Pasivos, Patrimonio, Ingresos y Gastos.",
+    path: "/admin/catalogs-admin",
+    color: "text-cyan-400",
+    bg: "bg-cyan-500/10",
+    border: "border-cyan-500/20",
   },
   {
     icon: Menu,
@@ -62,7 +60,6 @@ const modules = [
     color: "text-green-400",
     bg: "bg-green-500/10",
     border: "border-green-500/20",
-    stats: "Menús configurados",
   },
 ];
 
@@ -98,10 +95,10 @@ export default function AdminWelcomePage() {
     }`}>
       <AdminHeader userProfile={userProfile} />
 
-      <div className="p-6 max-w-6xl mx-auto">
+      <div className="p-6 max-w-7xl mx-auto">
 
         {/* Hero de bienvenida */}
-        <div className={`relative overflow-hidden rounded-2xl border mb-8 ${cardBase}`}>
+        <div className={`relative overflow-hidden rounded-2xl border mb-6 ${cardBase}`}>
           {/* Fondo decorativo */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
@@ -160,8 +157,8 @@ export default function AdminWelcomePage() {
             <div className="hidden md:flex flex-col items-center gap-3">
               <div className="w-36 h-36 rounded-2xl overflow-hidden border-4 border-primary/20 shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1669023414166-a4cc7c0fe1f5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400"
-                  alt="Dashboard"
+                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400"
+                  alt="Dashboard Analytics"
                   className="w-full h-full object-cover opacity-80"
                 />
               </div>
@@ -174,13 +171,14 @@ export default function AdminWelcomePage() {
         </div>
 
         {/* Tarjetas de módulos */}
-        <h2 className={`font-semibold mb-4 ${
+        <h2 className={`font-semibold mb-4 flex items-center gap-2 ${
           theme === "light" ? "text-gray-700" : "text-gray-300"
         }`}>
+          <Layers className="w-5 h-5" />
           Secciones del módulo
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {modules.map((mod) => {
             const Icon = mod.icon;
             return (

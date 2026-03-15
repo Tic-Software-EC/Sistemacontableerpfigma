@@ -101,7 +101,7 @@ export default function ModulesPage() {
     { id: "empleados", name: "Empleados", icon: UserCheck, color: "from-teal-500 to-teal-600", route: "/module-empleados-detail", description: "Gestión de personal" },
     { id: "configuracion", name: "Configuración", icon: Settings, color: "from-gray-500 to-gray-600", route: "/module-config-detail", description: "Ajustes del sistema" },
     { id: "estados-financieros", name: "Estados Financieros", icon: FileBarChart, color: "from-emerald-500 to-emerald-600", route: "/module-config-detail", description: "Reportes financieros" },
-    { id: "caja-bancos", name: "Caja y Bancos", icon: DollarSign, color: "from-green-600 to-green-700", route: "/module-config-detail", description: "Gestión de tesorería" },
+    { id: "caja-bancos", name: "Caja y Bancos", icon: DollarSign, color: "from-green-600 to-green-700", route: "/module-caja-bancos-detail", description: "Gestión de tesorería" },
     { id: "movil", name: "Móvil", icon: Smartphone, color: "from-blue-500 to-blue-600", route: "/module-config-detail", description: "Aplicación móvil", disabled: true },
   ];
 
@@ -114,6 +114,7 @@ export default function ModulesPage() {
     if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }
     if (module.name === "Inventario")     { navigate("/module-inventory-detail/inicio"); return; }
     if (module.name === "Contabilidad")   { navigate("/module-accounting-detail/inicio"); return; }
+    if (module.name === "Caja y Bancos")  { navigate("/module-caja-bancos-detail"); return; }
 
     // Primer menuId de cada módulo — define el grupo que se abre por defecto
     // URL resultante: /module-config-detail/{menuId}

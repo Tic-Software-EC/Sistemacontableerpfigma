@@ -5,6 +5,7 @@ import { LoginBrandProvider } from "./contexts/brand-context";
 import ModulesPage from "./pages/modules";
 import ModuleConfigDetailPage from "./pages/module-config-detail";
 import SubscriptionAdminPage from "./pages/subscription-admin";
+import CatalogsAdminPage from "./pages/catalogs-admin";
 import PlanConfigurationPage from "./pages/plan-configuration";
 import MenuManagementPage from "./pages/menu-management";
 import ModuleConfigurationPage from "./pages/module-configuration";
@@ -15,6 +16,7 @@ import ModuleInventoryDetail from "./pages/module-inventory-detail";
 import ModuleAccountingDetail from "./pages/module-accounting-detail";
 import { ModuleClientesDetail } from "./pages/module-clientes-detail";
 import { ModuleEmpleadosDetail } from "./pages/module-empleados-detail";
+import { ModuleCajaBancosDetail } from "./pages/module-caja-bancos-detail";
 import AdminLayout from "./components/admin-layout";
 import AdminWelcomePage from "./pages/admin-welcome";
 import { RouteError } from "./components/route-error";
@@ -45,6 +47,7 @@ export const router = createBrowserRouter([
           { path: "plan-configuration",    element: <PlanConfigurationPage /> },
           { path: "menu-management",       element: <MenuManagementPage /> },
           { path: "module-configuration",  element: <ModuleConfigurationPage /> },
+          { path: "catalogs-admin",        element: <CatalogsAdminPage /> },
         ],
       },
 
@@ -89,6 +92,9 @@ export const router = createBrowserRouter([
       // ── Empleados ──────────────────────────────────────────────────────────
       { path: "/module-empleados-detail/:tab", element: <ModuleEmpleadosDetail /> },
       { path: "/module-empleados-detail", element: <Navigate to="/module-empleados-detail/inicio" replace /> },
+
+      // ── Caja Bancos ────────────────────────────────────────────────────────
+      { path: "/module-caja-bancos-detail", element: <ModuleCajaBancosDetail /> },
 
       // ── Redirects para URLs base sin parámetros obligatorios ───────────────
       {

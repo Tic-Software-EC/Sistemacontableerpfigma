@@ -47,7 +47,6 @@ interface Module {
 }
 
 export default function PlanConfigurationPage() {
-  const navigate = useNavigate();
   const { theme } = useTheme();
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
