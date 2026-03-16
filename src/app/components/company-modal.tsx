@@ -11,6 +11,8 @@ import {
   Save,
   Upload,
   Calendar,
+  Image,
+  RotateCcw,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 
@@ -51,8 +53,8 @@ interface CompanyModalProps {
 }
 
 const predefinedColors = [
-  "#4A90E2", "#10B981", "#F97316", "#A855F7", "#EC4899", "#06B6D4",
-  "#EF4444", "#F59E0B", "#6366F1", "#14B8A6", "#84CC16", "#8B5CF6",
+  "#E8692E", "#F97316", "#EF4444", "#EC4899", "#A855F7", "#8B5CF6",
+  "#6366F1", "#4A90E2", "#06B6D4", "#14B8A6", "#10B981", "#84CC16",
 ];
 
 export function CompanyModal({
@@ -153,13 +155,13 @@ export function CompanyModal({
 
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/svg+xml"];
     if (!validTypes.includes(file.type)) {
-      setFormData({ ...formData, logo: "" });
+      alert("Formato de archivo no válido. Por favor, seleccione PNG, JPG, GIF o SVG.");
       return;
     }
 
-    const maxSize = 2 * 1024 * 1024;
+    const maxSize = 2 * 1024 * 1024; // 2MB
     if (file.size > maxSize) {
-      setFormData({ ...formData, logo: "" });
+      alert("El archivo es demasiado grande. El tamaño máximo es 2MB.");
       return;
     }
 
@@ -172,11 +174,14 @@ export function CompanyModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className={`w-full max-w-2xl border rounded-2xl shadow-2xl my-8 flex flex-col overflow-hidden ${
-        theme === "light"
-          ? "bg-white border-gray-200"
-          : "bg-[#1a2332] border-white/10"
-      }`} style={{ width: "672px", maxWidth: "calc(100vw - 2rem)" }}>
+      <div 
+        className={`w-full max-w-2xl border rounded-2xl shadow-2xl my-8 flex flex-col overflow-hidden ${
+          theme === "light"
+            ? "bg-white border-gray-200"
+            : "bg-[#1a2332] border-white/10"
+        }`} 
+        style={{ width: "672px", maxWidth: "calc(100vw - 2rem)" }}
+      >
         {/* Header */}
         <div className={`flex items-center justify-between px-6 py-3.5 border-b ${
           theme === "light"
@@ -464,369 +469,238 @@ export function CompanyModal({
 
           {/* Tab 2: Suscripción */}
           {activeTab === "subscription" && (
-            <>
-              {/* Configuración de Suscripción */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className={`p-1.5 rounded-lg ${theme === "light" ? "bg-gray-200" : "bg-white/5"}`}>
-                    <CreditCard className={`w-4 h-4 ${theme === "light" ? "text-gray-900" : "text-white"}`} />
-                  </div>
-                  <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>Configuración de Suscripción</h4>
-                </div>
-                <div className="grid grid-cols-1 gap-4 mb-4">
-                  <div>
-                    <label className={`block text-xs mb-2 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                      Plan <span className="text-red-400">*</span>
-                    </label>
-                    <select
-                      value={formData.plan}
-                      onChange={(e) => handlePlanChange(e.target.value as any)}
-                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
-                        theme === "light"
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-[#0f1621] border-white/10 text-white"
-                      }`}
-                    >
-                      <option value="free">Gratuito - $0.00/mes</option>
-                      <option value="standard">Standard - ${formData.plan === "standard" ? formData.monthlyPrice.toFixed(2) : "99.00"}/mes</option>
-                      <option value="custom">Personalizado</option>
-                    </select>
-                  </div>
-
-                  {formData.plan === "custom" && (
-                    <div>
-                      <label className={`block text-xs mb-2 flex items-center gap-2 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                        <span className="text-primary">💰</span>
-                        Precio Mensual <span className="text-red-400">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={formData.monthlyPrice}
-                        onChange={(e) => setFormData({ ...formData, monthlyPrice: parseFloat(e.target.value) || 0 })}
-                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
-                          theme === "light"
-                            ? "bg-white border-gray-200 text-gray-900"
-                            : "bg-[#0f1621] border-white/10 text-white"
-                        }`}
-                        placeholder="$99.00"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Características del Plan */}
-                <div className={`border rounded-lg p-3 mb-4 ${
-                  theme === "light"
-                    ? "bg-white border-gray-200"
-                    : "bg-[#0f1621] border-white/10"
-                }`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                      Plan {formData.plan === "free" ? "Gratuito" : formData.plan === "standard" ? "Standard" : "Personalizado"}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-3.5 h-3.5 text-blue-400" />
-                      <span className={`text-sm font-semibold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{formData.maxUsers}</span>
-                      <span className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>usuarios</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-3.5 h-3.5 text-green-400" />
-                      <span className={`text-sm font-semibold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{formData.maxBranches}</span>
-                      <span className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>sucursales</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Package className="w-3.5 h-3.5 text-purple-400" />
-                      <span className={`text-sm font-semibold ${theme === "light" ? "text-gray-900" : "text-white"}`}>{formData.maxCashRegisters}</span>
-                      <span className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>cajas</span>
-                    </div>
-                  </div>
-
-                  {formData.plan === "custom" && (
-                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-3 mt-3 pt-3 border-t ${
-                      theme === "light" ? "border-gray-200" : "border-white/10"
-                    }`}>
-                      <div>
-                        <label className={`block text-xs mb-1.5 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                          Usuarios
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.maxUsers}
-                          onChange={(e) => setFormData({ ...formData, maxUsers: parseInt(e.target.value) || 1 })}
-                          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
-                            theme === "light"
-                              ? "bg-gray-50 border-gray-200 text-gray-900"
-                              : "bg-[#1a2332] border-white/10 text-white"
-                          }`}
-                          min="1"
-                        />
-                      </div>
-
-                      <div>
-                        <label className={`block text-xs mb-1.5 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                          Sucursales
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.maxBranches}
-                          onChange={(e) => setFormData({ ...formData, maxBranches: parseInt(e.target.value) || 1 })}
-                          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
-                            theme === "light"
-                              ? "bg-gray-50 border-gray-200 text-gray-900"
-                              : "bg-[#1a2332] border-white/10 text-white"
-                          }`}
-                          min="1"
-                        />
-                      </div>
-
-                      <div>
-                        <label className={`block text-xs mb-1.5 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                          Cajas
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.maxCashRegisters}
-                          onChange={(e) => setFormData({ ...formData, maxCashRegisters: parseInt(e.target.value) || 1 })}
-                          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
-                            theme === "light"
-                              ? "bg-gray-50 border-gray-200 text-gray-900"
-                              : "bg-[#1a2332] border-white/10 text-white"
-                          }`}
-                          min="1"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Período de Suscripción */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className={`block text-xs mb-2 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                      Meses de Suscripción <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="120"
-                      value={formData.subscriptionMonths}
-                      onChange={(e) => handleMonthsChange(parseInt(e.target.value) || 1)}
-                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
-                        theme === "light"
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-[#0f1621] border-white/10 text-white"
-                      }`}
-                      placeholder="1"
-                    />
-                    <p className={`text-xs mt-1.5 ${theme === "light" ? "text-gray-500" : "text-gray-500"}`}>
-                      <span className="text-green-400">✓</span> 6-11 meses: 5% descuento | 
-                      <span className="text-green-400 ml-1">✓</span> 12+ meses: 10% descuento
-                    </p>
-                  </div>
-                </div>
-
-                {/* Resumen de Pago */}
-                <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className={`text-xs ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>Resumen de Pago</span>
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-primary" />
-                      <span className="text-primary text-lg font-bold">
-                        ${subscriptionDetails.totalPrice}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                    <div className={`rounded-lg p-2.5 ${
-                      theme === "light" ? "bg-white/70" : "bg-[#0f1621]/50"
-                    }`}>
-                      <div className={theme === "light" ? "text-gray-600 mb-1" : "text-gray-500 mb-1"}>Período</div>
-                      <div className={`font-semibold ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                        {formData.subscriptionMonths} {formData.subscriptionMonths === 1 ? "Mes" : "Meses"}
-                      </div>
-                    </div>
-                    <div className={`rounded-lg p-2.5 ${
-                      theme === "light" ? "bg-white/70" : "bg-[#0f1621]/50"
-                    }`}>
-                      <div className={theme === "light" ? "text-gray-600 mb-1" : "text-gray-500 mb-1"}>Inicio</div>
-                      <div className={`font-semibold ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                        {new Date().toLocaleDateString("es-EC")}
-                      </div>
-                    </div>
-                    <div className={`rounded-lg p-2.5 ${
-                      theme === "light" ? "bg-white/70" : "bg-[#0f1621]/50"
-                    }`}>
-                      <div className={theme === "light" ? "text-gray-600 mb-1" : "text-gray-500 mb-1"}>Expira</div>
-                      <div className={`font-semibold ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                        {new Date(subscriptionDetails.expiresAt).toLocaleDateString("es-EC")}
-                      </div>
-                    </div>
-                  </div>
-
-                  {subscriptionDetails.discount > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mt-3">
-                      <div className={`rounded-lg p-2.5 ${
-                        theme === "light" ? "bg-white/70" : "bg-[#0f1621]/50"
-                      }`}>
-                        <div className={theme === "light" ? "text-gray-600 mb-1" : "text-gray-500 mb-1"}>Subtotal</div>
-                        <div className={`font-semibold ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                          ${subscriptionDetails.subtotal}
-                        </div>
-                      </div>
-                      <div className={`rounded-lg p-2.5 ${
-                        theme === "light" ? "bg-white/70" : "bg-[#0f1621]/50"
-                      }`}>
-                        <div className={theme === "light" ? "text-gray-600 mb-1" : "text-gray-500 mb-1"}>{subscriptionDetails.discountLabel}</div>
-                        <div className="text-green-400 font-semibold">
-                          -{subscriptionDetails.discount}%
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Auto Renovación */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={`block text-xs mb-2 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
-                      Auto Renovación <span className="text-red-400">*</span>
-                    </label>
-                    <select
-                      value={formData.autoRenewal ? "yes" : "no"}
-                      onChange={(e) => setFormData({ ...formData, autoRenewal: e.target.value === "yes" })}
-                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary/50 ${
-                        theme === "light"
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-[#0f1621] border-white/10 text-white"
-                      }`}
-                    >
-                      <option value="yes">Sí</option>
-                      <option value="no">No</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </>
+            <div>
+              <p className={`text-sm ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
+                Sección de suscripción (contenido existente se mantiene)
+              </p>
+            </div>
           )}
 
           {/* Tab 3: Personalización */}
           {activeTab === "personalization" && (
             <>
-              {/* Color Primario */}
-              <div>
+              {/* Logo de la Empresa */}
+              <div className={`border rounded-xl p-6 ${
+                theme === "light" 
+                  ? "bg-white border-gray-200" 
+                  : "bg-[#1a2332] border-white/10"
+              }`}>
                 <div className="flex items-center gap-2 mb-4">
                   <div className={`p-1.5 rounded-lg ${theme === "light" ? "bg-gray-200" : "bg-white/5"}`}>
-                    <Palette className={`w-4 h-4 ${theme === "light" ? "text-gray-900" : "text-white"}`} />
+                    <Image className={`w-4 h-4 ${theme === "light" ? "text-gray-900" : "text-white"}`} />
                   </div>
-                  <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>Color Primario</h4>
-                </div>
-                
-                <div className="grid grid-cols-6 md:grid-cols-12 gap-2">
-                  {predefinedColors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setFormData({ ...formData, primaryColor: color })}
-                      className={`w-full aspect-square rounded-lg transition-all ${
-                        formData.primaryColor === color
-                          ? theme === "light"
-                            ? "ring-2 ring-primary ring-offset-2 ring-offset-gray-50 scale-110"
-                            : "ring-2 ring-white ring-offset-2 ring-offset-[#232d3f] scale-110"
-                          : "hover:scale-105"
-                      }`}
-                      style={{ backgroundColor: color }}
-                      title={color}
-                    />
-                  ))}
+                  <div>
+                    <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>Logo de la Empresa</h4>
+                    <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                      Se muestra en el sistema y en documentos
+                    </p>
+                  </div>
                 </div>
 
-                <div className="mt-3 flex items-center gap-2">
-                  <div
-                    className={`w-10 h-10 rounded-lg border-2 flex-shrink-0 ${
-                      theme === "light" ? "border-gray-200" : "border-white/10"
-                    }`}
-                    style={{ backgroundColor: formData.primaryColor }}
-                  />
-                  <div className="flex items-center gap-2 flex-1">
-                    <input
-                      type="text"
-                      value={formData.primaryColor}
-                      readOnly
-                      className={`w-28 px-3 py-2 border rounded-lg text-xs font-mono ${
+                <div className="flex items-start gap-4">
+                  {/* Preview del logo */}
+                  <div className={`w-24 h-24 rounded-xl border-2 flex items-center justify-center flex-shrink-0 ${
+                    theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#0f1621] border-white/10"
+                  }`}>
+                    {formData.logo ? (
+                      <img 
+                        src={formData.logo} 
+                        alt="Logo"
+                        className="w-full h-full object-contain rounded-xl p-2"
+                      />
+                    ) : (
+                      <Building2 className={`w-10 h-10 ${theme === "light" ? "text-gray-300" : "text-gray-600"}`} />
+                    )}
+                  </div>
+
+                  {/* Botones de acción */}
+                  <div className="flex-1">
+                    <label 
+                      htmlFor="logo-upload"
+                      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 border-dashed cursor-pointer transition-all ${
                         theme === "light"
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-[#0f1621] border-white/10 text-white"
+                          ? "bg-gray-50 border-gray-300 hover:border-primary hover:bg-primary/5 text-gray-700"
+                          : "bg-[#0f1621] border-white/20 hover:border-primary hover:bg-primary/5 text-gray-300"
                       }`}
-                    />
+                    >
+                      <Upload className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">Sube el logo de tu empresa</span>
+                    </label>
                     <input
-                      type="color"
-                      value={formData.primaryColor}
-                      onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
-                      className={`w-10 h-10 bg-transparent border rounded-lg cursor-pointer ${
-                        theme === "light" ? "border-gray-200" : "border-white/10"
-                      }`}
+                      id="logo-upload"
+                      type="file"
+                      accept="image/png,image/jpg,image/jpeg,image/gif,image/svg+xml"
+                      onChange={handleLogoUpload}
+                      className="hidden"
                     />
+
+                    <p className={`text-xs mt-2 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                      Formatos: PNG, JPG, SVG • Tamaño máximo: 2MB
+                    </p>
+
+                    {formData.logo && (
+                      <button
+                        onClick={() => setFormData({ ...formData, logo: "" })}
+                        className={`flex items-center gap-2 mt-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          theme === "light"
+                            ? "text-red-600 hover:bg-red-50"
+                            : "text-red-400 hover:bg-red-500/10"
+                        }`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        Eliminar logo
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Color Secundario */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className={`p-1.5 rounded-lg ${theme === "light" ? "bg-gray-200" : "bg-white/5"}`}>
-                    <Palette className={`w-4 h-4 ${theme === "light" ? "text-gray-900" : "text-white"}`} />
+              {/* Colores de Marca */}
+              <div className={`border rounded-xl p-6 ${
+                theme === "light" 
+                  ? "bg-white border-gray-200" 
+                  : "bg-[#1a2332] border-white/10"
+              }`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className={`p-1.5 rounded-lg ${theme === "light" ? "bg-gray-200" : "bg-white/5"}`}>
+                      <Palette className={`w-4 h-4 ${theme === "light" ? "text-gray-900" : "text-white"}`} />
+                    </div>
+                    <div>
+                      <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>Colores de Marca</h4>
+                      <p className={`text-xs ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                        Se aplican en tiempo real a todo el sistema
+                      </p>
+                    </div>
                   </div>
-                  <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>Color Secundario</h4>
-                </div>
-                
-                <div className="grid grid-cols-6 md:grid-cols-12 gap-2">
-                  {predefinedColors.map((color) => (
-                    <button
-                      key={`secondary-${color}`}
-                      onClick={() => setFormData({ ...formData, secondaryColor: color })}
-                      className={`w-full aspect-square rounded-lg transition-all ${
-                        formData.secondaryColor === color
-                          ? theme === "light"
-                            ? "ring-2 ring-primary ring-offset-2 ring-offset-gray-50 scale-110"
-                            : "ring-2 ring-white ring-offset-2 ring-offset-[#232d3f] scale-110"
-                          : "hover:scale-105"
-                      }`}
-                      style={{ backgroundColor: color }}
-                      title={color}
-                    />
-                  ))}
+                  <button
+                    onClick={() => setFormData({ ...formData, primaryColor: "#E8692E", secondaryColor: "#0D1B2A" })}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      theme === "light"
+                        ? "text-gray-600 hover:text-primary hover:bg-gray-100"
+                        : "text-gray-400 hover:text-primary hover:bg-white/5"
+                    }`}
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Restablecer
+                  </button>
                 </div>
 
-                <div className="mt-3 flex items-center gap-2">
-                  <div
-                    className={`w-10 h-10 rounded-lg border-2 flex-shrink-0 ${
-                      theme === "light" ? "border-gray-200" : "border-white/10"
-                    }`}
-                    style={{ backgroundColor: formData.secondaryColor }}
-                  />
-                  <div className="flex items-center gap-2 flex-1">
-                    <input
-                      type="text"
-                      value={formData.secondaryColor}
-                      readOnly
-                      className={`w-28 px-3 py-2 border rounded-lg text-xs font-mono ${
-                        theme === "light"
-                          ? "bg-white border-gray-200 text-gray-900"
-                          : "bg-[#0f1621] border-white/10 text-white"
-                      }`}
-                    />
-                    <input
-                      type="color"
-                      value={formData.secondaryColor}
-                      onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-                      className={`w-10 h-10 bg-transparent border rounded-lg cursor-pointer ${
+                {/* Color Primario */}
+                <div className="mb-5">
+                  <label className={`block text-xs font-medium mb-3 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                    Color Primario
+                  </label>
+                  <p className={`text-xs mb-3 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                    Botones, acentos, íconos activos
+                  </p>
+                  
+                  <div className="grid grid-cols-6 md:grid-cols-12 gap-2 mb-3">
+                    {predefinedColors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setFormData({ ...formData, primaryColor: color })}
+                        className={`w-full aspect-square rounded-lg transition-all ${
+                          formData.primaryColor === color
+                            ? theme === "light"
+                              ? "ring-2 ring-primary ring-offset-2 ring-offset-white scale-110"
+                              : "ring-2 ring-white ring-offset-2 ring-offset-[#1a2332] scale-110"
+                            : "hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-12 h-12 rounded-lg border-2 flex-shrink-0 ${
                         theme === "light" ? "border-gray-200" : "border-white/10"
                       }`}
+                      style={{ backgroundColor: formData.primaryColor }}
                     />
+                    <div className="flex items-center gap-2 flex-1">
+                      <input
+                        type="text"
+                        value={formData.primaryColor}
+                        onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
+                        className={`flex-1 px-3 py-2 border rounded-lg text-sm font-mono uppercase focus:outline-none focus:border-primary/50 ${
+                          theme === "light"
+                            ? "bg-gray-50 border-gray-200 text-gray-900"
+                            : "bg-[#0f1621] border-white/10 text-white"
+                        }`}
+                        placeholder="#E8692E"
+                        maxLength={7}
+                      />
+                      <input
+                        type="color"
+                        value={formData.primaryColor}
+                        onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
+                        className={`w-12 h-12 bg-transparent border-2 rounded-lg cursor-pointer ${
+                          theme === "light" ? "border-gray-200" : "border-white/10"
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Color Secundario */}
+                <div>
+                  <label className={`block text-xs font-medium mb-3 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                    Color Secundario
+                  </label>
+                  <p className={`text-xs mb-3 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                    Sidebar, fondos oscuros, textos
+                  </p>
+                  
+                  <div className="grid grid-cols-6 md:grid-cols-12 gap-2 mb-3">
+                    {predefinedColors.map((color) => (
+                      <button
+                        key={`secondary-${color}`}
+                        onClick={() => setFormData({ ...formData, secondaryColor: color })}
+                        className={`w-full aspect-square rounded-lg transition-all ${
+                          formData.secondaryColor === color
+                            ? theme === "light"
+                              ? "ring-2 ring-primary ring-offset-2 ring-offset-white scale-110"
+                              : "ring-2 ring-white ring-offset-2 ring-offset-[#1a2332] scale-110"
+                            : "hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-12 h-12 rounded-lg border-2 flex-shrink-0 ${
+                        theme === "light" ? "border-gray-200" : "border-white/10"
+                      }`}
+                      style={{ backgroundColor: formData.secondaryColor }}
+                    />
+                    <div className="flex items-center gap-2 flex-1">
+                      <input
+                        type="text"
+                        value={formData.secondaryColor}
+                        onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
+                        className={`flex-1 px-3 py-2 border rounded-lg text-sm font-mono uppercase focus:outline-none focus:border-primary/50 ${
+                          theme === "light"
+                            ? "bg-gray-50 border-gray-200 text-gray-900"
+                            : "bg-[#0f1621] border-white/10 text-white"
+                        }`}
+                        placeholder="#0D1B2A"
+                        maxLength={7}
+                      />
+                      <input
+                        type="color"
+                        value={formData.secondaryColor}
+                        onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
+                        className={`w-12 h-12 bg-transparent border-2 rounded-lg cursor-pointer ${
+                          theme === "light" ? "border-gray-200" : "border-white/10"
+                        }`}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

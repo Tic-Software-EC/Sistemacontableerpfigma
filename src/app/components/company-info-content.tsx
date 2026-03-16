@@ -1,8 +1,7 @@
-import { Building2, Calculator, FileText, Users, Check, Lock, Zap, Upload, X, ShieldCheck, Key, FileSignature, AlertTriangle, Mail, Plus, Pencil, Trash2, Server, Send, ChevronDown, ChevronUp, Eye, EyeOff, Palette, RotateCcw, ImageIcon, Camera } from "lucide-react";
+import { Building2, Calculator, FileText, Users, Check, Lock, Zap, Upload, X, ShieldCheck, Key, FileSignature, AlertTriangle, Mail, Plus, Pencil, Trash2, Server, Send, ChevronDown, ChevronUp, Eye, EyeOff } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
-import { useBrand } from "../contexts/brand-context";
 import { SysTabBar, SysTab } from "./ui/sys-tab-bar";
-import { useState, useRef } from "react";
+import { useState } from "react";
 
 const COMPANY_TABS: SysTab[] = [
   { id: "general",       label: "Datos Generales",      icon: Building2  },
@@ -57,21 +56,7 @@ function Field({ label, children, colSpan }: { label: string; children: React.Re
 
 export function CompanyInfoContent() {
   const { theme } = useTheme();
-  const { primaryColor, secondaryColor, logoUrl, updateColors, updateLogo, removeLogo } = useBrand();
   const [activeTab, setActiveTab] = useState("general");
-  const logoInputRef = useRef<HTMLInputElement>(null);
-
-  // ── Colores de marca (preview local antes de guardar) ──
-  const [localPrimary,   setLocalPrimary]   = useState(primaryColor);
-  const [localSecondary, setLocalSecondary] = useState(secondaryColor);
-
-  // ── Logo upload ──
-  const handleLogoUpload = (file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => { if (e.target?.result) updateLogo(e.target.result as string); };
-    reader.readAsDataURL(file);
-  };
 
   // ── Datos Generales ──
   const [businessName]   = useState("Comercial del Pacífico S.A.");
@@ -272,181 +257,6 @@ export function CompanyInfoContent() {
               <Field label="Email">
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={IN} />
               </Field>
-            </div>
-          </div>
-
-          {/* ── Card logo ── */}
-          <div className={card}>
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
-                <ImageIcon className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <h3 className={`font-bold text-base ${txt}`}>Logo de la Empresa</h3>
-                <p className={`text-xs mt-0.5 ${sub}`}>Se muestra en el sistema y en documentos</p>
-              </div>
-            </div>
-
-            {/* Upload card — estilo avatar */}
-            <div className={`flex items-center gap-4 p-4 rounded-2xl border ${isLight ? "border-gray-100 bg-gray-50" : "border-white/10 bg-white/[0.03]"}`}>
-              {/* Miniatura con botón cámara */}
-              <div className="relative flex-shrink-0">
-                {logoUrl ? (
-                  <img
-                    src={logoUrl}
-                    alt="Logo empresa"
-                    className="w-16 h-16 rounded-2xl object-contain bg-white border border-gray-100 p-1"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center">
-                    <Building2 className="w-7 h-7 text-white" />
-                  </div>
-                )}
-                <button
-                  onClick={() => logoInputRef.current?.click()}
-                  className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-primary rounded-full flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
-                >
-                  <Camera className="w-3.5 h-3.5 text-white" />
-                </button>
-                <input
-                  type="file"
-                  ref={logoInputRef}
-                  accept="image/png,image/jpeg,image/svg+xml"
-                  onChange={e => { if (e.target.files?.[0]) handleLogoUpload(e.target.files[0]); }}
-                  className="hidden"
-                />
-              </div>
-
-              {/* Texto informativo */}
-              <div className="flex-1 min-w-0">
-                <p className={`font-medium text-sm ${txt}`}>
-                  {logoUrl ? "Logo cargado correctamente" : "Sube el logo de tu empresa"}
-                </p>
-                <p className={`text-xs mt-1 ${sub}`}>Formatos: PNG, JPG, SVG • Tamaño máximo: 2MB</p>
-                {logoUrl && (
-                  <button
-                    onClick={removeLogo}
-                    className="mt-2 text-xs text-red-400 hover:text-red-500 transition-colors"
-                  >
-                    Eliminar logo
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ── Card colores de marca ── */}
-          <div className={card}>
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
-                  <Palette className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <h3 className={`font-bold text-base ${txt}`}>Colores de Marca</h3>
-                  <p className={`text-xs mt-0.5 ${sub}`}>Se aplican en tiempo real a todo el sistema</p>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setLocalPrimary("#E8692E");
-                  setLocalSecondary("#0D1B2A");
-                  updateColors({ primaryColor: "#E8692E", secondaryColor: "#0D1B2A" });
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${isLight ? "border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-700" : "border-white/10 hover:border-white/20 text-gray-400 hover:text-gray-300"}`}
-              >
-                <RotateCcw className="w-3 h-3" />
-                Restablecer
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-              {/* Color Primario */}
-              <div>
-                <label className={`block text-xs font-semibold mb-3 ${txt}`}>Color Primario</label>
-                <div className={`flex items-center gap-3 p-3 rounded-xl border ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-white/[0.03]"}`}>
-                  <div className="relative flex-shrink-0">
-                    <div className="w-10 h-10 rounded-lg shadow-sm" style={{ backgroundColor: localPrimary }} />
-                    <input
-                      type="color"
-                      value={localPrimary}
-                      onChange={e => { setLocalPrimary(e.target.value); updateColors({ primaryColor: e.target.value }); }}
-                      className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <input
-                      type="text"
-                      value={localPrimary.toUpperCase()}
-                      onChange={e => {
-                        const v = e.target.value;
-                        if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) {
-                          setLocalPrimary(v);
-                          if (v.length === 7) updateColors({ primaryColor: v });
-                        }
-                      }}
-                      className={`w-full px-2 py-1.5 rounded-lg text-xs font-mono border focus:outline-none focus:ring-2 focus:ring-primary/30 ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`}
-                      maxLength={7}
-                    />
-                    <p className={`text-[10px] mt-1.5 ${sub}`}>Botones, acentos, íconos activos</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-2.5">
-                  {["#E8692E","#F97316","#EF4444","#8B5CF6","#3B82F6","#10B981","#F59E0B","#EC4899"].map(c => (
-                    <button
-                      key={c}
-                      onClick={() => { setLocalPrimary(c); updateColors({ primaryColor: c }); }}
-                      title={c}
-                      style={{ backgroundColor: c, outline: localPrimary === c ? `2px solid ${c}` : undefined, outlineOffset: "2px" }}
-                      className="w-6 h-6 rounded-lg transition-all hover:scale-110"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Color Secundario */}
-              <div>
-                <label className={`block text-xs font-semibold mb-3 ${txt}`}>Color Secundario</label>
-                <div className={`flex items-center gap-3 p-3 rounded-xl border ${isLight ? "border-gray-200 bg-gray-50" : "border-white/10 bg-white/[0.03]"}`}>
-                  <div className="relative flex-shrink-0">
-                    <div className="w-10 h-10 rounded-lg shadow-sm" style={{ backgroundColor: localSecondary }} />
-                    <input
-                      type="color"
-                      value={localSecondary}
-                      onChange={e => { setLocalSecondary(e.target.value); updateColors({ secondaryColor: e.target.value }); }}
-                      className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <input
-                      type="text"
-                      value={localSecondary.toUpperCase()}
-                      onChange={e => {
-                        const v = e.target.value;
-                        if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) {
-                          setLocalSecondary(v);
-                          if (v.length === 7) updateColors({ secondaryColor: v });
-                        }
-                      }}
-                      className={`w-full px-2 py-1.5 rounded-lg text-xs font-mono border focus:outline-none focus:ring-2 focus:ring-primary/30 ${isLight ? "bg-white border-gray-300 text-gray-900" : "bg-[#0f1825] border-white/10 text-white"}`}
-                      maxLength={7}
-                    />
-                    <p className={`text-[10px] mt-1.5 ${sub}`}>Sidebar, fondos oscuros, textos</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-2.5">
-                  {["#0D1B2A","#1E293B","#111827","#1F2937","#0F172A","#18181B","#1C1917","#0A0A0A"].map(c => (
-                    <button
-                      key={c}
-                      onClick={() => { setLocalSecondary(c); updateColors({ secondaryColor: c }); }}
-                      title={c}
-                      style={{ backgroundColor: c, outline: localSecondary === c ? `2px solid ${localPrimary}` : undefined, outlineOffset: "2px" }}
-                      className="w-6 h-6 rounded-lg transition-all hover:scale-110 border border-white/10"
-                    />
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
 
