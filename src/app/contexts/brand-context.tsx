@@ -13,6 +13,7 @@ interface BrandContextType extends BrandState {
   updateColors: (colors: Partial<Pick<BrandState, "primaryColor" | "secondaryColor">>) => void;
   updateLogo:   (logo: string) => void;
   removeLogo:   () => void;
+  resetColors:  () => void;
 }
 
 const BrandContext = createContext<BrandContextType | undefined>(undefined);
@@ -90,9 +91,17 @@ export function BrandProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("brand_logo");
   };
 
+  const resetColors = () => {
+    setPrimaryColor(DEFAULT_PRIMARY);
+    setSecondaryColor(DEFAULT_SECONDARY);
+    localStorage.setItem("brand_primary", DEFAULT_PRIMARY);
+    localStorage.setItem("brand_secondary", DEFAULT_SECONDARY);
+    applyToCSSVars(DEFAULT_PRIMARY, DEFAULT_SECONDARY);
+  };
+
   return (
     <BrandContext.Provider
-      value={{ primaryColor, secondaryColor, logoUrl, updateColors, updateLogo, removeLogo }}
+      value={{ primaryColor, secondaryColor, logoUrl, updateColors, updateLogo, removeLogo, resetColors }}
     >
       {children}
     </BrandContext.Provider>
@@ -129,6 +138,7 @@ export function LoginBrandProvider({ children }: { children: ReactNode }) {
         updateColors:   () => {},
         updateLogo:     () => {},
         removeLogo:     () => {},
+        resetColors:    () => {},
       }}
     >
       {children}
@@ -162,6 +172,7 @@ export function AdminBrandProvider({ children }: { children: ReactNode }) {
         updateColors:   () => {},
         updateLogo:     () => {},
         removeLogo:     () => {},
+        resetColors:    () => {},
       }}
     >
       {children}
