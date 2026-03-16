@@ -92,9 +92,9 @@ export default function ModulesPage() {
 
   const modules: Module[] = [
     { id: "clientes", name: "Clientes", icon: Users, color: "from-green-500 to-green-600", route: "/module-clientes-detail", description: "Administración de clientes" },
-    { id: "reportes", name: "Reportes", icon: BarChart3, color: "from-purple-500 to-purple-600", route: "/module-config-detail", description: "Reportes y análisis" },
+    { id: "reportes", name: "Reportes", icon: BarChart3, color: "from-purple-500 to-purple-600", route: "/module-reportes-detail", description: "Reportes y análisis" },
     { id: "inventario", name: "Inventario", icon: Package, color: "from-orange-500 to-orange-600", route: "/module-inventory-detail", description: "Control de inventario" },
-    { id: "contabilidad", name: "Contabilidad", icon: Calculator, color: "from-pink-500 to-pink-600", route: "/module-config-detail", description: "Gestión contable" },
+    { id: "contabilidad", name: "Contabilidad", icon: Calculator, color: "from-pink-500 to-pink-600", route: "/module-accounting-detail", description: "Gestión contable" },
     { id: "ventas", name: "Ventas", icon: ShoppingCart, color: "from-cyan-500 to-cyan-600", route: "/module-ventas-detail", description: "Módulo de ventas" },
     { id: "pos", name: "Punto de Venta", icon: Receipt, color: "from-primary to-primary/80", route: "/module-pos-detail", description: "Sistema POS" },
     { id: "compras", name: "Compras", icon: ShoppingBag, color: "from-indigo-500 to-indigo-600", route: "/module-compras-detail", description: "Gestión de compras" },
@@ -111,6 +111,7 @@ export default function ModulesPage() {
     if (module.name === "Empleados")      { navigate("/module-empleados-detail/inicio"); return; }
     if (module.name === "Compras")        { navigate("/module-compras-detail/inicio"); return; }
     if (module.name === "Ventas")         { navigate("/module-ventas-detail/inicio"); return; }
+    if (module.name === "Reportes")       { navigate("/module-reportes-detail/inicio"); return; }
     if (module.name === "Punto de Venta") { navigate("/module-pos-detail/pos"); return; }
     if (module.name === "Inventario")     { navigate("/module-inventory-detail/inicio"); return; }
     if (module.name === "Contabilidad")   { navigate("/module-accounting-detail/inicio"); return; }

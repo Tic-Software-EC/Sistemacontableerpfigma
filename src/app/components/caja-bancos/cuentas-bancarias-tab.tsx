@@ -284,83 +284,78 @@ export function CuentasBancariasTab({ theme, isLight }: CuentasBancariasTabProps
       </div>
 
       {/* Tabla */}
-      <div className={`border rounded-lg overflow-hidden ${
-        isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+      <div className={`rounded-lg overflow-hidden ${
+        isLight ? "bg-gray-50" : "bg-secondary/50"
       }`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+            <thead className={isLight ? "bg-gray-100" : "bg-[#0D1B2A]"}>
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Banco
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Tipo / Número
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
+                  Número de Cuenta
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Titular
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
+                  Tipo
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Sucursal
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Saldo Actual
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Estado
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-center text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
+            <tbody className={`divide-y ${
+              isLight ? "bg-white divide-gray-100" : "bg-card divide-white/10"
+            }`}>
               {cuentasFiltradas.map((cuenta) => (
                 <tr
                   key={cuenta.id}
-                  className={`transition-colors ${
-                    isLight ? "hover:bg-gray-50" : "hover:bg-white/5"
-                  }`}
+                  className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/5 transition-colors"}
                 >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <Building2 className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                          {cuenta.banco}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {cuenta.fechaApertura}
-                        </p>
-                      </div>
-                    </div>
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                      {cuenta.banco}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className={`text-sm font-mono font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {cuenta.numeroCuenta}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {cuenta.tipoCuenta === "corriente" ? "Cuenta Corriente" : "Cuenta de Ahorros"}
-                      </p>
-                    </div>
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-mono ${isLight ? "text-gray-900" : "text-white"}`}>
+                      {cuenta.numeroCuenta}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {cuenta.titular}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                      {cuenta.tipoCuenta === "corriente" ? "Corriente" : "Ahorros"}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {cuenta.sucursal}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-semibold ${
+                      cuenta.saldoActual > 0 
+                        ? isLight ? "text-green-600" : "text-green-400"
+                        : isLight ? "text-gray-500" : "text-gray-400"
+                    }`}>
+                      ${cuenta.saldoActual.toFixed(2)}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-right text-sm font-bold ${
-                    cuenta.saldoActual > 0 
-                      ? "text-green-500" 
-                      : isLight ? "text-gray-400" : "text-gray-500"
-                  }`}>
-                    ${cuenta.saldoActual.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-4 py-4">
                     {cuenta.estado === "activa" ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-xs font-medium">
                         <CheckCircle className="w-3 h-3" />
@@ -373,7 +368,7 @@ export function CuentasBancariasTab({ theme, isLight }: CuentasBancariasTabProps
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => handleVerDetalle(cuenta)}

@@ -17,28 +17,16 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DatePicker } from "../ui/date-picker";
+import { useCajaBancos } from "../../contexts/caja-bancos-context";
+import type { Cheque } from "../../contexts/caja-bancos-context";
 
 interface ImpresionChequesTabProps {
   theme: string;
   isLight: boolean;
 }
 
-interface Cheque {
-  id: string;
-  numero: string;
-  fecha: string;
-  beneficiario: string;
-  concepto: string;
-  monto: number;
-  banco: string;
-  cuenta: string;
-  estado: "emitido" | "impreso" | "cobrado" | "anulado";
-  fechaImpresion?: string;
-  fechaCobro?: string;
-  usuarioEmision: string;
-}
-
 export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps) {
+  const { cheques, agregarCheque, imprimirCheque, anularCheque, marcarComoCobrado } = useCajaBancos();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBanco, setSelectedBanco] = useState("todos");
   const [selectedEstado, setSelectedEstado] = useState("todos");
@@ -57,73 +45,6 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
     banco: "pichincha",
     cuenta: "",
   });
-
-  const cheques: Cheque[] = [
-    {
-      id: "1",
-      numero: "001234",
-      fecha: "07/03/2026",
-      beneficiario: "Servicios Básicos EC",
-      concepto: "Pago servicios agua y luz - Marzo 2026",
-      monto: 450.00,
-      banco: "Banco Pichincha",
-      cuenta: "2100456789",
-      estado: "cobrado",
-      fechaImpresion: "07/03/2026",
-      fechaCobro: "10/03/2026",
-      usuarioEmision: "Admin",
-    },
-    {
-      id: "2",
-      numero: "001235",
-      fecha: "10/03/2026",
-      beneficiario: "Distribuidora del Norte S.A.",
-      concepto: "Pago Factura #001-001-000145",
-      monto: 5824.00,
-      banco: "Banco Pichincha",
-      cuenta: "2100456789",
-      estado: "impreso",
-      fechaImpresion: "10/03/2026",
-      usuarioEmision: "Admin",
-    },
-    {
-      id: "3",
-      numero: "001236",
-      fecha: "12/03/2026",
-      beneficiario: "Alquiler Oficina Central",
-      concepto: "Arriendo Marzo 2026",
-      monto: 1200.00,
-      banco: "Banco Pichincha",
-      cuenta: "2100456789",
-      estado: "emitido",
-      usuarioEmision: "Admin",
-    },
-    {
-      id: "4",
-      numero: "000998",
-      fecha: "05/03/2026",
-      beneficiario: "Tech Solutions Ecuador",
-      concepto: "Pago servicios técnicos",
-      monto: 2016.00,
-      banco: "Banco Guayaquil",
-      cuenta: "0012345678",
-      estado: "anulado",
-      usuarioEmision: "Admin",
-    },
-    {
-      id: "5",
-      numero: "001237",
-      fecha: "14/03/2026",
-      beneficiario: "Ferretería El Hierro",
-      concepto: "Pago Factura #003-001-000345",
-      monto: 3584.00,
-      banco: "Banco Pichincha",
-      cuenta: "2100456789",
-      estado: "impreso",
-      fechaImpresion: "14/03/2026",
-      usuarioEmision: "Admin",
-    },
-  ];
 
   const handleCrearCheque = () => {
     if (!nuevoCheque.numero || !nuevoCheque.beneficiario || nuevoCheque.monto <= 0) {
@@ -146,6 +67,7 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
       banco: "pichincha",
       cuenta: "",
     });
+    agregarCheque(nuevoCheque);
   };
 
   const handleImprimirCheque = (cheque: Cheque) => {
@@ -174,6 +96,7 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
         description: `Cheque #${cheque.numero} listo para entrega`
       });
     }, 2000);
+    imprimirCheque(cheque);
   };
 
   const handleEntregarCheque = (cheque: Cheque) => {
@@ -187,6 +110,7 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
     toast.success("Cheque entregado", {
       description: `Cheque #${cheque.numero} marcado como entregado a ${cheque.beneficiario}`
     });
+    marcarComoCobrado(cheque);
   };
 
   const handleAnularCheque = (cheque: Cheque) => {
@@ -200,6 +124,7 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
     toast.success("Cheque anulado", {
       description: `Cheque #${cheque.numero} ha sido anulado exitosamente`
     });
+    anularCheque(cheque);
   };
 
   const handleVerVistaPrevia = (cheque: Cheque) => {
@@ -350,74 +275,77 @@ export function ImpresionChequesTab({ theme, isLight }: ImpresionChequesTabProps
       </div>
 
       {/* Tabla */}
-      <div className={`border rounded-lg overflow-hidden ${
-        isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+      <div className={`rounded-lg overflow-hidden ${
+        isLight ? "bg-gray-50" : "bg-secondary/50"
       }`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+            <thead className={isLight ? "bg-gray-100" : "bg-[#0D1B2A]"}>
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Número
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Fecha
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Beneficiario
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Concepto
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Monto
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Banco
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Estado
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-center text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
+            <tbody className={`divide-y ${
+              isLight ? "bg-white divide-gray-100" : "bg-card divide-white/10"
+            }`}>
               {chequesFiltrados.map((cheque) => (
                 <tr
                   key={cheque.id}
-                  className={`transition-colors ${
-                    isLight ? "hover:bg-gray-50" : "hover:bg-white/5"
-                  }`}
+                  className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/5 transition-colors"}
                 >
-                  <td className={`px-4 py-3 text-sm font-mono font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                    #{cheque.numero}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-mono font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                      {cheque.numero}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {cheque.fecha}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                      {cheque.fecha}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                    {cheque.beneficiario}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
+                      {cheque.beneficiario}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {cheque.concepto}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                      ${cheque.monto.toFixed(2)}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm text-right font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                    ${cheque.monto.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                        {cheque.banco}
-                      </p>
-                      <p className="text-xs text-gray-400">{cheque.cuenta}</p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-4 py-4">
                     {getEstadoBadge(cheque.estado)}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => handleVerVistaPrevia(cheque)}

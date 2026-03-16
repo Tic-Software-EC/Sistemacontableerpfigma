@@ -75,6 +75,7 @@ const features = [
 export default function AdminWelcomePage() {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const isLight = theme === "light";
   const [userProfile] = useState({
     name: "Super Admin",
     email: "admin@ticsoftec.com",
@@ -83,15 +84,15 @@ export default function AdminWelcomePage() {
     avatar: "",
   });
 
-  const cardBase = theme === "light"
+  const cardBase = isLight
     ? "bg-white border-gray-200"
-    : "bg-secondary border-white/10";
+    : "bg-card border-white/10";
 
   return (
     <div className={`min-h-screen ${
-      theme === "light"
+      isLight
         ? "bg-gradient-to-br from-gray-50 via-white to-gray-100"
-        : "bg-gradient-to-br from-secondary via-secondary to-[#1a1f2e]"
+        : "bg-gradient-to-br from-[#0D1B2A] via-[#1a2936] to-[#0D1B2A]"
     }`}>
       <AdminHeader userProfile={userProfile} />
 
@@ -114,16 +115,16 @@ export default function AdminWelcomePage() {
                 </div>
                 <div>
                   <p className={`text-xs font-medium uppercase tracking-widest ${
-                    theme === "light" ? "text-gray-400" : "text-gray-500"
+                    isLight ? "text-gray-500" : "text-gray-400"
                   }`}>Panel de Administración</p>
                   <h1 className={`font-bold text-2xl leading-tight ${
-                    theme === "light" ? "text-gray-900" : "text-white"
+                    isLight ? "text-gray-900" : "text-white"
                   }`}>TicSoftEc · Super Admin</h1>
                 </div>
               </div>
 
               <p className={`mb-6 leading-relaxed ${
-                theme === "light" ? "text-gray-600" : "text-gray-300"
+                isLight ? "text-gray-600" : "text-gray-300"
               }`}>
                 Bienvenido al módulo de administración central de <strong>TicSoftEc ERP</strong>.
                 Desde aquí puedes gestionar todas las empresas suscriptoras, configurar planes y precios,
@@ -142,7 +143,7 @@ export default function AdminWelcomePage() {
                 <button
                   onClick={() => navigate("/admin/plan-configuration")}
                   className={`flex items-center gap-2 px-5 py-2.5 border rounded-lg text-sm font-medium transition-all ${
-                    theme === "light"
+                    isLight
                       ? "border-gray-200 text-gray-700 hover:bg-gray-50"
                       : "border-white/10 text-gray-300 hover:bg-white/5"
                   }`}
@@ -172,7 +173,7 @@ export default function AdminWelcomePage() {
 
         {/* Tarjetas de módulos */}
         <h2 className={`font-semibold mb-4 flex items-center gap-2 ${
-          theme === "light" ? "text-gray-700" : "text-gray-300"
+          isLight ? "text-gray-700" : "text-gray-300"
         }`}>
           <Layers className="w-5 h-5" />
           Secciones del módulo
@@ -194,14 +195,14 @@ export default function AdminWelcomePage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <h3 className={`font-semibold text-sm ${
-                        theme === "light" ? "text-gray-900" : "text-white"
+                        isLight ? "text-gray-900" : "text-white"
                       }`}>{mod.title}</h3>
                       <ChevronRight className={`w-4 h-4 shrink-0 transition-transform group-hover:translate-x-1 ${
-                        theme === "light" ? "text-gray-300" : "text-gray-600"
+                        isLight ? "text-gray-300" : "text-gray-600"
                       }`} />
                     </div>
                     <p className={`text-xs leading-relaxed ${
-                      theme === "light" ? "text-gray-500" : "text-gray-400"
+                      isLight ? "text-gray-500" : "text-gray-400"
                     }`}>{mod.description}</p>
                   </div>
                 </div>
@@ -215,7 +216,7 @@ export default function AdminWelcomePage() {
           <div className="flex items-center gap-2 mb-5">
             <CheckCircle2 className="w-5 h-5 text-primary" />
             <h2 className={`font-semibold ${
-              theme === "light" ? "text-gray-800" : "text-white"
+              isLight ? "text-gray-800" : "text-white"
             }`}>Capacidades del sistema</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -223,17 +224,17 @@ export default function AdminWelcomePage() {
               const Icon = f.icon;
               return (
                 <div key={f.label} className={`flex items-start gap-3 p-3 rounded-lg ${
-                  theme === "light" ? "bg-gray-50" : "bg-white/[0.03]"
+                  isLight ? "bg-gray-50" : "bg-white/[0.03]"
                 }`}>
                   <div className="p-1.5 bg-primary/10 rounded-lg shrink-0">
                     <Icon className="w-4 h-4 text-primary" />
                   </div>
                   <div>
                     <p className={`text-sm font-medium ${
-                      theme === "light" ? "text-gray-800" : "text-white"
+                      isLight ? "text-gray-800" : "text-white"
                     }`}>{f.label}</p>
                     <p className={`text-xs ${
-                      theme === "light" ? "text-gray-500" : "text-gray-500"
+                      isLight ? "text-gray-500" : "text-gray-400"
                     }`}>{f.desc}</p>
                   </div>
                 </div>

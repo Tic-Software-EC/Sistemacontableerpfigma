@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DatePicker } from "../ui/date-picker";
+import { useCajaBancos } from "../../contexts/caja-bancos-context";
 
 interface PagoProveedoresTabProps {
   theme: string;
@@ -44,6 +45,7 @@ interface PagoProveedor {
 }
 
 export function PagoProveedoresTab({ theme, isLight }: PagoProveedoresTabProps) {
+  const { agregarCheque } = useCajaBancos();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEstado, setSelectedEstado] = useState("todos");
   const [fechaDesde, setFechaDesde] = useState<Date | undefined>(undefined);
@@ -51,6 +53,7 @@ export function PagoProveedoresTab({ theme, isLight }: PagoProveedoresTabProps) 
   const [pagosSeleccionados, setPagosSeleccionados] = useState<string[]>([]);
   const [showModalMetodoPago, setShowModalMetodoPago] = useState(false);
   const [showModalDetalle, setShowModalDetalle] = useState(false);
+  const [showModalComprobante, setShowModalComprobante] = useState(false);
   const [pagoSeleccionado, setPagoSeleccionado] = useState<PagoProveedor | null>(null);
   const [metodoPagoSeleccionado, setMetodoPagoSeleccionado] = useState("");
   const [bancoTransferencia, setBancoTransferencia] = useState("pichincha");
@@ -177,7 +180,35 @@ export function PagoProveedoresTab({ theme, isLight }: PagoProveedoresTabProps) 
         return;
       }
 
-      // Simular envío a bandeja de impresión de cheques
+      // Generar lista de proveedores y facturas para el concepto
+      const facturasPagadas = pagosSeleccionados
+        .map(id => pagosProveedores.find(p => p.id === id)!)
+        .filter(Boolean);
+      
+      const concepto = facturasPagadas.length === 1
+        ? `Pago Factura ${facturasPagadas[0].numeroFactura} - ${facturasPagadas[0].proveedor}`
+        : `Pago de ${facturasPagadas.length} facturas a proveedores`;
+
+      const nombreBancoCheque = datosCheque.banco === "pichincha" ? "Banco Pichincha" :
+                                datosCheque.banco === "guayaquil" ? "Banco Guayaquil" :
+                                "Banco del Pacífico";
+
+      // Agregar cheque al contexto
+      agregarCheque({
+        id: `cheque-${Date.now()}`,
+        numero: datosCheque.numeroCheque,
+        fecha: datosCheque.fecha,
+        beneficiario: facturasPagadas.length === 1 ? facturasPagadas[0].proveedor : "Múltiples Proveedores",
+        concepto: concepto,
+        monto: totalSeleccionado,
+        banco: nombreBancoCheque,
+        cuenta: "2100456789", // Cuenta de la empresa
+        estado: "emitido",
+        usuarioEmision: "Admin",
+        tipo: "proveedor",
+        relacionadoId: pagosSeleccionados.join(","),
+      });
+
       toast.success("Cheque creado exitosamente", {
         description: `Cheque #${datosCheque.numeroCheque} enviado a la bandeja de impresión`
       });
@@ -261,6 +292,41 @@ export function PagoProveedoresTab({ theme, isLight }: PagoProveedoresTabProps) 
 
   return (
     <div className="space-y-4">
+      {/* Resumen - PRIMERA FILA */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={`p-4 rounded-lg border ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-yellow-500/10">
+              <AlertCircle className="w-5 h-5 text-yellow-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Total Pendiente</p>
+              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                ${totalPendiente.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-lg border ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-green-500/10">
+              <CheckSquare className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Total Seleccionado</p>
+              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                ${totalSeleccionado.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Acciones principales */}
       <div className="flex justify-end gap-3">
         <button
@@ -334,48 +400,13 @@ export function PagoProveedoresTab({ theme, isLight }: PagoProveedoresTabProps) 
         />
       </div>
 
-      {/* Resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className={`p-4 rounded-lg border ${
-          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-yellow-500/10">
-              <AlertCircle className="w-5 h-5 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Total Pendiente</p>
-              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                ${totalPendiente.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className={`p-4 rounded-lg border ${
-          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-green-500/10">
-              <CheckSquare className="w-5 h-5 text-green-400" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Total Seleccionado</p>
-              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                ${totalSeleccionado.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Tabla */}
-      <div className={`border rounded-lg overflow-hidden ${
-        isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+      <div className={`rounded-lg overflow-hidden ${
+        isLight ? "bg-gray-50" : "bg-secondary/50"
       }`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+            <thead className={isLight ? "bg-gray-100" : "bg-[#0D1B2A]"}>
               <tr>
                 <th className="px-4 py-3 text-left">
                   <input
@@ -385,98 +416,126 @@ export function PagoProveedoresTab({ theme, isLight }: PagoProveedoresTabProps) 
                     className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
                   />
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Proveedor
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
+                  RUC
+                </th>
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Factura
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Concepto
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
+                  F. Emisión
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Fechas
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
+                  F. Vencimiento
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Monto
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Saldo
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Estado
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-center text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
+            <tbody className={`divide-y ${
+              isLight ? "bg-white divide-gray-100" : "bg-card divide-white/10"
+            }`}>
               {pagosFiltrados.map((pago) => {
                 const diasVencimiento = getDiasVencimiento(pago.fechaVencimiento);
                 return (
                   <tr
                     key={pago.id}
-                    className={`transition-colors ${
-                      isLight ? "hover:bg-gray-50" : "hover:bg-white/5"
-                    }`}
+                    className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/5 transition-colors"}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4">
                       <input
                         type="checkbox"
                         checked={pagosSeleccionados.includes(pago.id)}
                         onChange={() => handleSelectPago(pago.id)}
                         disabled={pago.estado === "pagado"}
-                        className="rounded border-white/20 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0 disabled:opacity-50"
+                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50 cursor-pointer"
                       />
                     </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                          {pago.proveedor}
-                        </p>
-                        <p className="text-xs text-gray-400">RUC: {pago.ruc}</p>
-                      </div>
+                    <td className="px-4 py-4">
+                      <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                        {pago.proveedor}
+                      </span>
                     </td>
-                    <td className={`px-4 py-3 text-sm font-mono ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                      {pago.numeroFactura}
+                    <td className="px-4 py-4">
+                      <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                        {pago.ruc}
+                      </span>
                     </td>
-                    <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                      {pago.concepto}
+                    <td className="px-4 py-4">
+                      <span className={`text-sm font-mono ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                        {pago.numeroFactura}
+                      </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <p className={`text-xs ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                          Emisión: {pago.fechaEmision}
-                        </p>
-                        <p className={`text-xs ${
-                          diasVencimiento < 0 ? "text-red-400" : diasVencimiento <= 7 ? "text-yellow-400" : "text-gray-400"
-                        }`}>
-                          Vence: {pago.fechaVencimiento}
-                          {diasVencimiento < 0 && ` (${Math.abs(diasVencimiento)}d vencido)`}
-                          {diasVencimiento >= 0 && diasVencimiento <= 7 && ` (${diasVencimiento}d)`}
-                        </p>
-                      </div>
+                    <td className="px-4 py-4">
+                      <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                        {pago.fechaEmision}
+                      </span>
                     </td>
-                    <td className={`px-4 py-3 text-sm text-right font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                      ${pago.monto.toFixed(2)}
+                    <td className="px-4 py-4">
+                      <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                        {pago.fechaVencimiento}
+                        {(() => {
+                          const dias = diasVencimiento;
+                          return dias < 0 ? (
+                            <span className="ml-2 text-xs text-red-500">
+                              (Vencido)
+                            </span>
+                          ) : dias <= 7 ? (
+                            <span className="ml-2 text-xs text-yellow-600">
+                              ({dias}d)
+                            </span>
+                          ) : null;
+                        })()}
+                      </span>
                     </td>
-                    <td className={`px-4 py-3 text-sm text-right font-semibold ${
-                      pago.saldo > 0 ? "text-yellow-400" : "text-green-400"
-                    }`}>
-                      ${pago.saldo.toFixed(2)}
+                    <td className="px-4 py-4">
+                      <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                        ${pago.monto.toFixed(2)}
+                      </span>
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-4 py-4">
+                      <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                        ${pago.saldo.toFixed(2)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
                       {getEstadoBadge(pago)}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-2">
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-center">
                         <button
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            isLight
-                              ? "hover:bg-blue-50 text-blue-600"
-                              : "hover:bg-blue-500/10 text-blue-400"
-                          }`}
+                          className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
                           title="Ver detalles"
                           onClick={() => {
                             setPagoSeleccionado(pago);
@@ -484,16 +543,6 @@ export function PagoProveedoresTab({ theme, isLight }: PagoProveedoresTabProps) 
                           }}
                         >
                           <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            isLight
-                              ? "hover:bg-gray-100 text-gray-600"
-                              : "hover:bg-white/5 text-gray-400"
-                          }`}
-                          title="Ver factura"
-                        >
-                          
                         </button>
                       </div>
                     </td>
@@ -950,18 +999,156 @@ export function PagoProveedoresTab({ theme, isLight }: PagoProveedoresTabProps) 
                 >
                   Cerrar
                 </button>
-                <button
-                  onClick={() => {
-                    toast.success("Comprobante generado", {
-                      description: `Comprobante de pago para ${pagoSeleccionado.proveedor}`
-                    });
-                  }}
-                  className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                >
-                  <Printer className="w-4 h-4" />
-                  Imprimir Comprobante
-                </button>
+                {pagoSeleccionado.estado === "pagado" && (
+                  <button
+                    onClick={() => {
+                      setShowModalDetalle(false);
+                      setShowModalComprobante(true);
+                    }}
+                    className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Imprimir Comprobante
+                  </button>
+                )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Comprobante de Pago */}
+      {showModalComprobante && pagoSeleccionado && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className={`max-w-xl w-full p-6 rounded-xl shadow-xl ${
+            isLight ? "bg-white border border-gray-200" : "bg-card border border-white/10"
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                Comprobante de Pago
+              </h3>
+              <button
+                onClick={() => {
+                  setShowModalComprobante(false);
+                  setPagoSeleccionado(null);
+                }}
+                className={`p-1.5 rounded-lg transition-colors ${
+                  isLight ? "hover:bg-gray-100" : "hover:bg-white/5"
+                }`}
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Comprobante Simple */}
+            <div className={`p-6 rounded-xl border-2 ${
+              isLight ? "bg-white border-gray-300" : "bg-secondary border-white/20"
+            }`}>
+              {/* Header */}
+              <div className={`pb-4 mb-4 border-b ${isLight ? "border-gray-300" : "border-white/20"}`}>
+                <div className="text-center">
+                  <h2 className={`text-xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    Comercial del Pacífico S.A.
+                  </h2>
+                  <p className="text-xs text-gray-400 mt-1">Comprobante de Pago a Proveedor</p>
+                  <p className="text-xs text-gray-400">
+                    Fecha: {new Date().toLocaleDateString('es-EC')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Información del proveedor */}
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Proveedor:</span>
+                  <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    {pagoSeleccionado.proveedor}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">RUC:</span>
+                  <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    {pagoSeleccionado.ruc}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Factura:</span>
+                  <span className={`text-sm font-mono ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    {pagoSeleccionado.numeroFactura}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Concepto:</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    {pagoSeleccionado.concepto}
+                  </span>
+                </div>
+              </div>
+
+              {/* Monto */}
+              <div className={`py-4 border-y ${isLight ? "border-gray-300" : "border-white/20"}`}>
+                <div className="flex justify-between items-center">
+                  <span className={`text-base font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    Monto Pagado:
+                  </span>
+                  <span className="text-2xl font-bold text-primary">
+                    ${pagoSeleccionado.monto.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Fechas */}
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Fecha Emisión:</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    {pagoSeleccionado.fechaEmision}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Fecha Vencimiento:</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    {pagoSeleccionado.fechaVencimiento}
+                  </span>
+                </div>
+              </div>
+
+              {/* Nota */}
+              <div className={`mt-6 p-3 rounded-lg text-center ${
+                isLight ? "bg-gray-50" : "bg-white/5"
+              }`}>
+                <p className="text-xs text-gray-400">
+                  Este comprobante certifica el pago realizado al proveedor
+                </p>
+              </div>
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowModalComprobante(false);
+                  setPagoSeleccionado(null);
+                }}
+                className={`flex-1 px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors ${
+                  isLight
+                    ? "border-gray-200 hover:bg-gray-50 text-gray-700"
+                    : "border-white/10 hover:bg-white/5 text-white"
+                }`}
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={() => {
+                  toast.success("Comprobante enviado a impresora", {
+                    description: `Comprobante de pago para ${pagoSeleccionado.proveedor}`
+                  });
+                }}
+                className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                <Printer className="w-4 h-4" />
+                Imprimir
+              </button>
             </div>
           </div>
         </div>

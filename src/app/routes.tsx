@@ -17,6 +17,7 @@ import ModuleAccountingDetail from "./pages/module-accounting-detail";
 import { ModuleClientesDetail } from "./pages/module-clientes-detail";
 import { ModuleEmpleadosDetail } from "./pages/module-empleados-detail";
 import { ModuleCajaBancosDetail } from "./pages/module-caja-bancos-detail";
+import { ModuleReportesDetail } from "./pages/module-reportes-detail";
 import AdminLayout from "./components/admin-layout";
 import AdminWelcomePage from "./pages/admin-welcome";
 import { RouteError } from "./components/route-error";
@@ -95,6 +96,10 @@ export const router = createBrowserRouter([
 
       // ── Caja Bancos ────────────────────────────────────────────────────────
       { path: "/module-caja-bancos-detail", element: <ModuleCajaBancosDetail /> },
+
+      // ── Reportes ───────────────────────────────────────────────────────────
+      { path: "/module-reportes-detail/:tab", element: <ModuleReportesDetail /> },
+      { path: "/module-reportes-detail", element: <Navigate to="/module-reportes-detail/inicio" replace /> },
 
       // ── Redirects para URLs base sin parámetros obligatorios ───────────────
       {

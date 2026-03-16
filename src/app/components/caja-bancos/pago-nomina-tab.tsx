@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DatePicker } from "../ui/date-picker";
+import { useCajaBancos } from "../../contexts/caja-bancos-context";
 
 interface PagoNominaTabProps {
   theme: string;
@@ -42,6 +43,7 @@ interface EmpleadoNomina {
 }
 
 export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
+  const { agregarCheque } = useCajaBancos();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeriodo, setSelectedPeriodo] = useState("marzo-2026");
   const [selectedBanco, setSelectedBanco] = useState("todos");
@@ -194,6 +196,35 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
         return;
       }
 
+      // Generar lista de empleados para el concepto
+      const empleadosPagados = empleadosSeleccionados
+        .map(id => empleadosNomina.find(e => e.id === id)!)
+        .filter(Boolean);
+      
+      const concepto = empleadosPagados.length === 1
+        ? `Pago de nómina - ${empleadosPagados[0].empleado}`
+        : `Pago de nómina - ${empleadosPagados.length} empleados`;
+
+      const nombreBancoCheque = datosCheque.banco === "pichincha" ? "Banco Pichincha" :
+                                datosCheque.banco === "guayaquil" ? "Banco Guayaquil" :
+                                "Banco del Pacífico";
+
+      // Agregar cheque al contexto
+      agregarCheque({
+        id: `cheque-${Date.now()}`,
+        numero: datosCheque.numeroCheque,
+        fecha: datosCheque.fecha,
+        beneficiario: empleadosPagados.length === 1 ? empleadosPagados[0].empleado : "Nómina de Empleados",
+        concepto: concepto,
+        monto: totalSeleccionado,
+        banco: nombreBancoCheque,
+        cuenta: "2100456789", // Cuenta de la empresa
+        estado: "emitido",
+        usuarioEmision: "Admin",
+        tipo: "nomina",
+        relacionadoId: empleadosSeleccionados.join(","),
+      });
+
       toast.success("Cheque creado exitosamente", {
         description: `Cheque #${datosCheque.numeroCheque} enviado a la bandeja de impresión`
       });
@@ -272,6 +303,57 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
 
   return (
     <div className="space-y-4">
+      {/* Resumen - PRIMERA FILA */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`p-4 rounded-lg border ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-blue-500/10">
+              <Calendar className="w-5 h-5 text-blue-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Período</p>
+              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                Marzo 2026
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-lg border ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-yellow-500/10">
+              <DollarSign className="w-5 h-5 text-yellow-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Total Pendiente</p>
+              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                ${totalPendiente.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-lg border ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-green-500/10">
+              <CheckSquare className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Total Seleccionado</p>
+              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                ${totalSeleccionado.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Acciones principales */}
       <div className="flex justify-end gap-3">
         <button
@@ -375,64 +457,13 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
         />
       </div>
 
-      {/* Resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`p-4 rounded-lg border ${
-          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-500/10">
-              <Calendar className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Período</p>
-              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                Marzo 2026
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className={`p-4 rounded-lg border ${
-          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-yellow-500/10">
-              <DollarSign className="w-5 h-5 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Total Pendiente</p>
-              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                ${totalPendiente.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className={`p-4 rounded-lg border ${
-          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-green-500/10">
-              <CheckSquare className="w-5 h-5 text-green-400" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Total Seleccionado</p>
-              <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                ${totalSeleccionado.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Tabla */}
-      <div className={`border rounded-lg overflow-hidden ${
-        isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+      <div className={`rounded-lg overflow-hidden ${
+        isLight ? "bg-gray-50" : "bg-secondary/50"
       }`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+            <thead className={isLight ? "bg-gray-100" : "bg-[#0D1B2A]"}>
               <tr>
                 <th className="px-4 py-3 text-left">
                   <input
@@ -442,126 +473,89 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
                     className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
                   />
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Empleado
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
+                  Cédula
+                </th>
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Cargo
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Departamento
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Salario
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Descuentos
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Bonificaciones
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Total a Pagar
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Banco
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Estado
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-center text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
+            <tbody className={`divide-y ${
+              isLight ? "bg-white divide-gray-100" : "bg-card divide-white/10"
+            }`}>
               {empleadosFiltrados.map((empleado) => (
                 <tr
                   key={empleado.id}
-                  className={`transition-colors ${
-                    isLight ? "hover:bg-gray-50" : "hover:bg-white/5"
-                  }`}
+                  className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/5 transition-colors"}
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <input
                       type="checkbox"
                       checked={empleadosSeleccionados.includes(empleado.id)}
                       onChange={() => handleSelectEmpleado(empleado.id)}
-                      disabled={empleado.estado !== "pendiente"}
-                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={empleado.estado === "pagado"}
+                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50 cursor-pointer"
                     />
                   </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        {empleado.empleado}
-                      </p>
-                      <p className="text-xs text-gray-400">{empleado.cedula}</p>
-                    </div>
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                      {empleado.empleado}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {empleado.cargo}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                      {empleado.cedula}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {empleado.departamento}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                      {empleado.cargo}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm text-right ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    ${empleado.salario.toFixed(2)}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                      ${empleado.totalPagar.toFixed(2)}
+                    </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-red-400">
-                    -${empleado.descuentos.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right text-green-400">
-                    +${empleado.bonificaciones.toFixed(2)}
-                  </td>
-                  <td className={`px-4 py-3 text-sm text-right font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                    ${empleado.totalPagar.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                        {empleado.banco}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {empleado.tipoCuenta} - {empleado.numeroCuenta}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-4 py-4">
                     {getEstadoBadge(empleado.estado)}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
+                  <td className="px-4 py-4">
+                    <div className="flex items-center justify-center">
                       <button
                         onClick={() => {
                           setEmpleadoSeleccionado(empleado);
                           setShowModalDetalle(true);
                         }}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          isLight
-                            ? "hover:bg-blue-50 text-blue-600"
-                            : "hover:bg-blue-500/10 text-blue-400"
-                        }`}
+                        className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
                         title="Ver detalles"
                       >
                         <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEmpleadoSeleccionado(empleado);
-                          setShowModalComprobante(true);
-                        }}
-                        disabled={empleado.estado === "pendiente"}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          empleado.estado === "pendiente"
-                            ? "opacity-50 cursor-not-allowed text-gray-500"
-                            : isLight
-                            ? "hover:bg-green-50 text-green-600"
-                            : "hover:bg-green-500/10 text-green-400"
-                        }`}
-                        title="Imprimir comprobante"
-                      >
-                        <Printer className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -948,7 +942,7 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
               </div>
 
               {/* Botón cerrar */}
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-3">
                 <button
                   onClick={() => {
                     setShowModalDetalle(false);
@@ -962,6 +956,18 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
                 >
                   Cerrar
                 </button>
+                {empleadoSeleccionado.estado !== "pendiente" && (
+                  <button
+                    onClick={() => {
+                      setShowModalDetalle(false);
+                      setShowModalComprobante(true);
+                    }}
+                    className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Imprimir Comprobante
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -971,12 +977,12 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
       {/* Modal Comprobante de Pago */}
       {showModalComprobante && empleadoSeleccionado && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className={`max-w-3xl w-full p-8 rounded-xl shadow-xl ${
+          <div className={`max-w-xl w-full p-6 rounded-xl shadow-xl ${
             isLight ? "bg-white border border-gray-200" : "bg-card border border-white/10"
           }`}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className={`text-xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                Comprobante de Pago de Nómina
+              <h3 className={`text-lg font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                Comprobante de Pago
               </h3>
               <button
                 onClick={() => {
@@ -991,161 +997,86 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
               </button>
             </div>
 
-            {/* Comprobante */}
-            <div className={`p-8 rounded-xl border-2 ${
+            {/* Comprobante Simple */}
+            <div className={`p-6 rounded-xl border-2 ${
               isLight ? "bg-white border-gray-300" : "bg-secondary border-white/20"
             }`}>
-              {/* Header del comprobante */}
-              <div className={`pb-6 mb-6 border-b ${isLight ? "border-gray-300" : "border-white/20"}`}>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className={`text-2xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                      Comercial del Pacífico S.A.
-                    </h2>
-                    <p className="text-sm text-gray-400 mt-1">RUC: 0992345678001</p>
-                    <p className="text-sm text-gray-400">Guayaquil, Ecuador</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="px-4 py-2 bg-primary/10 rounded-lg border border-primary">
-                      <p className="text-xs text-primary font-medium">COMPROBANTE DE PAGO</p>
-                      <p className="text-lg font-bold text-primary">#{empleadoSeleccionado.id.padStart(6, '0')}</p>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-2">
-                      Fecha: {empleadoSeleccionado.fechaPago || new Date().toLocaleDateString('es-EC')}
-                    </p>
-                  </div>
+              {/* Header */}
+              <div className={`pb-4 mb-4 border-b ${isLight ? "border-gray-300" : "border-white/20"}`}>
+                <div className="text-center">
+                  <h2 className={`text-xl font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    Comercial del Pacífico S.A.
+                  </h2>
+                  <p className="text-xs text-gray-400 mt-1">Comprobante de Pago de Nómina</p>
+                  <p className="text-xs text-gray-400">
+                    Fecha: {empleadoSeleccionado.fechaPago || new Date().toLocaleDateString('es-EC')}
+                  </p>
                 </div>
               </div>
 
               {/* Información del empleado */}
-              <div className={`mb-6 p-4 rounded-lg ${
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Empleado:</span>
+                  <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    {empleadoSeleccionado.empleado}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Cédula:</span>
+                  <span className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    {empleadoSeleccionado.cedula}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Cargo:</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    {empleadoSeleccionado.cargo}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Período:</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    Marzo 2026
+                  </span>
+                </div>
+              </div>
+
+              {/* Monto */}
+              <div className={`py-4 border-y ${isLight ? "border-gray-300" : "border-white/20"}`}>
+                <div className="flex justify-between items-center">
+                  <span className={`text-base font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
+                    Monto Pagado:
+                  </span>
+                  <span className="text-2xl font-bold text-primary">
+                    ${empleadoSeleccionado.totalPagar.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Información bancaria */}
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Banco:</span>
+                  <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    {empleadoSeleccionado.banco}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Cuenta {empleadoSeleccionado.tipoCuenta}:</span>
+                  <span className={`text-sm font-mono ${isLight ? "text-gray-700" : "text-gray-300"}`}>
+                    {empleadoSeleccionado.numeroCuenta}
+                  </span>
+                </div>
+              </div>
+
+              {/* Nota */}
+              <div className={`mt-6 p-3 rounded-lg text-center ${
                 isLight ? "bg-gray-50" : "bg-white/5"
               }`}>
-                <h4 className={`text-sm font-bold mb-3 ${isLight ? "text-gray-900" : "text-white"}`}>
-                  DATOS DEL EMPLEADO
-                </h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="text-xs text-gray-400">Nombre Completo</p>
-                    <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                      {empleadoSeleccionado.empleado}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Cédula de Identidad</p>
-                    <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                      {empleadoSeleccionado.cedula}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Cargo</p>
-                    <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                      {empleadoSeleccionado.cargo}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Departamento</p>
-                    <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                      {empleadoSeleccionado.departamento}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Desglose detallado */}
-              <div className={`mb-6`}>
-                <h4 className={`text-sm font-bold mb-3 ${isLight ? "text-gray-900" : "text-white"}`}>
-                  DETALLE DE PAGO - MARZO 2026
-                </h4>
-                <table className="w-full">
-                  <thead>
-                    <tr className={`border-b ${isLight ? "border-gray-300" : "border-white/20"}`}>
-                      <th className={`text-left py-2 text-xs font-semibold ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                        Concepto
-                      </th>
-                      <th className={`text-right py-2 text-xs font-semibold ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                        Monto
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
-                      <td className={`py-2 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                        Salario Base
-                      </td>
-                      <td className={`py-2 text-sm text-right font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-                        ${empleadoSeleccionado.salario.toFixed(2)}
-                      </td>
-                    </tr>
-                    <tr className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
-                      <td className="py-2 text-sm text-green-600">
-                        Bonificaciones
-                      </td>
-                      <td className="py-2 text-sm text-right font-medium text-green-600">
-                        +${empleadoSeleccionado.bonificaciones.toFixed(2)}
-                      </td>
-                    </tr>
-                    <tr className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
-                      <td className="py-2 text-sm text-red-500">
-                        Descuentos (IESS, IR)
-                      </td>
-                      <td className="py-2 text-sm text-right font-medium text-red-500">
-                        -${empleadoSeleccionado.descuentos.toFixed(2)}
-                      </td>
-                    </tr>
-                    <tr className={`border-t-2 ${isLight ? "border-gray-300" : "border-white/20"}`}>
-                      <td className={`py-3 text-base font-bold ${isLight ? "text-gray-900" : "text-white"}`}>
-                        TOTAL NETO A PAGAR
-                      </td>
-                      <td className="py-3 text-xl text-right font-bold text-primary">
-                        ${empleadoSeleccionado.totalPagar.toFixed(2)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Información de pago */}
-              <div className={`p-4 rounded-lg ${
-                isLight ? "bg-blue-50 border border-blue-200" : "bg-blue-500/10 border border-blue-500/20"
-              }`}>
-                <h4 className={`text-sm font-bold mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
-                  FORMA DE PAGO
-                </h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="text-xs text-gray-400">Banco</p>
-                    <p className={`text-sm font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                      {empleadoSeleccionado.banco}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Cuenta {empleadoSeleccionado.tipoCuenta}</p>
-                    <p className={`text-sm font-mono font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
-                      {empleadoSeleccionado.numeroCuenta}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Firma */}
-              <div className="mt-8 pt-6 border-t border-dashed border-gray-300">
-                <div className="grid grid-cols-2 gap-8">
-                  <div className="text-center">
-                    <div className={`border-t pt-2 ${isLight ? "border-gray-300" : "border-white/20"}`}>
-                      <p className={`text-xs font-medium ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                        Firma del Empleado
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className={`border-t pt-2 ${isLight ? "border-gray-300" : "border-white/20"}`}>
-                      <p className={`text-xs font-medium ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                        Firma Autorizada
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <p className="text-xs text-gray-400">
+                  Este comprobante certifica el pago realizado al empleado
+                </p>
               </div>
             </div>
 
@@ -1173,7 +1104,7 @@ export function PagoNominaTab({ theme, isLight }: PagoNominaTabProps) {
                 className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <Printer className="w-4 h-4" />
-                Imprimir Comprobante
+                Imprimir
               </button>
             </div>
           </div>

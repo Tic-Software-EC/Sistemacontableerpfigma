@@ -213,6 +213,57 @@ export function IngresosEgresosTab({ theme, isLight }: IngresosEgresosTabProps) 
 
   return (
     <div className="space-y-4">
+      {/* Resumen - PRIMERA FILA */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`p-4 rounded-lg border ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-green-500/10">
+              <TrendingUp className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Total Ingresos</p>
+              <p className={`text-lg font-bold text-green-400`}>
+                ${totalIngresos.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-lg border ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-red-500/10">
+              <TrendingDown className="w-5 h-5 text-red-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Total Egresos</p>
+              <p className={`text-lg font-bold text-red-400`}>
+                ${totalEgresos.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-lg border ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${saldoNeto >= 0 ? "bg-blue-500/10" : "bg-orange-500/10"}`}>
+              <DollarSign className={`w-5 h-5 ${saldoNeto >= 0 ? "text-blue-400" : "text-orange-400"}`} />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Saldo Neto</p>
+              <p className={`text-lg font-bold ${saldoNeto >= 0 ? "text-blue-400" : "text-orange-400"}`}>
+                ${saldoNeto.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Acciones principales */}
       <div className="flex justify-end gap-3">
         <button
@@ -295,103 +346,60 @@ export function IngresosEgresosTab({ theme, isLight }: IngresosEgresosTabProps) 
         />
       </div>
 
-      {/* Resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`p-4 rounded-lg border ${
-          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-green-500/10">
-              <TrendingUp className="w-5 h-5 text-green-400" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Total Ingresos</p>
-              <p className={`text-lg font-bold text-green-400`}>
-                ${totalIngresos.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className={`p-4 rounded-lg border ${
-          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-red-500/10">
-              <TrendingDown className="w-5 h-5 text-red-400" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Total Egresos</p>
-              <p className={`text-lg font-bold text-red-400`}>
-                ${totalEgresos.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className={`p-4 rounded-lg border ${
-          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${saldoNeto >= 0 ? "bg-blue-500/10" : "bg-orange-500/10"}`}>
-              <DollarSign className={`w-5 h-5 ${saldoNeto >= 0 ? "text-blue-400" : "text-orange-400"}`} />
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Saldo Neto</p>
-              <p className={`text-lg font-bold ${saldoNeto >= 0 ? "text-blue-400" : "text-orange-400"}`}>
-                ${saldoNeto.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Tabla */}
-      <div className={`border rounded-lg overflow-hidden ${
-        isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"
+      <div className={`rounded-lg overflow-hidden ${
+        isLight ? "bg-gray-50" : "bg-secondary/50"
       }`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={`border-b ${isLight ? "border-gray-200" : "border-white/10"}`}>
+            <thead className={isLight ? "bg-gray-100" : "bg-[#0D1B2A]"}>
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Tipo
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Fecha
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Concepto
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Categoría
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Beneficiario
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Método Pago
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Monto
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Estado
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className={`px-4 py-3 text-center text-xs font-medium uppercase tracking-wide ${
+                  isLight ? "text-gray-600" : "text-white/70"
+                }`}>
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className={`divide-y ${isLight ? "divide-gray-200" : "divide-white/5"}`}>
+            <tbody className={`divide-y ${
+              isLight ? "bg-white divide-gray-100" : "bg-card divide-white/10"
+            }`}>
               {movimientosFiltrados.map((mov) => (
                 <tr
                   key={mov.id}
-                  className={`transition-colors ${
-                    isLight ? "hover:bg-gray-50" : "hover:bg-white/5"
-                  }`}
+                  className={isLight ? "hover:bg-gray-50 transition-colors" : "hover:bg-white/5 transition-colors"}
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     {mov.tipo === "ingreso" ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-xs font-medium">
                         <TrendingUp className="w-3 h-3" />
@@ -404,30 +412,31 @@ export function IngresosEgresosTab({ theme, isLight }: IngresosEgresosTabProps) 
                       </span>
                     )}
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {mov.fecha}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                      {mov.fecha}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-900" : "text-white"}`}>
-                    <div>
-                      <p className="font-medium">{mov.concepto}</p>
-                      <p className="text-xs text-gray-400">Ref: {mov.referencia}</p>
-                    </div>
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
+                      {mov.concepto}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {mov.categoria}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                      {mov.categoria}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {mov.beneficiario}
+                  <td className="px-4 py-4">
+                    <span className={`text-sm font-semibold ${
+                      mov.tipo === "ingreso" 
+                        ? isLight ? "text-green-600" : "text-green-400"
+                        : isLight ? "text-red-600" : "text-red-400"
+                    }`}>
+                      {mov.tipo === "ingreso" ? "+" : "-"}${mov.monto.toFixed(2)}
+                    </span>
                   </td>
-                  <td className={`px-4 py-3 text-sm ${isLight ? "text-gray-700" : "text-gray-300"}`}>
-                    {mov.metodoPago}
-                  </td>
-                  <td className={`px-4 py-3 text-sm text-right font-semibold ${
-                    mov.tipo === "ingreso" ? "text-green-400" : "text-red-400"
-                  }`}>
-                    {mov.tipo === "ingreso" ? "+" : "-"}${mov.monto.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-4 py-4">
                     {mov.estado === "confirmado" ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-xs font-medium">
                         Confirmado
@@ -442,7 +451,7 @@ export function IngresosEgresosTab({ theme, isLight }: IngresosEgresosTabProps) 
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         className={`p-1.5 rounded-lg transition-colors ${
