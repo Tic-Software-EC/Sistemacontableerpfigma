@@ -274,7 +274,7 @@ export default function ModuleVentasDetail() {
             <div className={`mb-8 border rounded-xl p-8 text-center ${
               isLight 
                 ? "bg-gradient-to-br from-blue-50 to-white border-blue-200" 
-                : "bg-gradient-to-br from-blue-500/10 to-[#0D1B2A] border-blue-500/20"
+                : "bg-gradient-to-br from-blue-500/10 to-secondary border-blue-500/20"
             }`}>
               <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="w-9 h-9 text-white" />
@@ -298,7 +298,7 @@ export default function ModuleVentasDetail() {
                 className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
-                    : "bg-[#0D1B2A] border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -342,7 +342,7 @@ export default function ModuleVentasDetail() {
                 className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
-                    : "bg-[#0D1B2A] border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -386,7 +386,7 @@ export default function ModuleVentasDetail() {
                 className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
-                    : "bg-[#0D1B2A] border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -430,7 +430,7 @@ export default function ModuleVentasDetail() {
                 className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
-                    : "bg-[#0D1B2A] border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start gap-4">

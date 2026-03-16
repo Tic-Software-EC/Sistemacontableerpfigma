@@ -39,6 +39,7 @@ import { SuppliersContent } from "../components/suppliers-content";
 import { MerchandiseReceptionContent } from "../components/merchandise-reception-content";
 import { PurchaseElectronicDocumentsContent } from "../components/purchase-electronic-documents-content";
 import { AccountingRetentionsContent } from "../components/accounting-retentions-content";
+import { ModuleWelcome, SubModuleCard } from "../components/module-welcome";
 
 // Mock data para las órdenes de compra con productos detallados
 const mockOrders = [
@@ -512,24 +513,11 @@ export default function ModuleComprasDetail() {
         {(activeTab === null || activeTab === "inicio") && (
           <div>
             {/* Bienvenida al módulo */}
-            <div className={`mb-8 border rounded-xl p-8 text-center ${
-              isLight 
-                ? "bg-gradient-to-br from-blue-50 to-white border-blue-200" 
-                : "bg-gradient-to-br from-blue-500/10 to-secondary border-blue-500/20"
-            }`}>
-              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <ShoppingCart className="w-9 h-9 text-white" />
-              </div>
-              <h2 className={`text-2xl font-bold mb-2 ${
-                isLight ? "text-gray-900" : "text-white"
-              }`}>Módulo de Compras</h2>
-              <p className={`text-sm max-w-2xl mx-auto ${
-                isLight ? "text-gray-600" : "text-gray-400"
-              }`}>
-                Sistema completo para la gestión de adquisiciones, control de proveedores, 
-                recepción de mercadería y administración de cuentas por pagar
-              </p>
-            </div>
+            <ModuleWelcome
+              icon={ShoppingCart}
+              title="Módulo de Compras"
+              description="Sistema completo para la gestión de adquisiciones, control de proveedores, recepción de mercadería y administración de cuentas por pagar"
+            />
 
             {/* Grid de submódulos */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

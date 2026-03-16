@@ -1,17 +1,17 @@
 import { useState, useMemo } from "react";
 import {
-  Package,
-  TrendingDown,
-  AlertTriangle,
+  Users,
+  TrendingUp,
   DollarSign,
+  Award,
   Download,
   Printer,
   ChevronDown,
   ArrowUp,
   ArrowDown,
-  TrendingUp,
-  Box,
-  BarChart3,
+  Briefcase,
+  UserCheck,
+  Clock,
 } from "lucide-react";
 import { useTheme } from "../../contexts/theme-context";
 import {
@@ -30,9 +30,14 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
 } from "recharts";
 
-export function ReportesInventarioTab() {
+export function ReportesEmpleadosTab() {
   const { theme } = useTheme();
   const isLight = theme === "light";
   const [periodo, setPeriodo] = useState("mes-actual");
@@ -41,73 +46,81 @@ export function ReportesInventarioTab() {
   const chartId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
 
   // Datos para gráficos
-  const movimientosInventario = [
-    { id: 1, mes: "Ene", entradas: 1250, salidas: 980, stock: 4200 },
-    { id: 2, mes: "Feb", entradas: 1450, salidas: 1120, stock: 4530 },
-    { id: 3, mes: "Mar", entradas: 1320, salidas: 1050, stock: 4800 },
-    { id: 4, mes: "Abr", entradas: 1680, salidas: 1280, stock: 5200 },
-    { id: 5, mes: "May", entradas: 1550, salidas: 1190, stock: 5560 },
-    { id: 6, mes: "Jun", entradas: 1720, salidas: 1350, stock: 5930 },
+  const nominaMensual = [
+    { id: 1, mes: "Ene", nomina: 45600, empleados: 28, horas: 4480 },
+    { id: 2, mes: "Feb", nomina: 46200, empleados: 29, horas: 4640 },
+    { id: 3, mes: "Mar", nomina: 47800, empleados: 30, horas: 4800 },
+    { id: 4, mes: "Abr", nomina: 48200, empleados: 30, horas: 4800 },
+    { id: 5, mes: "May", nomina: 49600, empleados: 31, horas: 4960 },
+    { id: 6, mes: "Jun", nomina: 51200, empleados: 32, horas: 5120 },
   ];
 
-  const valorInventarioPorCategoria = [
-    { id: 1, categoria: "Electrónica", valor: 185600, porcentaje: 38 },
-    { id: 2, categoria: "Accesorios", valor: 95400, porcentaje: 20 },
-    { id: 3, categoria: "Oficina", valor: 78200, porcentaje: 16 },
-    { id: 4, categoria: "Hogar", valor: 67300, porcentaje: 14 },
-    { id: 5, categoria: "Otros", valor: 59400, porcentaje: 12 },
+  const empleadosPorDepartamento = [
+    { id: 1, departamento: "Ventas", empleados: 12, salario: 18400 },
+    { id: 2, departamento: "Administración", empleados: 8, salario: 14200 },
+    { id: 3, departamento: "Operaciones", empleados: 6, salario: 9800 },
+    { id: 4, departamento: "Contabilidad", empleados: 4, salario: 6200 },
+    { id: 5, departamento: "Logística", empleados: 2, salario: 2600 },
   ];
 
-  const distribucionStock = [
-    { id: 1, name: "Stock Normal", value: 67, color: "#10B981" },
-    { id: 2, name: "Stock Bajo", value: 23, color: "#F59E0B" },
-    { id: 3, name: "Sin Stock", value: 10, color: "#EF4444" },
+  const distribucionEmpleados = [
+    { id: 1, name: "Tiempo Completo", value: 75, color: "#3B82F6" },
+    { id: 2, name: "Medio Tiempo", value: 15, color: "#10B981" },
+    { id: 3, name: "Por Contrato", value: 10, color: "#F59E0B" },
   ];
 
-  const rotacionProductos = [
-    { id: 1, producto: "Laptop HP ProBook", rotacion: 8.5, ventas: 245 },
-    { id: 2, producto: "Mouse Logitech", rotacion: 12.3, ventas: 589 },
-    { id: 3, producto: "Teclado Mecánico", rotacion: 6.8, ventas: 178 },
-    { id: 4, producto: "Monitor Samsung", rotacion: 5.2, ventas: 134 },
-    { id: 5, producto: "Webcam HD", rotacion: 9.7, ventas: 312 },
+  const topEmpleados = [
+    { id: 1, empleado: "Juan Pérez", ventas: 185600, comision: 9280, dept: "Ventas" },
+    { id: 2, empleado: "María González", ventas: 156400, comision: 7820, dept: "Ventas" },
+    { id: 3, empleado: "Carlos López", ventas: 142800, comision: 7140, dept: "Ventas" },
+    { id: 4, empleado: "Ana Martínez", ventas: 128900, comision: 6445, dept: "Ventas" },
+    { id: 5, empleado: "Roberto Silva", ventas: 98600, comision: 4930, dept: "Ventas" },
+  ];
+
+  const desempenoPorArea = [
+    { id: 1, area: "Ventas", valor: 92 },
+    { id: 2, area: "Productividad", valor: 85 },
+    { id: 3, area: "Puntualidad", valor: 88 },
+    { id: 4, area: "Calidad", valor: 90 },
+    { id: 5, area: "Colaboración", valor: 87 },
   ];
 
   const estadisticas = [
     {
-      label: "Valor Total Inventario",
-      value: "$485,900",
-      cambio: "+8.5%",
+      label: "Total Empleados",
+      value: "32",
+      cambio: "+3.2%",
+      tendencia: "up",
+      icon: Users,
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+    },
+    {
+      label: "Nómina Mensual",
+      value: "$51,200",
+      cambio: "+3.2%",
       tendencia: "up",
       icon: DollarSign,
       color: "text-green-500",
       bg: "bg-green-500/10",
     },
     {
-      label: "Total Productos",
-      value: "847",
-      cambio: "+5.2%",
+      label: "Salario Promedio",
+      value: "$1,600",
+      cambio: "+0.0%",
       tendencia: "up",
-      icon: Package,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
+      icon: TrendingUp,
+      color: "text-primary",
+      bg: "bg-primary/10",
     },
     {
-      label: "Stock Bajo",
-      value: "23",
-      cambio: "-12.3%",
-      tendencia: "down",
-      icon: TrendingDown,
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
-    },
-    {
-      label: "Sin Stock",
-      value: "7",
-      cambio: "-30.0%",
-      tendencia: "down",
-      icon: AlertTriangle,
-      color: "text-red-500",
-      bg: "bg-red-500/10",
+      label: "Tasa Retención",
+      value: "94.5%",
+      cambio: "+2.3%",
+      tendencia: "up",
+      icon: Award,
+      color: "text-purple-500",
+      bg: "bg-purple-500/10",
     },
   ];
 
@@ -122,11 +135,11 @@ export function ReportesInventarioTab() {
           }`}
         >
           <p className={`text-xs font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-            {payload[0].payload.mes || payload[0].payload.categoria || payload[0].payload.producto || payload[0].payload.name}
+            {payload[0].payload.mes || payload[0].payload.departamento || payload[0].payload.empleado || payload[0].payload.name || payload[0].payload.area}
           </p>
           {payload.map((entry: any, index: number) => (
             <p key={`${entry.dataKey}-${index}`} className="text-xs" style={{ color: entry.color }}>
-              {entry.name}: {entry.value}
+              {entry.name}: {typeof entry.value === 'number' && entry.value > 1000 ? `$${entry.value.toLocaleString()}` : entry.value}
             </p>
           ))}
         </div>
@@ -145,14 +158,14 @@ export function ReportesInventarioTab() {
               isLight ? "text-gray-900" : "text-white"
             }`}
           >
-            Dashboard de Inventario
+            Dashboard de Empleados
           </h2>
           <p
             className={`text-sm ${
               isLight ? "text-gray-600" : "text-gray-400"
             }`}
           >
-            Análisis gerencial de stock, rotación y valoración
+            Análisis gerencial de nómina, desempeño y recursos humanos
           </p>
         </div>
 
@@ -245,7 +258,7 @@ export function ReportesInventarioTab() {
 
       {/* Gráficos principales */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Movimientos de Inventario */}
+        {/* Evolución de Nómina */}
         <div
           className={`rounded-xl border p-6 ${
             isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
@@ -256,18 +269,14 @@ export function ReportesInventarioTab() {
               isLight ? "text-gray-900" : "text-white"
             }`}
           >
-            Movimientos de Inventario
+            Evolución de Nómina Mensual
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={movimientosInventario}>
+            <AreaChart data={nominaMensual}>
               <defs>
-                <linearGradient id="colorEntradasInv" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="colorNomina" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorSalidasInv" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid
@@ -284,30 +293,20 @@ export function ReportesInventarioTab() {
                 style={{ fontSize: "12px" }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
               <Area
                 type="monotone"
-                dataKey="entradas"
+                dataKey="nomina"
                 stroke="#10B981"
                 strokeWidth={2}
                 fillOpacity={1}
-                fill="url(#colorEntradasInv)"
-                name="Entradas"
-              />
-              <Area
-                type="monotone"
-                dataKey="salidas"
-                stroke="#EF4444"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#colorSalidasInv)"
-                name="Salidas"
+                fill="url(#colorNomina)"
+                name="Nómina"
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Distribución de Stock */}
+        {/* Distribución de Empleados */}
         <div
           className={`rounded-xl border p-6 ${
             isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
@@ -318,12 +317,12 @@ export function ReportesInventarioTab() {
               isLight ? "text-gray-900" : "text-white"
             }`}
           >
-            Distribución de Stock
+            Distribución por Tipo de Contrato
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={distribucionStock}
+                data={distribucionEmpleados}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -334,7 +333,7 @@ export function ReportesInventarioTab() {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {distribucionStock.map((entry) => (
+                {distribucionEmpleados.map((entry) => (
                   <Cell key={`cell-${entry.id}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -343,7 +342,7 @@ export function ReportesInventarioTab() {
           </ResponsiveContainer>
         </div>
 
-        {/* Valor por Categoría */}
+        {/* Empleados por Departamento */}
         <div
           className={`rounded-xl border p-6 ${
             isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
@@ -354,33 +353,35 @@ export function ReportesInventarioTab() {
               isLight ? "text-gray-900" : "text-white"
             }`}
           >
-            Valor de Inventario por Categoría
+            Empleados por Departamento
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={valorInventarioPorCategoria}>
+            <BarChart data={empleadosPorDepartamento}>
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke={isLight ? "#e5e7eb" : "#374151"}
               />
               <XAxis
-                dataKey="categoria"
+                dataKey="departamento"
                 stroke={isLight ? "#6b7280" : "#9ca3af"}
                 style={{ fontSize: "11px" }}
                 angle={-15}
                 textAnchor="end"
-                height={60}
+                height={80}
               />
               <YAxis
                 stroke={isLight ? "#6b7280" : "#9ca3af"}
                 style={{ fontSize: "12px" }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="valor" fill="#E8692E" radius={[8, 8, 0, 0]} />
+              <Legend />
+              <Bar dataKey="empleados" fill="#3B82F6" radius={[8, 8, 0, 0]} name="Empleados" />
+              <Bar dataKey="salario" fill="#E8692E" radius={[8, 8, 0, 0]} name="Salario Total" />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Rotación de Productos */}
+        {/* Top Empleados por Rendimiento */}
         <div
           className={`rounded-xl border p-6 ${
             isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
@@ -391,10 +392,10 @@ export function ReportesInventarioTab() {
               isLight ? "text-gray-900" : "text-white"
             }`}
           >
-            Top Productos por Rotación
+            Top 5 Empleados por Ventas
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={rotacionProductos} layout="vertical">
+            <BarChart data={topEmpleados} layout="vertical">
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke={isLight ? "#e5e7eb" : "#374151"}
@@ -405,17 +406,57 @@ export function ReportesInventarioTab() {
                 style={{ fontSize: "12px" }}
               />
               <YAxis
-                dataKey="producto"
+                dataKey="empleado"
                 type="category"
-                width={130}
+                width={120}
                 stroke={isLight ? "#6b7280" : "#9ca3af"}
                 style={{ fontSize: "11px" }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="rotacion" fill="#3B82F6" radius={[0, 8, 8, 0]} name="Rotación" />
+              <Bar dataKey="ventas" fill="#10B981" radius={[0, 8, 8, 0]} name="Ventas" />
             </BarChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Gráfico de Radar - Desempeño */}
+      <div
+        className={`rounded-xl border p-6 ${
+          isLight ? "bg-white border-gray-200" : "bg-card border-white/10"
+        }`}
+      >
+        <h3
+          className={`text-lg font-semibold mb-4 ${
+            isLight ? "text-gray-900" : "text-white"
+          }`}
+        >
+          Análisis de Desempeño General
+        </h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <RadarChart data={desempenoPorArea}>
+            <PolarGrid stroke={isLight ? "#e5e7eb" : "#374151"} />
+            <PolarAngleAxis
+              dataKey="area"
+              stroke={isLight ? "#6b7280" : "#9ca3af"}
+              style={{ fontSize: "12px" }}
+            />
+            <PolarRadiusAxis
+              angle={90}
+              domain={[0, 100]}
+              stroke={isLight ? "#6b7280" : "#9ca3af"}
+              style={{ fontSize: "12px" }}
+            />
+            <Radar
+              name="Desempeño"
+              dataKey="valor"
+              stroke="#E8692E"
+              fill="#E8692E"
+              fillOpacity={0.6}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+          </RadarChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Insights gerenciales */}
@@ -429,7 +470,7 @@ export function ReportesInventarioTab() {
         >
           <div className="flex items-start gap-3">
             <div className="p-2 bg-green-500/10 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-green-500" />
+              <UserCheck className="w-5 h-5 text-green-500" />
             </div>
             <div>
               <p
@@ -437,10 +478,10 @@ export function ReportesInventarioTab() {
                   isLight ? "text-gray-900" : "text-white"
                 }`}
               >
-                Crecimiento Sostenido
+                Alta Retención
               </p>
               <p className="text-xs text-green-600">
-                El valor del inventario aumentó 8.5% respecto al mes anterior
+                La tasa de retención del 94.5% refleja un ambiente laboral positivo
               </p>
             </div>
           </div>
@@ -455,7 +496,7 @@ export function ReportesInventarioTab() {
         >
           <div className="flex items-start gap-3">
             <div className="p-2 bg-blue-500/10 rounded-lg">
-              <Box className="w-5 h-5 text-blue-500" />
+              <Briefcase className="w-5 h-5 text-blue-500" />
             </div>
             <div>
               <p
@@ -463,10 +504,10 @@ export function ReportesInventarioTab() {
                   isLight ? "text-gray-900" : "text-white"
                 }`}
               >
-                Alta Rotación
+                Crecimiento Sostenido
               </p>
               <p className="text-xs text-blue-600">
-                Los productos más vendidos tienen rotación superior a 8 veces/mes
+                La plantilla creció 3.2% incorporando personal calificado en ventas
               </p>
             </div>
           </div>
@@ -480,8 +521,8 @@ export function ReportesInventarioTab() {
           }`}
         >
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-orange-500/10 rounded-lg">
-              <AlertTriangle className="w-5 h-5 text-orange-500" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Clock className="w-5 h-5 text-primary" />
             </div>
             <div>
               <p
@@ -489,10 +530,10 @@ export function ReportesInventarioTab() {
                   isLight ? "text-gray-900" : "text-white"
                 }`}
               >
-                Alerta de Stock
+              Alto Desempeño
               </p>
-              <p className="text-xs text-orange-600">
-                23 productos están por debajo del stock mínimo requerido
+              <p className="text-xs text-primary">
+                El equipo de ventas mantiene un desempeño superior al 88% en todas las áreas
               </p>
             </div>
           </div>

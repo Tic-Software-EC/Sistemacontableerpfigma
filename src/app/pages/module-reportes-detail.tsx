@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router"; // React Router v7
 import {
   ArrowLeft,
   BarChart3,
@@ -14,6 +14,7 @@ import {
   Calculator,
   Users,
   Bell,
+  UserCog,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 import { ReportesClientesTab } from "../components/reportes/reportes-clientes-tab";
@@ -22,8 +23,9 @@ import { ReportesVentasTab } from "../components/reportes/reportes-ventas-tab";
 import { ReportesComprasTab } from "../components/reportes/reportes-compras-tab";
 import { ReportesCajaBancosTab } from "../components/reportes/reportes-caja-bancos-tab";
 import { ReportesContabilidadTab } from "../components/reportes/reportes-contabilidad-tab";
+import { ReportesEmpleadosTab } from "../components/reportes/reportes-empleados-tab";
 
-// Módulo de Reportes - TicSoftEc
+// Módulo de Reportes - TicSoftEc - Updated
 
 export function ModuleReportesDetail() {
   const navigate = useNavigate();
@@ -34,6 +36,7 @@ export function ModuleReportesDetail() {
   const validTabs = [
     "inicio",
     "clientes",
+    "empleados",
     "inventario",
     "ventas",
     "compras",
@@ -52,6 +55,7 @@ export function ModuleReportesDetail() {
   const navItems = [
     { id: "inicio" as const, label: "Inicio", icon: Home },
     { id: "clientes" as const, label: "Clientes", icon: Users },
+    { id: "empleados" as const, label: "Empleados", icon: UserCog },
     { id: "inventario" as const, label: "Inventario", icon: Package },
     { id: "ventas" as const, label: "Ventas", icon: ShoppingCart },
     { id: "compras" as const, label: "Compras", icon: TrendingUp },
@@ -71,6 +75,19 @@ export function ModuleReportesDetail() {
         "Cuentas por cobrar detalladas",
         "Ranking de clientes más rentables",
         "Tendencias de compra y fidelización",
+      ],
+    },
+    {
+      id: "empleados",
+      titulo: "Reportes de Empleados",
+      descripcion: "Análisis de recursos humanos, nómina y desempeño laboral",
+      icon: UserCog,
+      color: "from-indigo-500 to-indigo-600",
+      caracteristicas: [
+        "Nómina mensual y evolución salarial",
+        "Análisis de desempeño por área",
+        "Distribución por departamentos",
+        "Ranking de empleados top por ventas",
       ],
     },
     {
@@ -288,32 +305,28 @@ export function ModuleReportesDetail() {
       {/* Contenido */}
       <main className="p-6">
         {activeTab === "inicio" && (
-          <div className="max-w-7xl mx-auto space-y-8">
-            {/* Hero Section */}
-            <div className="text-center py-12">
-              <div className="flex justify-center mb-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-primary to-orange-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/30">
-                  <BarChart3 className="w-12 h-12 text-white" />
-                </div>
+          <div>
+            {/* Bienvenida al módulo */}
+            <div className={`mb-8 border rounded-xl p-8 text-center ${
+              isLight 
+                ? "bg-gradient-to-br from-blue-50 to-white border-blue-200" 
+                : "bg-gradient-to-br from-blue-500/10 to-secondary border-blue-500/20"
+            }`}>
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="w-9 h-9 text-white" />
               </div>
-              <h2
-                className={`text-3xl font-bold mb-3 ${
-                  isLight ? "text-gray-900" : "text-white"
-                }`}
-              >
-                Módulo de Reportes
-              </h2>
-              <p
-                className={`text-base max-w-3xl mx-auto leading-relaxed ${
-                  isLight ? "text-gray-600" : "text-gray-300"
-                }`}
-              >
-                Sistema completo para la generación de reportes gerenciales. Historial de compras, documentación digital, administración
-                de créditos y marketing promocional con envío masivo personalizado
+              <h2 className={`text-2xl font-bold mb-2 ${
+                isLight ? "text-gray-900" : "text-white"
+              }`}>Módulo de Reportes</h2>
+              <p className={`text-sm max-w-2xl mx-auto ${
+                isLight ? "text-gray-600" : "text-gray-400"
+              }`}>
+                Sistema completo para la generación de reportes gerenciales, análisis de datos y dashboards ejecutivos
+                con información en tiempo real de todos los módulos del sistema
               </p>
             </div>
 
-            {/* Tarjetas de Reportes */}
+            {/* Grid de submódulos */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {reportesCards.map((reporte) => {
                 const Icon = reporte.icon;
@@ -321,53 +334,39 @@ export function ModuleReportesDetail() {
                   <button
                     key={reporte.id}
                     onClick={() => setActiveTab(reporte.id as TabType)}
-                    className={`group text-left rounded-2xl border p-6 transition-all hover:border-primary/40 hover:shadow-xl ${
-                      isLight
-                        ? "bg-white border-gray-200 hover:shadow-primary/5"
-                        : "bg-card border-white/10 hover:shadow-primary/10"
+                    className={`text-left border rounded-xl p-6 transition-all hover:scale-[1.02] ${
+                      isLight 
+                        ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                        : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                     }`}
                   >
                     <div className="flex items-start gap-4">
                       <div
-                        className={`p-4 rounded-xl bg-gradient-to-br ${reporte.color} shadow-lg flex-shrink-0`}
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${reporte.color}`}
                       >
-                        <Icon className="w-8 h-8 text-white" />
+                        <Icon className="w-6 h-6 text-white" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3
-                          className={`text-lg font-semibold mb-2 ${
-                            isLight ? "text-gray-900" : "text-white"
-                          }`}
-                        >
+                      <div className="flex-1">
+                        <h3 className={`font-bold text-lg mb-2 ${
+                          isLight ? "text-gray-900" : "text-white"
+                        }`}>
                           {reporte.titulo}
                         </h3>
-                        <p
-                          className={`text-sm mb-4 ${
-                            isLight ? "text-gray-600" : "text-gray-400"
-                          }`}
-                        >
+                        <p className={`text-sm mb-4 ${
+                          isLight ? "text-gray-600" : "text-gray-400"
+                        }`}>
                           {reporte.descripcion}
                         </p>
                         <ul className="space-y-2">
                           {reporte.caracteristicas.map((caracteristica, idx) => (
                             <li
                               key={idx}
-                              className="flex items-start gap-2 text-sm"
+                              className={`text-xs flex items-start gap-2 ${
+                                isLight ? "text-gray-600" : "text-gray-400"
+                              }`}
                             >
-                              <span
-                                className={`mt-0.5 ${
-                                  isLight ? "text-primary" : "text-primary"
-                                }`}
-                              >
-                                ✓
-                              </span>
-                              <span
-                                className={
-                                  isLight ? "text-gray-700" : "text-gray-400"
-                                }
-                              >
-                                {caracteristica}
-                              </span>
+                              <span className="text-primary mt-0.5">✓</span>
+                              <span>{caracteristica}</span>
                             </li>
                           ))}
                         </ul>
@@ -381,6 +380,7 @@ export function ModuleReportesDetail() {
         )}
 
         {activeTab === "clientes" && <ReportesClientesTab />}
+        {activeTab === "empleados" && <ReportesEmpleadosTab />}
         {activeTab === "inventario" && <ReportesInventarioTab />}
         {activeTab === "ventas" && <ReportesVentasTab />}
         {activeTab === "compras" && <ReportesComprasTab />}

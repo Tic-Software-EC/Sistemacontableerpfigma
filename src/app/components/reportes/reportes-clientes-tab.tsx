@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Users,
   TrendingUp,
@@ -35,6 +35,9 @@ export function ReportesClientesTab() {
   const { theme } = useTheme();
   const isLight = theme === "light";
   const [periodo, setPeriodo] = useState("mes-actual");
+
+  // Generar ID único para este componente
+  const chartId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
 
   // Datos para gráficos
   const ventasMensuales = [
@@ -119,10 +122,10 @@ export function ReportesClientesTab() {
           }`}
         >
           <p className={`text-xs font-medium ${isLight ? "text-gray-900" : "text-white"}`}>
-            {payload[0].payload.mes || payload[0].payload.nombre}
+            {payload[0].payload.mes || payload[0].payload.nombre || payload[0].payload.name}
           </p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-xs" style={{ color: entry.color }}>
+            <p key={`${entry.dataKey}-${index}`} className="text-xs" style={{ color: entry.color }}>
               {entry.name}: {entry.value}
             </p>
           ))}
@@ -258,7 +261,7 @@ export function ReportesClientesTab() {
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={ventasMensuales}>
               <defs>
-                <linearGradient id="colorVentas" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="colorVentasClientes" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#E8692E" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="#E8692E" stopOpacity={0} />
                 </linearGradient>
@@ -283,7 +286,7 @@ export function ReportesClientesTab() {
                 stroke="#E8692E"
                 strokeWidth={2}
                 fillOpacity={1}
-                fill="url(#colorVentas)"
+                fill="url(#colorVentasClientes)"
               />
             </AreaChart>
           </ResponsiveContainer>

@@ -406,18 +406,18 @@ export function ModuleEmpleadosDetail() {
         {/* Tab: Inicio */}
         {activeTab === "inicio" && (
           <>
-            <div className={`mb-8 border rounded-lg p-8 text-center ${ 
+            <div className={`mb-8 border rounded-xl p-8 text-center ${ 
               isLight 
-                ? "bg-gradient-to-br from-gray-50/50 to-white border-gray-200" 
-                : "bg-gradient-to-br from-[#0D1B2A] to-[#1a2936] border-white/10"
+                ? "bg-gradient-to-br from-blue-50 to-white border-blue-200" 
+                : "bg-gradient-to-br from-blue-500/10 to-secondary border-blue-500/20"
             }`}>
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Users className="w-9 h-9 text-white" />
               </div>
-              <h2 className={`text-2xl font-bold mb-3 ${
+              <h2 className={`text-2xl font-bold mb-2 ${
                 isLight ? "text-gray-900" : "text-white"
               }`}>Módulo de Empleados</h2>
-              <p className={`text-sm max-w-3xl mx-auto leading-relaxed ${
+              <p className={`text-sm max-w-2xl mx-auto ${
                 isLight ? "text-gray-600" : "text-gray-400"
               }`}>
                 Sistema completo para la gestión de recursos humanos, nómina, asignación de horarios, documentación laboral, control de pagos del personal, evaluaciones de desempeño y administración de permisos y vacaciones
@@ -427,172 +427,148 @@ export function ModuleEmpleadosDetail() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               <div
                 onClick={() => setActiveTab("mis-empleados")}
-                className={`rounded-lg p-5 border cursor-pointer transition-all hover:shadow-md ${
+                className={`rounded-xl p-6 border cursor-pointer transition-all hover:scale-[1.02] ${
                   isLight 
-                    ? "bg-white border-gray-200 hover:border-gray-300" 
-                    : "bg-card border-white/10 hover:border-white/20"
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <Users className="w-6 h-6 text-green-600" />
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Users className="w-6 h-6 text-green-500" />
                   </div>
                   <div className="flex-1">
-                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                    <h3 className={`font-bold text-lg mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                       Mis Empleados
                     </h3>
-                    <p className={`text-sm mb-3 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
                       Listado completo de personal y control de horarios
                     </p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Registro completo de empleados
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Asignación de turnos mensuales
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Control de cargos y salarios
-                    </span>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Registro completo de empleados</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Asignación de turnos mensuales</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-green-500 mt-0.5">✓</span>
+                        <span>Control de cargos y salarios</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
 
               <div
                 onClick={() => setActiveTab("ficha-empleado")}
-                className={`rounded-lg p-5 border cursor-pointer transition-all hover:shadow-md ${
+                className={`rounded-xl p-6 border cursor-pointer transition-all hover:scale-[1.02] ${
                   isLight 
-                    ? "bg-white border-gray-200 hover:border-gray-300" 
-                    : "bg-card border-white/10 hover:border-white/20"
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <UserCheck className="w-6 h-6 text-blue-600" />
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <UserCheck className="w-6 h-6 text-blue-500" />
                   </div>
                   <div className="flex-1">
-                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                    <h3 className={`font-bold text-lg mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                       Ficha del Empleado
                     </h3>
-                    <p className={`text-sm mb-3 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
                       Búsqueda y consulta completa de información del empleado
                     </p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Datos personales y laborales
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Documentos y garantes
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Historial laboral y evaluaciones
-                    </span>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Datos personales y laborales</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Documentos y garantes</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-blue-500 mt-0.5">✓</span>
+                        <span>Historial laboral y evaluaciones</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
 
               <div
                 onClick={() => setActiveTab("crear-empleado")}
-                className={`rounded-lg p-5 border cursor-pointer transition-all hover:shadow-md ${
+                className={`rounded-xl p-6 border cursor-pointer transition-all hover:scale-[1.02] ${
                   isLight 
-                    ? "bg-white border-gray-200 hover:border-gray-300" 
-                    : "bg-card border-white/10 hover:border-white/20"
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                    <UserPlus className="w-6 h-6 text-purple-600" />
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <UserPlus className="w-6 h-6 text-purple-500" />
                   </div>
                   <div className="flex-1">
-                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                    <h3 className={`font-bold text-lg mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                       Crear Empleado
                     </h3>
-                    <p className={`text-sm mb-3 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
                       Registro completo de nuevos empleados
                     </p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Formulario completo de datos
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Carga de documentos
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Configuración de cargo y contrato
-                    </span>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Formulario completo de datos</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Carga de documentos</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-purple-500 mt-0.5">✓</span>
+                        <span>Configuración de cargo y contrato</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
 
               <div
                 onClick={() => setActiveTab("nomina-pagos")}
-                className={`rounded-lg p-5 border cursor-pointer transition-all hover:shadow-md ${
+                className={`rounded-xl p-6 border cursor-pointer transition-all hover:scale-[1.02] ${
                   isLight 
-                    ? "bg-white border-gray-200 hover:border-gray-300" 
-                    : "bg-card border-white/10 hover:border-white/20"
+                    ? "bg-white border-gray-200 hover:border-primary hover:shadow-lg" 
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                    <DollarSign className="w-6 h-6 text-amber-600" />
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <DollarSign className="w-6 h-6 text-amber-500" />
                   </div>
                   <div className="flex-1">
-                    <h3 className={`font-bold text-base mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
+                    <h3 className={`font-bold text-lg mb-2 ${isLight ? "text-gray-900" : "text-white"}`}>
                       Nómina y Pagos
                     </h3>
-                    <p className={`text-sm mb-3 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                    <p className={`text-sm mb-4 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
                       Gestión de roles de pago y nómina mensual
                     </p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Generación de roles de pago
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Registro de pagos realizados
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isLight ? "text-green-600" : "text-green-500"}`} />
-                    <span className={isLight ? "text-gray-700" : "text-gray-300"}>
-                      Historial completo de nóminas
-                    </span>
+                    <ul className="space-y-2">
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-amber-500 mt-0.5">✓</span>
+                        <span>Generación de roles de pago</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-amber-500 mt-0.5">✓</span>
+                        <span>Registro de pagos realizados</span>
+                      </li>
+                      <li className={`text-xs flex items-start gap-2 ${isLight ? "text-gray-600" : "text-gray-400"}`}>
+                        <span className="text-amber-500 mt-0.5">✓</span>
+                        <span>Historial completo de nóminas</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -719,7 +695,7 @@ export function ModuleEmpleadosDetail() {
             </div>
 
             {/* Tabla de empleados */}
-            <div className={`rounded-xl border overflow-hidden ${isLight ? "bg-white border-gray-200" : "bg-card border-white/10"}`}>
+            <div className={`rounded-xl border overflow-hidden ${isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"}`}>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className={isLight ? "bg-gray-50" : "bg-white/5"}>
@@ -828,7 +804,7 @@ export function ModuleEmpleadosDetail() {
       {/* Modal Asignar Horario */}
       {showAsignarHorario && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl border max-w-md w-full ${isLight ? "bg-white border-gray-200" : "bg-card border-white/10"}`}>
+          <div className={`rounded-xl border max-w-md w-full ${isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"}`}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className={`text-lg font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>
@@ -948,7 +924,7 @@ export function ModuleEmpleadosDetail() {
       {/* Modal Visualizar Datos Básicos */}
       {showVisualizarModal && empleadoVisualizar && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl border max-w-lg w-full ${isLight ? "bg-white border-gray-200" : "bg-card border-white/10"}`}>
+          <div className={`rounded-xl border max-w-lg w-full ${isLight ? "bg-white border-gray-200" : "bg-secondary border-white/10"}`}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className={`text-lg font-semibold ${isLight ? "text-gray-900" : "text-white"}`}>

@@ -493,7 +493,7 @@ export function ModuleClientesDetail() {
                 className={`rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-primary/10" 
-                    : "bg-card border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -536,7 +536,7 @@ export function ModuleClientesDetail() {
                 className={`rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-primary/10" 
-                    : "bg-card border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -579,7 +579,7 @@ export function ModuleClientesDetail() {
                 className={`rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-primary/10" 
-                    : "bg-card border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -622,7 +622,7 @@ export function ModuleClientesDetail() {
                 className={`rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg ${
                   isLight 
                     ? "bg-white border-gray-200 hover:border-primary hover:shadow-primary/10" 
-                    : "bg-card border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
+                    : "bg-secondary border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -972,7 +972,7 @@ export function ModuleClientesDetail() {
       {showPromoModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className={`max-w-md w-full rounded-xl shadow-2xl ${
-            isLight ? "bg-white" : "bg-card"
+            isLight ? "bg-white" : "bg-secondary"
           }`}>
             <div className={`flex items-center justify-between p-4 border-b ${
               isLight ? "border-gray-200" : "border-white/10"
@@ -1106,7 +1106,7 @@ export function ModuleClientesDetail() {
       {showCreatePromoModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className={`max-w-lg w-full rounded-xl shadow-2xl ${
-            isLight ? "bg-white" : "bg-card"
+            isLight ? "bg-white" : "bg-secondary"
           }`}>
             <div className={`flex items-center justify-between p-4 border-b ${
               isLight ? "border-gray-200" : "border-white/10"
@@ -1304,7 +1304,7 @@ export function ModuleClientesDetail() {
       {showEditPromoModal && editingPromo && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className={`max-w-lg w-full rounded-xl shadow-2xl ${
-            isLight ? "bg-white" : "bg-card"
+            isLight ? "bg-white" : "bg-secondary"
           }`}>
             <div className={`flex items-center justify-between p-4 border-b ${
               isLight ? "border-gray-200" : "border-white/10"
