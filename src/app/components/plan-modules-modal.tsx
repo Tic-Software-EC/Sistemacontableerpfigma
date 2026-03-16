@@ -1,6 +1,5 @@
-import { X, Package, Menu as MenuIcon, Sun, Moon } from "lucide-react";
+import { X, Package } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
-import { useState } from "react";
 
 interface Module {
   id: string;
@@ -38,8 +37,7 @@ export function PlanModulesModal({
   onToggleModule,
   onToggleMenu,
 }: PlanModulesModalProps) {
-  const { theme, toggleTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState<"modules" | "menus">("modules");
+  const { theme } = useTheme();
 
   if (!isOpen || !plan) return null;
 
@@ -80,27 +78,11 @@ export function PlanModulesModal({
                   theme === "light" ? "text-gray-600" : "text-gray-400"
                 }`}
               >
-                Selecciona los módulos y menús disponibles
+                Administra los módulos y menús disponibles para este plan
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* Toggle Theme */}
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-lg transition-all duration-300 ${
-                theme === "light"
-                  ? "hover:bg-gray-200 text-gray-600 hover:text-primary"
-                  : "hover:bg-white/10 text-gray-400 hover:text-primary"
-              }`}
-              title={theme === "light" ? "Modo Oscuro" : "Modo Claro"}
-            >
-              {theme === "light" ? (
-                <Moon className="w-5 h-5" />
-              ) : (
-                <Sun className="w-5 h-5" />
-              )}
-            </button>
             {/* Close Button */}
             <button
               onClick={onClose}
@@ -115,217 +97,35 @@ export function PlanModulesModal({
           </div>
         </div>
 
-        {/* Tabs */}
-        <div
-          className={`${
-            theme === "light" ? "bg-white" : "bg-[#1a2332]"
-          }`}
-        >
-          <div className="flex items-center gap-2 px-6 pt-6">
-            <button
-              onClick={() => setActiveTab("modules")}
-              className={`px-4 py-2.5 font-medium text-sm transition-all flex items-center gap-2 rounded-t-lg relative ${
-                activeTab === "modules"
-                  ? theme === "light"
-                    ? "text-gray-900"
-                    : "text-white"
-                  : theme === "light"
-                  ? "text-gray-500 hover:text-gray-700"
-                  : "text-gray-400 hover:text-gray-300"
-              }`}
-              style={
-                activeTab === "modules"
-                  ? {
-                      borderTop: "4px solid #E8692E",
-                      borderTopLeftRadius: "8px",
-                      borderTopRightRadius: "8px",
-                    }
-                  : {}
-              }
-            >
-              <Package className="w-4 h-4" />
-              Módulos
-            </button>
-            <button
-              onClick={() => setActiveTab("menus")}
-              className={`px-4 py-2.5 font-medium text-sm transition-all flex items-center gap-2 rounded-t-lg relative ${
-                activeTab === "menus"
-                  ? theme === "light"
-                    ? "text-gray-900"
-                    : "text-white"
-                  : theme === "light"
-                  ? "text-gray-500 hover:text-gray-700"
-                  : "text-gray-400 hover:text-gray-300"
-              }`}
-              style={
-                activeTab === "menus"
-                  ? {
-                      borderTop: "4px solid #E8692E",
-                      borderTopLeftRadius: "8px",
-                      borderTopRightRadius: "8px",
-                    }
-                  : {}
-              }
-            >
-              <MenuIcon className="w-4 h-4" />
-              Menús
-            </button>
-          </div>
-          <div
-            className={`h-px mt-2 ${
-              theme === "light" ? "bg-gray-200" : "bg-white/10"
-            }`}
-          ></div>
-        </div>
+        {/* Content - Vista unificada de módulos y menús */}
+        <div className="p-6 overflow-y-auto h-[545px]">
+          <div className="space-y-4">
+            {modules.map((module) => {
+              const Icon = module.icon;
+              const enabledMenus = module.menus?.filter((m) => m.isEnabled).length || 0;
+              const totalMenus = module.menus?.length || 0;
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto h-[470px]">
-          {/* Modules Table */}
-          {activeTab === "modules" && (
-            <div
-              className={`border rounded-lg overflow-hidden ${
-                theme === "light" ? "border-gray-200" : "border-white/10"
-              }`}
-            >
-              <table className="w-full">
-                <thead
-                  className={`${
-                    theme === "light" ? "bg-gray-50" : "bg-[#0f1621]"
+              return (
+                <div
+                  key={module.id}
+                  className={`border rounded-lg overflow-hidden ${
+                    theme === "light" ? "border-gray-200" : "border-white/10"
                   }`}
                 >
-                  <tr>
-                    <th
-                      className={`px-4 py-3 text-left text-xs font-semibold ${
-                        theme === "light" ? "text-gray-700" : "text-gray-300"
-                      }`}
-                    >
-                      Módulo
-                    </th>
-                    <th
-                      className={`px-4 py-3 text-left text-xs font-semibold ${
-                        theme === "light" ? "text-gray-700" : "text-gray-300"
-                      }`}
-                    >
-                      Descripción
-                    </th>
-                    <th
-                      className={`px-4 py-3 text-center text-xs font-semibold ${
-                        theme === "light" ? "text-gray-700" : "text-gray-300"
-                      }`}
-                    >
-                      Menús
-                    </th>
-                    <th
-                      className={`px-4 py-3 text-center text-xs font-semibold ${
-                        theme === "light" ? "text-gray-700" : "text-gray-300"
-                      }`}
-                    >
-                      Estado
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {modules.map((module, index) => {
-                    const Icon = module.icon;
-                    return (
-                      <tr
-                        key={module.id}
-                        className={`border-t ${
-                          theme === "light"
-                            ? "border-gray-200 hover:bg-gray-50"
-                            : "border-white/10 hover:bg-white/5"
-                        } transition-colors`}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                              style={{ backgroundColor: `${module.color}20` }}
-                            >
-                              <Icon className="w-4 h-4" style={{ color: module.color }} />
-                            </div>
-                            <span
-                              className={`font-medium text-sm ${
-                                theme === "light" ? "text-gray-900" : "text-white"
-                              }`}
-                            >
-                              {module.name}
-                            </span>
-                          </div>
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-xs ${
-                            theme === "light" ? "text-gray-600" : "text-gray-400"
-                          }`}
-                        >
-                          {module.description}
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <span
-                            className={`text-xs px-2 py-1 rounded-md ${
-                              theme === "light"
-                                ? "bg-gray-100 text-gray-700"
-                                : "bg-white/5 text-gray-300"
-                            }`}
-                          >
-                            {module.activeMenus}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-center">
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={module.isEnabled}
-                                onChange={() => onToggleModule(module.id)}
-                                className="sr-only peer"
-                              />
-                              <div className={`w-9 h-5 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500 ${
-                                theme === "light" 
-                                  ? "bg-gray-300 after:border-gray-300" 
-                                  : "bg-gray-600 after:border-gray-600"
-                              }`}></div>
-                            </label>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Menus Table */}
-          {activeTab === "menus" && (
-            <div className="space-y-4">
-              {modules.map((module) => {
-                const Icon = module.icon;
-                const enabledMenus = module.menus?.filter((m) => m.isEnabled).length || 0;
-                const totalMenus = module.menus?.length || 0;
-
-                if (!module.menus || module.menus.length === 0) return null;
-
-                return (
+                  {/* Module Header */}
                   <div
-                    key={module.id}
-                    className={`border rounded-lg overflow-hidden ${
-                      theme === "light" ? "border-gray-200" : "border-white/10"
-                    } ${!module.isEnabled ? "opacity-50" : ""}`}
+                    className={`px-4 py-3 flex items-center justify-between ${
+                      theme === "light" ? "bg-gray-50" : "bg-[#0f1621]"
+                    }`}
                   >
-                    {/* Module Header */}
-                    <div
-                      className={`px-4 py-2 flex items-center justify-between ${
-                        theme === "light" ? "bg-gray-50" : "bg-[#0f1621]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-7 h-7 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: `${module.color}20` }}
-                        >
-                          <Icon className="w-4 h-4" style={{ color: module.color }} />
-                        </div>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${module.color}20` }}
+                      >
+                        <Icon className="w-4 h-4" style={{ color: module.color }} />
+                      </div>
+                      <div>
                         <span
                           className={`font-semibold text-sm ${
                             theme === "light" ? "text-gray-900" : "text-white"
@@ -333,7 +133,16 @@ export function PlanModulesModal({
                         >
                           {module.name}
                         </span>
+                        <p
+                          className={`text-xs mt-0.5 ${
+                            theme === "light" ? "text-gray-500" : "text-gray-400"
+                          }`}
+                        >
+                          {module.description}
+                        </p>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-3">
                       <span
                         className={`text-xs px-2 py-1 rounded-md ${
                           module.isEnabled
@@ -343,11 +152,26 @@ export function PlanModulesModal({
                             : "bg-white/5 text-gray-400"
                         }`}
                       >
-                        {enabledMenus}/{totalMenus} activos
+                        {enabledMenus}/{totalMenus} menús activos
                       </span>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={module.isEnabled}
+                          onChange={() => onToggleModule(module.id)}
+                          className="sr-only peer"
+                        />
+                        <div className={`w-9 h-5 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500 ${
+                          theme === "light" 
+                            ? "bg-gray-300 after:border-gray-300" 
+                            : "bg-gray-600 after:border-gray-600"
+                        }`}></div>
+                      </label>
                     </div>
+                  </div>
 
-                    {/* Menus Table */}
+                  {/* Menus Table */}
+                  {module.menus && module.menus.length > 0 && (
                     <table className="w-full">
                       <thead
                         className={`${
@@ -385,7 +209,7 @@ export function PlanModulesModal({
                           </th>
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody className={`${!module.isEnabled ? "opacity-50" : ""}`}>
                         {module.menus.map((menu) => (
                           <tr
                             key={menu.id}
@@ -396,27 +220,27 @@ export function PlanModulesModal({
                             } transition-colors`}
                           >
                             <td
-                              className={`px-4 py-2 text-sm ${
+                              className={`px-4 py-2.5 text-sm ${
                                 theme === "light" ? "text-gray-900" : "text-white"
                               }`}
                             >
                               {menu.name}
                             </td>
                             <td
-                              className={`px-4 py-2 text-xs ${
+                              className={`px-4 py-2.5 text-xs ${
                                 theme === "light" ? "text-gray-600" : "text-gray-400"
                               }`}
                             >
                               {menu.features || "N/A"}
                             </td>
                             <td
-                              className={`px-4 py-2 text-xs ${
+                              className={`px-4 py-2.5 text-xs ${
                                 theme === "light" ? "text-gray-500" : "text-gray-500"
                               }`}
                             >
                               {menu.path}
                             </td>
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-2.5">
                               <div className="flex items-center justify-center">
                                 <label className="relative inline-flex items-center cursor-pointer">
                                   <input
@@ -442,11 +266,11 @@ export function PlanModulesModal({
                         ))}
                       </tbody>
                     </table>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Footer */}

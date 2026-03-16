@@ -80,7 +80,6 @@ export default function MenuManagementPage() {
   const [showEditMenuModal, setShowEditMenuModal] = useState(false);
   const [selectedModule, setSelectedModule] = useState("Facturas");
   const [selectedMenu, setSelectedMenu] = useState<MenuItem | null>(null);
-  const [activeModalTab, setActiveModalTab] = useState("basic");
 
   const [userProfile, setUserProfile] = useState({
     name: "Super Admin",
@@ -742,18 +741,18 @@ export default function MenuManagementPage() {
       {(showNewMenuModal || showEditMenuModal) && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div
-            className={`w-full max-w-lg border rounded-2xl shadow-2xl my-8 overflow-hidden flex flex-col ${ 
+            className={`w-full max-w-4xl border rounded-2xl shadow-2xl my-8 overflow-hidden flex flex-col ${
               theme === "light" ? "bg-white border-gray-200" : "bg-[#1a2332] border-white/10"
             }`}
           >
             {/* Header */}
             <div
-              className={`flex items-center justify-between px-6 py-3.5 border-b ${
-                theme === "light" ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#232d3f]"
+              className={`flex items-center justify-between px-6 py-4 border-b ${
+                theme === "light" ? "border-gray-200 bg-gray-50" : "border-white/10 bg-[#0d1520]"
               }`}
             >
-              <h3 className={`font-bold text-lg flex items-center gap-3 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                <Plus className="w-5 h-5 text-primary" />
+              <h3 className={`font-bold text-xl flex items-center gap-3 ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                <MenuIcon className="w-5 h-5 text-primary" />
                 {showNewMenuModal
                   ? formData.parent
                     ? "Nuevo Submenú"
@@ -764,7 +763,6 @@ export default function MenuManagementPage() {
                 onClick={() => {
                   setShowNewMenuModal(false);
                   setShowEditMenuModal(false);
-                  setActiveModalTab("basic");
                 }}
                 className={`p-2 rounded-lg transition-colors ${
                   theme === "light"
@@ -776,249 +774,201 @@ export default function MenuManagementPage() {
               </button>
             </div>
 
-            {/* Tabs */}
-            <div className={`flex gap-1 px-6 pt-4 ${theme === "light" ? "bg-white" : "bg-[#1a2332]"}`}>
-              <button
-                onClick={() => setActiveModalTab("basic")}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg transition-all text-sm font-medium ${
-                  activeModalTab === "basic"
-                    ? theme === "light"
-                      ? "bg-gray-50 text-gray-900 border-b-4 border-primary"
-                      : "bg-[#232d3f] text-white border-b-4 border-primary"
-                    : theme === "light"
-                    ? "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    : "bg-transparent text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <Building2 className="w-4 h-4" />
-                Información General
-              </button>
-              <button
-                onClick={() => setActiveModalTab("config")}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg transition-all text-sm font-medium ${
-                  activeModalTab === "config"
-                    ? theme === "light"
-                      ? "bg-gray-50 text-gray-900 border-b-4 border-primary"
-                      : "bg-[#232d3f] text-white border-b-4 border-primary"
-                    : theme === "light"
-                    ? "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    : "bg-transparent text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <SettingsIcon className="w-4 h-4" />
-                Configuración
-              </button>
+            {/* Content - Vista Unificada */}
+            <div className={`p-6 max-h-[70vh] overflow-y-auto ${theme === "light" ? "bg-white" : "bg-[#1a2332]"}`}>
+              <div className="grid grid-cols-2 gap-6">
+                {/* Columna Izquierda - Información del Menú */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-primary/20">
+                    <FileText className="w-4 h-4 text-primary" />
+                    <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                      Información del Menú
+                    </h4>
+                  </div>
+
+                  <div>
+                    <label
+                      className={`block text-xs font-medium mb-1.5 ${
+                        theme === "light" ? "text-gray-700" : "text-gray-300"
+                      }`}
+                    >
+                      Nombre del Menú <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                        theme === "light"
+                          ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
+                      }`}
+                      placeholder="Ej: Emisión de Facturas"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className={`block text-xs font-medium mb-1.5 ${
+                        theme === "light" ? "text-gray-700" : "text-gray-300"
+                      }`}
+                    >
+                      Descripción
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      rows={3}
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none ${
+                        theme === "light"
+                          ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
+                      }`}
+                      placeholder="Descripción breve del menú"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className={`block text-xs font-medium mb-1.5 ${
+                        theme === "light" ? "text-gray-700" : "text-gray-300"
+                      }`}
+                    >
+                      Ruta <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.path}
+                      onChange={(e) => setFormData({ ...formData, path: e.target.value })}
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono ${
+                        theme === "light"
+                          ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
+                      }`}
+                      placeholder="/ruta/del/menu"
+                    />
+                  </div>
+                </div>
+
+                {/* Columna Derecha - Configuración */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-primary/20">
+                    <SettingsIcon className="w-4 h-4 text-primary" />
+                    <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                      Configuración
+                    </h4>
+                  </div>
+
+                  <div>
+                    <label
+                      className={`block text-xs font-medium mb-1.5 ${
+                        theme === "light" ? "text-gray-700" : "text-gray-300"
+                      }`}
+                    >
+                      Ícono del Menú <span className="text-red-400">*</span>
+                    </label>
+                    <IconSelector
+                      selectedIcon={formData.icon}
+                      onSelectIcon={(icon) => setFormData({ ...formData, icon })}
+                      label=""
+                      required={false}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className={`block text-xs font-medium mb-1.5 ${
+                        theme === "light" ? "text-gray-700" : "text-gray-300"
+                      }`}
+                    >
+                      Orden de Visualización
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.order}
+                      onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                        theme === "light"
+                          ? "bg-white border-gray-300 text-gray-900"
+                          : "bg-[#0f1621] border-white/10 text-white"
+                      }`}
+                      min="1"
+                    />
+                  </div>
+
+                  {showEditMenuModal && (
+                    <div>
+                      <label
+                        className={`block text-xs font-medium mb-1.5 ${
+                          theme === "light" ? "text-gray-700" : "text-gray-300"
+                        }`}
+                      >
+                        Menú Padre
+                      </label>
+                      <select
+                        value={formData.parent || ""}
+                        onChange={(e) => setFormData({ ...formData, parent: e.target.value || null })}
+                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                          theme === "light"
+                            ? "bg-white border-gray-300 text-gray-900"
+                            : "bg-[#0f1621] border-white/10 text-white"
+                        }`}
+                      >
+                        <option value="">Ninguno (Menú Principal)</option>
+                        {getParentMenus(selectedModule)
+                          .filter((m) => (selectedMenu ? m.id !== selectedMenu.id : true))
+                          .map((menu) => (
+                            <option key={menu.id} value={menu.id}>
+                              {menu.name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {showNewMenuModal && formData.parent && (
+                    <div
+                      className={`p-3 rounded-lg border ${
+                        theme === "light" ? "bg-blue-50 border-blue-200" : "bg-blue-500/10 border-blue-500/20"
+                      }`}
+                    >
+                      <p className={`text-xs ${theme === "light" ? "text-blue-900" : "text-blue-300"}`}>
+                        <strong>Submenú de:</strong> {menuItems.find((m) => m.id === formData.parent)?.name}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className={`flex items-center gap-3 p-3 rounded-lg border ${
+                    theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#0f1621] border-white/10"
+                  }`}>
+                    <input
+                      type="checkbox"
+                      id="isActive"
+                      checked={formData.isActive}
+                      onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                      className="w-4 h-4 rounded accent-primary"
+                    />
+                    <label
+                      htmlFor="isActive"
+                      className={`text-sm font-medium cursor-pointer ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}
+                    >
+                      Menú activo y visible
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Content */}
-            <div className={`p-6 space-y-5 max-h-[60vh] overflow-y-auto ${theme === "light" ? "bg-gray-50" : "bg-[#232d3f]"}`}>
-              {/* Tab: General */}
-              {activeModalTab === "basic" && (
-                <>
-                  {/* Sección: Datos del Menú */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <MenuIcon className={`w-4 h-4 ${theme === "light" ? "text-gray-700" : "text-white"}`} />
-                      <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                        Datos del Menú
-                      </h4>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label
-                          className={`block text-xs font-medium mb-1.5 ${
-                            theme === "light" ? "text-gray-700" : "text-gray-300"
-                          }`}
-                        >
-                          Nombre del Menú <span className="text-red-400">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                            theme === "light"
-                              ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                              : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                          }`}
-                          placeholder="Ej: Emisión de Facturas"
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          className={`block text-xs font-medium mb-1.5 ${
-                            theme === "light" ? "text-gray-700" : "text-gray-300"
-                          }`}
-                        >
-                          Descripción
-                        </label>
-                        <textarea
-                          value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          rows={2}
-                          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none ${
-                            theme === "light"
-                              ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                              : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                          }`}
-                          placeholder="Descripción breve del menú"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Tab: Configuración */}
-              {activeModalTab === "config" && (
-                <>
-                  {/* Sección: Configuración del Menú */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <SettingsIcon className={`w-4 h-4 ${theme === "light" ? "text-gray-700" : "text-white"}`} />
-                      <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
-                        Configuración del Menú
-                      </h4>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label
-                          className={`block text-xs font-medium mb-1.5 ${
-                            theme === "light" ? "text-gray-700" : "text-gray-300"
-                          }`}
-                        >
-                          Ícono del Menú <span className="text-red-400">*</span>
-                        </label>
-                        <IconSelector
-                          selectedIcon={formData.icon}
-                          onSelectIcon={(icon) => setFormData({ ...formData, icon })}
-                          label=""
-                          required={false}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label
-                            className={`block text-xs font-medium mb-1.5 ${
-                              theme === "light" ? "text-gray-700" : "text-gray-300"
-                            }`}
-                          >
-                            Ruta <span className="text-red-400">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={formData.path}
-                            onChange={(e) => setFormData({ ...formData, path: e.target.value })}
-                            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono ${
-                              theme === "light"
-                                ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                                : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                            }`}
-                            placeholder="/ruta"
-                          />
-                        </div>
-
-                        <div>
-                          <label
-                            className={`block text-xs font-medium mb-1.5 ${
-                              theme === "light" ? "text-gray-700" : "text-gray-300"
-                            }`}
-                          >
-                            Orden
-                          </label>
-                          <input
-                            type="number"
-                            value={formData.order}
-                            onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
-                            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                              theme === "light"
-                                ? "bg-white border-gray-300 text-gray-900"
-                                : "bg-[#0f1621] border-white/10 text-white"
-                            }`}
-                            min="1"
-                          />
-                        </div>
-                      </div>
-
-                      {showEditMenuModal && (
-                        <div>
-                          <label
-                            className={`block text-xs font-medium mb-1.5 ${
-                              theme === "light" ? "text-gray-700" : "text-gray-300"
-                            }`}
-                          >
-                            Menú Padre
-                          </label>
-                          <select
-                            value={formData.parent || ""}
-                            onChange={(e) => setFormData({ ...formData, parent: e.target.value || null })}
-                            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                              theme === "light"
-                                ? "bg-white border-gray-300 text-gray-900"
-                                : "bg-[#0f1621] border-white/10 text-white"
-                            }`}
-                          >
-                            <option value="">Ninguno (Menú Principal)</option>
-                            {getParentMenus(selectedModule)
-                              .filter((m) => (selectedMenu ? m.id !== selectedMenu.id : true))
-                              .map((menu) => (
-                                <option key={menu.id} value={menu.id}>
-                                  {menu.name}
-                                </option>
-                              ))}
-                          </select>
-                        </div>
-                      )}
-
-                      {showNewMenuModal && formData.parent && (
-                        <div
-                          className={`p-2.5 rounded-lg border ${
-                            theme === "light" ? "bg-blue-50 border-blue-200" : "bg-blue-500/10 border-blue-500/20"
-                          }`}
-                        >
-                          <p className={`text-xs ${theme === "light" ? "text-blue-900" : "text-blue-300"}`}>
-                            <strong>Submenú de:</strong> {menuItems.find((m) => m.id === formData.parent)?.name}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id="isActive"
-                          checked={formData.isActive}
-                          onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                          className={`w-4 h-4 rounded ${
-                            theme === "light" ? "bg-white border-gray-300" : "bg-[#1a2332] border-white/10"
-                          }`}
-                        />
-                        <label
-                          htmlFor="isActive"
-                          className={`text-xs ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}
-                        >
-                          Menú activo
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
+            {/* Footer */}
             <div
-              className={`flex items-center justify-end gap-3 px-5 py-3 border-t ${
-                theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#1a2332] border-white/10"
+              className={`flex items-center justify-end gap-3 px-6 py-4 border-t ${
+                theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#0d1520] border-white/10"
               }`}
             >
               <button
                 onClick={() => {
                   setShowNewMenuModal(false);
                   setShowEditMenuModal(false);
-                  setActiveModalTab("basic");
                 }}
                 className={`px-5 py-2 rounded-lg transition-colors text-sm font-medium ${
                   theme === "light"
