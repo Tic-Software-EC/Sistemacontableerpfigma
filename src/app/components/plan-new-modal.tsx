@@ -6,7 +6,6 @@ import {
   X,
   Save,
   Sparkles,
-  Percent,
 } from "lucide-react";
 import { useTheme } from "../contexts/theme-context";
 
@@ -21,8 +20,9 @@ interface PlanData {
   description: string;
   buttonColor: string;
   cardBorder: string;
-  annualDiscountPercent?: number;
-  durationMonths?: number;
+  hasDiscount?: boolean;
+  discountStartMonth?: number;
+  discountPercentage?: number;
 }
 
 interface PlanNewModalProps {
@@ -45,10 +45,11 @@ export function PlanNewModal({
     maxBranches: 1,
     maxCashRegisters: 1,
     description: "",
-    buttonColor: "bg-primary",
-    cardBorder: "border-primary",
-    annualDiscountPercent: 0,
-    durationMonths: 12,
+    buttonColor: "#E8692E",
+    cardBorder: "#E8692E",
+    hasDiscount: false,
+    discountStartMonth: 1,
+    discountPercentage: 0,
   });
 
   const [errors, setErrors] = useState({
@@ -84,8 +85,9 @@ export function PlanNewModal({
       description: formData.description,
       buttonColor: formData.buttonColor,
       cardBorder: formData.cardBorder,
-      annualDiscountPercent: formData.annualDiscountPercent,
-      durationMonths: formData.durationMonths,
+      hasDiscount: formData.hasDiscount,
+      discountStartMonth: formData.discountStartMonth,
+      discountPercentage: formData.discountPercentage,
     };
 
     onSave(newPlan);
@@ -99,10 +101,11 @@ export function PlanNewModal({
       maxBranches: 1,
       maxCashRegisters: 1,
       description: "",
-      buttonColor: "bg-primary",
-      cardBorder: "border-primary",
-      annualDiscountPercent: 0,
-      durationMonths: 12,
+      buttonColor: "#E8692E",
+      cardBorder: "#E8692E",
+      hasDiscount: false,
+      discountStartMonth: 1,
+      discountPercentage: 0,
     });
     setErrors({ name: "" });
   };
@@ -196,8 +199,8 @@ export function PlanNewModal({
             )}
           </div>
 
-          {/* Grid: Precio, Duración y Descuento */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Grid: Precio, Usuarios, Sucursales, Cajas */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Precio Mensual */}
             <div>
               <label
@@ -236,152 +239,6 @@ export function PlanNewModal({
               </div>
             </div>
 
-            {/* Duración en Meses */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "light" ? "text-gray-900" : "text-white"
-                }`}
-              >
-                Duración (Meses)
-              </label>
-              <input
-                type="number"
-                min="1"
-                step="1"
-                value={formData.durationMonths}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    durationMonths: parseInt(e.target.value) || 1,
-                  })
-                }
-                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                  theme === "light"
-                    ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                    : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                }`}
-                placeholder="12"
-              />
-            </div>
-
-            {/* Descuento (%) */}
-            <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "light" ? "text-gray-900" : "text-white"
-                }`}
-              >
-                Descuento (%)
-              </label>
-              <div className="relative">
-                <Percent
-                  className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
-                    theme === "light" ? "text-gray-600" : "text-gray-400"
-                  }`}
-                />
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={formData.annualDiscountPercent}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      annualDiscountPercent: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  className={`w-full pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                    theme === "light"
-                      ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-                      : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
-                  }`}
-                  placeholder="0"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Cálculo del Precio Total con Descuento */}
-          {formData.price > 0 && formData.durationMonths > 0 && (
-            <div
-              className={`border rounded-lg p-4 ${
-                theme === "light"
-                  ? "bg-blue-50 border-blue-200"
-                  : "bg-blue-500/10 border-blue-500/20"
-              }`}
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p
-                    className={`text-xs font-medium mb-1 ${
-                      theme === "light" ? "text-blue-800" : "text-blue-400"
-                    }`}
-                  >
-                    Precio Total (sin descuento)
-                  </p>
-                  <p
-                    className={`text-xl font-bold ${
-                      theme === "light" ? "text-blue-900" : "text-blue-300"
-                    }`}
-                  >
-                    ${(formData.price * formData.durationMonths).toFixed(2)}
-                  </p>
-                  <p
-                    className={`text-xs mt-0.5 ${
-                      theme === "light" ? "text-blue-700" : "text-blue-400"
-                    }`}
-                  >
-                    ${formData.price.toFixed(2)} × {formData.durationMonths}{" "}
-                    {formData.durationMonths === 1 ? "mes" : "meses"}
-                  </p>
-                </div>
-
-                {formData.annualDiscountPercent > 0 && (
-                  <div className={`border-l pl-4 ${
-                    theme === "light" ? "border-blue-300" : "border-blue-500/30"
-                  }`}>
-                    <p
-                      className={`text-xs font-medium mb-1 ${
-                        theme === "light" ? "text-green-800" : "text-green-400"
-                      }`}
-                    >
-                      Precio con {formData.annualDiscountPercent}% Descuento
-                    </p>
-                    <p
-                      className={`text-xl font-bold ${
-                        theme === "light" ? "text-green-900" : "text-green-300"
-                      }`}
-                    >
-                      $
-                      {(
-                        formData.price *
-                        formData.durationMonths *
-                        (1 - formData.annualDiscountPercent / 100)
-                      ).toFixed(2)}
-                    </p>
-                    <p
-                      className={`text-xs mt-0.5 ${
-                        theme === "light" ? "text-green-700" : "text-green-400"
-                      }`}
-                    >
-                      Ahorro: $
-                      {(
-                        (formData.price *
-                          formData.durationMonths *
-                          formData.annualDiscountPercent) /
-                        100
-                      ).toFixed(2)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Grid de Límites */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Usuarios Máximos */}
             <div>
               <label
@@ -488,6 +345,84 @@ export function PlanNewModal({
             </div>
           </div>
 
+          {/* Configuración de Descuento Personalizado */}
+          <div className={`p-4 rounded-lg border ${
+            theme === "light" ? "bg-gray-50 border-gray-200" : "bg-[#0f1621] border-white/10"
+          }`}>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className={`font-semibold text-sm ${theme === "light" ? "text-gray-900" : "text-white"}`}>
+                Descuento Personalizado
+              </h4>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, hasDiscount: !formData.hasDiscount })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  formData.hasDiscount ? "bg-primary" : theme === "light" ? "bg-gray-300" : "bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    formData.hasDiscount ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {formData.hasDiscount && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    theme === "light" ? "text-gray-900" : "text-white"
+                  }`}>
+                    A partir de mes
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="120"
+                    value={formData.discountStartMonth}
+                    onChange={(e) => setFormData({ ...formData, discountStartMonth: Math.max(1, parseInt(e.target.value) || 1) })}
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                      theme === "light"
+                        ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                        : "bg-[#1a2332] border-[#4a5f75] text-white placeholder:text-gray-500"
+                    }`}
+                    placeholder="6"
+                  />
+                  <p className={`text-xs mt-1 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                    Ej: 6 meses = descuento desde el mes 6
+                  </p>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    theme === "light" ? "text-gray-900" : "text-white"
+                  }`}>
+                    Porcentaje de Descuento
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.discountPercentage}
+                    onChange={(e) => {
+                      const value = Math.max(0, Math.min(100, parseInt(e.target.value) || 0));
+                      setFormData({ ...formData, discountPercentage: value });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                      theme === "light"
+                        ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                        : "bg-[#1a2332] border-[#4a5f75] text-white placeholder:text-gray-500"
+                    }`}
+                    placeholder="10"
+                  />
+                  <p className={`text-xs mt-1 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                    Porcentaje entre 0% y 100%
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Descripción */}
           <div>
             <label
@@ -512,7 +447,7 @@ export function PlanNewModal({
             />
           </div>
 
-          {/* Color del Plan */}
+          {/* Color del Plan (Hexadecimal) */}
           <div>
             <label
               className={`block text-sm font-medium mb-2 ${
@@ -521,39 +456,47 @@ export function PlanNewModal({
             >
               Color del Plan
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {colorOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() =>
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-12 h-12 rounded-lg border-2 flex-shrink-0 ${
+                  theme === "light" ? "border-gray-300" : "border-white/10"
+                }`}
+                style={{ backgroundColor: formData.buttonColor.startsWith('#') ? formData.buttonColor : '#E8692E' }}
+              />
+              <input
+                type="color"
+                value={formData.buttonColor.startsWith('#') ? formData.buttonColor : '#E8692E'}
+                onChange={(e) => {
+                  const hexColor = e.target.value;
+                  setFormData({
+                    ...formData,
+                    buttonColor: hexColor,
+                    cardBorder: hexColor,
+                  });
+                }}
+                className="w-16 h-12 bg-transparent border-2 rounded-lg cursor-pointer"
+              />
+              <input
+                type="text"
+                value={formData.buttonColor.startsWith('#') ? formData.buttonColor : '#E8692E'}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.match(/^#[0-9A-Fa-f]{0,6}$/)) {
                     setFormData({
                       ...formData,
-                      buttonColor: option.value,
-                      cardBorder: option.border,
-                    })
+                      buttonColor: value,
+                      cardBorder: value,
+                    });
                   }
-                  className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all border-2 ${
-                    formData.buttonColor === option.value
-                      ? `${option.border} ${theme === "light" ? "bg-gray-100" : "bg-white/10"}`
-                      : theme === "light"
-                      ? "border-gray-200 bg-white hover:bg-gray-50"
-                      : "border-white/10 bg-[#0f1621] hover:bg-white/5"
-                  }`}
-                >
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: option.color }}
-                  ></div>
-                  <span
-                    className={
-                      theme === "light" ? "text-gray-900" : "text-white"
-                    }
-                  >
-                    {option.label}
-                  </span>
-                </button>
-              ))
-            }
+                }}
+                className={`flex-1 px-3 py-2 border rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                  theme === "light"
+                    ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                    : "bg-[#0f1621] border-white/10 text-white placeholder:text-gray-500"
+                }`}
+                placeholder="#E8692E"
+                maxLength={7}
+              />
             </div>
           </div>
         </div>

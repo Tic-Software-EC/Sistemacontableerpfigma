@@ -9,6 +9,9 @@ export interface PlanConfig {
   description: string;
   features: string[];
   annualDiscountPercent?: number;
+  hasDiscount: boolean;
+  discountStartMonth: number;
+  discountPercentage: number;
 }
 
 export const PLAN_CONFIGS: Record<"free" | "standard" | "custom", PlanConfig> = {
@@ -27,7 +30,10 @@ export const PLAN_CONFIGS: Record<"free" | "standard" | "custom", PlanConfig> = 
       "Funcionalidades básicas",
       "Soporte por email"
     ],
-    annualDiscountPercent: 0
+    annualDiscountPercent: 0,
+    hasDiscount: false,
+    discountStartMonth: 1,
+    discountPercentage: 0
   },
   standard: {
     name: "standard",
@@ -44,7 +50,10 @@ export const PLAN_CONFIGS: Record<"free" | "standard" | "custom", PlanConfig> = 
       "Todas las funcionalidades",
       "Soporte prioritario"
     ],
-    annualDiscountPercent: 15
+    annualDiscountPercent: 15,
+    hasDiscount: true,
+    discountStartMonth: 6,
+    discountPercentage: 10
   },
   custom: {
     name: "custom",
@@ -61,6 +70,9 @@ export const PLAN_CONFIGS: Record<"free" | "standard" | "custom", PlanConfig> = 
       "Módulos personalizados",
       "Soporte 24/7 dedicado"
     ],
-    annualDiscountPercent: 20
+    annualDiscountPercent: 20,
+    hasDiscount: true,
+    discountStartMonth: 6,
+    discountPercentage: 15
   }
 };

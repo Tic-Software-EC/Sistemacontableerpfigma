@@ -158,14 +158,18 @@ export default function SubscriptionAdminPage() {
     adminPhone: "",
     adminPassword: "",
     companyDomain: "",
+    startDate: new Date().toISOString().split("T")[0],
     expiresAt: "",
     monthlyPrice: PLAN_CONFIGS.standard.price,
-    nextPayment: "",
+    nextPaymentDay: 1,
     autoRenewal: true,
     logo: "",
     primaryColor: "#E8692E",
     secondaryColor: "#0D1B2A",
     subscriptionMonths: 1,
+    hasDiscount: PLAN_CONFIGS.standard.hasDiscount,
+    discountStartMonth: PLAN_CONFIGS.standard.discountStartMonth,
+    discountPercentage: PLAN_CONFIGS.standard.discountPercentage,
   });
 
   const handlePlanChange = (newPlan: "free" | "standard" | "custom") => {
@@ -177,6 +181,9 @@ export default function SubscriptionAdminPage() {
       maxBranches: planConfig.maxBranches,
       maxCashRegisters: planConfig.maxCashRegisters,
       monthlyPrice: planConfig.price,
+      hasDiscount: planConfig.hasDiscount,
+      discountStartMonth: planConfig.discountStartMonth,
+      discountPercentage: planConfig.discountPercentage,
     });
   };
 
@@ -314,14 +321,18 @@ export default function SubscriptionAdminPage() {
       adminPhone: "",
       adminPassword: "",
       companyDomain: "",
+      startDate: new Date().toISOString().split("T")[0],
       expiresAt: "",
       monthlyPrice: PLAN_CONFIGS.standard.price,
-      nextPayment: "",
+      nextPaymentDay: 1,
       autoRenewal: true,
       logo: "",
       primaryColor: "#E8692E",
       secondaryColor: "#0D1B2A",
       subscriptionMonths: 1,
+      hasDiscount: false,
+      discountStartMonth: 6,
+      discountPercentage: 10,
     });
     setShowNewModal(true);
   };
@@ -372,9 +383,10 @@ export default function SubscriptionAdminPage() {
       adminPhone: (company as any).adminPhone || "",
       adminPassword: "",
       companyDomain: (company as any).companyDomain || "",
+      startDate: (company as any).startDate || new Date().toISOString().split("T")[0],
       expiresAt: company.expiresAt,
       monthlyPrice: company.monthlyPrice,
-      nextPayment: company.nextPayment,
+      nextPaymentDay: 1,
       autoRenewal: company.autoRenewal,
       logo: company.logo || "",
       primaryColor: company.primaryColor || "#E8692E",
