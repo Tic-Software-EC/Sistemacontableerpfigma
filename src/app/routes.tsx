@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import RootLayout from "./components/root-layout";
 import { Login } from "./pages/login";
+import { ResetPassword } from "./pages/reset-password";
 import { LoginBrandProvider } from "./contexts/brand-context";
 import ModulesPage from "./pages/modules";
 import ModuleConfigDetailPage from "./pages/module-config-detail";
@@ -35,6 +36,12 @@ export const router = createBrowserRouter([
             <Login />
           </LoginBrandProvider>
         ),
+      },
+
+      // ── Cambio de Contraseña ───────────────────────────────────────────────
+      {
+        path: "/reset-password",
+        element: <ResetPassword />,
       },
 
       // ── Panel Super Admin ──────────────────────────────────────────────────

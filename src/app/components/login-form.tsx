@@ -44,6 +44,10 @@ export function LoginForm() {
   const handleForgotPassword = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Generar un token de ejemplo
+    const resetToken = btoa(`${forgotEmail}-${Date.now()}`).substring(0, 32);
+    const resetLink = `${window.location.origin}/reset-password?token=${resetToken}`;
+    
     console.log("=== SIMULACIÓN DE ENVÍO DE EMAIL PARA RESETEO ===");
     console.log("Para:", forgotEmail);
     console.log("Asunto: Recuperación de Contraseña - TicSoftEc");
@@ -51,21 +55,24 @@ export function LoginForm() {
     console.log(`Estimado usuario,\n`);
     console.log(`Hemos recibido una solicitud para restablecer su contraseña en TicSoftEc.\n`);
     console.log("Para crear una nueva contraseña, haga clic en el siguiente enlace:\n");
-    console.log("[ENLACE DE RESETEO]\n");
-    console.log("Este enlace expirará en 24 horas por seguridad.\n");
+    console.log(resetLink);
+    console.log("\nEste enlace expirará en 24 horas por seguridad.\n");
     console.log("Si no solicitó este cambio, ignore este mensaje.\n");
     console.log("Saludos cordiales,");
     console.log("Equipo TicSoftEc");
     console.log("===============================================\n");
+    console.log("NOTA: Para probar, copia y pega este enlace en tu navegador:");
+    console.log(resetLink);
+    console.log("===============================================\n");
     
     setEmailSent(true);
     
-    // Cerrar el modal después de 3 segundos
+    // Cerrar el modal después de 5 segundos
     setTimeout(() => {
       setShowForgotModal(false);
       setEmailSent(false);
       setForgotEmail("");
-    }, 3000);
+    }, 5000);
   };
 
   return (
