@@ -169,16 +169,26 @@ export function LoginForm() {
                 
                 
               </label>
-              <a
-                href="#"
-                className="block w-full text-center text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowForgotModal(true);
-                }}
-              >
-                ¿Olvidaste tu contraseña?
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  href="#"
+                  className="text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowForgotModal(true);
+                  }}
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
+                <button
+                  type="button"
+                  onClick={() => navigate("/reset-password?token=demo")}
+                  className="px-2.5 py-1 bg-primary/10 hover:bg-primary/20 text-primary rounded-md transition-all text-xs font-semibold border border-primary/30 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20"
+                  title="Ir a restablecer contraseña"
+                >
+                  Restablecer
+                </button>
+              </div>
             </div>
 
             {/* Botón Login */}
